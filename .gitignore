@@ -1,0 +1,19 @@
+# No binary files of the game server / client in this repo (NC Soft copyright)
+*.rar
+*.zip
+*.7z
+*.bak
+*.mdf
+*.ldf
+*.iso
+*.exe
+*.dll
+*.pdb
+*.map
+*.dmp
+*.vmdk
+*.vdi
+*.raw
+# but allow .exe/.bat/.ps1 in scripts/
+!scripts/*.ps1
+!scripts/*.bat
