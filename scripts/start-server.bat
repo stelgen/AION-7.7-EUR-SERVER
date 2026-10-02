@@ -1,59 +1,82 @@
 @echo off
-REM =================================================================
-REM AION 7.7 PTS EU - Auto-start all server components (ordered)
-REM Run as administrator! (Right-click -> Run as administrator)
-REM Stack: AccountCacheServer -> L2Authd -> AuthGateD -> LogServer64
-REM        -> CacheD64 -> NPCSvr64 (10 min) -> Server64 (via RunAsDate)
-REM =================================================================
+REM =====================================================
+REM  AION 7.7 PTS EU - START (smart: не дублирует процессы)
+REM  Запускать КАК АДМИНИСТРАТОР. Ордер критичен.
+REM  В конце: NPCSvr грузится 10-15 мин, потом жми RUN в RunAsDate.
+REM =====================================================
+setlocal
 set SRV=D:\AION_LIVE_SERVER
-set DSN=C:\DSN
 
-echo [1/7] AccountCacheServer (port 2220)...
-schtasks /Run /TN "AionAcc" 2>nul
-if errorlevel 1 (cd /d "%SRV%\AccountCacheServer" && start AccountCacheServer.exe)
-timeout /t 10 /nobreak >nul
+echo [1/9] AccountCacheServer (порт 2220)...
+call :STARTTASK "AionAcc"  "AccountCacheServer.exe" "%SRV%\AccountCacheServer" 10
 
-echo [2/7] L2Authd / AuthD (ports 2104, 2108, 2110)...
-schtasks /Run /TN "AionAuth" 2>nul
-if errorlevel 1 (cd /d "%SRV%\AuthD" && start L2Authd.exe)
-timeout /t 10 /nobreak >nul
+echo [2/9] L2Authd (2104/2108/2110)...
+call :STARTTASK "AionAuth" "L2Authd.exe"            "%SRV%\AuthD"              8
 
-echo [3/7] AuthGateD (port 2106 - client entry)...
-schtasks /Run /TN "AionGate" 2>nul
-if errorlevel 1 (cd /d "%SRV%\AuthGateD" && start AuthGateD.exe)
-timeout /t 10 /nobreak >nul
+echo [3/9] AuthGateD (2106 - точка входа клиентов)...
+call :STARTTASK "AionGate" "AuthGateD.exe"          "%SRV%\AuthGateD"          8
 
-echo [4/7] LogServer64 (port 2051)...
-schtasks /Run /TN "AionLog" 2>nul
-if errorlevel 1 (cd /d "%SRV%\LogServer" && start LogServer64.exe)
-timeout /t 10 /nobreak >nul
+echo [4/9] LogServer64 (2051)...
+call :STARTTASK "AionLog"  "LogServer64.exe"        "%SRV%\LogServer"          8
 
-echo [5/7] CacheD64 (ports 2006, 2007 - world cache)...
-schtasks /Run /TN "AionCache" 2>nul
-if errorlevel 1 (cd /d "%SRV%\CacheServer" && start CacheD64.exe)
-timeout /t 30 /nobreak >nul
+echo [5/9] CacheD64 (2006/2007, грузит данные ~20 c)...
+call :STARTTASK "AionCache" "CacheD64.exe"          "%SRV%\CacheServer"        25
 
-echo [6/7] NPCSvr64 (spawns/scripts, ~10 min loading, up to 10 GB RAM)...
-schtasks /Run /TN "AionNPC" 2>nul
-if errorlevel 1 (cd /d "%SRV%\NPCServer" && start NPCSvr64.exe)
-timeout /t 90 /nobreak >nul
+echo [6/9] ICServer (Interchange/Channel 2005/2305)...
+call :STARTTASK "AionICSrv" "ICServer.exe"          "%SRV%\ICServer"           8
 
-echo [7/7] Server64 via RunAsDate (system time override to 04-06-2020)...
-schtasks /Run /TN "AionRAD" 2>nul
-if errorlevel 1 (cd /d "%SRV%\MainServer\runasdate-x64" && start RunAsDate.exe)
-timeout /t 10 /nobreak >nul
+echo [7/9] CAPTCHAImageServer (22206)...
+call :STARTTASK "AionCAPTCHA" "CAPTCHAImageServer.exe" "%SRV%\CAPTCHAImageServer" 5
+
+echo [8/9] NPCSvr64 (грузится 10-15 минут, ~15 ГБ RAM)...
+call :STARTTASK "AionNPC"  "NPCSvr64.exe"           "%SRV%\NPCServer"          15
+
+echo [9/9] RunAsDate для Server64...
+tasklist /FI "IMAGENAME eq Server64.exe" 2>nul | find /I "Server64.exe" >nul
+if %errorlevel%==0 (
+  echo   [SKIP] Server64 уже работает
+) else (
+  schtasks /Change /TN "AionRAD" /ENABLE >nul 2>&1
+  schtasks /Run /TN "AionRAD" >nul 2>&1
+  schtasks /Change /TN "AionRAD" /DISABLE >nul 2>&1
+  echo   [GO] Открыл RunAsDate. Если окно не видно - смотри консоль VM.
+  echo   [RUN] Нажми кнопку RUN - DateTime 04-06-2020 16:28:23 - ПОСЛЕ загрузки NPCSvr!
+)
 
 echo.
-echo =====================================================
-echo  Server launched!
-echo  Game port: 7777, login: 2106
-echo  Client start: start bin64\aion.bin -ip:VM_IP -port:2106 -cc:2 ...
-echo  Stop: stop-server.bat
-echo =====================================================
+echo ===== СВОДКА ПОРТОВ =====
+netstat -ano | findstr LISTENING | findstr /C:":2220 " /C:":2104 " /C:":2106 " /C:":2051 " /C:":2006 " /C:":2005 " /C:":22206 " /C:":7777 "
 echo.
-echo NOTE: if SQL Login dialog appears - enter:
-echo   File DB: %DSN%\aionworld_new.dsn   (or other dsn name from dialog)
-echo   Login:   sa
-echo   Password: 123
+echo Память:
+wmic OS get FreePhysicalMemory,FreeVirtualMemory /value | findstr "="
 echo.
+echo Готово. NPCSvr догружается сам; Server64 стартует кнопкой RUN в RunAsDate.
 pause
+goto :eof
+
+:STARTTASK
+REM %1=задача %2=процесс %3=рабочий каталог %4=секунд ожидания
+tasklist /FI "IMAGENAME eq %~2" 2>nul | find /I "%~2" >nul
+if %errorlevel%==0 (
+  echo   [SKIP] %~2 уже запущен - не дублирую
+  goto :eof
+)
+echo   [START] %~2 через задачу %~1...
+schtasks /Change /TN %~1 /ENABLE >nul 2>&1
+schtasks /Run   /TN %~1 >nul 2>&1
+timeout /t 8 /nobreak >nul
+schtasks /Change /TN %~1 /DISABLE >nul 2>&1
+tasklist /FI "IMAGENAME eq %~2" 2>nul | find /I "%~2" >nul
+if %errorlevel%==0 (
+  echo   [OK] %~2 поднят
+  goto :wait
+)
+echo   [FALLBACK] задачей не поднялся - стартую напрямую из %~3
+pushd %~3
+start "" %~2
+popd
+:wait
+timeout /t %~4 /nobreak >nul
+tasklist /FI "IMAGENAME eq %~2" 2>nul | find /I "%~2" >nul
+if %errorlevel%==0 ( echo   [OK] %~2 работает ) else ( echo   [FAIL] %~2 НЕ поднялся - смотри log в %~3\log\ )
+goto :eof
