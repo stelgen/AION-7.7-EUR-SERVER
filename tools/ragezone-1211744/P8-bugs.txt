@@ -1,0 +1,15 @@
+missing Proc
+exec Log_TblGameWorldInfo_UpdateMainStatus 
+exec aion_GetItemCollectionLevelList 
+aion_GetItemCollectionList
+aion_GetItemCollectionExpiredList
+aion_GetItemCollectionCompleteTimeLimitList
+aion_GetItemCollectionCompleteList
+aion_LoadReinventInfo'。
+23-12-10 02:19:48:({call aion_LoadFameInfo(3003)})42000:[Microsoft][ODBC SQL Server Driver][SQL Server]找不到存储过程 'aion_LoadFameInfo'。
+other problem missing
+error aionaccdeldb.dbo.del_account
+过程或函数 'aion_SetLastTransformId' 需要参数 '@last_collection_id'，但未提供该参数。
+表 'user_item_sealed' 的索引 'IX_user_item_sealed_char_id' (在 FROM 子句中指定)不存在。
+
+
