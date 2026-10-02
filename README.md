@@ -14,6 +14,7 @@
 | [docs/ports.md](docs/ports.md) | Карта портов всего стека |
 | [docs/links.md](docs/links.md) | Легальные ссылки на скачиваемое (MS ISO/SDK/VC++, archive.org ISO, RaGEZONE-гайды) |
 | [docs/fixes-community.md](docs/fixes-community.md) | **Community-фиксы из RaGEZONE-треда (2024-2025)**: Server64 date-patch, manastones SQL, CacheD64-fix, version.dll, БД 5.8 |
+| `scripts/apply-community-fixes.ps1` | Применение скачанных фикс-файлов с RaGEZONE: Server64.7z (пatch date), SQL manastones-fix |
 | `scripts/prep-vm.ps1` | Твики VM: zram (Memory Compression), NCSI-off, тёмная тема, деблоат, DisableCAD |
 | `scripts/install-prereqs.ps1` | Тихая установка: VC++ 2010–2022, 7-Zip, SQL Native Client 11.0, SSMS (опц.) |
 | `scripts/install-sql2022.ps1` | Тихая установка SQL Server 2022 Developer (в обход бага 2017 RTM) |
