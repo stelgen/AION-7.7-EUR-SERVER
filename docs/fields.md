@@ -78,3 +78,12 @@ DateTime=04-06-2020 16:28:23   (дата билда Server64.exe)
 DateTimeMode=1, AddTimeUnit=4, AddTimeValue=-1
 ```
 Жмёшь **RUN** — Server64 запускается с подменённым временем. Без этого — `invalid system time` → отказ старта.
+
+## Запуск клиента через AionLauncher (EU 7.7 клиент)
+- Клиент стартует `AionLauncher.exe`, параметры он читает из файла **`launcher.config`** (одна строка).
+- Правильная строка для нашего сервера:
+  `-ip:192.168.0.125 -port:2106 -cc:2 -win10-mouse-fix -noweb -nowebshop -nokicks -ncg -noauthgg -ls -charnamemenu -ingameshop`
+- ⚠️ В ките стоял `-port:2105` — порт никем не слушается, логин «не работает». Наш AuthGateD: **2106**.
+- Аккаунт создаётся автоматически при первом логине (авторегистрация, как в 4.6).
+- Быстрая проверка досягаемости с ПК клиента: `Test-NetConnection 192.168.0.125 -Port 2106`.
+- Прямой запуск без лаунчера: `bin64\aion.exe` с теми же ключами (PowerShell требует `.\bin64\aion.exe`; aion.bin руками не открывать).
