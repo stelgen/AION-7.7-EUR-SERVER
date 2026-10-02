@@ -35,6 +35,17 @@ call :STOPPROC "L2Authd.exe" 5
 echo [9/9] AccountCacheServer...
 call :STOPPROC "AccountCacheServer.exe" 5
 
+echo [10/10] Чистка *.err логов (процессы остановлены - файлы свободны)...
+set SRV=D:\AION_LIVE_SERVER
+set DELCNT=0
+for /d %%D in ("%SRV%\*") do (
+  if exist "%%D\log" for %%F in ("%%D\log\*.err") do (
+    del /q "%%F" 2>nul
+    set /a DELCNT+=1
+  )
+)
+echo   [OK] Удалено *.err: %DELCNT% (создадутся заново при старте; растут гигами больше не будут)
+
 echo.
 echo ===== Остатки игровых процессов =====
 tasklist | findstr /I "Server64 NPCSvr64 LogServer64 CacheD64 AccountCacheServer L2Authd AuthGateD ICServer CAPTCHAImageServer RunAsDate"
