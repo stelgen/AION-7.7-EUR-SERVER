@@ -1,13 +1,33 @@
 @echo off
-REM waits for L2Authd after boot, then starts AuthGateD with retry
-ping -n 76 127.0.0.1 >nul
+setlocal enabledelayedexpansion
+REM === gate.bat v3: wait L2Authd(2104) -> start -> wait 2107 -> retry ===
+set TRY=0
+:authw
+netstat -ano | findstr ":2104" | findstr "LISTENING" >nul
+if %errorlevel%==0 goto authok
+set /a TRY+=1
+if !TRY! GTR 40 (echo [FAIL] L2Authd 2104 not up & goto :eof)
+ping -n 6 127.0.0.1 >nul
+goto authw
+:authok
 cd /d D:\AION_LIVE_SERVER\AuthGateD
 start AuthGateD.exe
-ping -n 11 127.0.0.1 >nul
-tasklist /FI "IMAGENAME eq AuthGateD.exe" | find /I "AuthGateD.exe" >nul
-if %errorlevel%==0 goto done
+set TRY=0
+:gw
+netstat -ano | findstr ":2107" | findstr "LISTENING" >nul
+if %errorlevel%==0 goto gok
+set /a TRY+=1
+if !TRY! GTR 20 goto gkill
+ping -n 9 127.0.0.1 >nul
+goto gw
+:gkill
+set /a TRY+=1
+if !TRY! GTR 3 (echo [FAIL] AuthGateD 2107 not up & goto :eof)
+echo [RETRY] AuthGateD restart
+taskkill /F /IM AuthGateD.exe >nul 2>&1
+ping -n 6 127.0.0.1 >nul
 start AuthGateD.exe
-ping -n 11 127.0.0.1 >nul
-:done
-tasklist /FI "IMAGENAME eq AuthGateD.exe" | find /I "AuthGateD.exe" >nul
-if %errorlevel%==0 (echo [OK] AuthGateD) else (echo [FAIL] AuthGateD)
+set TRY=0
+goto gw
+:gok
+echo [OK] AuthGateD listening 2107
