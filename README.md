@@ -173,7 +173,7 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 
 ## 🎮 Клиенты
 
-**✅ РЕШЕНО**: клиенты западной линейки логинятся **с флагами `-loginex -pwd16`** (классический протокол + пароль как MD5-хеш — сходится с БД `user_auth.password binary(16)`)! Без них клиент шлёт портал-сессию (`sessionId=0`) → гейт рвёт. Полная рабочая строка запуска: [docs/findings-log.md §10](docs/findings-log.md).
+**✅ РЕШЕНО**: клиенты западной линейки логинятся **с флагами `-loginex -pwd16`** (классический протокол + пароль как MD5-хеш — сходится с БД `user_auth.password binary(16)`)! Без них клиент шлёт портал-сессию (`sessionId=0`) → гейт рвёт. Готовые батники: [scripts/client/ru-server.bat](scripts/client/ru-server.bat) (Innova/4game) + разбор каждого флага: [docs/launch-flags.md](docs/launch-flags.md).
 
 | Клиент | cc (аргумент `-cc:`) | Вердикт |
 |---|---|---|
@@ -216,6 +216,10 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 | [tools/ragezone-1211744/](tools/ragezone-1211744/README.md) | Скачанные community-фиксы (Server64 #180, LogServer патчи, SQL) с SHA256 |
 | `scripts/sql/` | SQL-фиксы (идемпотентные) |
 | `scripts/client/AION-CLIENT.bat` | Лаунчер клиента с автопоиском bin64 |
+| [scripts/client/ru-server.bat](scripts/client/ru-server.bat) | **Рабочий запуск RU-клиента** (Innova/Frost, проверен) |
+| [docs/launch-flags.md](docs/launch-flags.md) | **Разбор всех флагов клиента**: что делает, зачем, что будет без него |
+| [scripts/proxy/](scripts/proxy/README.md) | MITM-прокси логгер AuthGateD (python, hex-дамп пакетов) |
+| tools/analysis/ | Дизасм AuthGateD (62k строк) + .map — для будущих патчей |
 | `scripts/restart-all-services.ps1` | Health-check: поднимает упавшее (schtasks-only), порт-сводка |
 
 ## 📜 Источники
