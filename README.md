@@ -199,6 +199,7 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 | [docs/roadmap.md](docs/roadmap.md) | Роадмап: этапы восстановления БД, Ghidra-патчи, ops |
 | [docs/fields.md](docs/fields.md) | Все поля всех диалогов + launcher.config клиента |
 | [docs/errors.md](docs/errors.md) | Ошибка → причина → фикс |
+| [docs/server-internals.md](docs/server-internals.md) | **Как работает сервер**: кто к кому обращается, порты, конфиги, заглушки, что не копали |
 | [docs/ports.md](docs/ports.md) / [docs/nat-ports.md](docs/nat-ports.md) | Карта портов / проброс за NAT |
 | [fixes-pending/](fixes-pending/README.md) | Очередь фиксов по папкам (каждый двигается отдельно) |
 | [tools/ragezone-1211744/](tools/ragezone-1211744/README.md) | Скачанные community-фиксы (Server64 #180, LogServer патчи, SQL) с SHA256 |
