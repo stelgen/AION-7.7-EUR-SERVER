@@ -75,10 +75,11 @@ if ($p.ExitCode -eq 0) {
   $c = $cn.CreateCommand()
   $c.CommandText = "EXEC sys.sp_configure 'show advanced options',1; RECONFIGURE;"
   $c.ExecuteNonQuery() | Out-Null
-  # max server memory: 4096 МБ на 16 ГБ RAM → 12288 МБ на 32 ГБ (подставь своё)
-  $c.CommandText = "EXEC sys.sp_configure 'max server memory (MB)',12288; RECONFIGURE;"
+  # max server memory: 2048 МБ — ПРОВЕРЕНО на практике: Server64 ~10 ГБ + NPCSvr ~15 ГБ;
+  # больше SQL отжимать нельзя — commit-исчерпание молча убивает игровые процессы
+  $c.CommandText = "EXEC sys.sp_configure 'max server memory (MB)',2048; RECONFIGURE;"
   $c.ExecuteNonQuery() | Out-Null
-  Write-Host "max server memory = 12288 МБ (настроить под свою RAM)"
+  Write-Host "max server memory = 2048 МБ (проверенный лимит; поднимать только вместе с RAM VM 32+ ГБ)"
   $cn.Close()
 } else {
   Write-Host "SETUP FAILED — смотри Summary.txt" -ForegroundColor Red
