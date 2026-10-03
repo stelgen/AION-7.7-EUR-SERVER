@@ -110,7 +110,36 @@ reg delete "HKLM\SOFTWARE\NC Soft\AION\CacheD" /f
 **Причина**: не всегда Add-Type принимает PowerShell heredoc с C# кодом (спорные кавычки/подстановки).
 **Фикс**: писать `.cs`-файл в C:\Temp через `[IO.File]::WriteAllText($path, $code, [Text.Encoding]::ASCII)` и подключать через `Add-Type -Path $cs`.
 
-## 14. Из треда RaGEZONE (фьючерс-хинты)
+## 14. Цепочка логина не проходит: `Session id mismatched.(RecvLogin) sessionId:0, m_iSessionId:1` → сервер RST, клиент «вы были отключены от сервера»
+
+**Расследование (pktmon + netmon + логи AuthGateD):**
+- Клиент ДОХОДИТ до AuthGateD: TCP-рукопожатие ОК, сервер шлёт welcome ~248 байт, клиент 88, сервер 96, клиент шлёт логин 240 байт, сервер отвечает **RST**.
+- В логе: `[WARN] Session id mismatched.(RecvLogin) sessionId:0, m_iSessionId:1` — клиент шлёт sessionId=0.
+- При `loginType=1`: `[WARN] Disallowed gamesession login (current logintype: 1)` — клиент шлёт именно gamesession-логин.
+- Клиент-дамп: при логин-форме живы `AionCefProcess` (несколько штук) — западный клиент логинится через CEF-портал.
+
+**Причина**: клиент западной линейки (EN, `7720.0603.1118.16350`, `AION GameClient`/`AION.exe`) берёт session id из **портал-сессии** (как в retail), а не из handshake AuthGateD. Портала нет → sessionId=0 → всегда mismatch.
+**Фикс**: клиент линейки CN/KR PTS (`7720.0601.x`, классический логин). Портал-эмуляция — отдельный проект (см. roadmap). Дополнительно: при смене `loginType` конфиг не читается до рестарта AuthGateD (рестарт обязателен, включая полную остановку процесса, а не только Run).
+
+## 15. Brute-блок AuthGateD: `tryCount=20 / tryInterval=60 / tryBlockInterval=120`
+
+Причина «мгновенно отключен» после серии быстрых повторов логина. Сброс — рестарт AuthGateD. Свои тесты TCP (не через клиент) тоже могут подмешиваться в счётчики.
+
+## 16. Консоль NC Soft-компонентов не пишется в редирект stdout
+
+NCsoft-компоненты (AuthGateD, PAServer) пишут консоль через console-API — `> file.log` остаётся пустым. Читабельная телеметрия: `AuthGateD\log\*.NN.log` (события), `AuthD\etc\log\*.winlog/*.packet` (пакеты Auth↔World, счётчики WebLoginTry/ClientLoginTry), `dumpPacket=true` в config.txt (дампы пакетов).
+
+## 17. Портал-архитектура PA (PAServer = 01-PAServer7.7.exe)
+
+- `AuthD\etc\config.txt`: `UsePAServer=true`, `PAConnectionCount=2`, `PAIP_1=127.0.0.1:10057`, `PAIP_2` — в ките `127.0.0.2` (битый второй мост) → исправлено на `127.0.0.1`.
+- PAServer без config.txt поднимает только `127.0.0.1:10057` (внутренний). Полный config.txt для PA в ките отсутствует (FliesQQ #119 описывает: там connection config + имя таблицы аккаунтов, по умолчанию AionAccounts).
+- В логе L2Authd после фикса: `*new PAServer connection from 127.0.0.1:10057` ×2 — оба моста живы.
+
+## 18. Логи Server64 лежат в `2020-06-04.err` (не в сегодняшней дате!)
+
+RunAsDate подменяет время внутри процесса → файлы логов Server64 создаются с датой 2020-06-04. Не путать с сегодняшними при поиске свежих ошибок. Крэш-отчёты: `MainServer\AIONErr.txt`.
+
+## 19. Из треда RaGEZONE (фьючерс-хинты)
 
 - `Game server not registered with authentication server 6` — auth-сервер не зарегистрировал game-server: бэкап БД требует обновления (в обновлённой сборке с треда это пофикшено).
 - `The client's regional code is not compatible with the game server` — `country` в конфигах не совпадает с `cc:` в клиенте (см. [fields.md](fields.md)).

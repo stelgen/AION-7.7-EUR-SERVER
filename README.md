@@ -121,12 +121,19 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 
 При первом запуске большинство компонентов показывает `SQL Login` / `L2 ODBC Connection Info`:
 
-| Поле | Ввод |
-|---|---|
-| Login ID / User | **sa** |
-| Password | **123** |
-| Server | `(local)` |
-| Database / File DSN | `C:\DSN\<имя>.dsn` — полный путь; **можно без расширения `.dsn`**; путь ≤ 76 симв |
+| Окно (компонент) | Поле | Формат, который принял компонент |
+|---|---|---|
+| «SQL Login» — AccountCacheServer | File DB: `aion_accoutdb` | полный путь **БЕЗ** `.dsn` (`C:\...\aion_accoutdb`) + `sa/123` — поле обрезается на ~76 симв, с `.dsn` путь становился 77+ и портился `\u0001`-байтом |
+| «SQL Login» — CacheD64 | File DB: `aionworld_new` | так же — **БЕЗ** `.dsn` |
+| «L2 ODBC Connection Info» — L2Authd | File DSN: `L2Conn` | полный путь **С** `.dsn` (путь короткий, влез в лимит) |
+
+Правило простое: держи все DSN в `C:\DSN\` — тогда любой путь влезает даже с расширением. Если диалог не принимает файл с расширением — убери `.dsn` на конце.
+
+Во ВСЕХ окнах вводим:
+- **Login ID / User**: `sa`
+- **Password**: `123`
+
+Пароль сменён с заводского `Wutian520` на единый `123` — прошит во все DSN-файлы, конфиги и скрипты репо. Упоминания `Wutian520` в кит-гайдах/комьюнити-постах — история (заводской пароль оригинальных бэкапов).
 
 - После первого успешного коннекта зашифрованный `connStr` сохраняется в `HKLM\SOFTWARE\NC Soft\AION\<Component>` и больше не спрашивается. Если диалог замучил — удали ключ компонента и введи заново.
 - Компонент ↔ его БД: AccountCacheServer→`AionAccountCacheD_rc`(+`AionAccounts`), L2Authd→`AionAccounts`(`L2Conn.dsn`), CacheD64→`_AionWorldNew114_rc`+`AionAccountCacheD_rc`, LogServer64→`Aion_log`(`aiongm.dsn`), Server64→`_AionWorldNew114_rc`.
@@ -178,7 +185,9 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 - Проверка версии после установки: `(Get-Item bin64\Aion.bin).VersionInfo` — хотим семейство `7720.0601.x`.
 - Запуск: `bin64\Aion.bin -ip:<IP_сервера> -port:2106 -cc:<см.таблицу> -noauthgg -megaphone -webpetition -ncping -f2p -win10-mouse-fix`. EU-клиент запускается через `AionLauncher.exe`, который читает `launcher.config` (правится там, **порт 2106**, в ките стоял нерабочий 2105).
 - Аккаунт создаётся автоматически при первом логине.
-- Клиенты: папка `aion 7.x` публичного диска кита (см. [docs/links.md](docs/links.md)) + зеркало-торренты GitHub `MrHousek/AionClients`.
+- **Где качать клиентов**:
+  - Публичный диск кита: <https://disk.360.yandex.ru/client/aa/d_8r46o43ZR7x-Lw> → папка `Clients/aion 7.x` (внутри: AION_KR 7.7, aion chs 7.9, aion rus 7.7/7.9, euro_aion 7.7, AION Free-to-Play 7.2/7.9, aion 7.5) — режим «только просмотр», скачивание через приложение Яндекс 360;
+  - Зеркало-торренты: <https://github.com/MrHousek/AionClients> (cc-таблица автора: 0=KR, 2=EURO/F2P, 4=JP, 5=CHA, 7=RUS).
 
 ---
 
