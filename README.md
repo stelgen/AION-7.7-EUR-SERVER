@@ -210,6 +210,7 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 | [docs/errors.md](docs/errors.md) | Ошибка → причина → фикс |
 | [docs/server-internals.md](docs/server-internals.md) | **Как работает сервер**: кто к кому обращается, порты, конфиги, заглушки, что не копали |
 | [docs/findings-log.md](docs/findings-log.md) | **Журнал расследования логина**: патчи AuthGateD p1–p5 (что сломалось и почему), протокол (RSA+блочный шифр), теория клиентов, 5 путей решения |
+| [docs/auth-server-internals.md](docs/auth-server-internals.md) | **Сервер авторизации детально**: схема, процедуры БД с сигнатурами, таблицы, где какая логика, шансы решений |
 | [docs/ports.md](docs/ports.md) / [docs/nat-ports.md](docs/nat-ports.md) | Карта портов / проброс за NAT |
 | [fixes-pending/](fixes-pending/README.md) | Очередь фиксов по папкам (каждый двигается отдельно) |
 | [tools/ragezone-1211744/](tools/ragezone-1211744/README.md) | Скачанные community-фиксы (Server64 #180, LogServer патчи, SQL) с SHA256 |
