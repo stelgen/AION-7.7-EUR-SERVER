@@ -125,3 +125,21 @@ Procedures в `AionAccounts` (все с сигнатурами вытащены)
 | 6 | Даунгрейд на 4.6-кит | кит 4.6 + 4.6-клиент | **90%** | потеря 7.7 контента |
 
 Рекомендация: минутный тест chs 7.9 → параллельно качать CN-клиент 7.7 → при провалах реверс парсера гейта.
+
+## 10. 🏆 РЕШЕНИЕ НАЙДЕНО: флаги -loginex -pwd16 (03.10.2026, 08:36)
+
+**ЛОГИН ПРОЙДЕН** (ru-клиент Innova через Frost-обёртку):
+- сервер: аккаунт создан `uid=1010 stelgen` (авторегистрация!), `ClientLoginTry : 1`, OTP-фаза пропущена («user forgot otp status» — безвредно), auth-ответ 74 байта выдан, сессия пинговалась (26b пакеты).
+
+**Рабочая строка запуска (ru-клиент, Innova 4game)** — файл `server.bat` в корне клиента:
+```bat
+@echo off
+cd /d "%~dp0\bin64\Frost"
+start Aion.exe -ip:<IP_сервера> -port:2106 -cc:7 -noauthgg -noweb -nobs -ls -charnamemenu -lbox -nologout -customizing -megaphone -nwp -ncping -f2p -localtime -rcdelay:5 -loginex -pwd16 -multithread -frostGame "..\..\bin64\aion.bin" -frostOptions 7 -frostGameNameType aion_live
+```
+**Ключевые флаги**: `-loginex` (классический протокол LoginEx вместо портал-сессии) + `-pwd16` (пароль = MD5-хеш 16 байт — СХОДИТСЯ с БД `user_auth.password binary(16)`) — БЕЗ них клиент шлёт портал-сессию (sessionId=0) и гейт рвёт соединение.
+
+Для euro-клиента: те же флаги добавить в `launcher.config` (`-loginex -pwd16`), IP/порт там же.
+
+**Почему мы раньше не увидели**: во всех попытках клиент шлал логин портал-формата (sessionId=0) → гейт рвал по сессии. Флаги включают классический путь. Патчи гейта (p1–p5) оказались не нужны — все сняты, работает ОРИГИНАЛЬНЫЙ AuthGateD (+ прокси-логер остаётся для анализа).
+
