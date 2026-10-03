@@ -92,3 +92,36 @@ Procedures в `AionAccounts` (все с сигнатурами вытащены)
 - VM: `C:\Temp\AuthGateD_p1..p5.exe` (патчи), `AuthGateD.exe.orig-04079d0` (оригинал), `C:\Temp\aionproxy.py + C:\Temp\py\python.exe (3.12.8 embed)`, `C:\Temp\proxylog.txt` (hex-дампы пакетов!), задачи schtasks: `AionGateTest` (гейт, сейчас оригинал), `AionProxy`, `AionNetMon`.
 - Локально: `/tmp/AuthGateD.exe`, `.map`, `AuthGateD_p2/p3/p4/p5.exe`, `gate.asm` (полный дизасм 62 951 строк), `/tmp/aionproxy.py`.
 - Перехваченные пакеты: welcome 194b ×2, клиент 34b, сервер 42b, логин 186b ×2 (hex в `C:\Temp\proxylog.txt`).
+
+## 9. Субагент-исследование: где родной клиент и готовые решения (03.10)
+
+- **Нативный клиент кита = китайский CN 7.7** (пара к loginType=2; строка запуска CN:
+  `bin64\aion.bin -ip:... -port:2106 -multithread -cc:5 -noauthgg -charnamemenu -loginex -pwd16 -megaphone -ingamebrowser -ncping`).
+- **Где брать CN 7.7**:
+  - CN one-click киты (кит+клиент в комплекте): https://sqybbs.com/forum.php?mod=viewthread&tid=3723 («AionEmu 7.7 一键端+客户端»)
+  - Baidu VM-сборка (VM с клиентом внутри): https://pan.baidu.com/s/18MjRTj3Aw9NcvGcOH7jAKg?pwd=d502
+  - GDrive-зеркало той же сборки: https://drive.google.com/drive/folders/1uyZHzEwCA0stbnBF_itf3fsopXuDR1kW
+  - RU-зеркало кита: https://mmo-dev.info/threads/aion-7-7-pts.28786/ (рега обязательна)
+  - CN-официал (патч-даунгрейд возможен): aion.web.sdo.com (download + patch-архив)
+- MrHousek-торренты 7.x НЕ содержат (только 1.x–5.x, 8.x); cc-таблица: 0=KR, 2=GF(Euro/F2P), 4=JP, 5=CN, 7=RUS.
+- **savormix портал-эмулятор не публичен** (в профиле нет; savormix_user_portal/web_* в БД — остатки закрытого EuroAion-подобного стека).
+- **Протокол**: welcome = SM_INIT-структура (sessionId + rev 0xC621 + scrambled RSA-1024 (128 байт!) + Blowfish-ключ + константы 197635/2097152); после handshake — **Blowfish ECB** (8-байтные повторы в перехваченных пакетах подтверждают; ключ сессионный); RSA-1024 — факторизация НЕВОЗМОЖНА; MITM требует реверса scramble/парсинга welcome. Референс: aioncore 4.7.5 SM_INIT + deepwiki.com/eldarkg/lineage2wireshark (L2-семейство, тот же порт 2106).
+- **Флаг -loginex** = стандартный режим современных клиентов (retail NA 7.7: `-cc:1 -noauthgg -charnamemenu -60f2p -webshopevent:1 -loginex -pwd16 -fmd -megaphone -litelauncher -ingamebrowser -ncping -dwsm -64 -nobs -npsa -np:IP -localtime -f2p`) — портал встроен в клиента, одним флагом не отключается.
+- **Готовые решения**:
+  - https://github.com/acottis/aion — Rust POC-сервер под Gameforge-клиент: sts-server (эмуляция GF-авторизации RC4/pipe), unpatched GF-клиент заходит; pcap-parser + крипто-крейт krypt.
+  - https://github.com/beyond-aion/aion-server — патч клиента через version.dll (GF 7.x).
+  - Лаунчеры с полными флаг-наборами: Sigmanor/Aion-Game-Launcher, MobiusDevelopment/AionLauncher.
+- **Строка "Session id mismatched" не встречается в публичных кодах** — закрытый бинарь AuthGateD; за проверкой сессии может стоять токен-проверка против savormix_user_portal.
+
+### Decision matrix (шансы успеха)
+
+| # | Вариант | Шаги | Успех | Риски |
+|---|---|---|---|---|
+| 1 | CN-клиент 7.7 + наш сервер (`-cc:5 -loginex -pwd16`) | скачать из CN one-click/Baidu/GDrive | **70%** | CN-клиент ещё найти/скачать; локализация CN |
+| 2 | chs 7.9 (уже в Яндекс-папке) тест | `-cc:5 -loginex -pwd16`, минута | **30%** | 7.9≠7.7: опкоды съедут после handshake |
+| 3 | Патч AuthGateD (принять sessionId=0) | реверс парсера RecvLogin (map/pdb есть) | **50%** | за сессией может быть токен-проверка |
+| 4 | Свой портал-эмулятор (web_* API) | реверс клиентских эндпоинтов | **20–30%** | работа на недели-месяцы |
+| 5 | acottis/aion для GF-клиента | поднять STS | login 50%, геймплей <20% | POC-качество, не 7.7-контент |
+| 6 | Даунгрейд на 4.6-кит | кит 4.6 + 4.6-клиент | **90%** | потеря 7.7 контента |
+
+Рекомендация: минутный тест chs 7.9 → параллельно качать CN-клиент 7.7 → при провалах реверс парсера гейта.
