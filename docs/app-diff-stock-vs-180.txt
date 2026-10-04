@@ -1,0 +1,7 @@
+0x00E7CA9B-0x00E7CA9E len=3
+stock: B4 00 00
+#180 : FF FF FF
+0x00E90F1E-0x00E90F1F len=1
+stock: 00
+#180 : 02
+TOTAL raw runs: 2
