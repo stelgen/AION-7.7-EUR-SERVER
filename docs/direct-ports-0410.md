@@ -68,8 +68,22 @@
 
 ## Открытые пункты
 
-- Разовые задачи **Ready на сегодня 23:57–23:58**: `AionFullRestart`, `AionStopHeavy`, `AionMainR`, `AionNPCR`, `AionKickMain(2)`, `AionKickNPC(2)`, `AionRADTest` — происхождение неясно (готовый ночной рестарт-цикл?). Решить: оставить или снести.
+- ✅ Разовые задачи 23:57–23:58 переведены в **manual-only** (04.10 вечер): триггеры отключены (`Trigger.Enabled=false` через `Set-ScheduledTask` с паролем автологона), задачи остались в списке — запуск только вручную `schtasks /run /tn <имя>`. Содержание (на память):
+
+  | Задача | Команда |
+  |---|---|
+  | `AionKickMain` / `AionKickMain2` | `cmd /c taskkill /F /IM Server64.exe` |
+  | `AionKickNPC` | `cmd /c taskkill /F /PID 6884` (PID устарел — при ручном запуске бесполезна) |
+  | `AionKickNPC2` | `C:\Temp\killnpc.bat` |
+  | `AionStopHeavy` | `taskkill Server64 + NPCSvr` |
+  | `AionFullRestart` | `C:\Temp\full-restart.bat` |
+  | `AionMainR` | `C:\Temp\restart-main.bat` |
+  | `AionNPCR` | `C:\Temp\restart-npc.bat` (включён из Disabled) |
+  | `AionRADTest` | `C:\Temp\rad-restart.bat` |
+
+  Ловушка: `schtasks /change /sd` на Password-/IT-задачах **зависает**; COM `RegisterTaskChanges` из PS недоступен; рабочий путь — `Set-ScheduledTask -User <из Principal.UserId> -Password <DefaultPassword из Winlogon-реестра>` (пароль нигде не сохранялся).
 - `C:\Temp\aionproxy*.py`, `worldproxy.bat`, `C:\Temp\py\` — можно удалить (не запускаются). Python embed оставлен — пригоден для байтовых правок конфигов.
+- Регэксп-помощники раунда (`restore-ports2.py`, `cpu-probe.ps1` и пр.) переиспользуемы — см. `scripts/maint/`.
 - Petition/ChannelChat/ShopAgent луперы — без изменений (event-driven).
 
 ## Файлы этого раунда
