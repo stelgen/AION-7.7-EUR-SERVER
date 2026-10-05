@@ -1,6 +1,6 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> Последнее обновление: 05.10.2026, сессия «CAPTCHA: перепись CAPTCHAImageServer → aion-captcha».
+> Последнее обновление: 05.10.2026 (вечер): CAPTCHA ✅ в бою; готов промпт следующей переписи — AuthGateD (nextgen/PROMPT-AUTHGATE.md).
 > Коммиты CAPTCHA-сессии: 3bfe87d (recon) → 297b716 (протокол) → 179a808 (код) → финал см. git log.
 > Доки сессии: docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md, docs/session-20261005-captcha.md,
 > статус: nextgen/CAPTCHA-STATUS-SNAPSHOT.md. Прошлая сессия (логгер): docs/session-20261005-logd-final.md.
@@ -13,14 +13,14 @@
 | Капча aion-captcha | ✅ **ЗАКРЫТА (05.10, в бою на :22206)**: PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd, exe MD5 `5394aab1`, буфер 10000 наливается за ~4с (оригинал 6.4 мин), Server64.err чист; откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run` (оригинал не тронут) |
 | Батники | ✅ `AION-START-ALL-v6.bat` на десктопе (наш логгер, всё в сессии 1); v5 рядом = откат; CAPTCHA стартует своей задачей (не в v6) |
 | aion-op (Трек A) | ✅ Phase 1 (SQL-вкладка живая, bind 0.0.0.0, operate с кнопками рестартов, kick-задачи); фаза 1.5 — НЕ начата |
-| Трек B | 🔄 порядок в §3; logd готов, следующий = **CAPTCHA** |
+| Трек B | 🔄 порядок в §3; logd ✅ + captcha ✅ (оба в бою); следующий = **AuthGateD** (промпт `nextgen/PROMPT-AUTHGATE.md`) |
 | Батники подмены логгера | процедура отработана 3 раза: `/end` → ЖДАТЬ смерти процесса (до 10с!) → copy → `/run` |
 
 ## 2. ОТКРЫТЫЕ ПУНКТЫ (по приоритету)
 
 | # | Пункт | Где | Оценка |
 |---|---|---|---|
-| 1 | aion-op config: captcha-строка `exe: CAPTCHAImageServer.exe` → `aion-captcha.exe` (иначе proc_missing-алерт) + рестарт AionOp | nextgen/aion-op/config.yaml | 10 мин |
+| ✅ 1 | aion-op config: captcha-строка → `aion-captcha.exe` + рестарт AionOp — СДЕЛАНО 05.10 (config-vm.yaml, /api/status captcha=RUNNING) | nextgen/aion-op/config.yaml | — |
 | 2 | rsyslog → Loki → Grafana на LAN Linux + в прод-конфиге logd/captcha `ship.enabled: true` (секции готовы) | nextgen/TELEMETRY-SPEC.md §2 | полдня |
 | 3 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`: UpdateTotalMainStatus/InsertServerinfo) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | LOGD-STATUS-SNAPSHOT | 1 день |
 | 4 | Хвост type-9 через Server64 PDB (284МБ): тик/floats/флаги после entries; MsgId-таблица уже найдена (0x644→4...0x648→9) | /tmp/logsrv.asm, /tmp/logpub.txt | опц. |
