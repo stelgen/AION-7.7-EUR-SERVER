@@ -102,7 +102,7 @@ func waitFor(t *testing.T, fn func() bool) {
 }
 
 func TestE2ESkeleton(t *testing.T) {
-	srv, err := New(config.Gate{})
+	srv, err := New(config.Gate{}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -234,7 +234,7 @@ func TestBlockedIP(t *testing.T) {
 	if err := os.WriteFile(listPath, []byte("127.0.0.1\n# comment\n"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	srv, err := New(config.Gate{BlockIPsFile: listPath})
+	srv, err := New(config.Gate{BlockIPsFile: listPath}, nil)
 	if err != nil {
 		t.Fatal(err)
 	}

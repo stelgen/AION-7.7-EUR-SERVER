@@ -4,6 +4,8 @@ package config
 import (
 	"os"
 
+	"aion-gate/internal/ship"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -47,8 +49,8 @@ type Gate struct {
 	WelcomeB1        int `yaml:"welcomeB1"`
 	WelcomeB2        int `yaml:"welcomeB2"`
 
-	// Ship — телеметрия TELEMETRY-SPEC (пока заготовка; пакет ship копируется из aion-logd).
-	Ship map[string]any `yaml:"ship"`
+	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
+	Ship ship.Cfg `yaml:"ship"`
 }
 
 // FillDefaults — значения из оригинального config.txt (§4 дока).

@@ -14,6 +14,7 @@ import (
 	"aion-gate/internal/authdclient"
 	"aion-gate/internal/config"
 	"aion-gate/internal/proto"
+	"aion-gate/internal/ship"
 )
 
 // Session — клиент 2106 (частичное зеркало CClientSocket, §0 дока).
@@ -57,6 +58,7 @@ func (errClosed) Error() string { return "session closed" }
 // Server — гейт.
 type Server struct {
 	Cfg config.Gate
+	sh  *ship.S
 
 	pool  *proto.KeyPool
 	brute *Brute
@@ -70,7 +72,7 @@ type Server struct {
 	assigned uint32 // [authd_sock+0xa0] — sid, назначенный authd ([03])
 }
 
-func New(cfg config.Gate) (*Server, error) {
+func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 	cfg.FillDefaults()
 	pool, err := proto.NewKeyPool()
 	if err != nil {
@@ -83,6 +85,7 @@ func New(cfg config.Gate) (*Server, error) {
 	}
 	return &Server{
 		Cfg:   cfg,
+		sh:    sh,
 		pool:  pool,
 		brute: NewBrute(cfg.TryCount, cfg.TryIntervalSec, cfg.TryBlockIntervalSec),
 		ips:   LoadIPList(cfg.BlockIPsFile),
@@ -106,7 +109,15 @@ func (s *Server) DialAuthd() error {
 	s.mu.Lock()
 	s.authd = c
 	s.mu.Unlock()
+	s.send(ship.Event{Ev: ship.EvConnUp, Svc: "authd", Remote: addr})
 	return nil
+}
+
+// send — телеметрия (TELEMETRY-SPEC: ship не критичный путь, nil-safe).
+func (s *Server) send(ev ship.Event) {
+	if s.sh != nil {
+		s.sh.Send(ev)
+	}
 }
 
 // SetAuthd — ручная инъекция готового клиента (тесты/внешний реконнект).
@@ -169,8 +180,11 @@ func (s *Server) handleConn(conn net.Conn) {
 	if ta, ok := conn.RemoteAddr().(*net.TCPAddr); ok {
 		copy(ip[:], ta.IP.To4())
 	}
+
+	remote0 := net.IP(ip[:]).String()
 	if s.ips.Blocked(ip) {
 		sendCC(conn, 22) // §3: blocked IP → cc 22
+		s.send(ship.Event{Ev: "cc", Svc: "blockip", Remote: remote0, Data: map[string]any{"code": 22}})
 		return
 	}
 	sid := s.nextSID()
@@ -181,23 +195,26 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 	sess := &Session{ID: sid, IP: ip, Key2: key2, BF2: bf2, RSA: s.pool.Get(), conn: conn}
 	s.track(sess)
+	remote := net.IP(ip[:]).String()
+	defer s.send(ship.Event{Ev: ship.EvConnDown, Remote: remote, Data: map[string]any{"sid": sid}})
 	defer func() {
 		s.drop(sess)
 		s.withAuthd(func(a *authdclient.Client) { _ = a.SendDisconnect(sid) })
 	}()
+	s.send(ship.Event{Ev: ship.EvConnUp, Remote: remote, Data: map[string]any{"sid": sid}})
 
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendConnect(sid, ip) }) // CltConnect @0x406000
 
 	wargs := &proto.WelcomeArgs{
-		PlainByte: byte(s.Cfg.WelcomePlainByte),
-		SessionID: sid,
+		PlainByte:    byte(s.Cfg.WelcomePlainByte),
+		SessionID:    sid,
 		AuthdSession: s.authdSession(),
-		Modulus:   sess.RSA.Modulus128(),
-		Key2:      key2,
-		LoginType: byte(s.Cfg.LoginType),
-		B0:        byte(s.Cfg.WelcomeB0),
-		B1:        byte(s.Cfg.WelcomeB1),
-		B2:        byte(s.Cfg.WelcomeB2),
+		Modulus:      sess.RSA.Modulus128(),
+		Key2:         key2,
+		LoginType:    byte(s.Cfg.LoginType),
+		B0:           byte(s.Cfg.WelcomeB0),
+		B1:           byte(s.Cfg.WelcomeB1),
+		B2:           byte(s.Cfg.WelcomeB2),
 	}
 	if _, err := conn.Write(proto.BuildWelcome(wargs, s.key1)); err != nil {
 		return
@@ -213,13 +230,16 @@ func (s *Server) handleConn(conn net.Conn) {
 		switch {
 		case len(payload) == 32: // клиент 34b: RSA-обмен
 			if err := s.handleRSAExchange(sess, payload); err != nil {
+				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "rsa"}})
 				return
 			}
 		case len(payload) >= 184: // логин 186/314
 			if err := s.handleLogin(sess, payload); err != nil {
+				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "login"}})
 				return
 			}
 		default: // §5.2: dispatch по type — не вскрыт; кривой размер гасим
+			s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Data: map[string]any{"len": len(payload)}})
 			sendCC(conn, 45)
 			return
 		}
@@ -256,6 +276,9 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	tail := data[152:]
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, tail)
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
+	s.send(ship.Event{Ev: "login", Remote: net.IP(sess.IP[:]).String(), Data: map[string]any{
+		"sid": sess.ID, "decbuf": len(decbuf), "tail": len(tail),
+	}})
 	return nil
 }
 
@@ -264,6 +287,7 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	if typ != 4 {
 		log.Printf("authd packet: id=%d type=%d len=%d (не serverlist — TODO §5.5)", id, typ, len(payload))
+		s.send(ship.Event{Ev: "authd.pkt", Svc: "authd", Data: map[string]any{"id": id, "type": typ, "len": len(payload)}})
 		return
 	}
 	s.mu.Lock()
@@ -275,6 +299,7 @@ func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	for _, sess := range all {
 		_ = sess.write(proto.WriteFrame(encryptToClient(sess.BF2, payload)))
 	}
+	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"sessions": len(all), "len": len(payload)}})
 }
 
 func (s *Server) onAuthdClosed(err error) {
