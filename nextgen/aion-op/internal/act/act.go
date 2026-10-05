@@ -91,7 +91,14 @@ func (e *Executor) Build(action, id string, snap probe.Snapshot) Plan {
 		p.Steps = []string{stop}
 
 	case "restart":
-		if svc.Pair != "" {
+		// NPC сольно рестартить НЕЛЬЗЯ: смерть NPCSvr рвёт NpcSocket → Server64 умирает следом
+		// (доказано 05.10: «Shutdown By NpcSocket Close»). Значит рестарт NPC = полный цикл пары.
+		if svc.ID == "npc" {
+			e.pairPlan(&p, snap,
+				"рестарт NPCSvr каскадирует Server64 (NpcSocket Close) — выполняем полный управляемый цикл пары")
+			break
+		}
+		if svc.Pair != "" { // main — никогда сольно
 			p.Rejected = "члены пары рестартятся ТОЛЬКО парой (action=restart_pair, target=pair)"
 			return p
 		}
@@ -102,42 +109,16 @@ func (e *Executor) Build(action, id string, snap probe.Snapshot) Plan {
 		}
 		p.Danger = true
 		p.NeedConfirm = "restart"
-		p.Steps = []string{stop, "пауза 5с", "schtasks /run /tn " + svc.Task}
+		// Шаг-0: задача запуска должна быть готова — иначе abort ДО kill-а
+		// (инцидент 05.10: AionGate оказался Disabled → гейт убит, старт не удался).
+		p.Steps = []string{taskReadyCheck(svc.Task), stop, "пауза 5с", "schtasks /run /tn " + svc.Task}
 
 	case "restart_pair":
 		if id != "pair" {
 			p.Rejected = "restart_pair применим только к target=pair"
 			return p
 		}
-		// Окно загрузки = рестарты запрещены (10–15 мин груз)
-		main, _ := e.cfg.ByID("main")
-		st := core.EvalService(main, snap, e.cfg.WorldPair)
-		if st.State == core.StateLoading || st.State == core.StateDegraded && snap.Conns2002 > 0 {
-			p.Rejected = fmt.Sprintf(
-				"окно загрузки/деградация (%d/%d conns) — рестарт пары запрещён (кнопка сама разблокируется)",
-				snap.Conns2002, e.cfg.WorldPair.ExpectedConns)
-			return p
-		}
-		mainTask, _ := e.svc("main")
-		npc, _ := e.cfg.ByID("npc")
-		mainStop, mainOK := e.stopStep(mainTask)
-		npcStop, npcOK := e.stopStep(npc)
-		if !mainOK || !npcOK {
-			p.Rejected = "нужны kill-задачи обоих членов пары (kill_task в конфиге)"
-			return p
-		}
-		p.Danger = true
-		p.NeedConfirm = "RESTART PAIR"
-		p.Steps = []string{
-			mainStop, // Server64
-			npcStop,  // NPCSvr (умрёт graceful следом)
-			"пауза 20с",
-			"schtasks /run /tn " + npc.Task, // NPCSvr
-			"ждать полной загрузки NPCSvr (~14.9 ГБ, 10–15 мин)",
-			"schtasks /run /tn " + mainTask.Task, // Server64
-			"ждать conns 16/16 на :2002 и LISTENING 7777",
-		}
-		p.Notes = append(p.Notes, "пара = единая единица; Server64 без RunAsDate (#180 байпасс)")
+		e.pairPlan(&p, snap, "пара = единая единица; Server64 без RunAsDate (#180 байпасс)")
 
 	default:
 		p.Rejected = "неизвестное действие " + action
@@ -148,6 +129,49 @@ func (e *Executor) Build(action, id string, snap probe.Snapshot) Plan {
 		p.Notes = append(p.Notes, "DRY_RUN: исполнение отключено в конфиге (operator.dry_run=true)")
 	}
 	return p
+}
+
+// pairPlan — общий план полного цикла пары (restart_pair и рестарт NPC). Мутирует p.
+// Шаги-0/1: обе задачи запуска должны быть Ready — иначе abort ДО kill-ов
+// (инцидент 05.10: AionGate Disabled → kill прошёл, старт не смог).
+func (e *Executor) pairPlan(p *Plan, snap probe.Snapshot, note string) {
+	// Окно загрузки = рестарты запрещены (10–15 мин груз)
+	main, _ := e.cfg.ByID("main")
+	st := core.EvalService(main, snap, e.cfg.WorldPair)
+	if st.State == core.StateLoading || st.State == core.StateDegraded && snap.Conns2002 > 0 {
+		p.Rejected = fmt.Sprintf(
+			"окно загрузки/деградация (%d/%d conns) — рестарт пары запрещён (кнопка сама разблокируется)",
+			snap.Conns2002, e.cfg.WorldPair.ExpectedConns)
+		return
+	}
+	mainTask, _ := e.svc("main")
+	npc, _ := e.cfg.ByID("npc")
+	mainStop, mainOK := e.stopStep(mainTask)
+	npcStop, npcOK := e.stopStep(npc)
+	if !mainOK || !npcOK {
+		p.Rejected = "нужны kill-задачи обоих членов пары (kill_task в конфиге)"
+		return
+	}
+	p.Danger = true
+	p.NeedConfirm = "RESTART PAIR"
+	p.Steps = []string{
+		taskReadyCheck(mainTask.Task), taskReadyCheck(npc.Task),
+		mainStop, // Server64
+		npcStop,  // NPCSvr (умрёт graceful следом)
+		"пауза 20с",
+		"schtasks /run /tn " + npc.Task, // NPCSvr
+		"ждать полной загрузки NPCSvr (~14.9 ГБ, 10–15 мин)",
+		"schtasks /run /tn " + mainTask.Task, // Server64
+		"ждать conns 16/16 на :2002 и LISTENING 7777",
+	}
+	p.Notes = append(p.Notes, note)
+}
+
+// taskReadyCheck — команда, падающая (exit 1) если задача Disabled/отсутствует.
+func taskReadyCheck(task string) string {
+	return fmt.Sprintf(
+		`powershell -NoProfile -Command "if((Get-ScheduledTask -TaskName '%s' -ErrorAction Stop).State -eq 'Disabled'){exit 1}"`,
+		task)
 }
 
 func (e *Executor) stopStep(s config.Service) (string, bool) {

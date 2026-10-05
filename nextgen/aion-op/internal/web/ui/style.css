@@ -133,6 +133,8 @@ pre.settings { background: var(--panel); border: 1px solid var(--line); border-r
 .evt.sev2 .evt-kind { color: var(--amber); }
 .evt.sev2 .evt-text { color: var(--amber); }
 .evt.sev3 { background: #2a1416; }
+.evt-text.ok { color: var(--green); }
+.evt-text.fail { color: #f0a5a5; }
 .evt.sev3 .evt-kind, .evt.sev3 .evt-text { color: #f0a5a5; }
 
 .alert {

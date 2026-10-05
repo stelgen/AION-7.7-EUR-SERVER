@@ -1,6 +1,7 @@
 package act
 
 import (
+	"strings"
 	"testing"
 
 	"aion-op/internal/config"
@@ -77,5 +78,43 @@ func TestBuildLockedAndPairMembers(t *testing.T) {
 	// gate: interactive без kill_task → stop недоступен (нужна /IT задача)
 	if p := e.Build("stop", "gate", snapOK()); p.Rejected == "" {
 		t.Fatal("stop gate без kill_task должен требовать задачу")
+	}
+}
+
+func TestRestartIndividualButtons(t *testing.T) {
+	cfg := testCfg()
+	gate := cfg.Services[3]
+	gate.KillTask = "AionKickGate"
+	cfg.Services[3] = gate
+	e := New(cfg, nil, nil)
+
+	// gate: kill → пауза → start AionGate; шаг-0 = проверка готовности задачи
+	p := e.Build("restart", "gate", snapOK())
+	if p.Rejected != "" || !p.Danger || p.NeedConfirm != "restart" ||
+		!strings.Contains(p.Steps[0], "Get-ScheduledTask") ||
+		p.Steps[1] != "schtasks /run /tn AionKickGate" || p.Steps[3] != "schtasks /run /tn AionGate" {
+		t.Fatalf("restart gate: %+v", p)
+	}
+
+	// npc: рестарт = полный цикл пары (каскад NpcSocket Close), confirm RESTART PAIR
+	p = e.Build("restart", "npc", snapOK())
+	if p.Rejected != "" || p.NeedConfirm != "RESTART PAIR" || len(p.Steps) < 7 {
+		t.Fatalf("restart npc: %+v", p)
+	}
+	if !strings.Contains(p.Steps[0], "AionMainit") || !strings.Contains(p.Steps[1], "AionNPCit") ||
+		p.Steps[2] != "schtasks /run /tn AionKickMain" || p.Steps[3] != "schtasks /run /tn AionKickNPC2" {
+		t.Fatalf("npc план: проверки задач ДО kill-ов: %+v", p.Steps)
+	}
+
+	// main сольно — по-прежнему запрет
+	if p := e.Build("restart", "main", snapOK()); p.Rejected == "" {
+		t.Fatal("main сольно должен быть отвергнут")
+	}
+
+	// npc в окне загрузки → reject (тот же lock что и пара)
+	s := snapOK()
+	s.Conns2002 = 5
+	if p := e.Build("restart", "npc", s); p.Rejected == "" {
+		t.Fatal("npc-рестарт в окне загрузки должен быть отвергнут")
 	}
 }

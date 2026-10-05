@@ -36,6 +36,7 @@ type SvcStatus struct {
 	Group       string   `json:"group"`
 	Display     string   `json:"display"`
 	Task        string   `json:"task"`
+	KillTask    string   `json:"kill_task"`
 	State       State    `json:"state"`
 	ProcCount   int      `json:"proc_count"`
 	PIDs        []string `json:"pids"`
@@ -53,7 +54,7 @@ type SvcStatus struct {
 // EvalService — чистая функция: срез + сервис → статус.
 func EvalService(s config.Service, snap probe.Snapshot, wp config.WorldPair) SvcStatus {
 	st := SvcStatus{
-		ID: s.ID, Group: s.Group, Display: s.Display, Task: s.Task,
+		ID: s.ID, Group: s.Group, Display: s.Display, Task: s.Task, KillTask: s.KillTask,
 		Interactive: s.Interactive, Heavy: s.Heavy,
 		ObserveOnly: s.ObserveOnly, Locked: s.Locked, Order: s.Order,
 		PortsOK: []int{}, PortsBad: []int{}, PIDs: []string{},

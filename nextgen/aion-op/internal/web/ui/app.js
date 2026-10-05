@@ -80,10 +80,12 @@ function setHead(d) {
 
 async function doAction(action, id, confirmText) {
   let confirm = confirmText || "";
+  const svc = (DATA.groups || []).flatMap((g) => g.services).find((s) => s.id === id);
+  const pairScale = svc && (svc.pair || svc.id === "npc");
   if (!confirm) {
-    const svc = (DATA.groups || []).flatMap((g) => g.services).find((s) => s.id === id);
-    const need = { "restart_pair": "RESTART PAIR", "restart": "restart" }[action];
-    if (need && svc && (svc.heavy || action === "restart")) {
+    const need = action === "restart_pair" ? "RESTART PAIR"
+      : action === "restart" ? (pairScale ? "RESTART PAIR" : "restart") : "";
+    if (need && (pairScale || svc && svc.heavy)) {
       const typed = prompt(`Опасно. Введите точно: ${need}`);
       if (typed !== need) return;
       confirm = typed;
@@ -122,12 +124,19 @@ function svcRow(s) {
   } else if (s.observe_only) {
     actions = `<span class="lock">наблюдение</span>`;
   } else {
-    const can = DATA.mode === "operate" && !s.pair;
-    const tip = can ? "" : "Phase 1: кнопки оживут в operate-режиме (члены пары — только парой)";
+    const op = DATA.mode === "operate";
+    const canStart = op && s.task && !s.pair;                 // члены пары стартуют только циклом пары
+    const canStop = op && s.kill_task;                        // юзер-сессия: только kill-задачей
+    const canRestart = op && (s.kill_task || s.id === "npc") && s.id !== "main";
+    const mk = (act, label, ok, tip) =>
+      `<button class="btn ${ok ? "btn-go" : ""}" ${ok ? `onclick="doAction('${act}','${esc(s.id)}')"` : `disabled title="${tip || "недоступно"}"`}>${label}</button>`;
+    const restTip = s.id === "npc"
+      ? "NPC-рестарт каскадирует Server64 — полный цикл пары (typed-confirm RESTART PAIR)"
+      : "рестарт: kill-задача → пауза → schtasks /run";
     actions = `<div class="actions">
-      <button class="btn ${can ? "btn-go" : ""}" ${can ? "" : "disabled title=\"" + tip + "\""} onclick="doAction('start','${esc(s.id)}')">▶</button>
-      <button class="btn" disabled title="stop — фаза 1.5 (kill-задачи)">■</button>
-      <button class="btn" disabled title="restart — фаза 1.5">⟳</button>
+      ${mk("start", "▶", canStart, "старт через задачу (operate)")}
+      ${mk("stop", "■", canStop, "нет kill-задачи / observe")}
+      ${mk("restart", "⟳", canRestart, restTip)}
     </div>`;
   }
   return `<div class="svc">
@@ -328,6 +337,13 @@ function render() {
   if (t.filter && t.filter.world) html += worldPanel(DATA.world);
   if (t.id === "overview") {
     html += worldPanel(DATA.world);
+    const acts = (DATA.actions || []).slice(0, 5);
+    html += `<div class="group"><h2>🧾 Audit — последние действия</h2><div class="card">${
+      acts.map((a) => `<div class="evt">
+        <span class="mono evt-time">${new Date(a.ts * 1000).toLocaleTimeString()}</span>
+        <span class="evt-kind">${esc(a.action)}:${esc(a.target)}</span>
+        <span class="evt-text ${a.ok ? "ok" : "fail"}">${a.ok ? "OK" : (a.executed ? "FAIL-exec" : "FAIL")} — ${esc(String(a.detail || "").slice(0, 160))}</span>
+      </div>`).join("") || '<div class="placeholder">действий нет</div>'}</div></div>`;
     const al = DATA.alerts || [];
     if (al.length) {
       html += `<div class="group"><h2>🚨 Активные алерты (${al.length})</h2>
