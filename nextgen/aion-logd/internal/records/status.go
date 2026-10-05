@@ -7,6 +7,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"strings"
 )
 
 // Len — размер тела status-записи.
@@ -30,7 +31,8 @@ type StatusRecord struct {
 	SysTime  [8]uint16 // @178: SYSTEMTIME (8 WORD: год,мес,dow,день,ч,м,с,мс)
 }
 
-// ParseStatus — тело 194 → запись.
+// ParseStatus — тело 194 → запись. Для НЕ-194 тел в type-5 см. ParseVar (svc-специфичные
+// текст-логи оригинала, напр. svc=701: ключи LDF5_Fortress_7011 — раньше терялись в badstatus).
 func ParseStatus(body []byte) (*StatusRecord, error) {
 	if len(body) != Len {
 		return nil, fmt.Errorf("records: body=%d, want %d", len(body), Len)
@@ -69,6 +71,72 @@ func (r *StatusRecord) SysTimeString() string {
 
 // World — мир без флаговых битов.
 func (r *StatusRecord) World() uint32 { return r.WorldID &^ 0x80000000 }
+
+// VarRecord — type-5 НЕ-194 записи: [u32 svc][u32 id][UTF-16 текст/ключи...][хвост+SYSTEMTIME].
+// Подтверждено прод-сэмплами 05.10 (badstatus.raw 2337 шт): svc=701, ключи LDF5_Fortress_7011/
+// LDF8_1993/ab1_1018 + поля n/n/d/d. Точная семантика хвоста — L2 (пока отдаём текст+hex).
+type VarRecord struct {
+	Svc     uint32
+	ID      uint32
+	Text    string // UTF-16 фрагменты через ' | '
+	Stamp   string // SYSTEMTIME из последних 16 байт (если валиден)
+	TailHex string // остаток после svc+id (кап 300)
+	BodyLen int
+}
+
+// ParseVar — разбор нестандартной type-5 записи (не валидна только если body < 8).
+func ParseVar(body []byte) (*VarRecord, error) {
+	if len(body) < 8 {
+		return nil, fmt.Errorf("records: var body=%d, нужно ≥8", len(body))
+	}
+	v := &VarRecord{Svc: binary.LittleEndian.Uint32(body[0:4]), ID: binary.LittleEndian.Uint32(body[4:8]), BodyLen: len(body)}
+	off := 8
+	var parts []string
+	cur := make([]rune, 0, 16)
+	for i := off; i+2 <= len(body); i += 2 {
+		w := binary.LittleEndian.Uint16(body[i:])
+		if w >= 32 && w < 0xFFFD {
+			cur = append(cur, rune(w))
+			continue
+		}
+		if len(cur) > 0 {
+			parts = append(parts, string(cur))
+			cur = cur[:0]
+		}
+	}
+	if len(cur) > 0 {
+		parts = append(parts, string(cur))
+	}
+	v.Text = strings.Join(parts, " | ")
+	if len(body) >= 16 {
+		// SYSTEMTIME-проба по последним 16 байтам: год 2020..2035
+		st := body[len(body)-16:]
+		y := binary.LittleEndian.Uint16(st[0:2])
+		if y >= 2020 && y <= 2035 {
+			v.Stamp = fmt.Sprintf("%04d-%02d-%02d %02d:%02d:%02d.%03d", y,
+				binary.LittleEndian.Uint16(st[2:4]), binary.LittleEndian.Uint16(st[6:8]),
+				binary.LittleEndian.Uint16(st[8:10]), binary.LittleEndian.Uint16(st[10:12]),
+				binary.LittleEndian.Uint16(st[12:14]), binary.LittleEndian.Uint16(st[14:16]))
+		}
+	}
+	v.TailHex = fmt.Sprintf("% X", body[8:])
+	if len(v.TailHex) > 300 {
+		v.TailHex = v.TailHex[:300] + "..."
+	}
+	return v, nil
+}
+
+// String — строка для per-svc .err (текст-лог var-записи).
+func (v *VarRecord) String() string {
+	s := fmt.Sprintf("tvar svc=%d id=%d body=%d", v.Svc, v.ID, v.BodyLen)
+	if v.Text != "" {
+		s += " text=" + v.Text
+	}
+	if v.Stamp != "" {
+		s += " time=" + v.Stamp
+	}
+	return s
+}
 
 // String — CSV-строка для per-day status-файла.
 func (r *StatusRecord) String() string {

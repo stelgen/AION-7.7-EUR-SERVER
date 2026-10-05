@@ -249,6 +249,14 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 								"metric1": rec.Metric1, "metric2": rec.Metric2, "metric3": rec.Metric3,
 								"metric4": rec.Metric4, "engine_ms": rec.EngineMs, "n": statusN,
 							}})
+					} else if vr, verr := records.ParseVar(pkt.Body); verr == nil {
+						// Л2-бонус: type-5 несёт и svc-специфичные текст-записи оригинала
+						// (svc=701: ключи LDF5_Fortress_7011 и пр.) — раньше терялись в .raw
+						dir := fmt.Sprintf("svc%d", vr.Svc)
+						_ = s.wr.WriteLine(dir, fmt.Sprintf("%s %s", time.Now().Format("15:04:05"), vr.String()), time.Now())
+						textN++
+						s.send(ship.Event{Ev: ship.EvText, Remote: remote, Svc: dir, Msg: vr.String(),
+							Data: map[string]any{"id": vr.ID, "body_len": vr.BodyLen, "stamp": vr.Stamp}})
 					} else {
 						log.Printf("[%s] status parse: %v — в .raw", remote, rerr)
 						_ = s.wr.WriteRaw("badstatus", pkt.Type, pkt.Raw, time.Now())
