@@ -175,11 +175,14 @@ func TestE2ESkeleton(t *testing.T) {
 		t.Fatalf("X echo: %q", decX[:32])
 	}
 
-	// 3. логин 186b → relay "cbdb" в authd
+	// 3. логин 186b → relay "cbdb" в authd (decbuf = RSA-dec 128Б-блока с ведущими нулями)
+	loginDec := make([]byte, 32)
+	copy(loginDec, "LOGIN-DEC-BUF-32-BYTES")
+	loginDec[31] = 0x21
+	pub2 := &sess.RSA.Priv.PublicKey
+	loginCT := new(big.Int).Exp(new(big.Int).SetBytes(loginDec), big.NewInt(int64(pub2.E)), pub2.N).FillBytes(make([]byte, 32))
 	data := make([]byte, 184)
-	for i := range data {
-		data[i] = byte(i)
-	}
+	copy(data[96:128], loginCT) // [96 нулей][32Б шифртекст] = BE-число < n
 	binary.LittleEndian.PutUint32(data[128:132], 0x7d5214) // sessionId
 	binary.LittleEndian.PutUint32(data[148:152], 0x11223344)
 	if _, err := cl.Write(proto.WriteFrame(data)); err != nil {
@@ -190,7 +193,7 @@ func TestE2ESkeleton(t *testing.T) {
 	blob := f.packets[0]
 	pktID := f.pktIDs[0]
 	f.mu.Unlock()
-	wantBlob := proto.Assemble("cbdb", byte(0), data[:34], uint32(0x11223344), data[152:])
+	wantBlob := proto.Assemble("cbdb", byte(0), loginDec, uint32(0x11223344), data[152:])
 	if string(blob) != string(wantBlob) {
 		t.Fatalf("relay blob: got %x want %x", blob, wantBlob)
 	}

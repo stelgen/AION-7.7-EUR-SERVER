@@ -236,17 +236,22 @@ func (s *Server) handleRSAExchange(sess *Session, payload []byte) error {
 	return sess.write(proto.WriteFrame(encryptToClient(sess.BF2, x)))
 }
 
-// handleLogin: релей логина в authd (§5.3, дизasm 05.10):
-// RSA-блок 128Б (заголовок); decbuf = первые 34Б (0x417b60 — схема не вскрыта,
-// скелет ретранслюет raw — TODO §5.3); dword@148 (флаг 0x80000000 — TODO);
-// блок @152 = len-152 байт (ровно "len-24" после вычета RSA-блока).
+// handleLogin: релей логина в authd (§5.3, дизasm 05.10 + 0x417b60):
+// первые 128Б = RSA-блок (BE-число с ведущими нулями, модуль = наш ключ из
+// welcome); rsapricrt → decbuf (32Б, BE, выровнен к началу); dword@148
+// (флаг 0x80000000 — TODO); блок @152 = len-152 байт ("len-24" после RSA).
+// TODO(§5.3): длина decbuf — 32Б (математика) или 34Б (arg3=0x22 у оригинала) —
+// верифицировать живым клиентом/authd.
 func (s *Server) handleLogin(sess *Session, data []byte) error {
 	const rsaLen = 128
 	if len(data) < rsaLen+24 {
 		sendCCSess(sess, 45) // кривой логин — гасим (TODO §5.2: точная семантика)
 		return nil
 	}
-	decbuf := data[:34]
+	decbuf, err := sess.RSA.DecryptBlock(data[:rsaLen])
+	if err != nil {
+		return err
+	}
 	dword148 := binary.LittleEndian.Uint32(data[148:152])
 	tail := data[152:]
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, tail)

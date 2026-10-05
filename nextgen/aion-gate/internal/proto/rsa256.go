@@ -37,10 +37,12 @@ func (k *RSAKey) Modulus128() [128]byte {
 	return out
 }
 
-// DecryptBlock — приватная операция: m = ct^d mod n, BE 32Б
-// (клиент шифрует свой 32Б ключ X публичным ключом из welcome).
+// DecryptBlock — приватная операция (аналог beecrypt rsapricrt @0x417b60:
+// mpnsetbin(in,0x80) → rsapricrt → i2osp): m = ct^d mod n, результат BE.
+// Вход — big-endian число до 128Б (RSA-блок логина с ведущими нулями —
+// big.Int съедает их сам) или ровно 32Б (session-обмен).
 func (k *RSAKey) DecryptBlock(ct []byte) ([]byte, error) {
-	if len(ct) != 32 {
+	if len(ct) == 0 || len(ct) > 128 {
 		return nil, ErrBadBlockLen
 	}
 	c := new(big.Int).SetBytes(ct)

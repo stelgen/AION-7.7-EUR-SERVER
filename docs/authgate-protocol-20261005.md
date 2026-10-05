@@ -169,10 +169,12 @@ useGCSideExtendAccount=true; appLaunchBanDelay=5; useReportMail=false; authRecon
    биты) — для РЕАЛИЗАЦИИ не нужен (шифруем вперёд), нужен только для полной верификации.
 2. **Как определяется type клиентского пакета**: первый байт plaintext после ECB-dec(key2)?
    В capture 34/186/314-пакеты шифрованы; хендлеры dispatch по m_PacketTable[type].
-3. ЧАСТИЧНО ЗАКРЫТО дизasmом (05.10 ~20:45): поля RecvLogin = sessionId@data+128,
-   GG 16B@+132, dword@+148 (+флаг 0x80000000), блок len-24 @+152; decbuf 34Б (0x417b60,
-   схема дешифровки не вскрыта — для реализации не нужна, гейт ретранслюет байт-в-байт);
-   полный plaintext LoginEx 314 (аккаунт/пароль) — сверить живым клиентом.
+3. ✅ ЗАКРЫТО (05.10 ~21:40): 0x417b60 = beecrypt **rsapricrt** (импорты IAT:
+   mpnzero/mpnsetbin/rsapricrt/mpnfree/i2osp): вход = 128Б login-данных как BE-число
+   (mpnsetbin len=0x80, ведущие нули = выравнивание поля modulus128), ключ = пул
+   0x43fcbc записей 0x4c, keyIdx = [sock+0xf4]; результат → i2osp BE в тот же буфер
+   + memmove-выравнивание к началу → decbuf 32Б. Go: RSA.DecryptBlock(≤128Б).
+   Осталось: длина decbuf 32 vs 34 (arg3=0x22) и поля plaintext LoginEx — живой клиент.
 4. ✅ ЗАКРЫТО дизasmом (05.10 ~20:45) — §3 переписан байт-в-байт: gate→authd "cdd"/"cd"/"cdh",
    authd→gate state-машина [01]/[02]/[03], len самоинклюзивный u16 с обеих сторон.
    Остаток: dispatch-table по type-byte (брать из capture, не дизasm).
