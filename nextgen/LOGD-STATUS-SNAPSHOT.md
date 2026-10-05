@@ -1,8 +1,32 @@
 # 🧾 ПОЛНЫЙ СНИМОК СТАТУСА — aion-logd (замена LogServer64) на 05.10.2026
 
-> Консолидация ВСЕХ находок итераций 1–6. Изменённые файлы в работе: logdb (Sprintf-SQL),
-> capture.yaml/run-cap.cmd (боевой прогон-конфиг). Прод: **наш logd в бою на :2051**
-> (PID 6180), клиенты CacheD(992)/Server64(7348)/NPCSvr(2232) подключены.
+> Консолидация ВСЕХ находок итераций 1–6. Прод: **наш logd в бою на :2051** (SYSTEM-задача
+> AionLogCap → D:\SAION\aion-logd\run.cmd, откат = schtasks /run AionLog).
+
+## ✅ ОБНОВЛЕНИЕ 05.10 (вечер): Л1–Л4 ЗАКРЫТЫ (код+тесты, exe staged на C:\Temp\logd-new\, прод-подмена отдельным «го»)
+
+- **Л1 type-9 парсер ГОТОВ** (`internal/textlog`): layout подтверждён живыми сэмплами —
+  `[u32 id=928][ {u32 key][wchar name NUL]... }[tail][SYSTEMTIME 8WORD = последние 16 байт]`;
+  entries = онлайн-сессии (1002,"SteLGeN")(1010,"Stelgen") — char+аккаунт; 223b = 1 сессия,
+  251b = 2 сессии; мир-подобный u32 в хвосте (210010000/210040000) выделяется; недекодированный
+  хвост — в hex+raw. Fixture'ы = боевые capture + mirror-эталон (testdata/textlog_records.txt).
+  Пишутся per-service .err/.log (каталог = svc из ServerStarted коннекта, fallback textlog).
+- **Л2 TBL-сверка**: READ-ONLY проверка прод-БД — TBL в схеме **aiongm_ur** (не dbo!);
+  проц UpdateMainStatus/UpdateTotalMainStatus на проде ОТСУТСТВУЮТ (в Aion_log только 3 наши
+  Log_Tbl*) ⇒ оригинал-то их звал в вечный 2812 — зона-счётчики НЕ писал НИКОГДА на нашем
+  деплое, мы уже на паритете. Методы UpdateMainStatus/UpdateTotalMainStatus добавлены в logdb
+  (позиционные {call}), вызов ЗАГЛУШЕН до деплоя REF58-проц + подтверждения маппинга metric1-4.
+- **Л3 InitializeCount**: теперь на ServerStarted **svc=3** (MAIN/мир, mirror: data-коннект
+  (1,3,0)), config `server.init_svc` (0 = старое поведение «первый»).
+- **Л4 retention**: writer.Sweep — чистка base_dir старше `server.retention_days` (default 14),
+  при старте + каждые 30 мин, событие ev=sweep.
+- **ship-стандарт ГОТОВ** (`internal/ship`, ~450 строк, без зависимостей): syslog RFC5424
+  udp/tcp(octet-counted) + HTTP ndjson + локальный ndjson-фолбэк (только явно); неблокирующая
+  очередь + drop-счётчики, recover на каждой отправке, self-статус ev=self каждые 300с,
+  события: start/stop/conn.up/conn.down/version/server.started/status/text/parse.err/db/db.err/sweep/self.
+  Спека для ВСЕХ переписей: nextgen/TELEMETRY-SPEC.md. По умолчанию ship disabled — прод без приёмника.
+- Тесты: textlog на живых fixture'ах (3 реальных пакета), ship (UDP/TCP/file/недоступный-синк),
+  все зелёные; exe: linux+windows (build/), новый exe staged на VM C:\Temp\logd-new\ (НЕ запущен).
 
 ## ТЕКУЩИЙ ЖИВОЙ СТАТУС (10:00+ VM)
 

@@ -1,14 +1,17 @@
-# aion-logd — замена LogServer64 (skeleton). Секретов тут нет.
+# aion-logd — замена LogServer64. Секретов тут нет.
+# Боевой прод-конфиг: D:\SAION\aion-logd\config.yaml
 server:
   listen: ":2051"
-  builder: 10004        # наш builderNumber (ориг. отвечает значением из конфига; min=10003)
-  base_dir: "./logs"    # прод: D:/AION_LIVE_SERVER/... per-service dirs через dirs:
+  builder: 10004        # наш builderNumber (мин. клиентский = 10003)
+  base_dir: "./logs"    # ВСЕ файлы logd только внутри этого дерева (Л4: retention чистит его же)
   max_conn: 64
-  dirs: {}              # svcType → каталог; позже: cache→D:/AION_LIVE_SERVER/CacheServer/log и т.д.
+  capture_all: true     # дамп всего трафика в logs\io + capture.raw (не отключать до конца Л2)
+  init_svc: 3           # Л3: InitializeCount при ServerStarted svc=3 (MAIN = старт мира); 0 = как раньше (первый)
+  retention_days: 14    # Л4: чистка файлов старше N дней; 0 = выкл
+  dirs: {}              # svcType → каталог (переопределения); текст-логи пишутся в svcN (по ServerStarted)
 
-# DB-слой: РОВНО те вызовы, что у оригинала ({call Log_Tbl*}); по умолчанию ВЫКЛ.
-# Для прод: логину нужны EXEC на Log_Tbl* + INSERT/UPDATE на TBL_GAME_* (Aion_log),
-# world_id=1, server_id=2 (SERVER_ID=2 зафиксирован ВНУТРИ процы freedisk).
+# DB-слой: РОВНО те вызовы, что у оригинала; по умолчанию ВЫКЛ (прод: enabled=true).
+# Логину нужны EXEC на Log_Tbl* + UPDATE на aiongm_ur.TBL_GAME_* (Aion_log) — гранты выданы (aionop_ro).
 logdb:
   enabled: false
   conn: ""
@@ -16,4 +19,23 @@ logdb:
   server_id: 2
   freedisk_sec: 300
   status_sec: 600
-  log_dir: "./logs"
+  log_dir: "D:/SAION"   # диск, free-space которого репортим (ГБ, tinyint кламп 255)
+  # mainstatus_sec: 0   # Л2 (зона-агрегаты UpdateMainStatus): ВЫКЛ до подтверждения маппинга metric1-4
+
+# ship — высылка телеметрии (стандарт nextgen/TELEMETRY-SPEC.md).
+# ВСЁ опционально: без приёмника logd работает как раньше и не падает.
+ship:
+  enabled: false        # мастер сетевых синков; прод включим после подъёма rsyslog на Linux
+  syslog:
+    net: "udp"          # udp | tcp (tcp = octet-counted RFC6587)
+    host: ""            # host:port приёмника (rsyslog/Vector на Linux), напр. 192.168.0.110:514
+    facility: 1         # user
+  http:
+    url: ""             # http://host:port/path — POST ndjson (Vector HTTP source)
+    timeout: 3
+  file:
+    enabled: false      # локальный ndjson-фолбэк — только по явному запросу (не срать файлами!)
+    dir: "./logs/ship"
+  queue: 4096
+  self_sec: 300         # ev=self: uptime, sent/dropped, ошибки по синкам
+  max_raw: 512          # кап raw-хекса в событии (полные дампы — в logs\*.raw)

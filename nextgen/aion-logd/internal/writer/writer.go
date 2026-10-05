@@ -132,6 +132,29 @@ func (w *W) WriteIO(dirTag string, chunk []byte, now time.Time) error {
 	return err
 }
 
+// Sweep — Л4 rotate/retention: удалить файлы старше retention дней внутри base.
+// Не трогает ничего вне base_dir logd'а. Возвращает число удалённых файлов.
+func (w *W) Sweep(retentionDays int) (removed int, err error) {
+	if retentionDays <= 0 {
+		return 0, nil
+	}
+	cutoff := time.Now().Add(-time.Duration(retentionDays) * 24 * time.Hour)
+	_ = filepath.WalkDir(w.base, func(path string, d os.DirEntry, werr error) error {
+		if werr != nil || d.IsDir() {
+			return nil
+		}
+		info, gerr := d.Info()
+		if gerr != nil || info.ModTime().After(cutoff) {
+			return nil
+		}
+		if rm := os.Remove(path); rm == nil {
+			removed++
+		}
+		return nil
+	})
+	return removed, nil
+}
+
 // CloseAll — закрыть файлы.
 func (w *W) CloseAll() {
 	w.mu.Lock()

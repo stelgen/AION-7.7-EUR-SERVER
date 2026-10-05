@@ -41,6 +41,7 @@ const (
 	TypeControl       = 4 // S→C периодика: body 8 нулей (capture: 6 шт/2 на клиента/4 мин) — анти-флап // клиент: body 12 = 3×u32 (SendServerStarted)
 	TypeData          = 4 // TBD
 	TypeStatus        = 5
+	TypeTextLog       = 9  // текст-логи/онлайн-таблица — парсер internal/textlog (Л1, 05.10)
 	TypeAlive         = 11 // EncodeAlive (клиент ping; capture: [0B][BA][F4][qword]) // клиент: body 194 const — статус-поток ~1/2с (floats/счётчики + SYSTEMTIME-хвост)
 )
 
