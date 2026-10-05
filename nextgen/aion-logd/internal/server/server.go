@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"aion-logd/internal/proto"
+	"aion-logd/internal/records"
 	"aion-logd/internal/writer"
 )
 
@@ -76,6 +77,7 @@ func (s *Server) Run(ctx context.Context, ln net.Listener) error {
 func (s *Server) serve(ctx context.Context, c net.Conn) {
 	remote := c.RemoteAddr().String()
 	r := bufio.NewReaderSize(c, 16*1024)
+	statusN := 0
 	var acc []byte
 
 	// СЕРВЕР говорит первым (мимик LogServerSocket::OnCreate: SendVersion+VT при accept):
@@ -148,7 +150,18 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 
 				case proto.TypeStatus:
 					// статус-поток (body 194 const): счётчики/floats + SYSTEMTIME-хвост — парсить по мере надобности
-					_ = pkt.Body
+					if rec, rerr := records.ParseStatus(pkt.Body); rerr == nil {
+						_ = s.wr.WriteStatus(fmt.Sprintf("svc%d", rec.SvcType), rec.String(), time.Now())
+						statusN++
+						if statusN%100 == 1 {
+							log.Printf("[%s] status: svc=%d world=%d pos=(%.1f,%.1f,%.1f) %s (n=%d)",
+								remote, rec.SvcType, rec.World(), rec.X, rec.Y, rec.Z,
+								rec.SysTimeString(), statusN)
+						}
+					} else {
+						log.Printf("[%s] status parse: %v — в .raw", remote, rerr)
+						_ = s.wr.WriteRaw("badstatus", pkt.Type, pkt.Raw, time.Now())
+					}
 
 				default: // TypeData и всё, что не разобрано — TBD-layout, в .raw
 					_ = s.wr.WriteRaw("payload", pkt.Type, pkt.Raw, time.Now())

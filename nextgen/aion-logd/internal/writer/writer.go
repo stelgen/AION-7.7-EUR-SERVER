@@ -96,6 +96,24 @@ func (w *W) WriteRaw(svc string, pktType byte, raw []byte, now time.Time) error 
 	return err
 }
 
+// WriteStatus — CSV статус-записей (type-5): time,svc,world,x,y,z,engtick,metrics,systime.
+func (w *W) WriteStatus(svc string, line string, now time.Time) error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	dir := w.dirFor(svc)
+	if err := os.MkdirAll(dir, 0o755); err != nil {
+		return err
+	}
+	fn := filepath.Join(dir, now.Format("2006-01-02")+".status.csv")
+	f, err := os.OpenFile(fn, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0o644)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = fmt.Fprintf(f, "%s,%s\n", now.Format("15:04:05.000"), line)
+	return err
+}
+
 // WriteIO — дамп сырых чанков rx/tx до парсинга (capture-истина последней инстанции).
 func (w *W) WriteIO(dirTag string, chunk []byte, now time.Time) error {
 	w.mu.Lock()
