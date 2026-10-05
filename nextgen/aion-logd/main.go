@@ -10,14 +10,17 @@ import (
 	"os/signal"
 	"syscall"
 
+	"aion-logd/internal/logdb"
 	"aion-logd/internal/server"
 	"aion-logd/internal/writer"
+	_ "github.com/microsoft/go-mssqldb"
 
 	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
 	Server server.Config `yaml:"server"`
+	LogDB  logdb.Cfg     `yaml:"logdb"`
 }
 
 func loadConfig(path string) (*Config, error) {
@@ -47,6 +50,18 @@ func main() {
 	wr := writer.New(cfg.Server.BaseDir, cfg.Server.Dirs)
 	defer wr.CloseAll()
 
+	srv := server.New(cfg.Server, wr)
+	if cfg.LogDB.Enabled && cfg.LogDB.Conn != "" {
+		d, err := cfg.LogDB.Open()
+		if err != nil {
+			log.Fatalf("logdb: %v", err)
+		}
+		srv.SetDB(d)
+		go d.RunTimers(ctx)
+		log.Printf("logdb: enabled world=%d server=%d freedisk=%ds status=%ds",
+			cfg.LogDB.WorldID, cfg.LogDB.ServerID, cfg.LogDB.FreediskSec, cfg.LogDB.StatusSec)
+	}
+
 	ln, err := net.Listen("tcp", cfg.Server.Listen)
 	if err != nil {
 		log.Fatalf("listen %s: %v", cfg.Server.Listen, err)
@@ -54,7 +69,7 @@ func main() {
 	log.Printf("aion-logd: listen %s builder=%d base=%s (skeleton: unknown payload → .raw)",
 		cfg.Server.Listen, cfg.Server.Builder, cfg.Server.BaseDir)
 
-	if err := server.New(cfg.Server, wr).Run(ctx, ln); err != nil {
+	if err := srv.Run(ctx, ln); err != nil {
 		log.Fatalf("run: %v", err)
 	}
 	log.Printf("aion-logd: shutdown ok")

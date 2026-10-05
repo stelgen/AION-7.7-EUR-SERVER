@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"aion-logd/internal/logdb"
 	"aion-logd/internal/proto"
 	"aion-logd/internal/records"
 	"aion-logd/internal/writer"
@@ -29,9 +30,11 @@ type Config struct {
 }
 
 type Server struct {
-	cfg Config
-	wr  *writer.W
-	wg  sync.WaitGroup
+	cfg      Config
+	wr       *writer.W
+	wg       sync.WaitGroup
+	db       *logdb.DB
+	initOnce sync.Once
 }
 
 func New(cfg Config, wr *writer.W) *Server {
@@ -43,6 +46,9 @@ func New(cfg Config, wr *writer.W) *Server {
 	}
 	return &Server{cfg: cfg, wr: wr}
 }
+
+// SetDB — опциональный DB-слой (таймеры + InitializeCount при старте мира).
+func (s *Server) SetDB(d *logdb.DB) { s.db = d }
 
 func (s *Server) Run(ctx context.Context, ln net.Listener) error {
 	go func() { <-ctx.Done(); _ = ln.Close() }()
@@ -141,6 +147,15 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 					}
 
 				case proto.TypeServerStarted:
+					if s.db != nil {
+						s.initOnce.Do(func() {
+							if err := s.db.InitializeCount(ctx); err != nil {
+								log.Printf("[logdb] InitializeCount: %v", err)
+							} else {
+								log.Printf("[logdb] InitializeCount(world=%d) выполнен (первый ServerStarted)", s.db.WorldID)
+							}
+						})
+					}
 					if len(pkt.Body) == 12 {
 						a := binary.LittleEndian.Uint32(pkt.Body)
 						b2 := binary.LittleEndian.Uint32(pkt.Body[4:8])
