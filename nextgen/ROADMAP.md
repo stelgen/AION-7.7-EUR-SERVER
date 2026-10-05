@@ -1,15 +1,17 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> Последнее обновление: 05.10.2026, конец сессии «logd Л1–Л4 + подмена + ship e2e».
-> Коммиты сессии: 1e7c9d7 (v6 батник) → fe2976b (Л1–Л4+ship+SPEC) → e6ede55 (подмена+rsyslog+дизasm) → см. git log.
-> Подробности сессии: docs/session-20261005-logd-final.md. Протокол/статус логгера: nextgen/LOGD-STATUS-SNAPSHOT.md.
+> Последнее обновление: 05.10.2026, сессия «CAPTCHA: перепись CAPTCHAImageServer → aion-captcha».
+> Коммиты CAPTCHA-сессии: 3bfe87d (recon) → 297b716 (протокол) → 179a808 (код) → финал см. git log.
+> Доки сессии: docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md, docs/session-20261005-captcha.md,
+> статус: nextgen/CAPTCHA-STATUS-SNAPSHOT.md. Прошлая сессия (логгер): docs/session-20261005-logd-final.md.
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где)
 
 | Блок | Статус |
 |---|---|
 | Логгер aion-logd | ✅ **ЗАКРЫТ**: штатный на :2051 (PID 2704, exe MD5 `7aca9dca`), Л1 type-9, Л2 var-records (svc701 и пр. больше не теряются), Л3 InitializeCount@svc=3, Л4 retention 14д, ship-телеметрия по TELEMETRY-SPEC, откат = `schtasks /run AionLog` |
-| Батники | ✅ `AION-START-ALL-v6.bat` на десктопе (наш логгер, всё в сессии 1); v5 рядом = откат |
+| Капча aion-captcha | ✅ **ЗАКРЫТА (05.10, в бою на :22206)**: PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd, exe MD5 `5394aab1`, буфер 10000 наливается за ~4с (оригинал 6.4 мин), Server64.err чист; откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run` (оригинал не тронут) |
+| Батники | ✅ `AION-START-ALL-v6.bat` на десктопе (наш логгер, всё в сессии 1); v5 рядом = откат; CAPTCHA стартует своей задачей (не в v6) |
 | aion-op (Трек A) | ✅ Phase 1 (SQL-вкладка живая, bind 0.0.0.0, operate с кнопками рестартов, kick-задачи); фаза 1.5 — НЕ начата |
 | Трек B | 🔄 порядок в §3; logd готов, следующий = **CAPTCHA** |
 | Батники подмены логгера | процедура отработана 3 раза: `/end` → ЖДАТЬ смерти процесса (до 10с!) → copy → `/run` |
@@ -18,12 +20,12 @@
 
 | # | Пункт | Где | Оценка |
 |---|---|---|---|
-| 1 | **Перепись CAPTCHAImageServer → свой** (155КБ, порт 22206, конфиг config.ini; PDB НЕТ) | промпт: nextgen/PROMPT-CAPTCHA.md | 1–2 дня |
-| 2 | rsyslog → Loki → Grafana на LAN Linux + в прод-конфиге logd `ship.enabled: true` (секция готова, включить одной строкой) | nextgen/TELEMETRY-SPEC.md §2 | полдня |
+| 1 | aion-op config: captcha-строка `exe: CAPTCHAImageServer.exe` → `aion-captcha.exe` (иначе proc_missing-алерт) + рестарт AionOp | nextgen/aion-op/config.yaml | 10 мин |
+| 2 | rsyslog → Loki → Grafana на LAN Linux + в прод-конфиге logd/captcha `ship.enabled: true` (секции готовы) | nextgen/TELEMETRY-SPEC.md §2 | полдня |
 | 3 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`: UpdateTotalMainStatus/InsertServerinfo) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | LOGD-STATUS-SNAPSHOT | 1 день |
 | 4 | Хвост type-9 через Server64 PDB (284МБ): тик/floats/флаги после entries; MsgId-таблица уже найдена (0x644→4...0x648→9) | /tmp/logsrv.asm, /tmp/logpub.txt | опц. |
 | 5 | aion-op Phase 1.5: событийный watchdog (реакция на факт смерти пары; ночной рестарт = тумблер юзера) | nextgen/TRACK-A-PLAN.md | 1–2 дня |
-| 6 | Феномен «задачи планировщика сами становятся Disabled» — НЕ решён (смягчён pre-check в restarts + enable-all) | docs/session-20261005-cached-rootfix.md | следить |
+| 6 | Феномен «задачи планировщика сами становятся Disabled» — НЕ решён (смягчён pre-check в restarts + enable-all; следить и за AionCAPTCHA) | docs/session-20261005-cached-rootfix.md | следить |
 | 7 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr Abyss (~600k блоков/сессия → ночной рестарт пары), RESOURCE_SEMAPHORE динамика | docs/app-architecture.md §7 | пассивно |
 | 8 | Ghidra-патчи Server64 (#180): порог CheckIOThreadDeadlock, authorization-time (уйти от RunAsDate-зависимостей) | nextgen/PLAN.md §6.1 | стенд, потом |
 
@@ -32,7 +34,7 @@
 | # | Замена | Оценка | Шанс | Примечание |
 |---|---|---|---|---|
 | ✅ 1 | LogServer64 → aion-logd | готово | 100% | метод отработан: mirror-capture → PDB publics → Go → паралл. прогон → свитч с откатом |
-| 2 | CAPTCHAImageServer → свой | 1–2 дня | высокий | промпт готов (PROMPT-CAPTCHA.md); ship копируем из logd как есть |
+| ✅ 2 | CAPTCHAImageServer → aion-captcha | готово | 100% | 05.10: capture 101/102/1001/1002 → Go → свитч (метод отработан 2-й раз); промпт nextgen/PROMPT-CAPTCHA.md — ЗАКРЫТ |
 | 3 | .NET мелочь (Petition/ShopAgent/GMServer) | дни-недели | высокий | ILSpy-декомпил = готовое ТЗ; реально мёртвые — можно НЕ писать, просто не запускать |
 | 4 | AuthGateD → свой гейт | 1–3 нед | высокий | PDB + дизasm готовы; RSA/сессии частично описаны (docs/auth-server-internals.md) |
 | 5 | L2Authd → свой | 2–4 нед | средне-высокий | логика в SQL-процах |
@@ -63,6 +65,8 @@
 | Логгер: протокол/статус | nextgen/LOGD-STATUS-SNAPSHOT.md, LOGD-REWRITE-ANALYSIS.md |
 | Стандарт телеметрии | nextgen/TELEMETRY-SPEC.md |
 | Код logd | nextgen/aion-logd/ (+ README); прод: D:\SAION\aion-logd\ |
+| Код капчи | nextgen/aion-captcha/ (+ README, CAPTCHA-STATUS-SNAPSHOT.md); прод: D:\SAION\aion-captcha\ |
+| CAPTCHA: протокол/доки | docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md, docs/session-20261005-captcha.md |
 | Оператор aion-op | nextgen/aion-op/; прод: C:\aionop\ (UI 127.0.0.1:10200 через ssh -L) |
 | Бинари+PDB | локально ~/STELGEN/projects/aion_rev_2026-10-05/artifacts/; гигантские PDB на VM |
 | Дизasmы | /tmp/logsrv.asm (LogServer64), /tmp/logpub.txt; pdbpub.py — ~/STELGEN/tmp/ |

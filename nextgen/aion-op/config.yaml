@@ -41,8 +41,8 @@ services:
     order: 3
   - id: captcha
     group: light
-    display: CAPTCHAImageServer
-    exe: CAPTCHAImageServer.exe
+    display: aion-captcha
+    exe: aion-captcha.exe
     task: AionCAPTCHA
     ports: [22206]
     order: 4
