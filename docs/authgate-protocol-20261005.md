@@ -196,3 +196,22 @@ useGCSideExtendAccount=true; appLaunchBanDelay=5; useReportMail=false; authRecon
 5. Свитч: D:\SAION\aion-gate\ (exe+config.yaml+run.cmd), schtasks /change /tn AionGate
    /tr "D:\SAION\aion-gate\run.cmd" + /run; откат = retarget C:\Temp\gate.bat.
 6. aion-op config: display+exe → aion-gate.exe, рестарт AionOp.
+
+## 7. ЧЕКПОИНТ byte-exact welcome (05.10 ~22:10, НЕ ЗАКРЫТ — противоречие)
+
+- Прогнано 82 welcome из capture: ECB-dec(key1=6b60cb5b) → 49 групп (d0,d1) —
+  d0/d1 константны В РАМКАХ запуска гейта (пары/тройки сессий), рандом между запусками.
+- Группа d0=7d521423/d1=634692d8 (3 сессии) = proxylog-запуск, plaintext[0]=0x23 ✓.
+- У ДРУГИХ групп plaintext[0] ≠ 0x23 (0xcc, 0xc5, 0xfa…) → «0x23» — НЕ константа,
+  а значение динамического вара (или ключ запуска иной — но 49 запусков за сутки маловероятны).
+- Модель скрамбла (new[k]=old[k]^(S_prev+old[k]), csum=cumsum) подтверждена дизasm 0x417a20
+  (прочитан лично, 1-в-1) — НО capture её нарушает: жёсткое тождество y_0==a_0 (бит0 dword1
+  == бит0 dword0) НЕ выполняется (0xd4≠0xcc и т.д.). GG-зона-нулей (серии равных dword) в dec
+  НЕ найдено ни на одном смещении → layout варов и/или позиция скрамбла в буфере — не те.
+- solve32: x^(a+x)=y решается линейно (x_i детерминирован переносами; решение может
+  отсутствовать/быть множественным — см. tools/analysis/diag*.py).
+- СЛЕДУЮЩИЙ ШАГ: дизasm **0x407d50 (welcome-билдер)** — точный порядок варов, размер
+  буфера, где welcomeExtra4(+4), и что реально передаётся в EncryptPrimary (возможно
+  скрамбл идёт с offset-заголовка, или ECB↔скрамбл в другом порядке). Без этого
+  byte-exact welcome невозможен, а наш welcome клиент НЕ расшифрует — БЛОКЕР СВИТЧА.
+- Скрипты: tools/analysis/{unscramble_welcome,diag2_scramble,diag3_modwin,diag4_paddb,diag5_paddb_dfs}.py
