@@ -11,7 +11,7 @@
 | Каталог на VM | `C:\aionop\` (aionop-win.exe, config-vm.yaml, run.cmd, aionop.db) |
 | Задача | `AionOp` — schtasks, `/ru SYSTEM /sc onstart /rl HIGHEST`, автозапуск при буте |
 | Режим | `vm.mode: local` (пробы локально на VM), `operator.mode: observe` |
-| Безопасность | `bind: 127.0.0.1:10200` (доступ только через ssh-туннель), `dry_run: true` (действия только планируются), POST /api/action отсутствует в observe |
+| Безопасность | `bind: 0.0.0.0` (решение юзера: стек в локалке, наружу не торчит — NAT закрыт), `dry_run: true` (действия только планируются), POST /api/action отсутствует в observe |
 | pprof | `127.0.0.1:10201/debug/pprof/` |
 | Данные | `C:\aionop\aionop.db` — SQLite WAL, retention 30 дней |
 
@@ -43,6 +43,12 @@ tar -cf - -C build aionop-win.exe config-vm.yaml | \
 # 4. Верификация:
 ssh 'Администратор@192.168.0.125' "cmd /c \"netstat -ano -p tcp | findstr 10200 & curl -s --max-time 8 http://127.0.0.1:10200/api/status\""
 ```
+
+## SQL-наблюдение (aionop_ro)
+
+- На VM создан SQL-логин `aionop_ro` (db_datareader в Aion_log+AionAccounts, VIEW SERVER STATE; DDL: `C:\aionop\sql-setup.sql`). Пароль НЕ хранится в гите/памяти — только в `C:\aionop\config-vm.yaml` (поле sql.conn) и локальном `build/` (gitignored).
+- Вкладка SQL: CCU (миры+auth), blocked, compile-очередь (RESOURCE_SEMAPHORE — root ночи 04–05), top-waits дельты.
+- Ротация пароля: перегенерить python-рендером conn → обновить config-vm.yaml на VM → рестарт AionOp.
 
 ## Переход в operate (когда юзер скажет «можно управлять»)
 

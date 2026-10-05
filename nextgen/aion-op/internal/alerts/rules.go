@@ -11,6 +11,7 @@ import (
 	"aion-op/internal/core"
 	"aion-op/internal/logs"
 	"aion-op/internal/metrics"
+	"aion-op/internal/sqlmon"
 	"aion-op/internal/store"
 )
 
@@ -35,10 +36,12 @@ type Engine struct {
 	ev2812   []time.Time // скользящее окно proc_missing
 	lastCrit time.Time   // последний критичный лог (super_lag/crash/world_shutdown)
 	lastMs   metrics.Snap
+	lastG    sqlmon.Gauge
+	sustainG map[string]int // sql:blocked → тиков подряд
 }
 
 func New(st *store.Store) *Engine {
-	return &Engine{st: st, active: map[string]store.AlertRow{}, sustain: map[string]int{}}
+	return &Engine{st: st, active: map[string]store.AlertRow{}, sustain: map[string]int{}, sustainG: map[string]int{}}
 }
 
 // FeedEvent — события логов (рейты 2812, критичные логи).
@@ -60,6 +63,13 @@ func (e *Engine) FeedEvent(ev logs.Event) {
 func (e *Engine) FeedMetrics(ms metrics.Snap) {
 	e.mu.Lock()
 	e.lastMs = ms
+	e.mu.Unlock()
+}
+
+// FeedSql — последний SQL-срез (gauge).
+func (e *Engine) FeedSql(g sqlmon.Gauge) {
+	e.mu.Lock()
+	e.lastG = g
 	e.mu.Unlock()
 }
 
@@ -155,6 +165,23 @@ func (e *Engine) Tick(statuses []core.SvcStatus, probeErr string, pairBroken boo
 	// 7. Критичный лог (Super-Lag / Intentional / Shutdown By NpcSocket) — активен 15 мин
 	set(!e.lastCrit.IsZero() && now.Sub(e.lastCrit) < critLogKeep, "crit_log", logs.SevCrit,
 		"Критичный лог: "+e.lastCrit.Format("15:04:05")+" (Super-Lag/Intentional/NpcSocket Close)")
+
+	// 8. SQL blocking (уроки ночи 04-05: линейные блокировки = Super-Lag CacheD)
+	if e.lastG.Blocked > 3 {
+		e.sustainG["blocked"]++
+		if e.sustainG["blocked"] >= 2 {
+			set(true, "sql:blocked", logs.SevMed,
+				fmt.Sprintf("SQL: %d заблокированных сессий (2 тика) — смотреть dm_exec_requests", e.lastG.Blocked))
+		}
+	} else {
+		e.sustainG["blocked"] = 0
+		set(false, "sql:blocked", 0, "")
+	}
+
+	// 9. Compile-очередь RESOURCE_SEMAPHORE (root ночи 04-05) — сразу
+	set(e.lastG.ResqDepth > 0, "sql:resq", logs.SevMed,
+		fmt.Sprintf("SQL: compile-очередь RESOURCE_SEMAPHORE (%d запросов, %d мс суммарно)",
+			e.lastG.ResqDepth, e.lastG.ResqWaitMs))
 }
 
 // Snapshot — активные алерты (для UI).

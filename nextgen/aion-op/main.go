@@ -4,6 +4,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"flag"
 	"log"
 	"net/http"
@@ -18,6 +19,7 @@ import (
 	"aion-op/internal/logs"
 	"aion-op/internal/metrics"
 	"aion-op/internal/probe"
+	"aion-op/internal/sqlmon"
 	"aion-op/internal/store"
 	"aion-op/internal/web"
 )
@@ -117,6 +119,53 @@ func main() {
 		}
 	}()
 
+	// SQL-наблюдение (CCU/waits/blocking): read-only логин aionop_ro или mock.
+	sqlHolder := &sqlmon.Holder{}
+	var sqlColl sqlmon.Collector
+	if cfg.Sql.Enabled && cfg.Sql.Conn != "" {
+		db, err := sql.Open("sqlserver", cfg.Sql.Conn)
+		if err != nil {
+			log.Fatalf("sql: %v", err)
+		}
+		db.SetMaxOpenConns(2)
+		sqlColl = sqlmon.New(db)
+	} else {
+		sqlColl = sqlmon.NewMock()
+	}
+	go func() {
+		t := time.NewTicker(time.Duration(cfg.Sql.PollSec) * time.Second)
+		defer t.Stop()
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-t.C:
+				s := sqlColl.Collect(ctx)
+				sqlHolder.Set(s)
+				eng.FeedSql(s.Gauge)
+				if s.Err == "" {
+					wrows := make([]store.CcuWorldRow, len(s.World))
+					for i, w := range s.World {
+						wrows[i] = store.CcuWorldRow{World: w.World, Light: w.Light, Dark: w.Dark, Npc: w.Npc}
+					}
+					st.AddCcuWorld(s.When, wrows)
+					arows := make([]store.CcuAuthRow, len(s.Auth))
+					for i, a := range s.Auth {
+						arows[i] = store.CcuAuthRow{ServerID: a.ServerID, WorldUser: a.WorldUser,
+							LimitUser: a.LimitUser, AuthUser: a.AuthUser, WaitUser: a.WaitUser}
+					}
+					st.AddCcuAuth(s.When, arows)
+					st.AddSqlGauge(s.When, s.Gauge.Blocked, s.Gauge.ResqDepth, s.Gauge.ResqWaitMs)
+					wts := make([]store.WaitRow, len(s.Waits))
+					for i, w := range s.Waits {
+						wts[i] = store.WaitRow{Type: w.Type, DMS: w.DMS, DCnt: w.DCnt}
+					}
+					st.AddSqlWaits(s.When, wts)
+				}
+			}
+		}
+	}()
+
 	if cfg.Pprof.Enabled {
 		go func() {
 			log.Printf("pprof: http://%s/debug/pprof/ (loopback)", cfg.Pprof.Addr)
@@ -124,9 +173,9 @@ func main() {
 		}()
 	}
 
-	srv := web.New(cfg, prober, st, eng, holder, exec)
-	log.Printf("aion-op: probe=%s ui=:%d mode=%s dry_run=%t store=%s",
-		cfg.VM.Mode, cfg.Operator.UIPort, cfg.Operator.Mode, exec.DryRun(), cfg.Store.Path)
+	srv := web.New(cfg, prober, st, eng, holder, exec, sqlHolder)
+	log.Printf("aion-op: probe=%s ui=:%d mode=%s dry_run=%t store=%s sql=%t",
+		cfg.VM.Mode, cfg.Operator.UIPort, cfg.Operator.Mode, exec.DryRun(), cfg.Store.Path, cfg.Sql.Enabled)
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}

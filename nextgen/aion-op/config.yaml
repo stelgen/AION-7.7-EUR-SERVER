@@ -11,7 +11,7 @@ vm:
 
 operator:
   ui_port: 10200
-  bind: "127.0.0.1"       # снаружи — только через ssh-туннель (ssh -L 10200:127.0.0.1:10200 vm)
+  bind: "0.0.0.0"         # вся локалка юзера; наружу не торчит (NAT закрыт) — по решению юзера
   refresh_sec: 10
   mode: observe           # observe | operate (operate требует явного dry_run: false)
   dry_run: true           # действия только планируются (audit без исполнения). Фаза 1.5
@@ -177,6 +177,13 @@ pprof:
 
 metrics:
   poll_sec: 15            # срез RAM/handles/FreeCommit (read-only powershell)
+
+# SQL-наблюдение: логин aionop_ro = db_datareader + VIEW SERVER STATE (read-only).
+# В репо конн НЕ хранится — он только в build/config-vm.yaml на VM (gitignored).
+sql:
+  enabled: false
+  poll_sec: 30
+  conn: ""
 
 # Хвосты логов: NC пишет .err по дням ({{date}} = YYYY-MM-DD).
 # Файл может отсутствовать — тейлер молча пропускает (новый день/не запускался).

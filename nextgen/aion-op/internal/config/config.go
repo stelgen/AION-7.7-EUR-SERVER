@@ -76,6 +76,12 @@ type MetricsCfg struct {
 	PollSec int `yaml:"poll_sec"`
 }
 
+type SqlCfg struct {
+	Enabled bool   `yaml:"enabled"`
+	PollSec int    `yaml:"poll_sec"`
+	Conn    string `yaml:"conn"` // sqlserver://aionop_ro:***@127.0.0.1?encrypt=disable (read-only логин)
+}
+
 type Config struct {
 	VM        VM               `yaml:"vm"`
 	Operator  Operator         `yaml:"operator"`
@@ -86,6 +92,7 @@ type Config struct {
 	Pprof     PprofCfg         `yaml:"pprof"`
 	Logs      LogsCfg          `yaml:"logs"`
 	Metrics   MetricsCfg       `yaml:"metrics"`
+	Sql       SqlCfg           `yaml:"sql"`
 }
 
 func Load(path string) (*Config, error) {
@@ -150,6 +157,12 @@ func (c *Config) normalize() {
 	}
 	if c.Metrics.PollSec <= 0 {
 		c.Metrics.PollSec = 15
+	}
+	if c.Sql.PollSec <= 0 {
+		c.Sql.PollSec = 30
+	}
+	if c.Operator.Bind == "" {
+		c.Operator.Bind = "0.0.0.0" // локалка юзера — наружу не торчит (роутер/NAT)
 	}
 }
 

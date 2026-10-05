@@ -7,7 +7,7 @@ const TABS = [
   { id: "cache",    title: "Cache",     filter: { ids: ["cache"] } },
   { id: "world",    title: "NPC+World", filter: { ids: ["npc", "main"], world: true } },
   { id: "logsrv",   title: "LogServer", filter: { ids: ["logsrv"] } },
-  { id: "sql",      title: "SQL",       filter: { group: "sql" } },
+  { id: "sql",      title: "SQL",       filter: { sql: true } },
   { id: "svc",      title: "Прочее",    filter: { group: "svc" } },
   { id: "logs",     title: "Логи",      filter: { logs: true } },
   { id: "metrics",  title: "Метрики",   filter: { metrics: true } },
@@ -251,6 +251,47 @@ async function renderMetrics() {
   }
 }
 
+async function renderSql() {
+  const c = $("#content");
+  c.innerHTML = `<div class="placeholder">тяну /api/sql…</div>`;
+  try {
+    const r = await fetch("/api/sql", { cache: "no-store" });
+    const d = await r.json();
+    const s = d.snap || {};
+    const w = s.world || [], au = s.auth || [], g = s.gauge || {};
+    let html = `<div class="syschips">
+      <span class="chip ${g.blocked > 0 ? "bad" : "ok"}" title="sys.dm_exec_requests blocked">blocked: ${g.blocked || 0}</span>
+      <span class="chip ${(g.resq_depth || 0) > 0 ? "bad" : "ok"}" title="RESOURCE_SEMAPHORE_QUERY_COMPILE — compile-очередь (root ночи 04-05)">compile-очередь: ${g.resq_depth || 0}</span>
+      <span class="chip dim">история gauge: ${(d.gauge_hist || []).length} точек</span>
+    </div>`;
+    html += `<div class="group"><h2>CCU по мирам (TBL_GAME_WORLD_INFO, zone0)</h2><div class="card">${
+      w.length ? w.map((x) => `<div class="evt"><span class="chip">мир ${x.world}</span>
+        <span class="p">LIGHT ${x.light}</span><span class="p">DARK ${x.dark}</span><span class="p">NPC ${x.npc}</span></div>`).join("")
+      : '<div class="placeholder">данных нет (sql disabled или пусто)</div>'}</div></div>`;
+    html += `<div class="group"><h2>CCU по серверам (AionAccounts.user_count, последние)</h2><div class="card">${
+      au.length ? au.map((x) => `<div class="evt"><span class="chip">srv ${x.server_id}</span>
+        <span class="p">в мире ${x.world_user}</span><span class="p">лимит ${x.limit_user}</span>
+        <span class="p">в auth ${x.auth_user}</span><span class="p">в очереди ${x.wait_user}</span></div>`).join("")
+      : '<div class="placeholder">данных нет</div>'}</div></div>`;
+    const wa = d.waits || [];
+    html += `<div class="group"><h2>Top waits (Δ за 120 мин)</h2><div class="card">${
+      wa.length ? wa.map((x) => `<div class="evt">
+        <span class="mono evt-kind">${esc(x.type)}</span>
+        <span class="p">+${x.dms.toLocaleString("ru")} мс</span><span class="p">×${x.dcnt}</span></div>`).join("")
+      : '<div class="placeholder">дельты копятся (нужно ≥2 SQL-среза)</div>'}</div></div>`;
+    const si = s.srv_info || [];
+    if (si.length) {
+      html += `<div class="group"><h2>TBL_GAME_SERVER_INFO</h2><div class="card">${
+        si.map((x) => `<div class="evt"><span class="chip">srv ${x.server_id}</span>
+          <span class="p">status ${x.status}</span><span class="p">free_disk ${x.free_disk ?? "—"}</span></div>`).join("")}</div></div>`;
+    }
+    if (s.err) html = `<div class="banner red">SQL-срез: ${esc(s.err)}</div>` + html;
+    c.innerHTML = html;
+  } catch (e) {
+    c.innerHTML = `<div class="placeholder">Ошибка: ${esc(e)}</div>`;
+  }
+}
+
 function render() {
   if (!DATA) return;
   setHead(DATA);
@@ -265,6 +306,7 @@ function render() {
   const c = $("#content");
 
   if (t.filter && t.filter.logs) { c.innerHTML = renderLogs(); return; }
+  if (t.filter && t.filter.sql) { renderSql(); return; }
   if (t.filter && t.filter.alerts) { c.innerHTML = renderAlerts(); return; }
   if (t.filter && t.filter.metrics) { renderMetrics(); return; }
   if (t.filter && t.filter.settings) { renderSettings(); return; }

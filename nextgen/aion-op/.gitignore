@@ -2,3 +2,4 @@ aion-op
 aion-op.exe
 *.test
 aionop.db*
+build/

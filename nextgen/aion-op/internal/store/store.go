@@ -34,6 +34,21 @@ CREATE TABLE IF NOT EXISTS actions(
   action TEXT NOT NULL, target TEXT NOT NULL, ok INTEGER NOT NULL,
   executed INTEGER NOT NULL DEFAULT 0, detail TEXT NOT NULL);
 CREATE INDEX IF NOT EXISTS ix_actions_ts ON actions(ts);
+CREATE TABLE IF NOT EXISTS ccu_world(
+  ts INTEGER NOT NULL, world INTEGER NOT NULL, light INTEGER NOT NULL,
+  dark INTEGER NOT NULL, npc INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_ccuw_ts ON ccu_world(ts);
+CREATE TABLE IF NOT EXISTS ccu_auth(
+  ts INTEGER NOT NULL, server_id INTEGER NOT NULL, world_user INTEGER NOT NULL,
+  limit_user INTEGER NOT NULL, auth_user INTEGER NOT NULL, wait_user INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_ccua_ts ON ccu_auth(ts);
+CREATE TABLE IF NOT EXISTS sql_gauge(
+  ts INTEGER NOT NULL, blocked INTEGER NOT NULL, resq_depth INTEGER NOT NULL,
+  resq_wait_ms INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_sga_ts ON sql_gauge(ts);
+CREATE TABLE IF NOT EXISTS sql_waits(
+  ts INTEGER NOT NULL, wait_type TEXT NOT NULL, dms INTEGER NOT NULL, dcnt INTEGER NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_swa_ts ON sql_waits(ts);
 `
 
 // EventRow — событие в хранилище (JSON-готовое).
@@ -108,10 +123,18 @@ func (s *Store) writer(retentionDays int) {
 			f()
 		case <-purge.C:
 			cut := time.Now().AddDate(0, 0, -retentionDays).Unix()
-			_, _ = s.db.Exec(`DELETE FROM events WHERE ts < ?`, cut)
-			_, _ = s.db.Exec(`DELETE FROM proc_metrics WHERE ts < ?`, cut)
-			_, _ = s.db.Exec(`DELETE FROM sys_mem WHERE ts < ?`, cut)
-			_, _ = s.db.Exec(`DELETE FROM alerts WHERE active=0 AND closed_ts < ?`, cut)
+			for _, q := range []string{
+				`DELETE FROM events WHERE ts < ?`,
+				`DELETE FROM proc_metrics WHERE ts < ?`,
+				`DELETE FROM sys_mem WHERE ts < ?`,
+				`DELETE FROM ccu_world WHERE ts < ?`,
+				`DELETE FROM ccu_auth WHERE ts < ?`,
+				`DELETE FROM sql_gauge WHERE ts < ?`,
+				`DELETE FROM sql_waits WHERE ts < ?`,
+				`DELETE FROM alerts WHERE active=0 AND closed_ts < ?`,
+			} {
+				_, _ = s.db.Exec(q, cut)
+			}
 		case <-s.quit:
 			for {
 				select {
@@ -156,10 +179,18 @@ func (s *Store) Flush() {
 func (s *Store) PurgeNow(cutoff time.Time) {
 	s.enqueue(func() {
 		c := cutoff.Unix()
-		_, _ = s.db.Exec(`DELETE FROM events WHERE ts < ?`, c)
-		_, _ = s.db.Exec(`DELETE FROM proc_metrics WHERE ts < ?`, c)
-		_, _ = s.db.Exec(`DELETE FROM sys_mem WHERE ts < ?`, c)
-		_, _ = s.db.Exec(`DELETE FROM alerts WHERE active=0 AND closed_ts < ?`, c)
+		for _, q := range []string{
+			`DELETE FROM events WHERE ts < ?`,
+			`DELETE FROM proc_metrics WHERE ts < ?`,
+			`DELETE FROM sys_mem WHERE ts < ?`,
+			`DELETE FROM ccu_world WHERE ts < ?`,
+			`DELETE FROM ccu_auth WHERE ts < ?`,
+			`DELETE FROM sql_gauge WHERE ts < ?`,
+			`DELETE FROM sql_waits WHERE ts < ?`,
+			`DELETE FROM alerts WHERE active=0 AND closed_ts < ?`,
+		} {
+			_, _ = s.db.Exec(q, c)
+		}
 	})
 }
 
@@ -234,6 +265,143 @@ func boolInt(b bool) int {
 		return 1
 	}
 	return 0
+}
+
+// CcuWorldRow — CCU по миру (TBL_GAME_WORLD_INFO zone0).
+type CcuWorldRow struct{ World, Light, Dark, Npc int }
+
+// CcuAuthRow — CCU по серверам (AionAccounts.user_count).
+type CcuAuthRow struct{ ServerID, WorldUser, LimitUser, AuthUser, WaitUser int }
+
+// WaitRow — дельта wait-типа.
+type WaitRow struct {
+	Type string
+	DMS  int64
+	DCnt int64
+}
+
+// AddCcuWorld — CCU по мирам.
+func (s *Store) AddCcuWorld(when time.Time, rows []CcuWorldRow) {
+	s.enqueue(func() {
+		ts := when.Unix()
+		for _, r := range rows {
+			_, _ = s.db.Exec(`INSERT INTO ccu_world(ts,world,light,dark,npc) VALUES(?,?,?,?,?)`,
+				ts, r.World, r.Light, r.Dark, r.Npc)
+		}
+	})
+}
+
+// AddCcuAuth — CCU по серверам.
+func (s *Store) AddCcuAuth(when time.Time, rows []CcuAuthRow) {
+	s.enqueue(func() {
+		ts := when.Unix()
+		for _, r := range rows {
+			_, _ = s.db.Exec(
+				`INSERT INTO ccu_auth(ts,server_id,world_user,limit_user,auth_user,wait_user) VALUES(?,?,?,?,?,?)`,
+				ts, r.ServerID, r.WorldUser, r.LimitUser, r.AuthUser, r.WaitUser)
+		}
+	})
+}
+
+// AddSqlGauge — blocked/resq срез.
+func (s *Store) AddSqlGauge(when time.Time, blocked, resqDepth int, resqWaitMs int64) {
+	s.enqueue(func() {
+		_, _ = s.db.Exec(`INSERT INTO sql_gauge(ts,blocked,resq_depth,resq_wait_ms) VALUES(?,?,?,?)`,
+			when.Unix(), blocked, resqDepth, resqWaitMs)
+	})
+}
+
+// AddSqlWaits — дельты waits за окно.
+func (s *Store) AddSqlWaits(when time.Time, waits []WaitRow) {
+	s.enqueue(func() {
+		ts := when.Unix()
+		for _, w := range waits {
+			_, _ = s.db.Exec(`INSERT INTO sql_waits(ts,wait_type,dms,dcnt) VALUES(?,?,?,?)`,
+				ts, w.Type, w.DMS, w.DCnt)
+		}
+	})
+}
+
+// GaugePoint — точка истории gauge.
+type GaugePoint struct {
+	Ts        int64 `json:"ts"`
+	Blocked   int   `json:"blocked"`
+	ResqDepth int   `json:"resq_depth"`
+}
+
+func (s *Store) GaugeHistory(minutes int) []GaugePoint {
+	rows, err := s.db.Query(
+		`SELECT ts,blocked,resq_depth FROM sql_gauge WHERE ts>? ORDER BY ts`,
+		time.Now().Add(-time.Duration(minutes)*time.Minute).Unix())
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var res []GaugePoint
+	for rows.Next() {
+		var p GaugePoint
+		if err := rows.Scan(&p.Ts, &p.Blocked, &p.ResqDepth); err == nil {
+			res = append(res, p)
+		}
+	}
+	return res
+}
+
+// WaitSum — агрегат дельт по типу за окно (для таблицы SQL-вкладки).
+type WaitSum struct {
+	Type string `json:"type"`
+	DMS  int64  `json:"dms"`
+	DCnt int64  `json:"dcnt"`
+}
+
+func (s *Store) WaitSums(minutes, limit int) []WaitSum {
+	rows, err := s.db.Query(
+		`SELECT wait_type, SUM(dms), SUM(dcnt) FROM sql_waits WHERE ts>? GROUP BY wait_type
+		 ORDER BY SUM(dms) DESC LIMIT ?`,
+		time.Now().Add(-time.Duration(minutes)*time.Minute).Unix(), limit)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var res []WaitSum
+	for rows.Next() {
+		var w WaitSum
+		if err := rows.Scan(&w.Type, &w.DMS, &w.DCnt); err == nil {
+			res = append(res, w)
+		}
+	}
+	return res
+}
+
+// LatestWorldAuth — последние строки CCU (world+auth).
+func (s *Store) LatestWorldAuth() (world []map[string]any, auth []map[string]any) {
+	world = []map[string]any{}
+	rows, err := s.db.Query(
+		`SELECT ts,world,light,dark,npc FROM ccu_world WHERE ts=(SELECT MAX(ts) FROM ccu_world)`)
+	if err == nil {
+		for rows.Next() {
+			var ts, w, l, d, n int64
+			if err := rows.Scan(&ts, &w, &l, &d, &n); err == nil {
+				world = append(world, map[string]any{"ts": ts, "world": w, "light": l, "dark": d, "npc": n})
+			}
+		}
+		rows.Close()
+	}
+	auth = []map[string]any{}
+	rows, err = s.db.Query(
+		`SELECT ts,server_id,world_user,limit_user,auth_user,wait_user FROM ccu_auth
+		 WHERE ts=(SELECT MAX(ts) FROM ccu_auth) ORDER BY server_id`)
+	if err == nil {
+		for rows.Next() {
+			var ts, sid, wu, lu, au, wq int64
+			if err := rows.Scan(&ts, &sid, &wu, &lu, &au, &wq); err == nil {
+				auth = append(auth, map[string]any{"ts": ts, "server_id": sid,
+					"world_user": wu, "limit_user": lu, "auth_user": au, "wait_user": wq})
+			}
+		}
+		rows.Close()
+	}
+	return world, auth
 }
 
 // OpenAlert — записать открытый алерт (движок сам держит active-set).

@@ -1,7 +1,9 @@
-# aion-op — оператор стека AION 7.7 (Phase 0.5: observe + глаза)
+# aion-op — оператор стека AION 7.7 (Phase 1: observe + глаза + SQL-вкладка; прод = VM)
 
-Единый Go-бинарь. **Phase 0.5 = наблюдение + глаза**: read-only пробы, лог-парсер,
-метрики, SQLite, алерты, pprof. Управления нет вообще (роутов-POST не существует).
+Единый Go-бинарь. **Фаза 1**: read-only пробы + лог-парсер + метрики + SQLite + алерты
++ CCU/SQL-waits (read-only логин aionop_ro). Управление: act-слой с dry-run=true по
+умолчанию; POST /api/action существует только в operate-режиме.
+Прод-деплой: `C:\aionop\` + задача AionOp — см. [DEPLOY.md](DEPLOY.md).
 План: [../TRACK-A-PLAN.md](../TRACK-A-PLAN.md), постановка: [../PLAN.md](../PLAN.md).
 
 ## Запуск
@@ -41,7 +43,14 @@ AIONOP_MOCK_EVENT_EVERY=1 ./aion-op             # темп синтетичес�
   утечка хендлов >20k/мин ×3 тика, рейт 2812 >50/5мин, критичный лог (окно 15 мин), проба VM;
 - **pprof** на loopback — без роста за 48 ч.
 
-⚠ Честно отложено на Phase 1: CCU (user_count) и SQL-waits вкладка — нужен SQL-доступ (go-mssqldb read-only), их нет в 0.5.
+**Phase 1 (руки + SQL-вкладка):**
+- режим `local` (оператор живёт на VM), `bind: 0.0.0.0` (решение юзера — локалка);
+- **CCU**: Aion_log TBL_GAME_WORLD_INFO (zone0: LIGHT/DARK/NPC_COUNT) + AionAccounts user_count (world/limit/auth/wait per server);
+- **SQL-waits**: дельты dm_os_wait_stats (top8), blocked, RESOURCE_SEMAPHORE_QUERY_COMPILE глубина+ожидание — вкладка `/api/sql`;
+- **act-слой**: план→safety→confirm→исполнение→audit (таблица actions): start (schtasks /run), stop (taskkill session-0 / kill_task для юзер-сессии), restart_pair; reject: locked/loading-window/probe-dead; dry_run=true по умолчанию (действия только планируются);
+- алерты +2 SQL-правила: blocked>3 ×2 тика, compile-очередь>0 — root ночи 04–05.
+
+⚠ Честно отложено на 1.5: watchdog-автопилот (ночной рестарт пары), реальное исполнение (operate+dry_run:false — по «го» юзера), async-ожидания маркеров в act-шагах.
 
 ## Пробы
 

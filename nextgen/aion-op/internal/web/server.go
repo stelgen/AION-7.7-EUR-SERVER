@@ -19,6 +19,7 @@ import (
 	"aion-op/internal/core"
 	"aion-op/internal/metrics"
 	"aion-op/internal/probe"
+	"aion-op/internal/sqlmon"
 	"aion-op/internal/store"
 )
 
@@ -26,20 +27,21 @@ import (
 var uiFS embed.FS
 
 type Server struct {
-	cfg    *config.Config
-	prober probe.Prober
-	store  *store.Store
-	engine *alerts.Engine
-	holder *metrics.Holder
-	exec   *act.Executor
+	cfg       *config.Config
+	prober    probe.Prober
+	store     *store.Store
+	engine    *alerts.Engine
+	holder    *metrics.Holder
+	exec      *act.Executor
+	sqlHolder *sqlmon.Holder
 
 	mu   sync.RWMutex
 	snap probe.Snapshot
 }
 
 func New(cfg *config.Config, p probe.Prober, st *store.Store, eng *alerts.Engine,
-	h *metrics.Holder, e *act.Executor) *Server {
-	return &Server{cfg: cfg, prober: p, store: st, engine: eng, holder: h, exec: e}
+	h *metrics.Holder, e *act.Executor, sh *sqlmon.Holder) *Server {
+	return &Server{cfg: cfg, prober: p, store: st, engine: eng, holder: h, exec: e, sqlHolder: sh}
 }
 
 func (s *Server) Run() error {
@@ -52,6 +54,7 @@ func (s *Server) Run() error {
 	mux.HandleFunc("GET /api/events", s.handleEvents)
 	mux.HandleFunc("GET /api/metrics", s.handleMetrics)
 	mux.HandleFunc("GET /api/alerts", s.handleAlerts)
+	mux.HandleFunc("GET /api/sql", s.handleSql)
 	// Phase 1: управляющий роут монтируется ТОЛЬКО в operate-режиме;
 	// в observe его физически нет (не disabled — отсутствует).
 	if s.cfg.Operator.Mode == "operate" {
@@ -242,6 +245,18 @@ func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, s.engine.Snapshot())
+}
+
+// handleSql — SQL-вкладка: срез + CCU-последние + gauge-история + waits-суммы.
+func (s *Server) handleSql(w http.ResponseWriter, r *http.Request) {
+	world, auth := s.store.LatestWorldAuth()
+	writeJSON(w, map[string]any{
+		"snap":       s.sqlHolder.Get(),
+		"world":      world,
+		"auth":       auth,
+		"gauge_hist": s.store.GaugeHistory(240),
+		"waits":      s.store.WaitSums(120, 8),
+	})
 }
 
 // handleAction — Phase 1: план → safety → confirm → исполнение (или dry-run) → audit.
