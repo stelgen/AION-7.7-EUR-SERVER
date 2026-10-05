@@ -1,6 +1,6 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> Последнее обновление: 05.10.2026 (ночь-2): AuthGateD скелет ГОТОВ (nextgen/aion-gate: proto/authdclient/server/config/ship/main, e2e зелёный, wire 2110 1-в-1, rsapricrt закрыт) — session-док docs/session-20261005-authgate-skeleton.md. ⚠ БЛОКЕР СВИТЧА: byte-exact welcome — противоречие модель-скрамбла (asm 0x417a20) vs capture (y0!=a0, plaintext[0] динамический), док authgate §7. СЛЕДУЮЩИЙ ШАГ: дизasm 0x407d50 welcome-билдер (порядок варов/буфер/+4) → byte-exact vs capture → фейк-клиент → win-build → свитч (го дано заранее).
+> Последнее обновление: 05.10.2026 (ночь-3): AuthGateD ~60%. РЕСЁРЧ ЧУЖОГО ОПЫТА ЗАКРЫТ (docs/authgate-research-20261005.md + tools/analysis/diag6_sminit_probe.py): welcome НЕ классический SM_INIT (константы c621/197635/2097152/3FCE09ED отсутствуют), GG-зона нулей в ECB-dec не обязана быть видна (скрамбл) — противоречие §7 снято; plaintext[0:8] = per-run сид (первый diff между сессиями @ байт 8); inv_mod == AC-Login encryptModulus (цепочка скрамбла модуля подтверждена опенсорсом). ⚠ БЛОКЕР СВИТЧА прежний: дизasm 0x407d50 welcome-билдер (чек-лист вопросов в доке ресёрча §6) → byte-exact vs capture → фейк-клиент → win-build → свитч (го дано заранее). (ночь-2: скелет ГОТОВ — proto/authdclient/server/config/ship/main, e2e зелёный, wire 2110 1-в-1, rsapricrt закрыт, session-док docs/session-20261005-authgate-skeleton.md)
 > Коммиты CAPTCHA-сессии: 3bfe87d (recon) → 297b716 (протокол) → 179a808 (код) → финал см. git log.
 > Доки сессии: docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md, docs/session-20261005-captcha.md,
 > статус: nextgen/CAPTCHA-STATUS-SNAPSHOT.md. Прошлая сессия (логгер): docs/session-20261005-logd-final.md.
@@ -13,7 +13,7 @@
 | Капча aion-captcha | ✅ **ЗАКРЫТА (05.10, в бою на :22206)**: PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd, exe MD5 `5394aab1`, буфер 10000 наливается за ~4с (оригинал 6.4 мин), Server64.err чист; откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run` (оригинал не тронут) |
 | Батники | ✅ `AION-START-ALL-v6.bat` на десктопе (наш логгер, всё в сессии 1); v5 рядом = откат; CAPTCHA стартует своей задачей (не в v6) |
 | aion-op (Трек A) | ✅ Phase 1 (SQL-вкладка живая, bind 0.0.0.0, operate с кнопками рестартов, kick-задачи); фаза 1.5 — НЕ начата |
-| Трек B | 🔄 порядок в §3; logd ✅ + captcha ✅ (в бою); **AuthGateD в работе**: скелет готов (proto/authdclient/server/config/ship/main, e2e ✅), блокер = byte-exact welcome (0x407d50) |
+| Трек B | 🔄 порядок в §3; logd ✅ + captcha ✅ (в бою); **AuthGateD ~60%**: скелет готов (proto/authdclient/server/config/ship/main, e2e ✅), ресёрч SM_INIT закрыт (docs/authgate-research-20261005.md), блокер = byte-exact welcome → дизasm 0x407d50 |
 | Батники подмены логгера | процедура отработана 3 раза: `/end` → ЖДАТЬ смерти процесса (до 10с!) → copy → `/run` |
 
 ## 2. ОТКРЫТЫЕ ПУНКТЫ (по приоритету)
@@ -70,5 +70,6 @@
 | Оператор aion-op | nextgen/aion-op/; прод: C:\aionop\ (UI 127.0.0.1:10200 через ssh -L) |
 | Бинари+PDB | локально ~/STELGEN/projects/aion_rev_2026-10-05/artifacts/; гигантские PDB на VM |
 | Дизasmы | /tmp/logsrv.asm (LogServer64), /tmp/logpub.txt; pdbpub.py — ~/STELGEN/tmp/ |
+| Ресёрч SM_INIT/классика LS | docs/authgate-research-20261005.md; прогон: tools/analysis/diag6_sminit_probe.py |
 | Сессия 05.10 (этот чат) | docs/session-20261005-logd-final.md |
 | Память | STELGEN/projects/aion_server_2026-10-02 (+fixes/) — читать в начале каждого чата |
