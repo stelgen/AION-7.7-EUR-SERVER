@@ -6,6 +6,7 @@ package records
 import (
 	"encoding/binary"
 	"fmt"
+	"math"
 )
 
 // Len — размер тела status-записи.
@@ -53,8 +54,10 @@ func ParseStatus(body []byte) (*StatusRecord, error) {
 	return r, nil
 }
 
+// floatFrom — РЕИНТЕРПРЕТ бит в float32 (было int→float — координаты показывались мусором,
+// найдено при подмене 05.10: pos=(1146813568.0) вместо ~887.0).
 func floatFrom(b []byte) float32 {
-	return float32(binary.LittleEndian.Uint32(b)) // биты
+	return math.Float32frombits(binary.LittleEndian.Uint32(b))
 }
 
 // SysTimeString — "2026-10-05 09:15:49.696".

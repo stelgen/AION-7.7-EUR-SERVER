@@ -3,7 +3,27 @@
 > Консолидация ВСЕХ находок итераций 1–6. Прод: **наш logd в бою на :2051** (SYSTEM-задача
 > AionLogCap → D:\SAION\aion-logd\run.cmd, откат = schtasks /run AionLog).
 
-## ✅ ОБНОВЛЕНИЕ 05.10 (вечер): Л1–Л4 ЗАКРЫТЫ (код+тесты, exe staged на C:\Temp\logd-new\, прод-подмена отдельным «го»)
+## ✅ ОБНОВЛЕНИЕ 05.10 (вечер): Л1–Л4 ЗАКРЫТЫ И ПОДМЕНЕНЫ НА ПРОДЕ
+
+**ПРОД: 2 подмены (12:28 и 12:36), финальный exe MD5 6c8d2623, PID 7220 (SYSTEM-задача AionLogCap →
+D:\SAION\aion-logd\run.cmd). Верифицировано: 3 клиента ESTABLISHED, InitializeCount(svc=3),
+мир жив (7777), parse-ошибок нет, координаты человеческие (fix floatFrom bits→float).
+Бекапы: aion-logd.exe.bak-0510 + logd.log.bak-0510 в D:\SAION\aion-logd\. Готча: после /end
+ждать смерти процесса (copy валился «file in use» при 3с — нужно до 10с wait-loop).**
+
+- **SHIP E2E ЧЕРЕЗ НАСТОЯЩИЙ RSYSLOG 8.2504 (валидация, приёмник потом убран по требованию):**
+  UDP (датаграммы) и TCP (octet-counted RFC6587) — оба транспорта долетели 100%: start/conn.up/
+  version/server.started/status×3/text/parse.err(+raw)/conn.down/self/stop; PRI корректные
+  (14 info / 12 notice / 11 err); self-статус с sent/dropped/ошибками. Прод до приёмника не шипит
+  (ship.enabled=false в прод-конфиге — секция на месте, включить одной строкой когда rsyslog на LAN).
+- **ДИЗASM ТЕЙЛА type-9 (LogServer64.exe+pdb локально):** найден конвертер MsgId→wire-type
+  @0x1400130ca: **0x644→4 (Control), 0x645→5 (Status), 0x646→6, 0x647→8, 0x648→9 (TextLog)** —
+  клиент строит записи с внутренним MsgId, фрейминг общий (Shared\LogClient.cpp). type-6/8
+  существуют (type-8 видел в capture). Полная раскладка хвоста (тик/floats/флаги) набивается на
+  call-sites **Server64** — отдельная сессия с его PDB (284МБ); у нас уже: entries/онлайн, world,
+  stamp, tick, floats — всё шипится + raw сохранён. Anchor'и: LogBuffer ctor 0x14023290,
+  CreateFileLogBufferCollectorThread 0x14023680, SendServerStarted 0x14026820 (VA=ImageBase+off!).
+  Disasm: /tmp/logsrv.asm 136k строк, publics /tmp/logpub.txt (5417).
 
 - **Л1 type-9 парсер ГОТОВ** (`internal/textlog`): layout подтверждён живыми сэмплами —
   `[u32 id=928][ {u32 key][wchar name NUL]... }[tail][SYSTEMTIME 8WORD = последние 16 байт]`;
