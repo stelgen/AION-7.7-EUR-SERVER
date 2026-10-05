@@ -96,8 +96,9 @@
 клиент 34b (RSA-обмен): гейт RSA-dec → 32B X (ключ сессии клиента?) → ответ 42b =
   [2b][ECB(key2): echo X 32B + чексумма] (в capture блок X виден одинаково в 34 и 42)
 клиент 186b/314b (логин: классика/LoginEx): [2b][184B/312B]
-  RecvLogin: копия 128B/1024B (useGCSideExtendAccount @0x43c1b8) → RSA-dec 128→32
-  → memcpy → CheckSessionId([data+128]) → GG-check(0x407ac0, 16B @data+132)
+  RecvLogin@0x406230: RSA-блок 128B/256B (глобал 0x43c1b8=false/true) → в стек,
+  len -= блок; 0x417b60(0x43fcbc, [sock+0xf4], buf, 34) — первые 34Б → decbuf
+  → sessionId=DWORD@data+128 → CheckSessionId 0x4079d0 → GG-check 0x407ac0 (16B @data+132)
   → поле [data+148] → IsBlockedTrial → сборка authd-пакета fmt "cbdb"
   → SendCltPacket(sessionId, buf) → от authd приходит ответ → гейт шлёт 74b/26b/42b
 фейлы: Send("cc", 1, N) текст-пакет (22 = blocked IP, 45 = wrong loginType) + DelayedClose
@@ -110,17 +111,35 @@
 - Пакетная таблица m_PacketTable @0x437110 (19 типов, §0): type = первый байт plaintext
   после расшифровки (предположение — верифицировать живым клиентом).
 
-## 3. Wire 2110 (gate ↔ authd)
+## 3. Wire 2110 (gate ↔ authd) — БАЙТ-В-БАЙТ (дизasm 05.10 ~20:45)
 
 - Гейт держит ОДНУ коннекцию к authd (глобал 0x43b438); authReconnectInterval=0 —
   при потере authd гейт молчит и НЕ переподключается (рестартить гейт после authd).
-- OnCreate сессии: SendCltConnect(sessionId, in_addr) — authd регистрирует сессию
-  (строка в логах authd: «m_gateSessionMap.insert, SOCKET(%d), SESSIONID(%d)»).
-- SendCltPacket(sessionId, buf): заголовок 7B [len2?][type1][sessionId4?] + Assemble("cbdb", …):
-  [c 0][b: расшифрованные данные логина 34B][d: поле @data+148][b: блок (len-24, data+152)]
-- Auth→Gate тип 4 = push serverlist (IP мира из AionAccounts..server + region байт#23);
-  приём: CAuthSocket::OnRead @0x405d40 → CAuthPacket::OnIOCallback @0x405460.
-- Коды World→Auth: f2030000+NN (authlog-analysis-0410.md).
+- Assemble @0x40e540(dest, size, fmt, va): c=1B, h=2B LE, d=4B LE, b=(len,ptr) blob,
+  s/S=строки (двухуровневая jump-table из exe). fmt-строки .data:
+  0x42c780="cdd" 0x42c784="cd" 0x42c788="cdh" 0x42c7ac="cb" 0x42c7dc="cbdb" 0x42c7f8="cc".
+- ГЕЙТ→AUTHD (пул-буфер, len в buf+0x2000, send 0x40c460):
+  - CltConnect @0x406000:    "cdd"(0,sid,IP)   → [00][4B sid][4B IP]           (9B)
+  - CltDisconnect @0x406050: "cd"(1,sid)       → [01][4B sid]                  (5B)
+  - CltPacket @0x4060a0:     "cdh"(2,sid,L-5)  → [02][4B sid][2B len]payload,
+    len = payload+2 — САМОИНКЛЮЗИВНЫЙ u16 (payload строится Assemble с +7).
+- AUTHD→GATE (CAuthSocket::OnRead @0x405d40, ring [sock+0x78], state [sock+0xac] 0/1/2):
+  - [01][4B id] → [sock+0xa4]=id, регистрация 0x408670(0x43b440,id)
+  - [03][4B sessionId] → [sock+0xa0]=sessionId (authd назначает после CltConnect)
+  - [02][4B id][2B len-2][type][payload] → тело; len=(buf[6]<<8|buf[5])-2 —
+    тоже САМОИНКЛЮЗИВНЫЙ (симметрия с "cdh"), ≤0x1ffb иначе лог+close; state=0 после пакета.
+  - type-byte ≥0x15 → лог+close; ∈[0..0x14]; тип 4 = push serverlist
+    (payload берем из capture; IP мира+region в байтах).
+  - поток пакета: alloc 0x405450 → ctor 0x405430 (id/buf/size/sock в +0xc..+0x18) →
+    очередь → OnIOCallback @0x405460 (0x4086e0; при fail — "cc").
+- RecvLogin @0x406230 relay в authd: Assemble(pkt+7,"cbdb", 0, 34, decbuf,
+  dword@data+148, len-24, data+152) → [00][34B decbuf][4B dword@148 (|0x80000000
+  при 0x43c18a!=0 && session[0x101]==0)][len-24B @152]; authd-фрейм = 7+1+34+4+(len-24).
+- cc-отказы: 0x407e80(session,"cc",1,code): 22 = IP в блок-листе (0x416640 на [sock+0x88]),
+  45 (0x2d) = статус гейта 0x43c1ac не готов; после — DelayedClose, timeout [0x43c1b4]*1000мс.
+- brute 20/60/120 = менеджер 0x43fb68 (методы 0x416640/50/60), константы внутри.
+- Обёртки relay типов 1/2/3/5 @0x406500/520/540/560 → 0x4061c0: Assemble(pkt+7,"cb",[byte][blob]).
+- Коды World→Auth: f2030000+NN (authlog-analysis-0410.md) — константы В payload, не во фрейминге.
 - ⚠ УРОК ПАТЧЕЙ p1–p5: authd хрупкий — наш гейт wire 1-в-1, фейлы клиентов гасим сами.
 
 ## 4. Конфиг-зеркало (etc/config.txt, ver 41007) и эксплуатация
@@ -150,10 +169,13 @@ useGCSideExtendAccount=true; appLaunchBanDelay=5; useReportMail=false; authRecon
    биты) — для РЕАЛИЗАЦИИ не нужен (шифруем вперёд), нужен только для полной верификации.
 2. **Как определяется type клиентского пакета**: первый байт plaintext после ECB-dec(key2)?
    В capture 34/186/314-пакеты шифрованы; хендлеры dispatch по m_PacketTable[type].
-3. **Формат plaintext LoginEx 314b** (аккаунт/MD5-пароль/каналы): довершиить RecvLogin
-   (поля data+132/+148/+152) или снять живой клиент.
-4. **Wire 2110 заголовки байт-в-байт**: дизasm 0x406000/0x406050/0x4060a0 + OnRead @0x405d40
-   + CAuthPacket::OnIOCallback @0x405460 (тип 4 push serverlist; коды f2030000+NN).
+3. ЧАСТИЧНО ЗАКРЫТО дизasmом (05.10 ~20:45): поля RecvLogin = sessionId@data+128,
+   GG 16B@+132, dword@+148 (+флаг 0x80000000), блок len-24 @+152; decbuf 34Б (0x417b60,
+   схема дешифровки не вскрыта — для реализации не нужна, гейт ретранслюет байт-в-байт);
+   полный plaintext LoginEx 314 (аккаунт/пароль) — сверить живым клиентом.
+4. ✅ ЗАКРЫТО дизasmом (05.10 ~20:45) — §3 переписан байт-в-байт: gate→authd "cdd"/"cd"/"cdh",
+   authd→gate state-машина [01]/[02]/[03], len самоинклюзивный u16 с обеих сторон.
+   Остаток: dispatch-table по type-byte (брать из capture, не дизasm).
 5. **42-ответ**: кто шлёт, каким ctx, точный plaintext ([echo X] + чексумма?).
 6. sid = 0x7d5214 (8215060) — семантика генератора @0x408070.
 
