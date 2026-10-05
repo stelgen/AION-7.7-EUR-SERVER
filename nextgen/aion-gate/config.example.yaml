@@ -1,0 +1,38 @@
+# aion-gate — зеркалоо etc/config.txt AuthGateD (ver 41007) + welcome-вары + ship
+serverPort: 2106
+authAddr: 127.0.0.1
+authPort: 2110
+numThread: 32
+numIOThread: 96
+acceptCallNum: 200
+socketLimit: 2000
+sessionTimeout: 5          # минуты
+useForbiddenIPList: true
+blockIPsFile: etc/BlockIPs.txt
+logDirectory: log
+checkGameGuard: false
+useGameGuard: false
+useNotifyCSResult: true
+loginType: 2
+companyCode: "2"
+logdport: 3999
+useLogd: false
+tryInterval: 60
+tryCount: 20
+tryBlockInterval: 120
+dumpPacket: true
+ggNumActive: 50
+useGCSideExtendAccount: true
+appLaunchBanDelay: 5
+useReportMail: false
+authReconnectInterval: 0   # 0 = как оригинал (не реконнектит); >0 — наш реконнект
+
+# welcome-вары (§5.1 — гипотеза, верифицировать capture'ом)
+welcomePlainByte: 35       # 0x23
+welcomeB0: 101             # 'e'
+welcomeB1: 114             # 'r'
+welcomeB2: 0
+
+# телеметрия TELEMETRY-SPEC (пакет ship копируется из aion-logd — TODO)
+ship:
+  enabled: false
