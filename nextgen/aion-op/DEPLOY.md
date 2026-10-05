@@ -10,7 +10,8 @@
 |---|---|
 | Каталог на VM | `C:\aionop\` (aionop-win.exe, config-vm.yaml, run.cmd, aionop.db) |
 | Задача | `AionOp` — schtasks, `/ru SYSTEM /sc onstart /rl HIGHEST`, автозапуск при буте |
-| Режим | `vm.mode: local` (пробы локально на VM), `operator.mode: observe` |
+| Kill-задачи | AionKickGate/AionKickAuth — /IT созданы 05.10 (пароль из реестра Winlogon, нигде не сохранён); AionKickMain/AionKickNPC2 были; AionCAPTCHA — ре-enable 05.10 (был найден Disabled) |
+| Режим | `vm.mode: local` (пробы локально на VM), `operator.mode: operate` + `dry_run: false` — реальное управление включено 05.10 (решение юзера) |
 | Безопасность | `bind: 0.0.0.0` (решение юзера: стек в локалке, наружу не торчит — NAT закрыт), `dry_run: true` (действия только планируются), POST /api/action отсутствует в observe |
 | pprof | `127.0.0.1:10201/debug/pprof/` |
 | Данные | `C:\aionop\aionop.db` — SQLite WAL, retention 30 дней |
@@ -50,14 +51,19 @@ ssh 'Администратор@192.168.0.125' "cmd /c \"netstat -ano -p tcp | f
 - Вкладка SQL: CCU (миры+auth), blocked, compile-очередь (RESOURCE_SEMAPHORE — root ночи 04–05), top-waits дельты.
 - Ротация пароля: перегенерить python-рендером conn → обновить config-vm.yaml на VM → рестарт AionOp.
 
-## Переход в operate (когда юзер скажет «можно управлять»)
+## Статус operate (05.10)
 
-1. Создать недостающие /IT kill-задачи (пароль из реестра VM, НЕ сохранять нигде):
-   `schtasks /create /f /tn AionKickGate /tr "taskkill /F /IM AuthGateD.exe" /sc once /st 00:00 /it /ru Администратор /rp <pwd> /rl HIGHEST` (и AionKickAuth).
-2. На VM в `config-vm.yaml`: `operator.mode: operate` + `operator.dry_run: false` (явно!).
-3. Обновить aion-op (см. выше) — POST /api/action смонтируется; кнопки в UI оживут.
-4. Пока dry_run: true — действия возвращают план и пишут audit, но НЕ исполняются.
-5. Первые реальные действия — только из юзер-сессии VM (десктоп), пара — только через restart_pair.
+- Кнопки оживут в UI (POST /api/action смонтирован): start — все не-locked; stop/restart — где есть kill_task;
+  restart_pair — только парой, с typed-confirm «RESTART PAIR», заблокирован в окне загрузки (conns<16) и при деградации.
+- E2E-тест на проде 05.10: `restart captcha` = OK/exec (taskkill → schtasks /run AionCAPTCHA → новый PID 6968, порт 22206 вернулся); reject-тесты: restart_pair без confirm → отказ; locked chat → отказ; пара осталась нетронутой (8/16).
+- Готча исполнения: шаги-пометки («пауза Nс», «ждать …») в планах пропускаются как не-команды; fail-fast по шагам с записью в audit.
+
+## Переход в operate (выполнено 05.10)
+
+1. ~~Создать недостающие /IT kill-задачи~~ — созданы: AionKickGate, AionKickAuth (пароль из реестра, НЕ сохранён нигде).
+2. ~~config-vm.yaml: operate + dry_run: false~~ — включено 05.10.
+3. ~~Обновить aion-op~~ — сделано; POST /api/action работает, UI-кнопки активны.
+4. Первые реальные действия — только лёгкие сервисы; пара — только через restart_pair с confirm; **мир/auth не рестартовать пока юзер в игре**.
 
 ## Откат
 

@@ -142,12 +142,14 @@ function worldPanel(w) {
   const pct = Math.min(100, Math.round((w.conns / Math.max(1, w.expected)) * 100));
   const cls = w.pair_broken ? "broken" : (w.collected ? "" : "part");
   const label = w.pair_broken ? "ПАРА РАЗОМКНУТА" : (w.collected ? "мир собран" : (w.loading_window ? "загрузка/спавн" : "мир не собран"));
+  const canOperate = DATA && DATA.mode === "operate";
   return `<div class="world-panel">
     <h2>ПАРА NPC+MAIN (единая единица управления)</h2>
     <div class="world-line">
       <b class="mono">${w.conns}/${w.expected}</b>
       <div class="bar ${cls}"><i style="width:${pct}%"></i></div>
       <span class="dim">${label} · ESTABLISHED на :2002</span>
+      ${canOperate ? '<button class="btn btn-go" style="margin-left:12px" onclick="doAction(\'restart_pair\',\'pair\')">⟳ ПАРА (10–15 мин)</button>' : ""}
     </div>
     ${w.pair_note ? `<div class="world-note">⚠ ${esc(w.pair_note)}</div>` : ""}
   </div>`;

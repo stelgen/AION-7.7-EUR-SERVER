@@ -102,7 +102,7 @@ func (e *Executor) Build(action, id string, snap probe.Snapshot) Plan {
 		}
 		p.Danger = true
 		p.NeedConfirm = "restart"
-		p.Steps = []string{stop, "… пауза 5с …", "schtasks /run /tn " + svc.Task}
+		p.Steps = []string{stop, "пауза 5с", "schtasks /run /tn " + svc.Task}
 
 	case "restart_pair":
 		if id != "pair" {
@@ -187,8 +187,9 @@ func (e *Executor) Execute(ctx context.Context, p Plan, confirm string) Result {
 
 	var logw strings.Builder
 	for _, step := range p.Steps {
-		if strings.HasPrefix(step, "пауза") || strings.HasPrefix(step, "ждать") {
-			logw.WriteString(step + " — (в UI-версии фазы 1.5 ждём маркеры)\n")
+		t := strings.TrimSpace(step)
+		if strings.HasPrefix(t, "пауза") || strings.HasPrefix(t, "ждать") || strings.HasPrefix(t, "…") {
+			logw.WriteString(step + " — (пометка плана, не команда)\n")
 			continue
 		}
 		out, err := e.run(ctx, step)
