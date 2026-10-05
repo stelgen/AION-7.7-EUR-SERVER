@@ -9,3 +9,5 @@
 - **Трек B** (месяцы): замены — CAPTCHA → AuthGateD → L2Authd → LogServer64 → AccountCache → ChannelChat → CacheD(RAM-кэш) → ICServer. Server64+NPCSvr+ScriptDLL64 — НЕ переписывать: Ghidra+PDB точечные патчи (метод #180).
 
 **Джекпот проекта:** на VM лежат родные PDB-символы NC ко всем ключевым нативным бинарям (~1.1 ГБ; локально скачаны малые, MD5-манифест гигантов: [manifest-pdb-big.md](manifest-pdb-big.md), бинарей: [manifest-bin.md](manifest-bin.md)).
+
+**Код Трека A (Phase 0, observe-only):** [aion-op/](aion-op/) — скелет оператора: YAML-топология, state machine, пробы mock/ssh (tasklist/netstat/quser), web-UI с вкладками; кнопки замком, управляющих роутов нет. Детальный план работ и карта кнопок: [TRACK-A-PLAN.md](TRACK-A-PLAN.md).
