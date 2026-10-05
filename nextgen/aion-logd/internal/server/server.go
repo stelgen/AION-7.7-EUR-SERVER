@@ -19,11 +19,12 @@ import (
 )
 
 type Config struct {
-	Listen  string            `yaml:"listen"`   // :2051
-	Builder uint32            `yaml:"builder"`  // наш builderNumber (≥10003)
-	BaseDir string            `yaml:"base_dir"` // корень логов (в проде — D:\AION_LIVE_SERVER\...\log)
-	Dirs    map[string]string `yaml:"dirs"`     // svcType → каталог (переопределения)
-	MaxConn int               `yaml:"max_conn"`
+	Listen     string            `yaml:"listen"`   // :2051
+	Builder    uint32            `yaml:"builder"`  // наш builderNumber (≥10003)
+	BaseDir    string            `yaml:"base_dir"` // корень логов (в проде — D:\AION_LIVE_SERVER\...\log)
+	Dirs       map[string]string `yaml:"dirs"`     // svcType → каталог (переопределения)
+	MaxConn    int               `yaml:"max_conn"`
+	CaptureAll bool              `yaml:"capture_all"` // дампить ВЕСЬ трафик в .raw (capture-режим)
 }
 
 type Server struct {
@@ -78,6 +79,18 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 	r := bufio.NewReaderSize(c, 16*1024)
 	var acc []byte
 
+	// СЕРВЕР говорит первым (мимик LogServerSocket::OnCreate: SendVersion+VT при accept):
+	// итерация 05.10 доказала — клиенты подключаются и ЖДУТ инициативы сервера.
+	if _, err := c.Write(proto.Build(proto.TypeVersion, proto.VersionBody(s.cfg.Builder, nil))); err != nil {
+		log.Printf("[%s] ver write: %v", remote, err)
+		return
+	}
+	if _, err := c.Write(proto.VersionAndTime()); err != nil {
+		log.Printf("[%s] vt write: %v", remote, err)
+		return
+	}
+	log.Printf("[%s] connected, Version(builder=%d)+VT отправлены первыми", remote, s.cfg.Builder)
+
 	for {
 		_ = c.SetReadDeadline(time.Now().Add(5 * time.Minute)) // keepalive-фолбэк
 		chunk := make([]byte, 4096)
@@ -95,6 +108,9 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 					continue
 				}
 				acc = acc[used:]
+				if s.cfg.CaptureAll {
+					_ = s.wr.WriteRaw("capture", pkt.Type, pkt.Raw, time.Now())
+				}
 
 				switch pkt.Type {
 				case proto.TypeVersion:

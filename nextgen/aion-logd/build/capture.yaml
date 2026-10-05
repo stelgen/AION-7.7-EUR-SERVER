@@ -1,0 +1,6 @@
+server:
+  listen: ":2051"
+  builder: 10004
+  base_dir: "C:/logd-capture/logs"
+  max_conn: 16
+  capture_all: true

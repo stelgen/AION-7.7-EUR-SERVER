@@ -45,30 +45,40 @@ func TestHandshakeAndRawData(t *testing.T) {
 	}
 
 	// сервер должен ответить Version(0, builder≥10003) + VersionAndTime(2, FILETIME)
-	buf := make([]byte, 4096)
+	got := make([]byte, 0, 4096)
+	b1 := make([]byte, 4096)
 	_ = c.SetReadDeadline(time.Now().Add(3 * time.Second))
-	n, err := c.Read(buf)
-	if err != nil || n < 13 {
-		t.Fatalf("read reply: %v n=%d", err, n)
-	}
-	got := buf[:n]
-	p1, used, err := proto.Parse(got)
-	if err != nil {
-		t.Fatalf("reply1 parse: %v (% X)", err, got[:min(16, n)])
-	}
-	if p1.Type != proto.TypeVersion {
-		t.Fatalf("reply1: type=%d want Version", p1.Type)
-	}
-	b, minB := proto.ParseVersion(p1.Body)
-	if b < proto.MinBld || minB != proto.MinBld {
-		t.Fatalf("reply1 builder=%d min=%d", b, minB)
-	}
-	p2, _, err := proto.Parse(got[used:])
-	if err != nil {
-		t.Fatalf("reply2 parse: %v", err)
-	}
-	if p2.Type != proto.TypeVerAndTime || proto.ParseVersionAndTime(p2.Body) == 0 {
-		t.Fatalf("reply2: %+v", p2)
+	for { // читаем до двух полных пакетов (TCP может рвать)
+		n, err := c.Read(b1)
+		if err != nil {
+			t.Fatalf("read reply: %v got=%d", err, len(got))
+		}
+		got = append(got, b1[:n]...)
+		p1, used, err := proto.Parse(got)
+		if err == proto.ErrShort {
+			continue
+		}
+		if err != nil {
+			t.Fatalf("reply1 parse: %v (% X)", err, got[:min(16, len(got))])
+		}
+		if p1.Type != proto.TypeVersion {
+			t.Fatalf("reply1: type=%d want Version", p1.Type)
+		}
+		b, minB := proto.ParseVersion(p1.Body)
+		if b < proto.MinBld || minB != proto.MinBld {
+			t.Fatalf("reply1 builder=%d min=%d", b, minB)
+		}
+		p2, _, err := proto.Parse(got[used:])
+		if err == proto.ErrShort {
+			continue
+		}
+		if err != nil {
+			t.Fatalf("reply2 parse: %v", err)
+		}
+		if p2.Type != proto.TypeVerAndTime || proto.ParseVersionAndTime(p2.Body) == 0 {
+			t.Fatalf("reply2: %+v", p2)
+		}
+		break
 	}
 
 	// type 4 (кандидат данных) → уходит в .raw, коннект жив
