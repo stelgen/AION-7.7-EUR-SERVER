@@ -133,11 +133,11 @@ func TestE2ESkeleton(t *testing.T) {
 	if _, err := asRead(cl, ecb); err != nil {
 		t.Fatal(err)
 	}
-	// plaintext[0] = 0x23 (capture-паритет)
+	// asm-модель (ночь-4): plaintext[0]=0x00 ('c'←0x0), sid=[esi+0xfc] на [1:5] LE
 	dec := make([]byte, 8)
 	srv.key1.Decrypt(dec, ecb[:8])
-	if dec[0] != 0x23 || dec[1] != 1 || dec[2] != 0 || dec[3] != 0 {
-		t.Fatalf("welcome dword0: %x", dec[:4]) // sid = 1 (счётчик с 1)
+	if dec[0] != 0x00 || binary.LittleEndian.Uint32(dec[1:5]) != 1 {
+		t.Fatalf("welcome dword0+sid: %x", dec[:5]) // sid = 1 (счётчик с 1)
 	}
 
 	// authd получил CltConnect
@@ -148,12 +148,11 @@ func TestE2ESkeleton(t *testing.T) {
 		t.Fatal("нет сессии")
 	}
 
-	// 2. 34b RSA-обмен → 42b ответ
-	x := append([]byte{0x10}, []byte("SESSION-KEY-X-32-BYTES-AAAAAAA!")...) // 32B, первый байт < 0x80 ⇒ x < n
-	pub := &sess.RSA.Priv.PublicKey
-	ct := new(big.Int).Exp(new(big.Int).SetBytes(x), big.NewInt(int64(pub.E)), pub.N).FillBytes(make([]byte, 32))
-	frame := proto.WriteFrame(ct)
-	if _, err := cl.Write(frame); err != nil {
+	// 2. 34b AUTH_GG → 42b SM_AUTH_GG: клиент шлёт EncryptSecondary([sid][20B]),
+	// ответ = EncryptSecondary([sid][28×0]) (capture-структура [P][Q][Q][Q][P], ночь-4)
+	gg := make([]byte, 24)
+	binary.LittleEndian.PutUint32(gg, sess.ID) // [sid][20B]
+	if _, err := cl.Write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, gg))); err != nil {
 		t.Fatal(err)
 	}
 	rl := make([]byte, 2)
@@ -171,8 +170,13 @@ func TestE2ESkeleton(t *testing.T) {
 	for off := 0; off < 40; off += 8 {
 		sess.BF2.Decrypt(decX[off:off+8], body[off:off+8])
 	}
-	if string(decX[:32]) != string(x) {
-		t.Fatalf("X echo: %q", decX[:32])
+	if binary.LittleEndian.Uint32(decX[0:4]) != sess.ID || binary.LittleEndian.Uint32(decX[32:36]) != sess.ID {
+		t.Fatalf("SM_AUTH_GG: dw0=%x dw8=%x", decX[0:4], decX[32:36])
+	}
+	for i := 4; i < 32; i++ {
+		if decX[i] != 0 {
+			t.Fatalf("SM_AUTH_GG zeros@%d: %02x", i, decX[i])
+		}
 	}
 
 	// 3. логин 186b → relay "cbdb" в authd (decbuf = RSA-dec 128Б-блока с ведущими нулями)

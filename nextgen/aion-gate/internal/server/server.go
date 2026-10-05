@@ -206,7 +206,6 @@ func (s *Server) handleConn(conn net.Conn) {
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendConnect(sid, ip) }) // CltConnect @0x406000
 
 	wargs := &proto.WelcomeArgs{
-		PlainByte:    byte(s.Cfg.WelcomePlainByte),
 		SessionID:    sid,
 		AuthdSession: s.authdSession(),
 		Modulus:      sess.RSA.Modulus128(),
@@ -228,9 +227,9 @@ func (s *Server) handleConn(conn net.Conn) {
 			return
 		}
 		switch {
-		case len(payload) == 32: // клиент 34b: RSA-обмен
-			if err := s.handleRSAExchange(sess, payload); err != nil {
-				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "rsa"}})
+		case len(payload) == 32: // клиент 34b: AUTH_GG (дизasm ночь-4: echo=[sid][28×0], RSA НЕ участвует)
+			if err := s.handleAuthGG(sess, payload); err != nil {
+				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "authgg"}})
 				return
 			}
 		case len(payload) >= 184: // логин 186/314
@@ -246,14 +245,27 @@ func (s *Server) handleConn(conn net.Conn) {
 	}
 }
 
-// handleRSAExchange: RSA-dec 32Б → X; ответ 42b = [frame][ECB(key2): X+pad+XOR-csum]
-// (инверсия DecryptSecondary; точный состав 42b — TODO §5.5).
-func (s *Server) handleRSAExchange(sess *Session, payload []byte) error {
-	x, err := sess.RSA.DecryptBlock(payload)
-	if err != nil {
-		return err
+// handleAuthGG: клиент 34b = [len][32Б blob] — CM_AUTH_GG, blob =
+// EncryptSecondary([sid 4B][20B]) (classic). Ответ 42b = EncryptSecondary([sid][28×0]) —
+// SM_AUTH_GG: capture-структура cipher [P][Q][Q][Q][P] = plaintext [A][28×0][A][pad0]
+// (ночь-4, docs/session-20261005-authgate-disasm407d50.md §4). RSA в обмене НЕ участвует.
+// Расшифровку клиентского blob делаем best-effort (лог расхождения sid), связь НЕ рвём:
+// канонический ответ зависит только от нашего sid.
+func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
+	if data, err := proto.DecryptSecondary(sess.BF2, blob); err == nil {
+		if len(data) >= 4 {
+			if csid := binary.LittleEndian.Uint32(data); csid != sess.ID {
+				log.Printf("auth-gg: sid mismatch: client %d != session %d", csid, sess.ID)
+				s.send(ship.Event{Ev: "authgg.mismatch", Data: map[string]any{"sid": sess.ID, "client": csid}})
+			}
+		}
+	} else {
+		log.Printf("auth-gg: blob не расшифровался как EncryptSecondary (len=%d): %v", len(blob), err)
+		s.send(ship.Event{Ev: "authgg.blob", Data: map[string]any{"sid": sess.ID, "len": len(blob)}})
 	}
-	return sess.write(proto.WriteFrame(encryptToClient(sess.BF2, x)))
+	reply := make([]byte, 32)
+	binary.LittleEndian.PutUint32(reply, sess.ID) // [sid][28×0]
+	return sess.write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, reply)))
 }
 
 // handleLogin: релей логина в authd (§5.3, дизasm 05.10 + 0x417b60):
@@ -297,7 +309,7 @@ func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	}
 	s.mu.Unlock()
 	for _, sess := range all {
-		_ = sess.write(proto.WriteFrame(encryptToClient(sess.BF2, payload)))
+		_ = sess.write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, payload)))
 	}
 	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"sessions": len(all), "len": len(payload)}})
 }
@@ -316,24 +328,6 @@ func (s *Server) onAuthdClosed(err error) {
 			}
 		}()
 	}
-}
-
-// encryptToClient — инверсия proto.DecryptSecondary: [payload + паддинг + XOR-csum] ECB(key2).
-func encryptToClient(bf2 *proto.Blowfish, payload []byte) []byte {
-	n := (len(payload) + 4 + 7) &^ 7
-	buf := make([]byte, n)
-	copy(buf, payload)
-	nd := n / 4
-	var x uint32
-	for k := 0; k < nd-1; k++ {
-		x ^= binary.LittleEndian.Uint32(buf[k*4:])
-	}
-	binary.LittleEndian.PutUint32(buf[(nd-1)*4:], x)
-	out := make([]byte, n)
-	for off := 0; off < n; off += 8 {
-		bf2.Encrypt(out[off:off+8], buf[off:off+8])
-	}
-	return out
 }
 
 // sendCC — cc-отказ @0x407e80: Assemble("cc", 1, code) → [01][code] plaintext

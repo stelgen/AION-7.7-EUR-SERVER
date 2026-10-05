@@ -97,7 +97,9 @@ func TestAssembleWire(t *testing.T) {
 	}
 }
 
-// Welcome: 194B, len-филд 0xC2 00, plaintext[0]=0x23, sid-байты на dword0 (capture-паритет).
+// Welcome: 194B, len-филд 0xC2 00; asm-модель (ночь-4, 0x407d50):
+// plaintext[0]=0x00 ('c'←va0=0x0); dword0 = [0x00][sid-байты 1..3], НЕ скрамблится;
+// dword1+ скрамблены cumsum'ом; csum@184; хвост 188..191 = нули буфера.
 func TestWelcome194(t *testing.T) {
 	key1 := GenerateInitialKey(0x04bd)
 	bf, err := NewBlowfish(key1[:])
@@ -105,9 +107,9 @@ func TestWelcome194(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := &WelcomeArgs{
-		PlainByte: 0x23,
-		SessionID: 0x7d5214,
-		LoginType: 2, B0: 'e', B1: 'r', B2: 0,
+		SessionID:    0x7d5214,
+		AuthdSession: 0x11223344,
+		LoginType:    2, B0: 'e', B1: 'r', B2: 0,
 	}
 	w := BuildWelcome(a, bf)
 	if len(w) != WelcomeLen {
@@ -116,47 +118,99 @@ func TestWelcome194(t *testing.T) {
 	if w[0] != 0xC2 || w[1] != 0x00 {
 		t.Fatalf("welcome: len-филд %02x %02x", w[0], w[1])
 	}
-	// ECB-dec(key1) вручную (обратный к EncryptPrimary без unscramble: dword0 = plaintext dword0)
 	dec := make([]byte, 0, 192)
 	blk := make([]byte, 8)
 	for off := 2; off < 194; off += 8 {
 		bf.Decrypt(blk, w[off:off+8])
 		dec = append(dec, blk...)
 	}
-	if dec[0] != 0x23 {
-		t.Fatalf("plaintext[0]=%02x want 0x23", dec[0])
+	if dec[0] != 0x00 {
+		t.Fatalf("plaintext[0]=%02x want 0x00 (asm 'c'←0x0)", dec[0])
 	}
-	if string(dec[1:4]) != "\x14\x52\x7d" {
-		t.Fatalf("sid-байты dword0: %x", dec[1:4])
+	// dword0 НЕ скрамблится = [0x00][sid-байты 1..3] LE = 0x7d521400;
+	// dword1+ уже скрамблены (cumsum) — сырые поля напрямую не читаются
+	if binary.LittleEndian.Uint32(dec[0:4]) != 0x7d521400 {
+		t.Fatalf("dword0: %x want 7d521400", dec[0:4])
 	}
-	if len(dec) != 192 {
-		t.Fatalf("ECB-часть: %d want 192", len(dec))
+	if dec[188] != 0 || dec[189] != 0 || dec[190] != 0 || dec[191] != 0 {
+		t.Fatal("хвост ECB-области (188..191) не нулевой")
 	}
 }
 
+// Known-answer на семантику скрамбла asm 0x417a20: data [1,0,0,0 | 2,0,0,0] →
+// dw0=1 (нетронут), S=1+2=3 → dw1=2^3=1, csum dw2=3, pad dw3=0 → ECB 16Б.
+func TestEncryptPrimaryKnownAnswer(t *testing.T) {
+	bf, _ := NewBlowfish([]byte("ka-test-key-16byt"))
+	out := EncryptPrimary(bf, []byte{1, 0, 0, 0, 2, 0, 0, 0})
+	if len(out) != 16 {
+		t.Fatalf("EncryptPrimary(8B): %d want 16", len(out))
+	}
+	exp := make([]byte, 16)
+	binary.LittleEndian.PutUint32(exp[0:], 1)
+	binary.LittleEndian.PutUint32(exp[4:], 1) // 2 ^ (1+2)
+	binary.LittleEndian.PutUint32(exp[8:], 3) // csum = финальный S
+	want := make([]byte, 16)
+	bf.Encrypt(want[0:8], exp[0:8])
+	bf.Encrypt(want[8:16], exp[8:16])
+	if string(out) != string(want) {
+		t.Fatalf("known-answer: got %x want %x", out, want)
+	}
+	// инвариант dword0: расшифрованный dword0 == исходный
+	dec0 := make([]byte, 8)
+	bf.Decrypt(dec0, out[0:8])
+	if binary.LittleEndian.Uint32(dec0[0:4]) != 1 {
+		t.Fatal("dword0 изменён скрамблом")
+	}
+}
+
+// DecryptSecondary: инверсия EncryptSecondary; tamper → ErrChecksum.
 func TestDecryptSecondaryRoundtrip(t *testing.T) {
 	bf, _ := NewBlowfish([]byte("key2-test-key2-t"))
-	msg := []byte("plaintext-16-bytes!!") // 20B
-	enc := make([]byte, 24)
-	copy(enc, msg)
-	var x uint32
-	for k := 0; k < 5; k++ {
-		x ^= binary.LittleEndian.Uint32(enc[k*4:])
-	}
-	binary.LittleEndian.PutUint32(enc[20:], x)
-	for off := 0; off < 24; off += 8 {
-		bf.Encrypt(enc[off:off+8], enc[off:off+8])
+	msg := []byte("plaintext-16-bytes!!") // 20B → n'=24 → blob 32B
+	enc := EncryptSecondary(bf, msg)
+	if len(enc) != 32 {
+		t.Fatalf("EncryptSecondary(20B): %d want 32", len(enc))
 	}
 	got, err := DecryptSecondary(bf, enc)
 	if err != nil {
 		t.Fatalf("DecryptSecondary: %v", err)
 	}
-	if string(got) != string(msg) {
-		t.Fatalf("roundtrip: %q", got)
+	if len(got) != 24 || string(got[:20]) != string(msg) {
+		t.Fatalf("roundtrip: %q (%d)", got, len(got))
 	}
 	enc[3] ^= 0xff
 	if _, err := DecryptSecondary(bf, enc); err != ErrChecksum {
 		t.Fatalf("ожидался ErrChecksum, got %v", err)
+	}
+}
+
+// Echo-структура из capture 03.10: EncryptSecondary([sid][28×0]) →
+// plaintext [A][28×0][A][pad0], cipher-блоки [P][Q][Q][Q][P] (b0==b4, b1==b2==b3).
+func TestEncryptSecondaryEchoStructure(t *testing.T) {
+	bf, _ := NewBlowfish([]byte("echo-test-key2-16"))
+	reply := make([]byte, 32)
+	binary.LittleEndian.PutUint32(reply, 0x7d5214) // [sid][28×0]
+	enc := EncryptSecondary(bf, reply)
+	if len(enc) != 40 {
+		t.Fatalf("EncryptSecondary(32B): %d want 40", len(enc))
+	}
+	dec := make([]byte, 40)
+	for off := 0; off < 40; off += 8 {
+		bf.Decrypt(dec[off:off+8], enc[off:off+8])
+	}
+	if binary.LittleEndian.Uint32(dec[0:4]) != 0x7d5214 || binary.LittleEndian.Uint32(dec[32:36]) != 0x7d5214 {
+		t.Fatalf("echo plaintext: dw0=%x dw8=%x", dec[0:4], dec[32:36])
+	}
+	for i := 4; i < 32; i++ {
+		if dec[i] != 0 {
+			t.Fatalf("echo zeros@%d: %02x", i, dec[i])
+		}
+	}
+	if string(enc[8:16]) != string(enc[16:24]) || string(enc[16:24]) != string(enc[24:32]) {
+		t.Fatal("cipher Q-блоки не равны (структура [P][Q][Q][Q][P] нарушена)")
+	}
+	if string(enc[0:8]) != string(enc[32:40]) {
+		t.Fatal("cipher P-блоки не равны (b0 != b4)")
 	}
 }
 

@@ -75,4 +75,18 @@ _(173→177→184→192→194) сходится идеально — расхо�
 - Буфер: байты 188..191 (после csum) EncryptPrimary не пишет — резидуум пула буферов (0x40abf0); для byte-exact надо знать, зеро ли пул.
 
 ## Следующий шаг
-Правка Go-билдера под asm-модель (plaintext[0]=0x00, без PlainByte, +4 = удлинение) → e2e → собранный gate против живого клиента (решающий эксперимент) → если клиент примет, capture-интерпретация объявляется ошибочной и свитч по плану §6.
+~~Правка Go-билдера под asm-модель~~ → ✅ ВЫПОЛНЕНА (ночь-4, тесты зелёные -count=1):
+- welcome.go: plaintext[0]=0x00 (PlainByte убран), layout по asm, +4 = удлинение (комментарии);
+- crypto.go: DecryptSecondary ИСПРАВЛЕН по 0x417ad0 (XOR (len-8)/4 dword, csum@k, возврат len-8;
+  прежний вариант XOR-ил csum и проверял pad — на реальных клиентах давал бы ложные отказы/пропуски);
+  добавлен EncryptSecondary @0x417a80 (csum сразу за roundup8-данными, pad после);
+- server.go: 34b-путь = handleAuthGG (CM/SM_AUTH_GG: ответ EncryptSecondary([sid][28×0]),
+  расшифровка клиентского blob best-effort, связь не рвём; RSA в обмене НЕ участвует —
+  он в логине 186b data[:128] ✓); encryptToClient удалён (позиция csum была неверной —
+  в конце вместо сразу за данными); serverlist-push через proto.EncryptSecondary;
+- тесты: TestWelcome194 (dword0=0x7d521400), TestEncryptPrimaryKnownAnswer (скрамбл hand-computed),
+  TestEncryptSecondaryEchoStructure (cipher [P][Q][Q][Q][P] = capture-структура!), e2e AUTH_GG.
+- config: welcomePlainByte остался в yaml (не используется, deprecated).
+
+СЛЕДУЮЩИЙ ШАГ: win cross-build (GOOS=windows) → деплой на стенд → живой клиент (решающий
+эксперимент из §ПАРАДОКС) → по исходу: свитч по плану §6 или копать рантайм-ключ/provenance capture.
