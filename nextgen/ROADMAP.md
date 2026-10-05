@@ -1,6 +1,6 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> Последнее обновление: 05.10.2026 (вечер): CAPTCHA ✅ в бою; готов промпт следующей переписи — AuthGateD (nextgen/PROMPT-AUTHGATE.md).
+> Последнее обновление: 05.10.2026 (ночь): AuthGateD реверс-фаза — криптосхема ПОДТВЕРЖДЕНА capture'ом; протокол-док docs/authgate-protocol-20261005.md; capture-эталоны nextgen/aion-gate/testdata/. Следующий шаг: доверить открытые позиции §5 дока → реализация Go aion-gate → тесты → свитч.
 > Коммиты CAPTCHA-сессии: 3bfe87d (recon) → 297b716 (протокол) → 179a808 (код) → финал см. git log.
 > Доки сессии: docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md, docs/session-20261005-captcha.md,
 > статус: nextgen/CAPTCHA-STATUS-SNAPSHOT.md. Прошлая сессия (логгер): docs/session-20261005-logd-final.md.
