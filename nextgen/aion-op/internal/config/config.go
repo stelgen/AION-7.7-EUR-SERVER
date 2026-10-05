@@ -48,12 +48,41 @@ type WorldPair struct {
 	ExpectedConns int `yaml:"expected_conns"`
 }
 
+type StoreCfg struct {
+	Path          string `yaml:"path"` // SQLite WAL
+	RetentionDays int    `yaml:"retention_days"`
+}
+
+type PprofCfg struct {
+	Enabled bool   `yaml:"enabled"` // loopback-only
+	Addr    string `yaml:"addr"`
+}
+
+type LogFile struct {
+	Svc  string `yaml:"svc"`  // id сервиса
+	Path string `yaml:"path"` // {{date}} → YYYY-MM-DD
+}
+
+type LogsCfg struct {
+	PollSec   int       `yaml:"poll_sec"`
+	TailLines int       `yaml:"tail_lines"`
+	Files     []LogFile `yaml:"files"`
+}
+
+type MetricsCfg struct {
+	PollSec int `yaml:"poll_sec"`
+}
+
 type Config struct {
 	VM        VM               `yaml:"vm"`
 	Operator  Operator         `yaml:"operator"`
 	Services  []Service        `yaml:"services"`
 	Groups    map[string]Group `yaml:"groups"`
 	WorldPair WorldPair        `yaml:"world_pair"`
+	Store     StoreCfg         `yaml:"store"`
+	Pprof     PprofCfg         `yaml:"pprof"`
+	Logs      LogsCfg          `yaml:"logs"`
+	Metrics   MetricsCfg       `yaml:"metrics"`
 }
 
 func Load(path string) (*Config, error) {
@@ -94,6 +123,24 @@ func (c *Config) normalize() {
 	if c.WorldPair.NPCPort == 0 {
 		c.WorldPair.NPCPort = 2002
 	}
+	if c.Store.Path == "" {
+		c.Store.Path = "aionop.db"
+	}
+	if c.Store.RetentionDays == 0 {
+		c.Store.RetentionDays = 30
+	}
+	if c.Pprof.Addr == "" {
+		c.Pprof.Addr = "127.0.0.1:10201"
+	}
+	if c.Logs.PollSec <= 0 {
+		c.Logs.PollSec = 20
+	}
+	if c.Logs.TailLines <= 0 {
+		c.Logs.TailLines = 200
+	}
+	if c.Metrics.PollSec <= 0 {
+		c.Metrics.PollSec = 15
+	}
 }
 
 func (c *Config) Validate() error {
@@ -122,6 +169,14 @@ func (c *Config) Validate() error {
 	for _, s := range c.Services {
 		if _, ok := c.Groups[s.Group]; !ok {
 			return fmt.Errorf("сервис %q ссылается на неизвестную группу %q", s.ID, s.Group)
+		}
+	}
+	for _, f := range c.Logs.Files {
+		if f.Path == "" {
+			return fmt.Errorf("logs.files: пустой path")
+		}
+		if _, ok := ids[f.Svc]; !ok {
+			return fmt.Errorf("logs.files: неизвестный сервис %q", f.Svc)
 		}
 	}
 	return nil

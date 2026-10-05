@@ -32,6 +32,9 @@ header {
 }
 .badge-observe { background: #4a3a12; color: var(--amber); border: 1px solid #6b551a; }
 .badge-operate { background: #123d22; color: var(--green); border: 1px solid #1d5c33; }
+.badge-al.sev1 { background: #1d2430; color: var(--dim); border: 1px solid var(--line); }
+.badge-al.sev2 { background: #4a3a12; color: var(--amber); border: 1px solid #6b551a; }
+.badge-al.sev3 { background: #2a1416; color: var(--red); border: 1px solid #5c1d1d; }
 
 .chip {
   font-size: 11px; padding: 2px 8px; border-radius: 10px;
@@ -39,6 +42,7 @@ header {
 }
 .chip.ok { color: var(--green); border-color: #1d5c33; }
 .chip.bad { color: var(--red); border-color: #5c1d1d; }
+.chip.warn { color: var(--amber); border-color: #6b551a; }
 
 nav#tabs {
   display: flex; gap: 2px; padding: 8px 12px 0; flex-wrap: wrap;
@@ -84,6 +88,8 @@ main { padding: 14px 16px 40px; max-width: 1280px; margin: 0 auto; }
 
 .detail { font-size: 12px; color: var(--dim); }
 .detail .p { color: var(--text); font-family: var(--mono); font-size: 11px; margin-right: 6px; }
+.detail.bad { color: var(--red); font-family: var(--mono); }
+.detail.warn { color: var(--amber); font-family: var(--mono); }
 .actions { display: flex; gap: 6px; }
 .btn {
   min-width: 34px; padding: 5px 9px; border-radius: 6px; cursor: not-allowed;
@@ -106,6 +112,40 @@ main { padding: 14px 16px 40px; max-width: 1280px; margin: 0 auto; }
 
 .placeholder { color: var(--dim); background: var(--panel); border: 1px dashed var(--line); border-radius: 10px; padding: 24px; text-align: center; font-size: 13px; }
 pre.settings { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px; font-size: 12px; overflow: auto; max-height: 70vh; }
+
+/* --- Phase 0.5: логи / метрики / алерты --- */
+
+.syschips { display: flex; gap: 8px; margin: 0 0 14px; flex-wrap: wrap; }
+
+.legend { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+.evlist { max-height: 60vh; overflow: auto; }
+.evt {
+  display: grid; grid-template-columns: 70px 90px 130px 1fr; gap: 4px 10px;
+  padding: 6px 12px; border-bottom: 1px solid var(--line); font-size: 12px; align-items: baseline;
+}
+.evt:last-child { border-bottom: none; }
+.evt-time { color: var(--dim); }
+.evt-kind { color: var(--blue); }
+.evt-text { font-family: var(--mono); font-size: 11px; word-break: break-all; color: var(--text); }
+.evt.sev2 .evt-kind { color: var(--amber); }
+.evt.sev2 .evt-text { color: var(--amber); }
+.evt.sev3 { background: #2a1416; }
+.evt.sev3 .evt-kind, .evt.sev3 .evt-text { color: #f0a5a5; }
+
+.alert {
+  display: grid; grid-template-columns: 60px 160px 1fr 90px; gap: 4px 10px;
+  padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: 12px; align-items: center;
+}
+.alert:last-child { border-bottom: none; }
+.alert.sev2 { background: #2a2313; }
+.alert.sev3 { background: #2a1416; }
+.alert-text { color: var(--text); }
+
+.mrow { grid-template-columns: 260px 130px 130px 1fr; }
+.mrow.mhead { color: var(--dim); font-size: 11px; background: var(--panel2); }
+.mrow.mhead .name { font-weight: 400; }
+.sparkbox { padding: 12px; display: flex; justify-content: center; }
+.spark polyline { filter: drop-shadow(0 0 2px rgba(0,0,0,.4)); }
 
 footer {
   display: flex; justify-content: space-between; padding: 8px 16px;

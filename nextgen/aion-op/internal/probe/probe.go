@@ -2,6 +2,7 @@
 package probe
 
 import (
+	"context"
 	"strconv"
 	"strings"
 	"time"
@@ -29,6 +30,12 @@ type Snapshot struct {
 // Prober снимает срезы.
 type Prober interface {
 	Snapshot() Snapshot
+}
+
+// Runner — исполнитель read-only команд на VM (лог-тейлеры/метрики Phase 0.5:
+// Get-Content -Tail, Get-Process). Никаких изменений состояния.
+type Runner interface {
+	Run(ctx context.Context, remote string) (string, error)
 }
 
 // --- парсеры вывода Windows (используют mock и ssh) ---

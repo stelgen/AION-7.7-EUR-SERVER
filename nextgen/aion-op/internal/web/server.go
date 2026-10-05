@@ -1,4 +1,5 @@
-// Package web — HTTP API + embedded UI. Phase 0: никаких управляющих роутов вообще.
+// Package web — HTTP API + embedded UI. Phase 0.5: наблюдение (логи/метрики/алерты),
+// управляющих роутов по-прежнему НЕТ (появятся с агентом, Phase 1).
 package web
 
 import (
@@ -8,12 +9,16 @@ import (
 	"log"
 	"net/http"
 	"sort"
+	"strconv"
 	"sync"
 	"time"
 
+	"aion-op/internal/alerts"
 	"aion-op/internal/config"
 	"aion-op/internal/core"
+	"aion-op/internal/metrics"
 	"aion-op/internal/probe"
+	"aion-op/internal/store"
 )
 
 //go:embed ui/index.html ui/app.js ui/style.css
@@ -22,13 +27,16 @@ var uiFS embed.FS
 type Server struct {
 	cfg    *config.Config
 	prober probe.Prober
+	store  *store.Store
+	engine *alerts.Engine
+	holder *metrics.Holder
 
 	mu   sync.RWMutex
 	snap probe.Snapshot
 }
 
-func New(cfg *config.Config, p probe.Prober) *Server {
-	return &Server{cfg: cfg, prober: p}
+func New(cfg *config.Config, p probe.Prober, st *store.Store, eng *alerts.Engine, h *metrics.Holder) *Server {
+	return &Server{cfg: cfg, prober: p, store: st, engine: eng, holder: h}
 }
 
 func (s *Server) Run() error {
@@ -38,6 +46,9 @@ func (s *Server) Run() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("GET /api/status", s.handleStatus)
 	mux.HandleFunc("GET /api/config", s.handleConfig)
+	mux.HandleFunc("GET /api/events", s.handleEvents)
+	mux.HandleFunc("GET /api/metrics", s.handleMetrics)
+	mux.HandleFunc("GET /api/alerts", s.handleAlerts)
 	mux.HandleFunc("GET /static/app.js", s.serveUI("ui/app.js", "text/javascript; charset=utf-8"))
 	mux.HandleFunc("GET /static/style.css", s.serveUI("ui/style.css", "text/css; charset=utf-8"))
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +80,14 @@ func (s *Server) loop() {
 		s.mu.Lock()
 		s.snap = snap
 		s.mu.Unlock()
+
+		// движок алертов: срез сервисов → открыть/закрыть
+		var flat []core.SvcStatus
+		for _, svc := range s.cfg.Services {
+			flat = append(flat, core.EvalService(svc, snap, s.cfg.WorldPair))
+		}
+		broken, _ := core.PairBroken(flat)
+		s.engine.Tick(flat, snap.Err, broken)
 	}
 }
 
@@ -97,16 +116,19 @@ type Summary struct {
 }
 
 type Payload struct {
-	When           string      `json:"when"`
-	Source         string      `json:"source"`
-	ProbeErr       string      `json:"probe_err,omitempty"`
-	Mode           string      `json:"mode"`
-	RefreshSec     int         `json:"refresh_sec"`
-	VMMode         string      `json:"vm_mode"`
-	ConsoleSession bool        `json:"console_session"`
-	Summary        Summary     `json:"summary"`
-	World          WorldView   `json:"world"`
-	Groups         []GroupView `json:"groups"`
+	When           string           `json:"when"`
+	Source         string           `json:"source"`
+	ProbeErr       string           `json:"probe_err,omitempty"`
+	Mode           string           `json:"mode"`
+	RefreshSec     int              `json:"refresh_sec"`
+	VMMode         string           `json:"vm_mode"`
+	ConsoleSession bool             `json:"console_session"`
+	Summary        Summary          `json:"summary"`
+	World          WorldView        `json:"world"`
+	Groups         []GroupView      `json:"groups"`
+	Events         []store.EventRow `json:"events"`
+	Alerts         []store.AlertRow `json:"alerts"`
+	Metrics        metrics.Snap     `json:"metrics"`
 }
 
 func (s *Server) build() Payload {
@@ -165,7 +187,10 @@ func (s *Server) build() Payload {
 			PairBroken:    broken,
 			PairNote:      note,
 		},
-		Groups: groups,
+		Groups:  groups,
+		Events:  s.store.RecentEvents(60),
+		Alerts:  s.engine.Snapshot(),
+		Metrics: s.holder.Get(),
 	}
 }
 
@@ -176,6 +201,35 @@ func (s *Server) handleStatus(w http.ResponseWriter, r *http.Request) {
 func (s *Server) handleConfig(w http.ResponseWriter, r *http.Request) {
 	// read-only вид топологии (без секретов — их в конфиге и нет).
 	writeJSON(w, s.cfg)
+}
+
+func (s *Server) handleEvents(w http.ResponseWriter, r *http.Request) {
+	limit := 300
+	if v := r.URL.Query().Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 2000 {
+			limit = n
+		}
+	}
+	writeJSON(w, s.store.RecentEvents(limit))
+}
+
+func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
+	name := r.URL.Query().Get("name")
+	minutes := 240
+	if v := r.URL.Query().Get("minutes"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 60*24*30 {
+			minutes = n
+		}
+	}
+	if name == "" {
+		http.Error(w, "name обязателен (exe, напр. Server64.exe)", http.StatusBadRequest)
+		return
+	}
+	writeJSON(w, map[string]any{"name": name, "points": s.store.Series(name, minutes)})
+}
+
+func (s *Server) handleAlerts(w http.ResponseWriter, r *http.Request) {
+	writeJSON(w, s.engine.Snapshot())
 }
 
 func writeJSON(w http.ResponseWriter, v any) {

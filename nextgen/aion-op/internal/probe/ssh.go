@@ -39,6 +39,12 @@ func (s *SSH) run(ctx context.Context, remote string) (string, error) {
 	return string(out), nil
 }
 
+// Run — исполнитель read-only команд для лог-тейлеров/метрик (Phase 0.5).
+// Тоже только чтение: Get-Content, Get-Process.
+func (s *SSH) Run(ctx context.Context, remote string) (string, error) {
+	return s.run(ctx, remote)
+}
+
 func (s *SSH) Snapshot() Snapshot {
 	ctx := context.Background()
 	snap := Snapshot{

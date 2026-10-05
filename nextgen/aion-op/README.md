@@ -1,6 +1,7 @@
-# aion-op — оператор стека AION 7.7 (Phase 0: observe)
+# aion-op — оператор стека AION 7.7 (Phase 0.5: observe + глаза)
 
-Единый Go-бинарь. **Phase 0 = только наблюдение**: read-only пробы, никакого управления.
+Единый Go-бинарь. **Phase 0.5 = наблюдение + глаза**: read-only пробы, лог-парсер,
+метрики, SQLite, алерты, pprof. Управления нет вообще (роутов-POST не существует).
 План: [../TRACK-A-PLAN.md](../TRACK-A-PLAN.md), постановка: [../PLAN.md](../PLAN.md).
 
 ## Запуск
@@ -8,40 +9,63 @@
 ```bash
 # демо без VM (mock-стек: всё зелёное)
 go build -o aion-op . && ./aion-op -config config.yaml
-# → http://127.0.0.1:10200
+# → http://127.0.0.1:10200 (+ pprof http://127.0.0.1:10201/debug/pprof/)
 
-# демо «краснеет»: погасить сервисы
-AIONOP_MOCK_DOWN=main,gate ./aion-op
-AIONOP_MOCK_DOWN=main AIONOP_MOCK_CONNS=4 ./aion-op   # + окно загрузки NPC
+# демо «краснеет»:
+AIONOP_MOCK_DOWN=main,gate ./aion-op            # мёртвые сервисы + pair_broken
+AIONOP_MOCK_CONNS=4 ./aion-op                   # окно загрузки NPC (рестарты заблокированы)
+AIONOP_MOCK_LEAK=main,npc ./aion-op             # хендлы +120k/мин → алерт утечки ×3 тика
+AIONOP_MOCK_EVENT_EVERY=1 ./aion-op             # темп синтетических лог-событий
 
-# прод (read-only по SSH; кнопки всё равно выключены)
+# прод (read-only по SSH; кнопок всё равно нет)
 # vm.mode: ssh в config.yaml + доступ по ключу
 ./aion-op -config config.yaml
 ```
 
-Пробы SSH (только чтение): `tasklist /fo csv /nh`, `netstat -ano -p tcp`, `quser`.
+## Что уже есть (Phase 0 + 0.5)
 
-## Что уже по best-practice
-
+**Phase 0 (скелет):**
 - state machine (`RUNNING/LOADING/DEGRADED/STOPPED/UNKNOWN`), health = процесс + порт + conns-маркер;
-- пара NPC+MAIN = единая единица: разрыв пары и окно загрузки (conns<16) детектируются и блокируют будущие рестарты;
-- наблюдаемая консоль-сессия VM (quser) — без неё /IT-сервисы не поднять;
-- режим `observe` жёстко в конфиге; управляющих HTTP-роутов НЕТ вообще (не «disabled», а отсутствуют);
+- пара NPC+MAIN = единая единица: разрыв пары и окно загрузки (conns<16) детектируются;
+- режим `observe` жёстко в конфиге; управляющих HTTP-роутов НЕТ (только GET);
 - топология — единственный YAML-источник истины, секретов в нём нет.
+
+**Phase 0.5 (глаза):**
+- **лог-парсер** 13 правил → события: `super_lag`/`intentional_exception`/`world_shutdown` (crit),
+  `too_slow`/`login_wait`/`date_mismatch` (med), `proc_missing`(2812)/`session_mismatch` (low),
+  `login`/`world_registered`/`npc_started` (info); шум `Strings DB unexpted id` — дропается;
+- **тейлеры**: ssh (`Get-Content -Tail` по `{{date}}.err`-файлам, дедуп по хэшам строк) | mock (ротация сценариев);
+- **метрики**: RAM + handles + Δхендлов/мин по процессам, FreePhys/FreeCommit (powershell Get-Process/CimInstance, read-only);
+- **store**: SQLite WAL (`modernc.org/sqlite`, без CGO), retention 30 дней, часовая чистка, один писатель;
+- **алерты** (7 правил): смерть сервиса, разрыв пары, FreeCommit<8 ГБ (гистерезис 10 ГБ),
+  утечка хендлов >20k/мин ×3 тика, рейт 2812 >50/5мин, критичный лог (окно 15 мин), проба VM;
+- **pprof** на loopback — без роста за 48 ч.
+
+⚠ Честно отложено на Phase 1: CCU (user_count) и SQL-waits вкладка — нужен SQL-доступ (go-mssqldb read-only), их нет в 0.5.
+
+## Пробы
+
+Snapshot: `tasklist /fo csv /nh`, `netstat -ano -p tcp`, `quser`.
+Метрики: `Get-Process -Name … | Select ProcessName,Id,Handles,MB | ConvertTo-Csv` + `Win32_OperatingSystem` (один вызов, read-only).
+Логи: `Get-Content -LiteralPath '<путь>' -Tail N`.
 
 ## Структура
 
 ```
-config.yaml            — топология (группы/сервисы/порты/order/пара)
-main.go                — сборка
+config.yaml            — топология + store/pprof/metrics/logs
+main.go                — сборка: probe → store → tailer → metrics → alerts → web/pprof
 internal/config/       — YAML + валидация
 internal/core/         — state machine (чистые функции, тесты)
-internal/probe/        — Prober: mock | ssh (Phase 1: агент)
-internal/web/          — API + embedded UI (вкладки, кнопки-замки)
+internal/probe/        — Prober+Runner: mock | ssh (read-only)
+internal/logs/         — парсер правил + тейлеры (ssh|mock)
+internal/metrics/      — collector (ssh|mock) + Holder
+internal/store/        — SQLite WAL: events/proc_metrics/sys_mem/alerts
+internal/alerts/       — движок правил
+internal/web/          — API (GET-only) + embedded UI (вкладки, кнопки-замки)
 ```
 
 ## Дорожная карта (см. TRACK-A-PLAN.md)
 
-- **0.5**: лог-тейлеры+парсер, метрики (RAM/handles/FreeCommit), SQLite-WAL, алерты.
-- **1**: агент ~2 МБ в юзер-сессии VM (единственная инсталляция на прод, по «го») → режим operate.
+- **0** ✅ скелет observe-only. **0.5** ✅ глаза.
+- **1**: агент ~2 МБ в юзер-сессии VM (единственная инсталляция на прод, по «го») → режим operate, кнопки.
 - **1.5**: watchdog-автопилот (ночной рестарт пары, эскалации).

@@ -158,3 +158,29 @@ groups:
 world_pair:
   npc_port: 2002          # листенер Server64, к которому цепляется NPCSvr
   expected_conns: 16      # 16 ESTABLISHED = мир собран
+
+# --- Phase 0.5: глаза (логи/метрики/алерты) — всё по-прежнему read-only ---
+
+store:
+  path: aionop.db         # SQLite WAL (в .gitignore)
+  retention_days: 30
+
+pprof:
+  enabled: true           # только на loopback
+  addr: "127.0.0.1:10201"
+
+metrics:
+  poll_sec: 15            # срез RAM/handles/FreeCommit (read-only powershell)
+
+# Хвосты логов: NC пишет .err по дням ({{date}} = YYYY-MM-DD).
+# Файл может отсутствовать — тейлер молча пропускает (новый день/не запускался).
+logs:
+  poll_sec: 20
+  tail_lines: 200
+  files:
+    - { svc: cache,  path: "D:/AION_LIVE_SERVER/CacheServer/log/{{date}}.err" }
+    - { svc: main,   path: "D:/AION_LIVE_SERVER/MainServer/log/{{date}}.err" }
+    - { svc: npc,    path: "D:/AION_LIVE_SERVER/NPCServer/log/{{date}}.err" }
+    - { svc: logsrv, path: "D:/AION_LIVE_SERVER/LogServer/log/{{date}}.err" }
+    - { svc: authd,  path: "D:/AION_LIVE_SERVER/AuthD/etc/log/{{date}}.err" }
+    - { svc: gate,   path: "D:/AION_LIVE_SERVER/AuthGateD/log/{{date}}.err" }
