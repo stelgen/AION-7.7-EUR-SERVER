@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"aion-op/internal/act"
 	"aion-op/internal/alerts"
 	"aion-op/internal/config"
 	"aion-op/internal/logs"
@@ -51,14 +52,25 @@ func main() {
 		prober = probe.NewMock(cfg, down)
 		tailer = logs.NewMock()
 		coll = metrics.NewMock(cfg)
+	case "local":
+		l := probe.NewLocal(cfg)
+		prober, runner = l, l // оператор живёт на VM: команды локально
+		tailer = logs.NewSSH(cfg, runner)
+		coll = metrics.NewSSH(cfg, runner)
 	case "ssh":
 		ssh := probe.NewSSH(cfg)
 		prober, runner = ssh, ssh
 		tailer = logs.NewSSH(cfg, runner)
 		coll = metrics.NewSSH(cfg, runner)
 	default:
-		log.Fatalf("vm.mode: неизвестный режим %q (mock|ssh)", cfg.VM.Mode)
+		log.Fatalf("vm.mode: неизвестный режим %q (mock|ssh|local)", cfg.VM.Mode)
 	}
+
+	// Phase 1: действия (start/stop/restart*). Пока dry_run=true (дефолт) —
+	// только планы+audit. POST /api/action монтируется web'ом только в operate.
+	exec := act.New(cfg, st, func(ctx context.Context, cmd string) (string, error) {
+		return runner.Run(ctx, cmd)
+	})
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -112,9 +124,9 @@ func main() {
 		}()
 	}
 
-	srv := web.New(cfg, prober, st, eng, holder)
-	log.Printf("aion-op: probe=%s ui=:%d mode=%s store=%s (Phase 0.5: observe-only, кнопки заблокированы)",
-		cfg.VM.Mode, cfg.Operator.UIPort, cfg.Operator.Mode, cfg.Store.Path)
+	srv := web.New(cfg, prober, st, eng, holder, exec)
+	log.Printf("aion-op: probe=%s ui=:%d mode=%s dry_run=%t store=%s",
+		cfg.VM.Mode, cfg.Operator.UIPort, cfg.Operator.Mode, exec.DryRun(), cfg.Store.Path)
 	if err := srv.Run(); err != nil {
 		log.Fatal(err)
 	}

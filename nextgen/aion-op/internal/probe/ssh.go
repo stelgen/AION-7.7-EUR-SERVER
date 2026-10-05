@@ -46,30 +46,5 @@ func (s *SSH) Run(ctx context.Context, remote string) (string, error) {
 }
 
 func (s *SSH) Snapshot() Snapshot {
-	ctx := context.Background()
-	snap := Snapshot{
-		When:      time.Now(),
-		Source:    fmt.Sprintf("ssh:%s", s.cfg.VM.SSHHost),
-		Processes: map[string][]Proc{},
-		Ports:     map[int]bool{},
-	}
-
-	tl, err := s.run(ctx, "tasklist /fo csv /nh")
-	if err != nil {
-		snap.Err = err.Error()
-		return snap
-	}
-	snap.Processes = parseTasklistCSV(tl)
-
-	ns, err := s.run(ctx, "netstat -ano -p tcp")
-	if err != nil {
-		snap.Err = err.Error()
-		return snap
-	}
-	snap.Ports, snap.Conns2002 = parseNetstat(ns, s.cfg.WorldPair.NPCPort)
-
-	if qu, err := s.run(ctx, "quser"); err == nil {
-		snap.ConsoleSession = parseQuser(qu)
-	}
-	return snap
+	return SnapshotVia(s, s.cfg, fmt.Sprintf("ssh:%s", s.cfg.VM.SSHHost))
 }

@@ -53,6 +53,13 @@ function setHead(d) {
   cc.textContent = d.console_session ? "консоль-сессия VM: есть (/IT ок)" : "консоль-сессия VM: НЕТ (/IT мертвы)";
   cc.className = "chip " + (d.console_session ? "ok" : "bad");
 
+  const dr = $("#dry-chip");
+  if (d.mode === "operate") {
+    dr.textContent = d.dry_run ? "DRY RUN (план без исполнения)" : "EXECUTE (реальные действия)";
+    dr.className = "chip " + (d.dry_run ? "warn" : "bad");
+    dr.classList.remove("hidden");
+  } else { dr.classList.add("hidden"); }
+
   const b = $("#banner");
   if (d.probe_err) {
     b.className = "banner red";
@@ -71,6 +78,37 @@ function setHead(d) {
   }
 }
 
+async function doAction(action, id, confirmText) {
+  let confirm = confirmText || "";
+  if (!confirm) {
+    const svc = (DATA.groups || []).flatMap((g) => g.services).find((s) => s.id === id);
+    const need = { "restart_pair": "RESTART PAIR", "restart": "restart" }[action];
+    if (need && svc && (svc.heavy || action === "restart")) {
+      const typed = prompt(`Опасно. Введите точно: ${need}`);
+      if (typed !== need) return;
+      confirm = typed;
+    }
+  }
+  const b = $("#banner");
+  b.className = "banner amber";
+  b.textContent = `⟳ ${action} ${id}: отправляю…`;
+  b.classList.remove("hidden");
+  try {
+    const r = await fetch("/api/action", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action, id, confirm }),
+    });
+    const res = await r.json();
+    b.className = "banner " + (res.ok ? "green" : "red");
+    b.textContent = (res.ok ? "✅ " : "⛔ ") + (res.detail || res.rejected || JSON.stringify(res));
+    b.classList.remove("hidden");
+    tick();
+  } catch (e) {
+    b.className = "banner red";
+    b.textContent = "Ошибка действия: " + e;
+  }
+}
+
 function svcRow(s) {
   const ports = (s.ports_ok || []).map((p) => `<span class="chip ok mono">${p}</span>`)
     .concat((s.ports_bad || []).map((p) => `<span class="chip bad mono">${p}✗</span>`)).join("");
@@ -84,11 +122,12 @@ function svcRow(s) {
   } else if (s.observe_only) {
     actions = `<span class="lock">наблюдение</span>`;
   } else {
-    const tip = "Phase 1: кнопки оживут с агентом на VM (по «го»)";
+    const can = DATA.mode === "operate" && !s.pair;
+    const tip = can ? "" : "Phase 1: кнопки оживут в operate-режиме (члены пары — только парой)";
     actions = `<div class="actions">
-      <button class="btn" disabled title="Start — ${tip}">▶</button>
-      <button class="btn" disabled title="Stop — ${tip}">■</button>
-      <button class="btn" disabled title="Restart — ${tip}">⟳</button>
+      <button class="btn ${can ? "btn-go" : ""}" ${can ? "" : "disabled title=\"" + tip + "\""} onclick="doAction('start','${esc(s.id)}')">▶</button>
+      <button class="btn" disabled title="stop — фаза 1.5 (kill-задачи)">■</button>
+      <button class="btn" disabled title="restart — фаза 1.5">⟳</button>
     </div>`;
   }
   return `<div class="svc">

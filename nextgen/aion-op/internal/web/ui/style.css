@@ -62,6 +62,7 @@ nav#tabs {
 }
 .banner.red { background: #2a1416; border-color: #5c1d1d; color: #f0a5a5; }
 .banner.amber { background: #2a2313; border-color: #6b551a; color: #ecd39a; }
+.banner.green { background: #12281a; border-color: #1d5c33; color: #a8e6c3; }
 .hidden { display: none; }
 
 main { padding: 14px 16px 40px; max-width: 1280px; margin: 0 auto; }
@@ -95,6 +96,8 @@ main { padding: 14px 16px 40px; max-width: 1280px; margin: 0 auto; }
   min-width: 34px; padding: 5px 9px; border-radius: 6px; cursor: not-allowed;
   border: 1px solid var(--line); background: var(--panel2); color: var(--dim); font-size: 12px;
 }
+.btn-go { cursor: pointer; color: var(--text); border-color: #1d5c33; background: #12281a; }
+.btn-go:hover { background: #1d5c33; color: #fff; }
 .lock {
   font-size: 12px; color: var(--dim); border: 1px dashed var(--line);
   padding: 4px 10px; border-radius: 6px;

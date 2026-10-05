@@ -1,5 +1,5 @@
-// Package web — HTTP API + embedded UI. Phase 0.5: наблюдение (логи/метрики/алерты),
-// управляющих роутов по-прежнему НЕТ (появятся с агентом, Phase 1).
+// Package web — HTTP API + embedded UI. Phase 1: в operate-режиме появляется
+// POST /api/action (план → safety → confirm → исполнение/dry-run → audit).
 package web
 
 import (
@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	"aion-op/internal/act"
 	"aion-op/internal/alerts"
 	"aion-op/internal/config"
 	"aion-op/internal/core"
@@ -30,13 +31,15 @@ type Server struct {
 	store  *store.Store
 	engine *alerts.Engine
 	holder *metrics.Holder
+	exec   *act.Executor
 
 	mu   sync.RWMutex
 	snap probe.Snapshot
 }
 
-func New(cfg *config.Config, p probe.Prober, st *store.Store, eng *alerts.Engine, h *metrics.Holder) *Server {
-	return &Server{cfg: cfg, prober: p, store: st, engine: eng, holder: h}
+func New(cfg *config.Config, p probe.Prober, st *store.Store, eng *alerts.Engine,
+	h *metrics.Holder, e *act.Executor) *Server {
+	return &Server{cfg: cfg, prober: p, store: st, engine: eng, holder: h, exec: e}
 }
 
 func (s *Server) Run() error {
@@ -49,13 +52,18 @@ func (s *Server) Run() error {
 	mux.HandleFunc("GET /api/events", s.handleEvents)
 	mux.HandleFunc("GET /api/metrics", s.handleMetrics)
 	mux.HandleFunc("GET /api/alerts", s.handleAlerts)
+	// Phase 1: управляющий роут монтируется ТОЛЬКО в operate-режиме;
+	// в observe его физически нет (не disabled — отсутствует).
+	if s.cfg.Operator.Mode == "operate" {
+		mux.HandleFunc("POST /api/action", s.handleAction)
+	}
 	mux.HandleFunc("GET /static/app.js", s.serveUI("ui/app.js", "text/javascript; charset=utf-8"))
 	mux.HandleFunc("GET /static/style.css", s.serveUI("ui/style.css", "text/css; charset=utf-8"))
 	mux.HandleFunc("GET /{$}", func(w http.ResponseWriter, r *http.Request) {
 		s.serveUI("ui/index.html", "text/html; charset=utf-8")(w, r)
 	})
 
-	addr := fmt.Sprintf(":%d", s.cfg.Operator.UIPort)
+	addr := fmt.Sprintf("%s:%d", s.cfg.Operator.Bind, s.cfg.Operator.UIPort)
 	log.Printf("http: слушаю %s", addr)
 	return http.ListenAndServe(addr, mux)
 }
@@ -116,19 +124,21 @@ type Summary struct {
 }
 
 type Payload struct {
-	When           string           `json:"when"`
-	Source         string           `json:"source"`
-	ProbeErr       string           `json:"probe_err,omitempty"`
-	Mode           string           `json:"mode"`
-	RefreshSec     int              `json:"refresh_sec"`
-	VMMode         string           `json:"vm_mode"`
-	ConsoleSession bool             `json:"console_session"`
-	Summary        Summary          `json:"summary"`
-	World          WorldView        `json:"world"`
-	Groups         []GroupView      `json:"groups"`
-	Events         []store.EventRow `json:"events"`
-	Alerts         []store.AlertRow `json:"alerts"`
-	Metrics        metrics.Snap     `json:"metrics"`
+	When           string            `json:"when"`
+	Source         string            `json:"source"`
+	ProbeErr       string            `json:"probe_err,omitempty"`
+	Mode           string            `json:"mode"`
+	RefreshSec     int               `json:"refresh_sec"`
+	VMMode         string            `json:"vm_mode"`
+	ConsoleSession bool              `json:"console_session"`
+	Summary        Summary           `json:"summary"`
+	World          WorldView         `json:"world"`
+	Groups         []GroupView       `json:"groups"`
+	Events         []store.EventRow  `json:"events"`
+	Alerts         []store.AlertRow  `json:"alerts"`
+	Metrics        metrics.Snap      `json:"metrics"`
+	Actions        []store.ActionRow `json:"actions"`
+	DryRun         bool              `json:"dry_run"`
 }
 
 func (s *Server) build() Payload {
@@ -190,7 +200,9 @@ func (s *Server) build() Payload {
 		Groups:  groups,
 		Events:  s.store.RecentEvents(60),
 		Alerts:  s.engine.Snapshot(),
+		Actions: s.store.RecentActions(20),
 		Metrics: s.holder.Get(),
+		DryRun:  s.exec.DryRun(),
 	}
 }
 
@@ -230,6 +242,27 @@ func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) handleAlerts(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, s.engine.Snapshot())
+}
+
+// handleAction — Phase 1: план → safety → confirm → исполнение (или dry-run) → audit.
+type actionReq struct {
+	Action  string `json:"action"`
+	ID      string `json:"id"`
+	Confirm string `json:"confirm"`
+}
+
+func (s *Server) handleAction(w http.ResponseWriter, r *http.Request) {
+	var req actionReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "bad json: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+	s.mu.RLock()
+	snap := s.snap
+	s.mu.RUnlock()
+	plan := s.exec.Build(req.Action, req.ID, snap)
+	res := s.exec.Execute(r.Context(), plan, req.Confirm)
+	writeJSON(w, res)
 }
 
 func writeJSON(w http.ResponseWriter, v any) {

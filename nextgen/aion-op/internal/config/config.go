@@ -18,8 +18,10 @@ type VM struct {
 
 type Operator struct {
 	UIPort     int    `yaml:"ui_port"`
+	Bind       string `yaml:"bind"` // дефолт 127.0.0.1 (снаружи — только ssh-туннель)
 	RefreshSec int    `yaml:"refresh_sec"`
-	Mode       string `yaml:"mode"` // observe | operate
+	Mode       string `yaml:"mode"`    // observe | operate
+	DryRun     *bool  `yaml:"dry_run"` // nil = true (безопасный дефолт); actions только планируются
 }
 
 type Group struct {
@@ -33,6 +35,7 @@ type Service struct {
 	Display     string `yaml:"display"`
 	Exe         string `yaml:"exe"`
 	Task        string `yaml:"task"`
+	KillTask    string `yaml:"kill_task"` // /IT-задача-киллер (обязательна для interactive/heavy)
 	Ports       []int  `yaml:"ports"`
 	Order       int    `yaml:"order"`
 	Interactive bool   `yaml:"interactive"`
@@ -102,8 +105,15 @@ func Load(path string) (*Config, error) {
 }
 
 func (c *Config) normalize() {
+	if c.Operator.DryRun == nil {
+		t := true
+		c.Operator.DryRun = &t // безопасный дефолт: действия только планируются
+	}
 	if c.Operator.UIPort == 0 {
 		c.Operator.UIPort = 10200
+	}
+	if c.Operator.Bind == "" {
+		c.Operator.Bind = "127.0.0.1"
 	}
 	if c.Operator.RefreshSec <= 0 {
 		c.Operator.RefreshSec = 10
@@ -145,10 +155,16 @@ func (c *Config) normalize() {
 
 func (c *Config) Validate() error {
 	if c.Operator.Mode != "observe" && c.Operator.Mode != "operate" {
-		return fmt.Errorf("operator.mode=%q: только observe|operate (operate — Phase 1)", c.Operator.Mode)
+		return fmt.Errorf("operator.mode=%q: только observe|operate", c.Operator.Mode)
 	}
-	if c.VM.Mode != "mock" && c.VM.Mode != "ssh" {
-		return fmt.Errorf("vm.mode=%q: только mock|ssh", c.VM.Mode)
+	if c.Operator.DryRun == nil || *c.Operator.DryRun {
+		// dry-run обязателен по умолчанию; operate без явного dry_run:false — отвергаем
+		if c.Operator.Mode == "operate" {
+			return fmt.Errorf("operate требует явного operator.dry_run: false (осознанное решение)")
+		}
+	}
+	if c.VM.Mode != "mock" && c.VM.Mode != "ssh" && c.VM.Mode != "local" {
+		return fmt.Errorf("vm.mode=%q: только mock|ssh|local", c.VM.Mode)
 	}
 	if len(c.Services) == 0 {
 		return fmt.Errorf("services пуст")

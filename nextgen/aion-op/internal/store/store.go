@@ -29,6 +29,11 @@ CREATE TABLE IF NOT EXISTS alerts(
   idem TEXT PRIMARY KEY, opened_ts INTEGER NOT NULL, closed_ts INTEGER NOT NULL DEFAULT 0,
   sev INTEGER NOT NULL, text TEXT NOT NULL, active INTEGER NOT NULL DEFAULT 1);
 CREATE INDEX IF NOT EXISTS ix_alerts_active ON alerts(active);
+CREATE TABLE IF NOT EXISTS actions(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, ts INTEGER NOT NULL,
+  action TEXT NOT NULL, target TEXT NOT NULL, ok INTEGER NOT NULL,
+  executed INTEGER NOT NULL DEFAULT 0, detail TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS ix_actions_ts ON actions(ts);
 `
 
 // EventRow — событие в хранилище (JSON-готовое).
@@ -184,6 +189,51 @@ func (s *Store) AddSys(when time.Time, freePhysMB, freeCommitMB uint64) {
 		_, _ = s.db.Exec(`INSERT INTO sys_mem(ts,free_phys_mb,free_commit_mb) VALUES(?,?,?)`,
 			when.Unix(), freePhysMB, freeCommitMB)
 	})
+}
+
+// ActionRow — запись audit-journal (кто/что/когда/исполнялось ли).
+type ActionRow struct {
+	Ts       int64  `json:"ts"`
+	Action   string `json:"action"`
+	Target   string `json:"target"`
+	OK       bool   `json:"ok"`
+	Executed bool   `json:"executed"`
+	Detail   string `json:"detail"`
+}
+
+// AddAction — запись в audit (не блокирует при переполнении очереди).
+func (s *Store) AddAction(a ActionRow) {
+	s.enqueue(func() {
+		_, _ = s.db.Exec(`INSERT INTO actions(ts,action,target,ok,executed,detail) VALUES(?,?,?,?,?,?)`,
+			a.Ts, a.Action, a.Target, boolInt(a.OK), boolInt(a.Executed), a.Detail)
+	})
+}
+
+// RecentActions — последние записи audit (новые сверху).
+func (s *Store) RecentActions(limit int) []ActionRow {
+	rows, err := s.db.Query(
+		`SELECT ts,action,target,ok,executed,detail FROM actions ORDER BY id DESC LIMIT ?`, limit)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	var res []ActionRow
+	for rows.Next() {
+		var a ActionRow
+		var ok, ex int
+		if err := rows.Scan(&a.Ts, &a.Action, &a.Target, &ok, &ex, &a.Detail); err == nil {
+			a.OK, a.Executed = ok == 1, ex == 1
+			res = append(res, a)
+		}
+	}
+	return res
+}
+
+func boolInt(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 // OpenAlert — записать открытый алерт (движок сам держит active-set).
