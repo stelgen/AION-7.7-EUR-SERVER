@@ -87,6 +87,9 @@ func Parse(buf []byte) (*Packet, int, error) {
 var ErrShort = errors.New("logd: short read")
 
 // VersionBody — тело Version: [builder u32][min u32=10003][SYSTEMTIME 16] (29 total).
+// SYSTEMTIME = 8 WORD (year,month,dow,day,hour,min,sec,ms) ЛОКАЛЬНОЕ время VM —
+// клиент конвертит его в FILETIME и сравнивает со своим (мэджик 0x68DB8BAD=/10^7):
+// мусор в поле даёт «Time difference»-отказ (клиент молчит — итерация 2 это доказала).
 func VersionBody(builder uint32, systime []byte) []byte {
 	b := make([]byte, 24)
 	binary.LittleEndian.PutUint32(b[0:4], builder)
@@ -94,8 +97,25 @@ func VersionBody(builder uint32, systime []byte) []byte {
 	if len(systime) == 16 {
 		copy(b[8:24], systime)
 	} else {
-		putFileTime(b[8:16]) // дефолт: текущее FILETIME
+		copy(b[8:24], SysTime(time.Now()))
 	}
+	return b
+}
+
+// SysTime — SYSTEMTIME (8 WORD, локальное время как GetLocalTime).
+func SysTime(t time.Time) []byte {
+	y, m, d := t.Date()
+	dow := (int(t.Weekday()) + 6) % 7 // WORD: 0=понедельник... по SDK 0=воскресенье
+	dow = int(t.Weekday())            // на деле 0=Sunday..6=Saturday
+	b := make([]byte, 16)
+	binary.LittleEndian.PutUint16(b[0:2], uint16(y))
+	binary.LittleEndian.PutUint16(b[2:4], uint16(m))
+	binary.LittleEndian.PutUint16(b[4:6], uint16(dow))
+	binary.LittleEndian.PutUint16(b[6:8], uint16(d))
+	binary.LittleEndian.PutUint16(b[8:10], uint16(t.Hour()))
+	binary.LittleEndian.PutUint16(b[10:12], uint16(t.Minute()))
+	binary.LittleEndian.PutUint16(b[12:14], uint16(t.Second()))
+	binary.LittleEndian.PutUint16(b[14:16], uint16(t.Nanosecond()/1e6))
 	return b
 }
 
