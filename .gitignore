@@ -17,3 +17,4 @@
 # but allow .exe/.bat/.ps1 in scripts/
 !scripts/*.ps1
 !scripts/*.bat
+artifacts/

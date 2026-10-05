@@ -23,3 +23,15 @@ GOOS=windows GOARCH=amd64 go build -o aion-logd.exe .        # кросс-сбо
 2. Парсер батча (LogSvcType + SYSTEMTIME + wide text, DecodeBotLog-эквивалент) → запись .err как оригинал.
 3. DB-слой (go-mssqldb): 3 таймер-проц + `aion_BulkInsertWide`/`aion_SetInserted`.
 4. Параллельный прогон → diff файлов с оригиналом → свитч (откат = вернуть задачу AionLog).
+
+## ПРОД-ДЕПЛОЙ ФИНАЛ (05.10.2026, решение юзера: наш логгер НАВСЕГДА)
+
+| Что | Путь |
+|---|---|
+| Бинарь | `D:\SAION\aion-logd\aion-logd.exe` (конфиг `config.yaml`, запуск `run.cmd` → задача AionLogCap) |
+| Логи/дампы | `D:\SAION\aion-logd\logs\` (status CSV per-day svc301/302/309, io-дамп rx/tx, capture.raw, badstatus.raw — всё с таймстампами) |
+| Dev-набор | `D:\SAION\aion-logd-dev\` (src/bin/scripts/artifacts + README-BUILD.txt) — всё для финальной компиляции |
+| Откат на оригинал | `taskkill /F /IM aion-logd.exe` + `schtasks /run /tn AionLog` (ориг LogServer64; common.xml на :2051 — возвращён) |
+| Секреты | SQL-пароль только в `config.yaml` на VM (в гит НЕ попадает) |
+
+`D:\SAION\` = папка наших переписанных апок (следующие — туда же).

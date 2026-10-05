@@ -1,0 +1,16 @@
+# aion-logd — БОЕВОЙ прод-конфиг (замена LogServer64 НАВСЕГДА, решение юзера 05.10.2026).
+# Всё что летит — пишется; неизвестное/сырое — в raw с таймстампами (capture_all: true).
+server:
+  listen: ":2051"
+  builder: 10004
+  base_dir: "D:/SAION/aion-logd/logs"
+  max_conn: 16
+  capture_all: true
+logdb:
+  enabled: true
+  conn: "sqlserver://aionop_ro:sYgt5Iytm-mPeOvWSts@127.0.0.1:1433?database=master&encrypt=disable&connection+timeout=5&dial+timeout=5"
+  world_id: 1
+  server_id: 2
+  freedisk_sec: 300
+  status_sec: 600
+  log_dir: "D:/SAION/aion-logd/logs"
