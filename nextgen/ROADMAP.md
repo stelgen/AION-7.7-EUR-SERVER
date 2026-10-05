@@ -1,6 +1,6 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> Последнее обновление: 05.10.2026 (ночь): AuthGateD реверс-фаза — криптосхема ПОДТВЕРЖДЕНА capture'ом; протокол-док docs/authgate-protocol-20261005.md; capture-эталоны nextgen/aion-gate/testdata/. Чекпоинт 05.10 ~20:20: актуализация — реализация НЕ начата (nextgen/aion-gate = только testdata/), все позиции §5 дока открыты; «го» на свитч дано ЗАРАНЕЕ (юзер в сессии не логинится — тесты фейк-клиентами). Режим: малые итерации, каждый шаг §6 = код+коммит+пуш+дельта в память.
+> Последнее обновление: 05.10.2026 (ночь-2): AuthGateD скелет ГОТОВ (nextgen/aion-gate: proto/authdclient/server/config/ship/main, e2e зелёный, wire 2110 1-в-1, rsapricrt закрыт) — session-док docs/session-20261005-authgate-skeleton.md. ⚠ БЛОКЕР СВИТЧА: byte-exact welcome — противоречие модель-скрамбла (asm 0x417a20) vs capture (y0!=a0, plaintext[0] динамический), док authgate §7. СЛЕДУЮЩИЙ ШАГ: дизasm 0x407d50 welcome-билдер (порядок варов/буфер/+4) → byte-exact vs capture → фейк-клиент → win-build → свитч (го дано заранее).
 > Коммиты CAPTCHA-сессии: 3bfe87d (recon) → 297b716 (протокол) → 179a808 (код) → финал см. git log.
 > Доки сессии: docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md, docs/session-20261005-captcha.md,
 > статус: nextgen/CAPTCHA-STATUS-SNAPSHOT.md. Прошлая сессия (логгер): docs/session-20261005-logd-final.md.
@@ -13,7 +13,7 @@
 | Капча aion-captcha | ✅ **ЗАКРЫТА (05.10, в бою на :22206)**: PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd, exe MD5 `5394aab1`, буфер 10000 наливается за ~4с (оригинал 6.4 мин), Server64.err чист; откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run` (оригинал не тронут) |
 | Батники | ✅ `AION-START-ALL-v6.bat` на десктопе (наш логгер, всё в сессии 1); v5 рядом = откат; CAPTCHA стартует своей задачей (не в v6) |
 | aion-op (Трек A) | ✅ Phase 1 (SQL-вкладка живая, bind 0.0.0.0, operate с кнопками рестартов, kick-задачи); фаза 1.5 — НЕ начата |
-| Трек B | 🔄 порядок в §3; logd ✅ + captcha ✅ (оба в бою); следующий = **AuthGateD** (промпт `nextgen/PROMPT-AUTHGATE.md`) |
+| Трек B | 🔄 порядок в §3; logd ✅ + captcha ✅ (в бою); **AuthGateD в работе**: скелет готов (proto/authdclient/server/config/ship/main, e2e ✅), блокер = byte-exact welcome (0x407d50) |
 | Батники подмены логгера | процедура отработана 3 раза: `/end` → ЖДАТЬ смерти процесса (до 10с!) → copy → `/run` |
 
 ## 2. ОТКРЫТЫЕ ПУНКТЫ (по приоритету)
