@@ -40,7 +40,7 @@ func TestHandshakeAndRawData(t *testing.T) {
 	_ = c.SetDeadline(time.Now().Add(5 * time.Second))
 
 	// клиент: Version(builder=10005)
-	if _, err := c.Write(proto.Build(proto.TypeVersion, proto.VersionBody(10005, nil))); err != nil {
+	if _, err := c.Write(proto.ClientVersion(10005, proto.MinBld)); err != nil {
 		t.Fatalf("send version: %v", err)
 	}
 
@@ -94,7 +94,7 @@ func TestHandshakeAndRawData(t *testing.T) {
 	}
 
 	// type 3 (заглушка) — сервер не падает
-	if _, err := c.Write(proto.Build(proto.TypeUnknown3, nil)); err != nil {
+	if _, err := c.Write(proto.Build(proto.TypeServerStarted, nil)); err != nil {
 		t.Fatalf("send stub: %v", err)
 	}
 	time.Sleep(200 * time.Millisecond)
@@ -112,7 +112,7 @@ func TestSplitPacketAcrossReads(t *testing.T) {
 	defer c.Close()
 	_ = c.SetDeadline(time.Now().Add(5 * time.Second))
 
-	raw := proto.Build(proto.TypeVersion, proto.VersionBody(10006, nil))
+	raw := proto.ClientVersion(10006, proto.MinBld)
 	// режем пополам — state machine должна дождаться хвоста
 	if _, err := c.Write(raw[:4]); err != nil {
 		t.Fatalf("w1: %v", err)

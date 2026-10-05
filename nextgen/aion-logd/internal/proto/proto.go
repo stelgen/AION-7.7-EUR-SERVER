@@ -29,15 +29,17 @@ import (
 )
 
 const (
-	Marker   = 0xBB
+	Marker   = 0xBB // сервер→клиент
+	CMarker  = 0xBA // клиент→сервер (capture 05.10: ВСЕ клиентские пакеты)
 	MaxTotal = 0x2000
 	MinBld   = 10003 // 0x2713
 
-	TypeVersion       = 0
+	TypeVersion       = 0 // клиент: 13 total [builder u32][min u32] (БЕЗ SYSTEMTIME)
 	TypeVerAndTimeReq = 1 // обработчик строит ответ-2
 	TypeVerAndTime    = 2 // [02][BB][FD][qword FILETIME], total 13
-	TypeUnknown3      = 3 // заглушка в оригинале (xor eax,eax)
-	TypeData          = 4 // кандидат лог-данных (payload layout TBD, см. живой capture)
+	TypeServerStarted = 3 // клиент: body 12 = 3×u32 (SendServerStarted)
+	TypeData          = 4 // TBD
+	TypeStatus        = 5 // клиент: body 194 const — статус-поток ~1/2с (floats/счётчики + SYSTEMTIME-хвост)
 )
 
 // ErrBadPacket — невалидный пакет (маркер/длина).
@@ -50,13 +52,22 @@ type Packet struct {
 	Raw  []byte // целиком, включая len
 }
 
-// Build — собрать пакет: [len u16][type][BB][~type][body...]
+// Build — собрать пакет (серверный маркер 0xBB): [len u16][type][BB][~type][body...]
 func Build(typ byte, body []byte) []byte {
+	return buildWith(Marker, typ, body)
+}
+
+// BuildC — клиентский пакет (маркер 0xBA) — для фейк-клиентов/тестов.
+func BuildC(typ byte, body []byte) []byte {
+	return buildWith(CMarker, typ, body)
+}
+
+func buildWith(m byte, typ byte, body []byte) []byte {
 	total := 5 + len(body)
 	b := make([]byte, total)
 	binary.LittleEndian.PutUint16(b[0:2], uint16(total))
 	b[2] = typ
-	b[3] = Marker
+	b[3] = m
 	b[4] = ^typ
 	copy(b[5:], body)
 	return b
@@ -76,7 +87,7 @@ func Parse(buf []byte) (*Packet, int, error) {
 		return nil, 0, ErrShort
 	}
 	typ := buf[2]
-	if typ > 4 || buf[3] != Marker || buf[4] != ^typ {
+	if typ > 8 || (buf[3] != Marker && buf[3] != CMarker) || buf[4] != ^typ {
 		return nil, 0, fmt.Errorf("%w: type=%d marker=%02x inv=%02x", ErrBadPacket, typ, buf[3], buf[4])
 	}
 	p := &Packet{Type: typ, Body: buf[5:total], Raw: buf[:total:total]}
@@ -143,6 +154,24 @@ func ParseVersionAndTime(body []byte) uint64 {
 		return binary.LittleEndian.Uint64(body[0:8])
 	}
 	return 0
+}
+
+// ClientVersion — тело клиентского Version: [builder u32][min u32] (13 total, БЕЗ
+// SYSTEMTIME; capture 05.10: builder=200604, min=10003).
+func ClientVersion(builder, minBld uint32) []byte {
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint32(b[0:4], builder)
+	binary.LittleEndian.PutUint32(b[4:8], minBld)
+	return BuildC(TypeVersion, b)
+}
+
+// ServerStarted — body 12 = 3×u32 (SendServerStarted(h,h,h)); capture: (1,2,0)/(1,3,0)/(1,4,-22).
+func ServerStarted(a, b, c int32) []byte {
+	x := make([]byte, 12)
+	binary.LittleEndian.PutUint32(x[0:4], uint32(a))
+	binary.LittleEndian.PutUint32(x[4:8], uint32(b))
+	binary.LittleEndian.PutUint32(x[8:12], uint32(c))
+	return Build(TypeServerStarted, x)
 }
 
 func putFileTime(dst []byte) {

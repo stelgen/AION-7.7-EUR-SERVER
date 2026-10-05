@@ -75,17 +75,22 @@ func (s *Server) Run(ctx context.Context, ln net.Listener) error {
 // serve — коннект: handshake Version → поток пакетов (накопление по len).
 func (s *Server) serve(ctx context.Context, c net.Conn) {
 	remote := c.RemoteAddr().String()
-	handshaked := false
 	r := bufio.NewReaderSize(c, 16*1024)
 	var acc []byte
 
 	// СЕРВЕР говорит первым (мимик LogServerSocket::OnCreate: SendVersion+VT при accept):
 	// итерация 05.10 доказала — клиенты подключаются и ЖДУТ инициативы сервера.
-	if _, err := c.Write(proto.Build(proto.TypeVersion, proto.VersionBody(s.cfg.Builder, nil))); err != nil {
+	verTx := proto.Build(proto.TypeVersion, proto.VersionBody(s.cfg.Builder, nil))
+	vtTx := proto.VersionAndTime()
+	if s.cfg.CaptureAll {
+		_ = s.wr.WriteIO("tx-ver", verTx, time.Now())
+		_ = s.wr.WriteIO("tx-vt", vtTx, time.Now())
+	}
+	if _, err := c.Write(verTx); err != nil {
 		log.Printf("[%s] ver write: %v", remote, err)
 		return
 	}
-	if _, err := c.Write(proto.VersionAndTime()); err != nil {
+	if _, err := c.Write(vtTx); err != nil {
 		log.Printf("[%s] vt write: %v", remote, err)
 		return
 	}
@@ -96,6 +101,9 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 		chunk := make([]byte, 4096)
 		n, err := r.Read(chunk)
 		if n > 0 {
+			if s.cfg.CaptureAll { // дамп ДО парсинга: ресинк ничего не съест молча
+				_ = s.wr.WriteIO("rx", chunk[:n], time.Now())
+			}
 			acc = append(acc, chunk[:n]...)
 			for len(acc) >= 5 {
 				pkt, used, perr := proto.Parse(acc)
@@ -124,16 +132,23 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 					if _, werr := c.Write(proto.VersionAndTime()); werr != nil {
 						return
 					}
-					handshaked = true
 
 				case proto.TypeVerAndTimeReq:
 					if _, werr := c.Write(proto.VersionAndTime()); werr != nil {
 						return
 					}
 
-				case proto.TypeUnknown3, proto.TypeVerAndTime:
-					// в оригинале: заглушка/ответ; просто фиксируем живость
-					_ = handshaked
+				case proto.TypeServerStarted:
+					if len(pkt.Body) == 12 {
+						a := binary.LittleEndian.Uint32(pkt.Body)
+						b2 := binary.LittleEndian.Uint32(pkt.Body[4:8])
+						c2 := int32(binary.LittleEndian.Uint32(pkt.Body[8:12]))
+						log.Printf("[%s] ServerStarted: id=%d svc=%d x=%d", remote, a, b2, c2)
+					}
+
+				case proto.TypeStatus:
+					// статус-поток (body 194 const): счётчики/floats + SYSTEMTIME-хвост — парсить по мере надобности
+					_ = pkt.Body
 
 				default: // TypeData и всё, что не разобрано — TBD-layout, в .raw
 					_ = s.wr.WriteRaw("payload", pkt.Type, pkt.Raw, time.Now())
