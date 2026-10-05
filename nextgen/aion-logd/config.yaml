@@ -1,0 +1,7 @@
+# aion-logd — замена LogServer64 (skeleton). Секретов тут нет.
+server:
+  listen: ":2051"
+  builder: 10004        # наш builderNumber (ориг. отвечает значением из конфига; min=10003)
+  base_dir: "./logs"    # прод: D:/AION_LIVE_SERVER/... per-service dirs через dirs:
+  max_conn: 64
+  dirs: {}              # svcType → каталог; позже: cache→D:/AION_LIVE_SERVER/CacheServer/log и т.д.
