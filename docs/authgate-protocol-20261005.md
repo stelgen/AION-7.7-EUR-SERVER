@@ -158,6 +158,8 @@ useGCSideExtendAccount=true; appLaunchBanDelay=5; useReportMail=false; authRecon
 
 ## 6. План реализации (следующая сессия)
 
+> СТАТУС 05.10 ~20:20 (актуализация): шаги 1–5 НЕ выполнены (Go-кода нет, в aion-gate только testdata/); позиции §5.1–5.6 все открыты. «го» на свитч дано заранее, юзер логиниться не будет — тесты фейками, свитч без живого логина. Каждый шаг = коммит+пуш+дельта в память.
+
 1. Доверить позиции §5.1/§5.3/§5.4 дизasmом (1-2 ч).
 2. nextgen/aion-gate (Go): internal/proto (framing/Blowfish/скрамбл/RSA-256/LUT-ключи/welcome),
    internal/server (сессии, CheckSessionId-логика, brute 20/60/120, BlockIPs, cc-отказы),
