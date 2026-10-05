@@ -5,3 +5,15 @@ server:
   base_dir: "./logs"    # прод: D:/AION_LIVE_SERVER/... per-service dirs через dirs:
   max_conn: 64
   dirs: {}              # svcType → каталог; позже: cache→D:/AION_LIVE_SERVER/CacheServer/log и т.д.
+
+# DB-слой: РОВНО те вызовы, что у оригинала ({call Log_Tbl*}); по умолчанию ВЫКЛ.
+# Для прод: логину нужны EXEC на Log_Tbl* + INSERT/UPDATE на TBL_GAME_* (Aion_log),
+# world_id=1, server_id=2 (SERVER_ID=2 зафиксирован ВНУТРИ процы freedisk).
+logdb:
+  enabled: false
+  conn: ""
+  world_id: 1
+  server_id: 2
+  freedisk_sec: 300
+  status_sec: 600
+  log_dir: "./logs"
