@@ -60,25 +60,26 @@ func (c Cfg) Open() (*DB, error) {
 	}, nil
 }
 
-const (
-	qFreedisk  = `{call Log_TblGameServerInfo_UpdateLogfreedisk(?,?)}`
-	qStatus    = `{call Log_TblGameServerInfo_UpdateServerstatus(?,?,?)}`
-	qInitCount = `{call Log_TblGameWorldInfo_InitializeCount(?)}`
-)
+const ()
 
-func (d *DB) UpdateLogfreedisk(ctx context.Context, freeDiskMB int) error {
-	_, err := d.Ex.ExecContext(ctx, qFreedisk, freeDiskMB, d.WorldID)
+func (d *DB) UpdateLogfreedisk(ctx context.Context, freeDiskGB int) error {
+	q := fmt.Sprintf("exec Aion_log.dbo.Log_TblGameServerInfo_UpdateLogfreedisk @free_disk=%d, @world_id=%d",
+		freeDiskGB, d.WorldID)
+	_, err := d.Ex.ExecContext(ctx, q)
 	return err
 }
 
 func (d *DB) UpdateServerstatus(ctx context.Context, status int) error {
-	_, err := d.Ex.ExecContext(ctx, qStatus, status, d.WorldID, d.ServerID)
+	q := fmt.Sprintf("exec Aion_log.dbo.Log_TblGameServerInfo_UpdateServerstatus @server_status=%d, @world_id=%d, @server_id=%d",
+		status, d.WorldID, d.ServerID)
+	_, err := d.Ex.ExecContext(ctx, q)
 	return err
 }
 
 // InitializeCount — вызывается logd'ом один раз при появлении мира (ServerStarted).
 func (d *DB) InitializeCount(ctx context.Context) error {
-	_, err := d.Ex.ExecContext(ctx, qInitCount, d.WorldID)
+	q := fmt.Sprintf("exec Aion_log.dbo.Log_TblGameWorldInfo_InitializeCount @world_id=%d", d.WorldID)
+	_, err := d.Ex.ExecContext(ctx, q)
 	return err
 }
 
@@ -90,7 +91,12 @@ func (d *DB) RunTimers(ctx context.Context) {
 			if err != nil {
 				return err
 			}
-			return d.UpdateLogfreedisk(ctx, mb)
+			// оригинал шлёт маленькое число (56) — это ГБ, столбец/параметр tinyint
+			gb := mb / 1024
+			if gb > 255 {
+				gb = 255
+			}
+			return d.UpdateLogfreedisk(ctx, gb)
 		})
 	}
 	if d.StatusEvery > 0 {

@@ -12,6 +12,7 @@ import (
 	"log"
 	"net"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"aion-logd/internal/logdb"
@@ -34,7 +35,7 @@ type Server struct {
 	wr       *writer.W
 	wg       sync.WaitGroup
 	db       *logdb.DB
-	initOnce sync.Once
+	initDone uint32
 }
 
 func New(cfg Config, wr *writer.W) *Server {
@@ -85,6 +86,8 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 	r := bufio.NewReaderSize(c, 16*1024)
 	statusN := 0
 	var acc []byte
+
+	// (периодики от сервера НЕТ: type-4 = ответ на alive, type-2 = только handshake)
 
 	// СЕРВЕР говорит первым (мимик LogServerSocket::OnCreate: SendVersion+VT при accept):
 	// итерация 05.10 доказала — клиенты подключаются и ЖДУТ инициативы сервера.
@@ -146,15 +149,22 @@ func (s *Server) serve(ctx context.Context, c net.Conn) {
 						return
 					}
 
+				case proto.TypeAlive:
+					// ФИНАЛЬНАЯ РАЗГАДКА ФЛАПА (mirror-корреляция 05.10): клиент пингует type-11
+					// каждые 90с (0x15f90 в дизasm), СЕРВЕР ОТВЕЧАЕТ type-4 (8 нулей) через мс —
+					// это и есть ProcessAliveResponse. Без ответа клиент рвёт через ~153с.
+					if _, werr := c.Write(proto.Build(proto.TypeControl, make([]byte, 8))); werr != nil {
+						return
+					}
+
 				case proto.TypeServerStarted:
-					if s.db != nil {
-						s.initOnce.Do(func() {
-							if err := s.db.InitializeCount(ctx); err != nil {
-								log.Printf("[logdb] InitializeCount: %v", err)
-							} else {
-								log.Printf("[logdb] InitializeCount(world=%d) выполнен (первый ServerStarted)", s.db.WorldID)
-							}
-						})
+					if s.db != nil && atomic.CompareAndSwapUint32(&s.initDone, 0, 1) {
+						if err := s.db.InitializeCount(ctx); err != nil {
+							atomic.StoreUint32(&s.initDone, 0) // ретрай при следующем ServerStarted
+							log.Printf("[logdb] InitializeCount: %v (ретрай по следующему ServerStarted)", err)
+						} else {
+							log.Printf("[logdb] InitializeCount(world=%d) выполнен", s.db.WorldID)
+						}
 					}
 					if len(pkt.Body) == 12 {
 						a := binary.LittleEndian.Uint32(pkt.Body)

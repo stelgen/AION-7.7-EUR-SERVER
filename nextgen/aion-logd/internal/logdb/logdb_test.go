@@ -3,7 +3,6 @@ package logdb
 import (
 	"context"
 	"database/sql"
-	"reflect"
 	"testing"
 )
 
@@ -41,11 +40,11 @@ func TestUpdateLogfreedisk(t *testing.T) {
 	if err := db.UpdateLogfreedisk(context.Background(), 56); err != nil {
 		t.Fatal(err)
 	}
-	want := `{call Log_TblGameServerInfo_UpdateLogfreedisk(?,?)}`
+	want := "exec Aion_log.dbo.Log_TblGameServerInfo_UpdateLogfreedisk @free_disk=56, @world_id=1"
 	if len(fe.calls) != 1 || fe.calls[0].q != want {
 		t.Fatalf("calls: %+v", fe.calls)
 	}
-	if !reflect.DeepEqual(fe.calls[0].args, []any{56, 1}) {
+	if len(fe.calls[0].args) != 0 {
 		t.Fatalf("args: %+v", fe.calls[0].args)
 	}
 }
@@ -55,12 +54,9 @@ func TestUpdateServerstatus(t *testing.T) {
 	if err := db.UpdateServerstatus(context.Background(), 1); err != nil {
 		t.Fatal(err)
 	}
-	want := `{call Log_TblGameServerInfo_UpdateServerstatus(?,?,?)}`
+	want := "exec Aion_log.dbo.Log_TblGameServerInfo_UpdateServerstatus @server_status=1, @world_id=1, @server_id=2"
 	if len(fe.calls) != 1 || fe.calls[0].q != want {
 		t.Fatalf("calls: %+v", fe.calls)
-	}
-	if !reflect.DeepEqual(fe.calls[0].args, []any{1, 1, 2}) {
-		t.Fatalf("args: %+v", fe.calls[0].args)
 	}
 }
 
@@ -69,12 +65,9 @@ func TestInitializeCount(t *testing.T) {
 	if err := db.InitializeCount(context.Background()); err != nil {
 		t.Fatal(err)
 	}
-	want := `{call Log_TblGameWorldInfo_InitializeCount(?)}`
+	want := "exec Aion_log.dbo.Log_TblGameWorldInfo_InitializeCount @world_id=1"
 	if len(fe.calls) != 1 || fe.calls[0].q != want {
 		t.Fatalf("calls: %+v", fe.calls)
-	}
-	if !reflect.DeepEqual(fe.calls[0].args, []any{1}) {
-		t.Fatalf("args: %+v", fe.calls[0].args)
 	}
 }
 

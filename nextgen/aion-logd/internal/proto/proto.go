@@ -37,9 +37,11 @@ const (
 	TypeVersion       = 0 // клиент: 13 total [builder u32][min u32] (БЕЗ SYSTEMTIME)
 	TypeVerAndTimeReq = 1 // обработчик строит ответ-2
 	TypeVerAndTime    = 2 // [02][BB][FD][qword FILETIME], total 13
-	TypeServerStarted = 3 // клиент: body 12 = 3×u32 (SendServerStarted)
+	TypeServerStarted = 3
+	TypeControl       = 4 // S→C периодика: body 8 нулей (capture: 6 шт/2 на клиента/4 мин) — анти-флап // клиент: body 12 = 3×u32 (SendServerStarted)
 	TypeData          = 4 // TBD
-	TypeStatus        = 5 // клиент: body 194 const — статус-поток ~1/2с (floats/счётчики + SYSTEMTIME-хвост)
+	TypeStatus        = 5
+	TypeAlive         = 11 // EncodeAlive (клиент ping; capture: [0B][BA][F4][qword]) // клиент: body 194 const — статус-поток ~1/2с (floats/счётчики + SYSTEMTIME-хвост)
 )
 
 // ErrBadPacket — невалидный пакет (маркер/длина).
@@ -87,7 +89,7 @@ func Parse(buf []byte) (*Packet, int, error) {
 		return nil, 0, ErrShort
 	}
 	typ := buf[2]
-	if typ > 8 || (buf[3] != Marker && buf[3] != CMarker) || buf[4] != ^typ {
+	if typ > 12 || (buf[3] != Marker && buf[3] != CMarker) || buf[4] != ^typ {
 		return nil, 0, fmt.Errorf("%w: type=%d marker=%02x inv=%02x", ErrBadPacket, typ, buf[3], buf[4])
 	}
 	p := &Packet{Type: typ, Body: buf[5:total], Raw: buf[:total:total]}
@@ -141,6 +143,15 @@ func ParseVersion(body []byte) (builder, minBld uint32) {
 	return 0, 0
 }
 
+// AliveReply — ответ сервера на клиентский Alive(type 11): тот же тип, маркер 0xBB,
+// qword = локальное-как-UTC FILETIME (клиент сверяет с локальным: иначе «Time difference»
+// и Close через 153с — источник RunAsDate-инцидента и нашего флапа).
+func AliveReply() []byte {
+	b := make([]byte, 8)
+	putFileTime(b)
+	return Build(TypeAlive, b)
+}
+
 // VersionAndTime — [02][BB][FD][qword FILETIME] (total 13).
 func VersionAndTime() []byte {
 	b := make([]byte, 8)
@@ -175,7 +186,12 @@ func ServerStarted(a, b, c int32) []byte {
 }
 
 func putFileTime(dst []byte) {
-	// FILETIME: 100нс с 1601-01-01 — совместимо с ожиданиями клиента (мэджик /10^7).
+	// КРИТИЧНО (флап-разгадка 05.10, дизasm ProcessAliveResponse NPCSvr): клиент вычитает
+	// СЕРВЕРНЫЙ qword из СВОЕГО GetSystemTimeAsFileTime (UTC-тики) — diff в мс > 60000 (0xEA60)
+	// = «Time difference too big» → Close через ~153с. ПОЭТОМУ qword = ЧЕСТНЫЙ UTC FILETIME
+	// (как у любого нормального сервера). Локальное-как-UTC (предыдущая попытка) давало
+	// diff = −TZ (3ч = 10.8M мс ≫ 60000) → флап. SYSTEMTIME-поля в Version (другая ветка
+	// проверки) остаются ЛОКАЛЬНЫМИ (SysTime()).
 	ft := uint64(time.Now().UnixNano())/10 + 116444736000000000
 	binary.LittleEndian.PutUint64(dst, ft)
 }

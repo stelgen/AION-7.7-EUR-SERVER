@@ -1,0 +1,15 @@
+<config>
+<server>
+	<country>2</country>
+	<serverAddress>127.0.0.1</serverAddress>
+	<serverPort>2053</serverPort>
+	<logfilefolder>D:\_AION_log</logfilefolder>
+	<mailServer>127.0.0.1</mailServer>
+	<logserveraddr>127.0.0.1</logserveraddr>
+	<logserverport>2053</logserverport>
+	<BCPInterval>10000</BCPInterval>
+	<BCPThreadNum>4</BCPThreadNum>
+	<UseBulkInsert>1</UseBulkInsert>
+	<TimeSlice>10</TimeSlice>
+</server>
+</config>

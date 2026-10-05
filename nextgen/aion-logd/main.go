@@ -47,6 +47,11 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	if v := os.Getenv("AIONLOG_MIRROR_UP"); v != "" {
+		log.Printf("mirror-режим: listen %s -> upstream %s", cfg.Server.Listen, v)
+		_ = server.Mirror(ctx, cfg.Server.Listen, v)
+		return
+	}
 	wr := writer.New(cfg.Server.BaseDir, cfg.Server.Dirs)
 	defer wr.CloseAll()
 

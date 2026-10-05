@@ -116,7 +116,7 @@ func (c *DB) Collect(ctx context.Context) Snap {
 	err = c.db.QueryRowContext(ctx, `SELECT
 		(SELECT COUNT(*) FROM sys.dm_exec_requests WHERE blocking_session_id<>0),
 		(SELECT COUNT(*) FROM sys.dm_exec_requests WHERE wait_type='RESOURCE_SEMAPHORE_QUERY_COMPILE'),
-		(SELECT ISNULL(SUM(wait_time_ms),0) FROM sys.dm_exec_requests WHERE wait_type='RESOURCE_SEMAPHORE_QUERY_COMPILE')`).
+		(SELECT ISNULL(SUM(wait_time),0) FROM sys.dm_exec_requests WHERE wait_type='RESOURCE_SEMAPHORE_QUERY_COMPILE')`).
 		Scan(&g.Blocked, &g.ResqDepth, &g.ResqWaitMs)
 	if err != nil {
 		return Snap{When: time.Now(), Err: "gauge: " + err.Error()}
