@@ -81,6 +81,25 @@ SQLite-зеркало логов опционально (одно место д�
 **Ценность**: ACP=28591/DSN-трипанема умирает, логи — наши (SQLite+файлы), `unsent\batch`-
 мусор исчезает, aion-op работает без изменений (файлы те же).
 
+## 4.1 ИТОГИ ЖИВЫХ ИТЕРАЦИЙ + NPCSvr.pdb-дизasm (протокол ЗАКРЫТ на 95%)
+
+**Маркеры по направлению**: клиент→сервер = **0xBA**, сервер→клиент = **0xBB**; инверсия = ^type в обоих.
+
+**Пакеты (все подтверждены capture и/или дизasm'ом NPCSvr64-энкодера):**
+| Тип | Направление | Layout | Суть |
+|---|---|---|---|
+| 0 Version | C→S: **13** total `[00][BA][FF][builder u32=200604][min u32=10003]` (БЕЗ SYSTEMTIME) | S→C: **29** total `[00][BB][FF][builder u32][min u32][SYSTEMTIME 16]` (OnCreate) + S→C VT-2: **13** `[02][BB][FD][qword FILETIME]` | handshake; клиент валидирует **SYSTEMTIME** сервера (мэджик 0x68DB8BAD=/10^7) — источник «Time difference with Log-Server» |
+| 3 ServerStarted | C→S: **17** total, body 12 = 3×u32 (capture: (1,2,0),(1,3,0),(1,4,-22)) | старт-нотификация |
+| 4 Control | C→S: **21** total, body 16 = **конст 0x644=1604** + 3×u32 (строитель @0x1402c8860 NPCSvr) | контрол-пакет (TBD) |
+| 5 Status/Record | C→S: **body 194 CONST** (~317 за 4 мин ≈ 1/2с от каждого из 3 клиентов) | структурированная запись: `u32@0 = LogSvcType` (capture: **301/302/309** — по типу на сервис), u64@8 engtick, **f32@32/36/40 = X/Y/Z координаты**, u32@28 = WorldID (210010000!), флаги 0x80000000, счётчики; **хвост: SYSTEMTIME (16) на off 162 + u16 seq** — это данные для TBL_GAME_WORLD/SERVER_INFO |
+| 11 Alive | C→S: **13** total `[0B][BA][F4][qword]` (строитель @0x1402aa5d8, EncodeAlive; #180 патчил байт-параметр) | ping |
+
+**ГЛАВНЫЙ АРХИТЕКТУРНЫЙ ВЫВОД**: в LogSvc (клиентский фреймворк) есть СВОИ `CreateNewLogFile/LogFileUnLock/gLogDir` — **текстовые .err-логи пишут САМИ СЕРВИСЫ ЛОКАЛЬНО**; LogServer64 их не получает и не пишет! Он принимает только: handshake, ServerStarted, type-5 записи (для TBL_GAME_* в Aion_log + GUI), Alive, Ctrl.
+
+**Следствия для замены**: (1) aion-op тейлеры .err вообще не зависят от замены — файлы пишет CacheD/Server64/NPCSvr сами; (2) logd-замене нужен только приём type-5 записей → раскладка в TBL_GAME_WORLD/SERVER_INFO + aion_SetInserted/aion_BulkInsertWide; (3) роллбэк тривиален; (4) «ненужность» LogServer для мира доказана живыми окнами (4-8 мин × 3, клиенты ретраят, мир цел).
+
+**Capture-артефакт**: `~/STELGEN/tmp/logd-io/io/2026-10-05.io.hex` (1 МБ, 317 type-5 записей + handshakes) — samples для юнит-тестов парсера.
+
 ## 5. Что дальше (по «го»)
 
 1. Добить дизasm (3 пункта выше) → точная спецификация payload.
