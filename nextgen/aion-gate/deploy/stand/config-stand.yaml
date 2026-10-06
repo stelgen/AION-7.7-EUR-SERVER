@@ -1,0 +1,34 @@
+# aion-gate STAND (порт 2109, прод 2106 не трогаем; 2108 занят L2Authd!) — зеркало config.txt 41007 05.10
+serverPort: 2109
+authAddr: 127.0.0.1
+authPort: 2110
+numThread: 32
+numIOThread: 96
+acceptCallNum: 200
+socketLimit: 2000
+sessionTimeout: 5
+useForbiddenIPList: true
+blockIPsFile: etc/BlockIPs.txt
+logDirectory: log
+checkGameGuard: false
+useGameGuard: false
+useNotifyCSResult: true
+loginType: 2
+companyCode: "2"
+logdport: 3999
+useLogd: false
+tryInterval: 60
+tryCount: 20
+tryBlockInterval: 120
+dumpPacket: false
+ggNumActive: 50
+useGCSideExtendAccount: true
+appLaunchBanDelay: 5
+useReportMail: false
+authReconnectInterval: 30
+# welcome-статика по asm 0x407d50 (ночь-4): [0]=0x00 константа, S=[0x43c1ac], B0/B1/B2
+welcomeB0: 101
+welcomeB1: 114
+welcomeB2: 0
+ship:
+  enabled: false

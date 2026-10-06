@@ -88,5 +88,13 @@ _(173→177→184→192→194) сходится идеально — расхо�
   TestEncryptSecondaryEchoStructure (cipher [P][Q][Q][Q][P] = capture-структура!), e2e AUTH_GG.
 - config: welcomePlainByte остался в yaml (не используется, deprecated).
 
-СЛЕДУЮЩИЙ ШАГ: win cross-build (GOOS=windows) → деплой на стенд → живой клиент (решающий
-эксперимент из §ПАРАДОКС) → по исходу: свитч по плану §6 или копать рантайм-ключ/provenance capture.
+СЛЕДУЮЩИЙ ШАГ: ~~win cross-build → деплой на стенд~~ → ✅ ВЫПОЛНЕНО (ночь-4, ~00:15):
+- кросс-сборка aion-gate.exe (7 538 688B, PE32+ x64, -trimpath -ldflags "-s -w");
+- стенд D:\SAION\aion-gate-stand\ (aion-gate.exe + config-stand.yaml (порт 2109, зеркало прод-конфига
+  41007: authd 127.0.0.1:2110, loginType=2, sessionTimeout=5, authReconnectInterval=30) + gate-stand.bat
+  (ASCII+CRLF) + etc/BlockIPs.txt) — задача AionGateStand (SYSTEM, onstart), ПРОД (PID :2106) НЕ ТРОНУТ;
+- ⚠ НАХОДКА: порт 2108 занят самим L2Authd (второй листенер!) — стенд переведён на 2109;
+- ✅ SELF-TEST с LAN-машины (python blowfish): TCP → welcome 194B → ECB-dec(key1) → dword0=0x00000100
+  = [0]=0x00 + sid=1 ✓✓, хвост 188..191 нулевой ✓; 34b мусор → 42b ответ (echo жив) —
+  ASM-МОДЕЛЬ ПОДТВЕРЖДЕНА END-TO-END НА ЖИВОМ СТЕНДЕ. Осталось: живой КЛИЕНТ на 192.168.0.125:2109
+  (клиентский override логин-сервера) — он же решает парадокс capture-vs-asm.
