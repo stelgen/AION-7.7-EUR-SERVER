@@ -136,20 +136,19 @@ func TestLoginRelayTailLoginex(t *testing.T) {
 	blob := f.packets[0]
 	f.mu.Unlock()
 
+	// К-1 REVISED (probe 07.10): authd требует asm-форму blob (191Б: dword=pt[148:152],
+	// tail=pt[152:]=152Б) — 86Б blob (tail=47) даёт ТИШИНУ на существующих аккаунтах.
 	decbuf := proto.BuildLoginDecbuf(user, pwd, 0xFFFFFFFF, 34)
-	wantDword := uint32(0) // хвост ровно [..][0x20-блок][magic][00000000] → dword после блока = 0
-	wantBlob := proto.Assemble("cbdb", byte(0), decbuf, wantDword, tail)
+	wantBlob := proto.Assemble("cbdb", byte(0), decbuf, binary.LittleEndian.Uint32(pt[148:152]), pt[152:])
 	if !bytes.Equal(blob, wantBlob) {
 		t.Fatalf("loginex blob: got len=%d want len=%d\ngot  %x\nwant %x", len(blob), len(wantBlob), blob, wantBlob)
 	}
-	// dword НЕ из ct-зоны: старый код брал pt[148:152] = ct1[147:151] (филлер 0xEE → не 0)
-	ctZone := binary.LittleEndian.Uint32(pt[148:152])
-	if ctZone == wantDword {
-		t.Fatalf("неинформативно: ct-зона pt[148:152]=%08x совпала с dword", ctZone)
+	if len(blob) != 191 {
+		t.Fatalf("loginex blob len=%d want 191 (asm-форма: 1+34+4+152)", len(blob))
 	}
-	// tail в blob — ИЗ ХВОСТА (последние 47Б blob == split-tail)
-	if !bytes.Equal(blob[len(blob)-len(tail):], tail) {
-		t.Fatal("blob: tail не из хвоста SplitLogin")
+	// хвост blob = pt[152:] (152Б = ct2-остаток 105Б + live-tail 47Б)
+	if !bytes.Equal(blob[len(blob)-len(pt[152:]):], pt[152:]) {
+		t.Fatal("blob: хвост не asm-форма pt[152:]")
 	}
 }
 

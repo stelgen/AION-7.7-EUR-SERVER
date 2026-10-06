@@ -560,75 +560,27 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		log.Printf("login: username normalize: %q → %q (эталон trim+toLowerCase)", dec.User, user)
 	}
 	decbuf := proto.BuildLoginDecbuf(user, dec.Pwd, dec.Otp, s.Cfg.LoginDecbufLen)
-	// К-1 (P0-1): k=1 — asm-позиции оригинала (dword = data+148, tail-блоб с data+152);
-	// k≥2 (loginex) pt[148:152]/pt[152:] — ЗОНА ШИФРТЕКСТА (ct=pt[1:1+k*128]) →
-	// dword/tail берём из SplitLogin-хвоста. При сомнении НЕ рвать — relay.
+	// К-1 REVISED 07.10 (probe-доказательство): authd требует ПОЛНУЮ asm-форму blob —
+	// dword = pt[148:152], tail = pt[152:] для ЛЮБОГО k (ровно как оригинал; loginex = 191Б).
+	// Прежний «К-1 фикс» (86Б blob: dword=0, tail=47 из SplitLogin) → authd МОЛЧИТ на
+	// существующих аккаунтах: stelgen 191Б → type=3 (accId=1010), 86Б → тишина (probe
+	// tail152/tail47, 07.10 00:56-57). Содержимое ct-зоны authd игнорит (dw=0x12345678
+	// принят) — критична ФОРМА/размер blob; «мусор» в dword/tail = норма оригинала.
 	var dword uint32
 	var blobTail []byte
-	if len(chunks) == 1 && len(pt) >= 156 {
+	if len(pt) >= 156 {
 		dword = binary.LittleEndian.Uint32(pt[148:152])
 		blobTail = pt[152:]
 	} else {
-		dword = s.loginDwordFromTail(tail)
-		blobTail = tail
-		if len(chunks) == 1 {
-			log.Printf("login: короткий k=1 (pt=%d) — dword/tail из SplitLogin-хвоста (defensive)", len(pt))
-		}
+		log.Printf("login: короткий pt=%d (<156) — blob dword=0/пустой tail (defensive)", len(pt))
 	}
+	_ = tail
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword, blobTail)
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
 	log.Printf("login: relay authd sid=%d decbufLen=%d blobLen=%d k=%d dword=%08x taillen=%d",
 		sess.ID, len(decbuf), len(blob), len(chunks), dword, len(blobTail))
 	sess.State = stAuthedLogin // К-2 (P0-2): успешный login-decode → AUTHED_LOGIN
 	return nil
-}
-
-// loginDwordFromTail — К-1 (P0-1): loginex-хвост → dword для blob "cbdb".
-// Live-хвост 47Б: [sid LE][нули][0x20][7×0][68ffdab3e2fda892][2d9cc7baa87e0d49][dword].
-// Ищем 0x20-блок (0x20 + ≥7 нулей); кандидаты ЛОГИРУЮТСЯ ВСЕ (первый прогон живого
-// loginex покажет верный): (а) dword после полного 0x20-блока с magic-ами,
-// (б) dword сразу после байта 0x20, (в) asm-эквивалент k=1 (на байт раньше 0x20).
-// При неоднозначности/отсутствии блока → константный 0 (НЕ рвать — relay продолжается).
-func (s *Server) loginDwordFromTail(tail []byte) uint32 {
-	p := -1
-	for i := 0; i+8 <= len(tail); i++ {
-		if tail[i] != 0x20 {
-			continue
-		}
-		z := true
-		for _, c := range tail[i+1 : i+8] {
-			if c != 0 {
-				z = false
-				break
-			}
-		}
-		if z {
-			p = i
-			break
-		}
-	}
-	if p < 0 {
-		log.Printf("loginex: 0x20-блок в хвосте (%dБ) не найден → dword=0 (tail=%s)", len(tail), hex.EncodeToString(tail))
-		return 0
-	}
-	var afterBlock, after20, straddle uint32
-	hasAfterBlock := p+28 <= len(tail)
-	if hasAfterBlock {
-		afterBlock = binary.LittleEndian.Uint32(tail[p+24 : p+28])
-	}
-	if p+5 <= len(tail) {
-		after20 = binary.LittleEndian.Uint32(tail[p+1 : p+5])
-	}
-	if p >= 1 {
-		straddle = binary.LittleEndian.Uint32(tail[p-1 : p+3])
-	}
-	chosen := uint32(0)
-	if hasAfterBlock {
-		chosen = afterBlock // хвост заканчивается dword'ом после 0x20-блока — единственная чистая позиция
-	}
-	log.Printf("loginex: dword-кандидаты (0x20@%d/%d): после-блока=%08x после-0x20=%08x asm-эквив=%08x → выбор=%08x",
-		p, len(tail), afterBlock, after20, straddle, chosen)
-	return chosen
 }
 
 // handleLoginLegacy — старый релей (до П3): полный m 128Б + dword148 + хвост.

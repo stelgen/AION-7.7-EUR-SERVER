@@ -40,6 +40,9 @@ func main() {
 			sid = uint32(v)
 		}
 	}
+	// tail47: blob РОВНО как у гейта после К-1 (86Б: dword=0, tail=47 live-форма) —
+	// дифференциация «формат blob vs state authd» на тишине 07.10 00:54 (stelgen).
+	tail47 := len(os.Args) > 5 && os.Args[5] == "tail47"
 	conn, err := net.DialTimeout("tcp", addr, 3*time.Second)
 	if err != nil {
 		fmt.Println("DIAL FAIL:", err)
@@ -54,9 +57,19 @@ func main() {
 	// blob = ровно как в handleLogin: [00][decbuf34][dw][tail]
 	decbuf := proto.BuildLoginDecbuf(user, "", 0, 34)
 	dw := uint32(0x12345678)
-	tail := make([]byte, 152)
-	copy(tail[40:48], []byte{0x68, 0xff, 0xda, 0xb3, 0xe2, 0xfd, 0xa8, 0x92})
-	copy(tail[48:56], []byte{0x2d, 0x9c, 0xc7, 0xba, 0xa8, 0x7e, 0x0d, 0x49})
+	var tail []byte
+	if tail47 {
+		dw = 0
+		tail = make([]byte, 47) // live-форма: [sid][15×0][0x20][7×0][magic1][magic2][dword=0]
+		binary.LittleEndian.PutUint32(tail[0:4], sid)
+		tail[19] = 0x20
+		copy(tail[27:35], []byte{0x68, 0xff, 0xda, 0xb3, 0xe2, 0xfd, 0xa8, 0x92})
+		copy(tail[35:43], []byte{0x2d, 0x9c, 0xc7, 0xba, 0xa8, 0x7e, 0x0d, 0x49})
+	} else {
+		tail = make([]byte, 152)
+		copy(tail[40:48], []byte{0x68, 0xff, 0xda, 0xb3, 0xe2, 0xfd, 0xa8, 0x92})
+		copy(tail[48:56], []byte{0x2d, 0x9c, 0xc7, 0xba, 0xa8, 0x7e, 0x0d, 0x49})
+	}
 	// [00] CltConnect — БЕЗ него authd отвечает [01][sid] (unknown session)
 	ipb := net.ParseIP(ip).To4()
 	if ipb == nil {
