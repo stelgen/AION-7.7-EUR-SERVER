@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+  <Reader_Limit_Set Program_ID_9F5A="0108400840">
+    <Cfg label="9F5A" name="Status Check" format="b 6">0108400840</Cfg>
+    <Cfg label="DF50" name="Status Check" format="asc 4">False</Cfg>
+    <Cfg label="False" ID="ZERO_AMT_CHECK" name="Zero Amount Check"/>
+    <Cfg label="True" ID="CL_TXN_LIMIT_CHECK" name="Reader Contactless Transaction Limit Check">000000002000</Cfg>
+    <Cfg label="True" ID="CVM_REQ_LIMIT_CHECK" name="Reader CVM Required Limit Check">000000000500</Cfg>
+    <Cfg label="True" ID="CL_FLR_LIMIT_CHECK" name="Reader Contactless Floor Limit Check">000000001000</Cfg>
+  </Reader_Limit_Set>
+  <Reader_Limit_Set Program_ID_9F5A="0208400840">
+    <Cfg label="False" ID="STATUS_CHECK" name="Status Check"/>
+    <Cfg label="False" ID="ZERO_AMT_CHECK" name="Zero Amount Check"/>
+    <Cfg label="False" ID="CL_TXN_LIMIT_CHECK" name="Reader Contactless Transaction Limit Check"/>
+    <Cfg label="False" ID="CVM_REQ_LIMIT_CHECK" name="Reader CVM Required Limit Check"/>
+    <Cfg label="False" ID="CL_FLR_LIMIT_CHECK" name="Reader Contactless Floor Limit Check"/>
+  </Reader_Limit_Set>
+  <Reader_Limit_Set Program_ID_9F5A="0308400840">
+    <Cfg label="False" ID="STATUS_CHECK" name="Status Check"/>
+    <Cfg label="False" ID="ZERO_AMT_CHECK" name="Zero Amount Check"/>
+    <Cfg label="False" ID="CL_TXN_LIMIT_CHECK" name="Reader Contactless Transaction Limit Check"/>
+    <Cfg label="False" ID="CVM_REQ_LIMIT_CHECK" name="Reader CVM Required Limit Check"/>
+    <Cfg label="False" ID="CL_FLR_LIMIT_CHECK" name="Reader Contactless Floor Limit Check"/>
+  </Reader_Limit_Set>
+  <Reader_Limit_Set Program_ID_9F5A="0408400840">
+    <Cfg label="False" ID="STATUS_CHECK" name="Status Check"/>
+    <Cfg label="False" ID="ZERO_AMT_CHECK" name="Zero Amount Check"/>
+    <Cfg label="False" ID="CL_TXN_LIMIT_CHECK" name="Reader Contactless Transaction Limit Check"/>
+    <Cfg label="False" ID="CVM_REQ_LIMIT_CHECK" name="Reader CVM Required Limit Check"/>
+    <Cfg label="False" ID="CL_FLR_LIMIT_CHECK" name="Reader Contactless Floor Limit Check"/>
+  </Reader_Limit_Set>
+</CONFIG>
+
+
+

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+  <ExceptionFile label="FFA007">
+    <Cfg label="5A" Name="PAN" Format="n 19">3540820000421010</Cfg>
+  </ExceptionFile>
+</CONFIG>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<CONFIG>
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">000000000010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">01</Cfg>
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000000651010</Cfg>
+    <Cfg label="9F2A" Name="Kernel ID" Format="b 1">05</Cfg>
+    <Cfg label="DF40" Name="Combination Options" Format="b 2">7B00</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000020000</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000004500</Cfg>
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000010000</Cfg>
+    <Cfg label="DF24" Name="On-Device CVM Contactless Transaction Limit" Format="n 12">000000025000</Cfg>
+    <Cfg label="DF17" Name="Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF16" Name="MAX Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF15" Name="Threshold Value for Biased Random Selection" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF41" Name="Removal Timeout" Format="n 4">1000</Cfg>
+    <Cfg label="DF42" Name="Terminal Interchange Profile" Format="b 3">708000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">9040008000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0410000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">9060009000</Cfg>
+  </KernelAidCombination>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">000000000010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">00</Cfg>
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000000652020</Cfg>
+    <Cfg label="9F2A" Name="Kernel ID" Format="b 1">05</Cfg>
+    <Cfg label="DF40" Name="Combination Options" Format="b 2">7B00</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000020000</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000004500</Cfg>
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000010000</Cfg>
+    <Cfg label="DF24" Name="On-Device CVM Contactless Transaction Limit" Format="n 12">000000025000</Cfg>
+    <Cfg label="DF17" Name="Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF16" Name="MAX Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF15" Name="Threshold Value for Biased Random Selection" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF41" Name="Removal Timeout" Format="n 4">1000</Cfg>
+    <Cfg label="DF42" Name="Terminal Interchange Profile" Format="b 3">708000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">9040008000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0410000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">9060009000</Cfg>
+  </KernelAidCombination>
+</CONFIG>

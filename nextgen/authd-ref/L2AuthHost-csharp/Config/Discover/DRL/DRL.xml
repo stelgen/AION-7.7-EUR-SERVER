@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<CONFIG>
+  <DRLCofig label="FFA003">
+    <Cfg label="DF22" Name="DRL Index" Format="b 1">F0</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000005500</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000010500</Cfg>   
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000015500</Cfg>   
+  </DRLCofig>
+  
+  <DRLCofig label="FFA003">
+    <Cfg label="DF22" Name="DRL Index" Format="b 1">00</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000006000</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000011000</Cfg>   
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000016000</Cfg>   
+  </DRLCofig>
+  
+  <DRLCofig label="FFA003">
+    <Cfg label="DF22" Name="DRL Index" Format="b 1">0F</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000007000</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000012000</Cfg>   
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000017000</Cfg>   
+  </DRLCofig>
+</CONFIG>

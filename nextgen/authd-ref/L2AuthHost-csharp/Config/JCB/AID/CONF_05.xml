@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<CONFIG>
+  <TerminalParameter label="FFA002">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">000000000010</Cfg>
+    <Cfg label="9F1E" Name="IFD SN" Format="an 8">IFD00001</Cfg>
+    <Cfg label="9F15" Name="Merchant Category Code" Format="n 4">7032</Cfg>
+    <Cfg label="9F16" Name="Merchant ID" Format="ans 15">Merchant0000001</Cfg>
+    <Cfg label="9F4E" Name="MerchantNameLocation" Format="b 128">5858204D45524348414E54205959204C4F434154494F4E</Cfg>
+    <Cfg label="9F1A" Name="Terminal Country Code" Format="n 3">0392</Cfg>
+    <Cfg label="9F1C" Name="Terminal ID" Format="an 8">Terml001</Cfg>
+    <Cfg label="9F35" Name="Terminal Type" Format="n 2">22</Cfg>
+    <Cfg label="5F2A" Name="Trans Currency Code" Format="n 3">0392</Cfg>
+    <Cfg label="5F36" Name="Trans Currency Exponent" Format="n 1">02</Cfg>
+  </TerminalParameter>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">000000000010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">00</Cfg>
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000000651010</Cfg>
+    <Cfg label="9F2A" Name="Kernel ID" Format="b 1">05</Cfg>
+    <Cfg label="DF40" Name="Combination Options" Format="b 2">2300</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000020000</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000004500</Cfg>
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000010000</Cfg>
+    <Cfg label="DF24" Name="On-Device CVM Contactless Transaction Limit" Format="n 12">000000025000</Cfg>
+    <Cfg label="DF17" Name="Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF16" Name="MAX Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF15" Name="Threshold Value for Biased Random Selection" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF41" Name="Removal Timeout" Format="n 4">1000</Cfg>
+    <Cfg label="DF42" Name="Terminal Interchange Profile" Format="b 3">708000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">9040008000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0410000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0040008000</Cfg>
+  </KernelAidCombination>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">000000000010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">01</Cfg>
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000000651010</Cfg>
+    <Cfg label="9F2A" Name="Kernel ID" Format="b 1">05</Cfg>
+    <Cfg label="DF40" Name="Combination Options" Format="b 2">2300</Cfg>
+    <Cfg label="DF20" Name="Terminal Contactless Transaction Limit" Format="n 12">000000020000</Cfg>
+    <Cfg label="DF19" Name="Terminal Contactless Floor Limit" Format="n 12">000000004500</Cfg>
+    <Cfg label="DF21" Name="Terminal CVM Required Limit" Format="n 12">000000010000</Cfg>
+    <Cfg label="DF24" Name="On-Device CVM Contactless Transaction Limit" Format="n 12">000000025000</Cfg>
+    <Cfg label="DF17" Name="Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF16" Name="MAX Target Percentage" Format="n 2">00</Cfg>
+    <Cfg label="DF15" Name="Threshold Value for Biased Random Selection" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF41" Name="Removal Timeout" Format="n 4">1000</Cfg>
+    <Cfg label="DF42" Name="Terminal Interchange Profile" Format="b 3">708000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">9040008000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0410000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0040008000</Cfg>
+  </KernelAidCombination>
+
+  <CAPK label="FFA7F00005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">05</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">9C338A8B66142367883B08A7F8D39459CBB00182ECF3722158992C99D69CBD94137EF95BE72E1FDA9E5800242084A5765FE3B00B730E726ADA9A7E219CAEBDC329158D2F88AF1529F3E1D0093A481185F1D1058034B78FE323BD281B02C15F59303CF8E50E7EA3A76DA2E104E363F18EEFFF9802603FD07BB8586783BC209CCC1354BD7EFF94E388682EEF11E7C9A69CFF5747F096557871</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">06</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">932720B5CEC708D2E3707344E1D0B341782716124EA1E9913BEC427229A4EC195B44C9BE1B63C072E01ECC30E731DA128C94F0011E004AC950A5D810D89156B755F47F2111FB01897A546AE9355310A166B0FAABDA2121E065FFB94124A2E65245B71D8E2AA373654864DD95DBFB4B62C2197E5BC35AEA20DFCBD24721FF4CFDDB1D49B643A631EEF11E7B867266009E4C2D272BB812D0F46C428E210E4A469580CEB666DCD71DB98849</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">07</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">A1081CFA8A068BAFF78BFCBBA8AFE27933670AF925370CAE31939A42976C543910AD706E2DFEBC19C94FFF9B7DD0533548E2757BE64B0D7F6390F854F48F2D99A01136887AD56A139F762D26A1657F7404FC299B6ACB2331D2B5283AB0D385CFD2FFF35AA90FE07AC506B13A66FBD72E1B6FD9D792C13F8F6D5F4C4EDD96ACB9</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">08</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">010001</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">9A20815A3729C2FB032C1A717866EA252E27D7DE539A8DDEA04BD5B3FBE7429C81491E9C16651A1F2D00FD4E62D3D450811F1150ED5C02A741C41458AC80369A8ADFC493898036C9D9B4B62CE91169BE030475A2AB01B9F86E3733E824C41AF02AC9D341E8BEE7E6C7AA80D7B1CA971FAF5BDAF17BB7904F53271605E325EFEF</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">09</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">A0BA1E941BA2B11DFB9AC5139041CC58B870A3B328F4712DD844439E6544469FD31106167FE926583CBCED6D573DECF9AF67D09875AF285C189681D4045883031E99A0A0F456DD31857DC58960EC24689F68FECEF88832B389D66D2A0481B14B0E05FD36CC00163FCAABAE73B5273D5F1206D4E246DC8AA1977A685FDD344B0D</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">10</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">98B446D87B5BDA8E13104F71687A5EE2E8106375CC64A54A10B88190C27B3812DB87B0D70FB4E9871DC62CEBC38056DA3E6B3957C8A8067DA81CE7C46A42107817D263933F3188BBB7863B2BC41683CE9C1744C5C06EC0D127A8844AA78F1D2E1E1115B036B7B9148BC9DBF58005313D14C866590C58DFE5D1AE6EBB118744AA2067926498C3CE323BDF5D67981E7FBF</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">11</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">A2583AA40746E3A63C22478F576D1EFC5FB046135A6FC739E82B55035F71B09BEB566EDB9968DD649B94B6DEDC033899884E908C27BE1CD291E5436F762553297763DAA3B890D778C0F01E3344CECDFB3BA70D7E055B8C760D0179A403D6B55F2B3B083912B183ADB7927441BED3395A199EEFE0DEBD1F5FC3264033DA856F4A8B93916885BD42F9C1F456AAB8CFA83AC574833EB5E87BB9D4C006A4B5346BD9E17E139AB6552D9C58BC041195336485</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">12</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">98CDB41F5D29BFCB5178036A8F37ABCD405DA6805BE618545DDC8E3372F5F99CB068608F38BEEAFB484B27597962AE08EFC6D8343229B3508EC9F0F23F5DE11BAFA218A47B3531BEA67A783E3863276BE6E811F72F08383BA18EB8BD52662A6C6E2BCB05930D7BE672BA8B297767FDC0549D4C649BA528455782C82A3415F62FA93B7EF4F74F2FC148EE1DE1AFA19537E9AB1664E967887F06A8EE95E0B7178A43C1A529E459A99F19FD0EA7C6A820C7</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+   <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">14</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">9D855B3BD225B971078FE4A4A4904798F461D22781A7924E3B0460486E27DAF08390935D00A02BBE2D51F37BAAB2DACC33C1A0B2D78158EDA765777469C019B782136EB6A6E6581761EA4D048CF6C27D1C4526E53793E206DCB2FCB3F8D8D8474C8241FB8A237BDA047C192EDB1C65ECD2E22B7F33C5B5634F0AA4C2ACA49D9481DB4BEFFF80E5CEF76535F002B4A59FF1FADCFD9A686C68053D7B4F63F5B45456C81625</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+    <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">21</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">ADF610D1488EB73FF18AB884BDF0FB2A1BD19164089870B1BF1D94EF49BEEFBCC342C2AF01507517EA24F81849C1AF390CE41D347A05DCE83657482D20491E6CD8DB288BC5BD321E710E2FF6402F76719A7DDFA7D53596D32297BD7EE1B5329314B9667718908F9C38BE2EB2A3ECFE0CC2802FA0CB86456A634D4FFD426898A1F10CC5CAE908F3549A9A1A7762D8971ECC1CA57704541E20CAC1CB2F92149C9F2F860155CBED40526C577BC3899D506FF5D8C65A99811268713F526551608D0C09D74194A1</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+    <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">22</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">CCC07801F18BFAA9FADFEF3A7C4A052DE8C7F8AB32C0ED8A449278330625C824346DF4B236BC5478A02C4ABA4465E0137D4A24F80E242C7E54700D8861E35748EA1B1AB28936CABC4E787ACBA65A93FC94624E834A9DA3083EAEA23CBDECD95BDA881B3DB32987FB8BADD1DA5D634350BE31EA8D6FDC470603DCCA0AA461F32205F043FDCDC1E739147C1C25F559756FBB4E14C81CADE6A6B5329070E9BDF3601CFE684818BBC8E6624CB0AF5B733F014684053B9BAF8CA8C263C5DA52D562CD63344F4EF829A8020D43669184FC216A1D264DEC452DF5C9A9991A14B1EDBA6B05C3BB3F4E88A82EB6F9B35F12E40C7E17CB64D5CEB6066F</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CRL label="FFA006">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="8F" Name="Index" Format="b 1">09</Cfg>
+    <Cfg label="DF8105" Name="SN" Format="b 3">001000</Cfg>
+  </CRL>
+
+  <ExceptionFile label="FFA007">
+    <Cfg label="5A" Name="PAN" Format="n 19">3540820000421010</Cfg>
+    <Cfg label="5F34" Name="PSN" Format="b 1">00</Cfg>
+  </ExceptionFile>
+</CONFIG>

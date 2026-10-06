@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001000</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">000010</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">000011</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">000101</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">000110</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">000111</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001001</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001010</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001011</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001100</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001101</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001110</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">001111</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010000</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010001</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010010</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010011</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010100</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010101</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">010111</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011000</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011001</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011010</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011011</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011100</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011101</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011110</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">011111</Cfg>
+    </CRL>
+
+    <CRL label="FFA06">
+        <Cfg label="9F06" Name="RID" Format="b 5">D999999999</Cfg>
+        <Cfg label="8F" Name="Index" Format="b 1">01</Cfg>
+        <Cfg label="DF8105" Name="SN" Format="b 3">100000</Cfg>
+    </CRL>
+</CONFIG>

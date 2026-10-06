@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<CONFIG>
+  <TerminalParameter label="FFA002">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">000000000010</Cfg>
+    <Cfg label="9F1E" Name="IFD SN" Format="an 8">IFD00001</Cfg>
+    <Cfg label="9F15" Name="Merchant Category Code" Format="n 4">7032</Cfg>
+    <Cfg label="9F16" Name="Merchant ID" Format="ans 15">Merchant001</Cfg>
+    <Cfg label="9F4E" Name="MerchantNameLocation" Format="ans 128">Test Merchant</Cfg>
+    <Cfg label="9F1A" Name="Terminal Country Code" Format="n 3">0840</Cfg>
+    <Cfg label="9F1C" Name="Terminal ID" Format="an 8">Terml001</Cfg>
+    <Cfg label="9F33" Name="Terminal Capability" Format="b 3">A06808</Cfg>
+    <Cfg label="9F35" Name="Terminal Type" Format="n 2">22</Cfg>
+    <Cfg label="5F2A" Name="Trans Currency Code" Format="n 3">0840</Cfg>
+    <Cfg label="5F36" Name="Trans Currency Exponent" Format="n 1">02</Cfg>
+    <Cfg label="9F66" Name="TTQ" Format="b 4">3600C000</Cfg>
+    <Cfg label="DF1C" Name="Contactless Reader Capabilities flag" Format="b 4">E3000000</Cfg>
+  </TerminalParameter>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000001523010</Cfg>
+    <Cfg label="9F09" Name="Application Version" Format="b 2">0001</Cfg>
+    <Cfg label="9F1B" Name="Terminal Floor Limit" Format="n 12">000000015000</Cfg>	
+    <Cfg label="DF20" Name="Contactless Transaction Limit" Format="n 12">000000030000</Cfg>
+    <!--<Cfg label="DF19" Name="Contactless Floor Limit" Format="n 12">000000015000</Cfg>-->
+    <Cfg label="DF21" Name="CVM Required Limit" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF32" Name="Support Status Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1A" Name="Support Zero Amt Allow" Format="b 1">01</Cfg>-->
+    <Cfg label="DF33" Name="Support Contactless Trans Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF34" Name="Support Contactless Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF35" Name="Support Terminal Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF36" Name="Support CVM Limit Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1B" Name="Support Zero Amt Allow Offline" Format="b 1">01</Cfg>-->
+  </KernelAidCombination>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000152</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">5C</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">833F275FCF5CA4CB6F1BF880E54DCFEB721A316692CAFEB28B698CAECAFA2B2D2AD8517B1EFB59DDEFC39F9C3B33DDEE40E7A63C03E90A4DD261BC0F28B42EA6E7A1F307178E2D63FA1649155C3A5F926B4C7D7C258BCA98EF90C7F4117C205E8E32C45D10E3D494059D2F2933891B979CE4A831B301B0550CDAE9B67064B31D8B481B85A5B046BE8FFA7BDB58DC0D7032525297F26FF619AF7F15BCEC0C92BCDCBC4FB207D115AA65CD04C1CF982191</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000152</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">5D</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">AD938EA9888E5155F8CD272749172B3A8C504C17460EFA0BED7CBC5FD32C4A80FD810312281B5A35562800CDC325358A9639C501A537B7AE43DF263E6D232B811ACDB6DDE979D55D6C911173483993A423A0A5B1E1A70237885A241B8EEBB5571E2D32B41F9CC5514DF83F0D69270E109AF1422F985A52CCE04F3DF269B795155A68AD2D6B660DDCD759F0A5DA7B64104D22C2771ECE7A5FFD40C774E441379D1132FAF04CDF55B9504C6DCE9F61776D81C7C45F19B9EFB3749AC7D486A5AD2E781FA9D082FB2677665B99FA5F1553135A1FD2A2A9FBF625CA84A7D736521431178F13100A2516F9A43CE095B032B886C7A6AB126E203BE7</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000152</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">60</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">010001</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">A9D0CF9AFED886A31203EB5BC65C03D4135AA5D62E66921552B24A94F966B0D523435BC9882A8CFA1EE78E493B17B8452CE8F008A6EB27900BC3054E78BA3E065AB6FD3857B2F8E30DB5DC600D06D62BBB2697A7B269A7610A0DE82F4B31BCD4BD589280AF0DA73D6EA6E226250872170377600C23DB0406C2053D0FF8CB0978F8220E8818F263C1F4456FECDAF191D9CAD407CF8744AE074DE53328702E1CAD6128CFA506F6B420157B0148031DE531</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000152</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">61</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">010001</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">B49B948B76388EEFBD59EE7DC422613F4D9ECF86194AA3123822FF8D653AED7F3427ABAA063DB025201D268DD595B9DBD5BCDE973AA956CE77A9222AB685A0B2F99CDBFAE7F26BFE25CDFF1521DF36BB8C5F8F7A35ACB5892402985B8CD7124396EA3E8569344D16435A1354396E834712CEC84A0030769614706A96E3834DED9C799FB12521AD335CECA68739C74D151F487B2AC9320DEC51B5A57743E1727724D226D2B4BEB2634395C152354EF1708799629946C9967FDCE71BCAD77572A06EAD07C95A441865BEA990AA3F6E727D0BFAF82D82A8DA61D3A9C7B17056332E79683459412CCDEFB6A7C556F81A93E42E9027DB9587AC99</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+  <CAPK label="FFA005">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000152</Cfg>
+    <Cfg label="9F22" Name="Index" Format="b 1">99</Cfg>    
+    <Cfg label="DF04" Name="Exponent" Format="b 3">03</Cfg>
+    <Cfg label="DF02" Name="NMod" Format="b 256">71A9F89F2B71AD93B94A0A7F60EDDA0687A978B158BFEE6C8B09EBD269315D44E0E49842A2410A3256D05C224F19FC1CAD9EFEC9D64A9F3E56D80CEC37E187952D2FAA5A9B62A7BDB74D27BEE290EFFF21596673822CE32E6F22796AE190F93CC5AF6FDCC334D810751A23156BCA3C3A9DC76068BC806933F2D483563E5E2E0D</Cfg>
+    <Cfg label="DF03" Name="Checksum" Format="b 20"></Cfg>
+    <Cfg label="DF05" Name="Expiration Date" Format="b 1">301231</Cfg>
+    <Cfg label="DF06" Name="Hash Flag" Format="b 1">01</Cfg>
+    <Cfg label="DF07" Name="Algorithm Flag" Format="b 1">00</Cfg>
+  </CAPK>
+
+<Cfg label="DF09" Name="Support Extended Selection" Format="b 1">01</Cfg>  <ExceptionFile label="FFA007">
+    <Cfg label="5A" Name="PAN" Format="n 19">6011111111111125</Cfg> 
+  </ExceptionFile>
+  
+</CONFIG>
+
+
+

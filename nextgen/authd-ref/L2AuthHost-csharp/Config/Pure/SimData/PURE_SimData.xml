@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+  <TerminalParameter label="FFA002">
+    <Cfg label="9F01" Name="Acquirer ID" Format="n 6 11">112233445566</Cfg>
+    <Cfg label="9F15" Name="Merchant Category Code" Format="n 4">1122</Cfg>
+    <Cfg label="9F4E" Name="MerchantNameLocation" Format="ans 128">46494D45</Cfg>
+    <Cfg label="9F1A" Name="Terminal Country Code" Format="n 3">0056</Cfg>
+    <Cfg label="9F1C" Name="Terminal ID" Format="an 8">5465726D6C303031</Cfg>
+    <Cfg label="9F33" Name="Terminal Capability" Format="b 3">E0F8C8</Cfg>
+    <Cfg label="9F35" Name="Terminal Type" Format="n 2">22</Cfg>
+    <Cfg label="5F2A" Name="Trans Currency Code" Format="n 3">0978</Cfg>
+    <Cfg label="5F36" Name="Trans Currency Exponent" Format="n 1">02</Cfg>
+    <Cfg label="9F66" Name="TTQ" Format="b 4">3600C000</Cfg>
+  </TerminalParameter>  
+</CONFIG>

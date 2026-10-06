@@ -1,0 +1,6 @@
+sources/
+release/
+debug/
+build/
+build-*/
+*.user

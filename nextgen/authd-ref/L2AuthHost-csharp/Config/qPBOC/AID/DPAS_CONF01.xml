@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000001523010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">00</Cfg>
+    <Cfg label="9F09" Name="Application Version" Format="b 2">0001</Cfg>
+    <Cfg label="9F1B" Name="Terminal Floor Limit" Format="n 12">000000015000</Cfg>	
+    <Cfg label="DF20" Name="Contactless Transaction Limit" Format="n 12">000000030000</Cfg>
+    <Cfg label="DF19" Name="Contactless Floor Limit" Format="n 12">000000015000</Cfg>
+    <Cfg label="DF21" Name="CVM Required Limit" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF32" Name="Support Status Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1A" Name="Support Zero Amt Allow" Format="b 1">01</Cfg>-->
+    <Cfg label="DF33" Name="Support Contactless Trans Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF34" Name="Support Contactless Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF35" Name="Support Terminal Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF36" Name="Support CVM Limit Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1B" Name="Support Zero Amt Allow Offline" Format="b 1">01</Cfg>-->
+  </KernelAidCombination>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000001523010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">01</Cfg>
+    <Cfg label="9F09" Name="Application Version" Format="b 2">0001</Cfg>
+    <Cfg label="9F1B" Name="Terminal Floor Limit" Format="n 12">000000015000</Cfg>	
+    <Cfg label="DF20" Name="Contactless Transaction Limit" Format="n 12">000000030000</Cfg>
+    <Cfg label="DF19" Name="Contactless Floor Limit" Format="n 12">000000015000</Cfg>
+    <Cfg label="DF21" Name="CVM Required Limit" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF32" Name="Support Status Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1A" Name="Support Zero Amt Allow" Format="b 1">01</Cfg>-->
+    <Cfg label="DF33" Name="Support Contactless Trans Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF34" Name="Support Contactless Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF35" Name="Support Terminal Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF36" Name="Support CVM Limit Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1B" Name="Support Zero Amt Allow Offline" Format="b 1">01</Cfg>-->
+  </KernelAidCombination>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000001523010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">09</Cfg>
+    <Cfg label="9F09" Name="Application Version" Format="b 2">0001</Cfg>
+    <Cfg label="9F1B" Name="Terminal Floor Limit" Format="n 12">000000015000</Cfg>	
+    <Cfg label="DF20" Name="Contactless Transaction Limit" Format="n 12">000000030000</Cfg>
+    <Cfg label="DF19" Name="Contactless Floor Limit" Format="n 12">000000015000</Cfg>
+    <Cfg label="DF21" Name="CVM Required Limit" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF32" Name="Support Status Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1A" Name="Support Zero Amt Allow" Format="b 1">01</Cfg>-->
+    <Cfg label="DF33" Name="Support Contactless Trans Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF34" Name="Support Contactless Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF35" Name="Support Terminal Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF36" Name="Support CVM Limit Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1B" Name="Support Zero Amt Allow Offline" Format="b 1">01</Cfg>-->
+  </KernelAidCombination>
+
+  <KernelAidCombination label="FFA004">
+    <Cfg label="9F06" Name="AID" Format="b 16">A0000001523010</Cfg>
+    <Cfg label="9C" Name="Transaction Type" Format="n 2">20</Cfg>
+    <Cfg label="9F09" Name="Application Version" Format="b 2">0001</Cfg>
+    <Cfg label="9F1B" Name="Terminal Floor Limit" Format="n 12">000000015000</Cfg>	
+    <Cfg label="DF20" Name="Contactless Transaction Limit" Format="n 12">000000030000</Cfg>
+    <Cfg label="DF19" Name="Contactless Floor Limit" Format="n 12">000000015000</Cfg>
+    <Cfg label="DF21" Name="CVM Required Limit" Format="n 12">000000002000</Cfg>
+    <Cfg label="DF11" Name="Terminal Action Code Default" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF13" Name="Terminal Action Code Denial" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF12" Name="Terminal Action Code Online" Format="b 5">0000000000</Cfg>
+    <Cfg label="DF32" Name="Support Status Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1A" Name="Support Zero Amt Allow" Format="b 1">01</Cfg>-->
+    <Cfg label="DF33" Name="Support Contactless Trans Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF34" Name="Support Contactless Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF35" Name="Support Terminal Floor Limit Check" Format="b 1">01</Cfg>
+    <Cfg label="DF36" Name="Support CVM Limit Check" Format="b 1">01</Cfg>
+    <!--<Cfg label="DF1B" Name="Support Zero Amt Allow Offline" Format="b 1">01</Cfg>-->
+  </KernelAidCombination>  
+</CONFIG>
+
+
+

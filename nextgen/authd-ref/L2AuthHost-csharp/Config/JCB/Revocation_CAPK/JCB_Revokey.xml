@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+  <CRL label="FFA006">
+    <Cfg label="9F06" Name="RID" Format="b 5">A000000065</Cfg>
+    <Cfg label="8F" Name="Index" Format="b 1">09</Cfg>
+    <Cfg label="DF8105" Name="SN" Format="b 3">001000</Cfg>
+  </CRL>
+</CONFIG>
+
+
+

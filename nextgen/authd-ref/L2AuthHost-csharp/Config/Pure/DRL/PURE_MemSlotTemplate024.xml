@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CONFIG>
+  <DataExchange_Set>
+    <Cfg label="BF71" name="Memory Slot Read Template" format="b 800"></Cfg>
+    <Cfg label="BF70" name="Memory Slot Update Template" format="b 800">BF701EA407DF0101518501E0A408DF020252538501E0A409DF03035455568501E0</Cfg>
+  </DataExchange_Set>
+</CONFIG>
