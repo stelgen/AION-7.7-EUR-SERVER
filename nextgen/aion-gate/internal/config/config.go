@@ -164,7 +164,7 @@ func (g *Gate) FillDefaults() {
 	// T1-фейлы (дефолты из плана T1; коды = messageId AionAuthResponse):
 	set(&g.AuthdTimeoutSec, 15) // ЕДИНЫЙ бизнес-таймаут (юзер: «секунд за 15»)
 
-	set(&g.OnlineTtlSec, 300)                          // relogin моложе 5 мин = немедленный LoginFail(7)
+	set(&g.OnlineTtlSec, 0)                            // ВЫКЛ (решение юзера 08.10: «пусть логинятся как могут») — включить: onlineTtlSec: N
 	set(&g.LoginFailCode, serverRespSystemError)       // 1 SYSTEM_ERROR (альт: 8 SERVER_DOWN)
 	set(&g.PlayFailCode, serverRespServerDown)         // 8 SERVER_DOWN (альт: 15 SERVER_FULL)
 	set(&g.LoginFailOnline, serverRespAlreadyLoggedIn) // 7 ALREADY_LOGGED_IN
