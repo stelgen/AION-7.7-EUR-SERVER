@@ -21,13 +21,41 @@ type RSAKey struct {
 	Priv *rsa.PrivateKey
 }
 
-// GenerateRSAKey — 1024-битный ключ (модуль = ровно 128Б BE).
+// GenerateRSAKey — 1024-битный ключ с e = 17 (!!! Pub.key клиента [1]: e=0x11,
+// НЕ 65537 — клиент шифрует креды m^17 mod n против модуля из welcome).
+// rsa.GenerateKey жёстко использует 65537 — генерим p/q вручную и считаем d = 17⁻¹ mod φ(n).
 func GenerateRSAKey() (*RSAKey, error) {
-	k, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		return nil, err
+	e17 := big.NewInt(17)
+	one := big.NewInt(1)
+	for i := 0; i < 64; i++ {
+		p, err := rand.Prime(rand.Reader, 512)
+		if err != nil {
+			return nil, err
+		}
+		q, err := rand.Prime(rand.Reader, 512)
+		if err != nil {
+			return nil, err
+		}
+		if p.Cmp(q) == 0 {
+			continue
+		}
+		p1 := new(big.Int).Sub(p, one)
+		q1 := new(big.Int).Sub(q, one)
+		phi := new(big.Int).Mul(p1, q1)
+		if new(big.Int).GCD(nil, nil, e17, phi).Cmp(one) != 0 {
+			continue // gcd(17, φ) ≠ 1 — пробуем другие простые
+		}
+		n := new(big.Int).Mul(p, q)
+		d := new(big.Int).ModInverse(e17, phi)
+		priv := &rsa.PrivateKey{
+			PublicKey: rsa.PublicKey{N: n, E: 17},
+			D:         d,
+			Primes:    []*big.Int{p, q},
+		}
+		priv.Precompute()
+		return &RSAKey{Priv: priv}, nil
 	}
-	return &RSAKey{Priv: k}, nil
+	return nil, errors.New("proto: rsa e17 keygen failed after 64 tries")
 }
 
 // Modulus128 — модуль как 128-байтный буфер (BE; 1024-бит модуль занимает

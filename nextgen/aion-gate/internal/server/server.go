@@ -161,6 +161,9 @@ func (s *Server) onAuthdAssigned(sid uint32) {
 // currentVariant — текущий пробный вариант welcome; ротация НЕ чаще VariantHoldSec
 // (минимум 3 минуты на вариант — пауза на логин юзера).
 func (s *Server) currentVariant() int {
+	if s.Cfg.WelcomeForceVariant >= 0 {
+		return s.Cfg.WelcomeForceVariant // закреплённый вариант (генератор реакции)
+	}
 	if !s.Cfg.WelcomeProbe {
 		return 0
 	}

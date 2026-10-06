@@ -27,11 +27,11 @@ useGCSideExtendAccount: true
 appLaunchBanDelay: 5
 useReportMail: false
 authReconnectInterval: 30
-welcomeB0: 101
-welcomeB1: 114
-welcomeB2: 0
 # ПРОБА: round-robin вариантов welcome, удержание каждого ≥3 мин (пауза на логин)
-welcomeProbe: true
+# ЗАКРЕПЛЕН variant=4 (модуль БЕЗ скрамбла) — единственный, где клиент СРЕАГИРОВАЛ
+# («ошибка авторизации» 07:59:50 06.10; два трая рядом: 07:59:50 + 08:00:01)
+welcomeForceVariant: 4
+welcomeProbe: false
 variantHoldSec: 180
 welcomeTestCC: 22   # в ответ на AUTH_GG слать cc-код 22 (клиент покажет «аккаунт заблокирован»)
 ship:
