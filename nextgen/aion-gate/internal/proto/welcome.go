@@ -23,7 +23,12 @@ const (
 )
 
 // WelcomeArgs — wargs вызова Assemble("cddbbbcccc") (asm 0x407d50, ночь-4).
+// ⚠ plaintext[0]: asm даёт 0x00 ('c'←va0=0x0), но capture 03.10 и LIVE-КЛИЕНТ (06.10:
+// с [0]=0x00 клиент молчит, соединение живо, ни одного пакета) говорят 0x23 (PlainByte
+// из config.txt). Порядок varargs/вSM-значения статиков — под вопросом; plaintext[0]
+// конфигурируем через welcomePlainByte (прод-конфиг = 0x23).
 type WelcomeArgs struct {
+	PlainByte    byte      // plaintext[0]: live-клиент требует 0x23 (capture-версия)
 	SessionID    uint32    // [esi+0xfc] (d)
 	AuthdSession uint32    // V=[ds:0x43b438→obj+0xa0] (d)
 	Modulus      [128]byte // RAW modulus (скрамблится внутри; b len=0x80)
@@ -37,7 +42,7 @@ func (a *WelcomeArgs) plain() []byte {
 	mod := a.Modulus
 	ScrambleModulus(&mod)
 	return Assemble("cddbbbcccc",
-		byte(0), a.SessionID, a.AuthdSession,
+		a.PlainByte, a.SessionID, a.AuthdSession,
 		mod[:], a.GGQuery[:], a.Key2[:],
 		a.LoginType, a.B0, a.B1, a.B2)
 }

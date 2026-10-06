@@ -107,6 +107,7 @@ func TestWelcome194(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := &WelcomeArgs{
+		PlainByte:    0x23, // capture/live-версия (welcomePlainByte)
 		SessionID:    0x7d5214,
 		AuthdSession: 0x11223344,
 		LoginType:    2, B0: 'e', B1: 'r', B2: 0,
@@ -124,13 +125,13 @@ func TestWelcome194(t *testing.T) {
 		bf.Decrypt(blk, w[off:off+8])
 		dec = append(dec, blk...)
 	}
-	if dec[0] != 0x00 {
-		t.Fatalf("plaintext[0]=%02x want 0x00 (asm 'c'←0x0)", dec[0])
+	if dec[0] != 0x23 {
+		t.Fatalf("plaintext[0]=%02x want 0x23 (capture/live)", dec[0])
 	}
-	// dword0 НЕ скрамблится = [0x00][sid-байты 1..3] LE = 0x7d521400;
+	// dword0 НЕ скрамблится = [0x23][sid-байты 1..3] LE = 0x7d521423 (capture-паритет!);
 	// dword1+ уже скрамблены (cumsum) — сырые поля напрямую не читаются
-	if binary.LittleEndian.Uint32(dec[0:4]) != 0x7d521400 {
-		t.Fatalf("dword0: %x want 7d521400", dec[0:4])
+	if binary.LittleEndian.Uint32(dec[0:4]) != 0x7d521423 {
+		t.Fatalf("dword0: %x want 7d521423", dec[0:4])
 	}
 	if dec[188] != 0 || dec[189] != 0 || dec[190] != 0 || dec[191] != 0 {
 		t.Fatal("хвост ECB-области (188..191) не нулевой")
@@ -246,11 +247,11 @@ func TestScrambleModulus(t *testing.T) {
 	}
 }
 
-// rsaEncrypt — «клиентская» публичная операция: c = x^e mod n (BE 32Б).
+// rsaEncrypt — «клиентская» публичная операция: c = x^e mod n (BE 128Б).
 func rsaEncrypt(k *RSAKey, msg []byte) []byte {
 	m := new(big.Int).SetBytes(msg)
 	c := new(big.Int).Exp(m, big.NewInt(int64(k.Priv.PublicKey.E)), k.Priv.PublicKey.N)
-	return c.FillBytes(make([]byte, 32))
+	return c.FillBytes(make([]byte, 128))
 }
 
 func TestRSAPoolRoundtrip(t *testing.T) {

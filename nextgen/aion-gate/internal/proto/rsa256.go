@@ -7,29 +7,31 @@ import (
 	"math/big"
 )
 
-// RSA-256 (оригинал: beecrypt rsakpMake/rsapricrt/i2osp; пул 5 ключей ×0x4c,
-// GetKey = counter++ % 5).
+// RSA-1024 (оригинал: beecrypt rsakpMake/rsapricrt/i2osp; пул 5 ключей ×0x4c,
+// GetKey = counter++ % 5). LIVE-ФАКТ 06.10: RSA-256 давал 96 нулей в модуле →
+// скрамбл-константы в welcome (повторяющиеся ECB-блоки) → клиент молча зависал;
+// capture-модуль случайный на все 128Б ⇒ оригинал = RSA-1024.
 
 const RSAPoolSize = 5
 
-var ErrBadBlockLen = errors.New("proto: rsa block must be 32 bytes")
+var ErrBadBlockLen = errors.New("proto: rsa block must be 128 bytes")
+var ErrPlainTooBig = errors.New("proto: rsa plaintext > 32 bytes (i2osp 0x20)")
 
 type RSAKey struct {
 	Priv *rsa.PrivateKey
 }
 
-// GenerateRSAKey — 256-битный ключ (быстро, криптостойкий источник).
+// GenerateRSAKey — 1024-битный ключ (модуль = ровно 128Б BE).
 func GenerateRSAKey() (*RSAKey, error) {
-	k, err := rsa.GenerateKey(rand.Reader, 256)
+	k, err := rsa.GenerateKey(rand.Reader, 1024)
 	if err != nil {
 		return nil, err
 	}
 	return &RSAKey{Priv: k}, nil
 }
 
-// Modulus128 — модуль как 128-байтный буфер (BE, выравнивание вправо:
-// нулевое заполнение слева). Выравнивание helper'а 0x42c2f8(esi,0x80,key,0x20)
-// уточнить capture'ом (§5.1).
+// Modulus128 — модуль как 128-байтный буфер (BE; 1024-бит модуль занимает
+// ровно 128Б — старший бит установлен, ведущих нулей нет).
 func (k *RSAKey) Modulus128() [128]byte {
 	var out [128]byte
 	m := k.Priv.PublicKey.N.Bytes()
@@ -38,15 +40,18 @@ func (k *RSAKey) Modulus128() [128]byte {
 }
 
 // DecryptBlock — приватная операция (аналог beecrypt rsapricrt @0x417b60:
-// mpnsetbin(in,0x80) → rsapricrt → i2osp): m = ct^d mod n, результат BE.
-// Вход — big-endian число до 128Б (RSA-блок логина с ведущими нулями —
-// big.Int съедает их сам) или ровно 32Б (session-обмен).
+// mpnsetbin(in,0x80) → rsapricrt → i2osp(out,0x20)): m = ct^d mod n,
+// результат BE-число; asm возвращает decbuf = i2osp(len 0x20) ⇒ ≤32Б.
+// Вход — ровно 128Б (RSA-блок логина против модуля из welcome).
 func (k *RSAKey) DecryptBlock(ct []byte) ([]byte, error) {
-	if len(ct) == 0 || len(ct) > 128 {
+	if len(ct) != 128 {
 		return nil, ErrBadBlockLen
 	}
 	c := new(big.Int).SetBytes(ct)
 	m := new(big.Int).Exp(c, k.Priv.D, k.Priv.PublicKey.N)
+	if m.BitLen() > 256 {
+		return nil, ErrPlainTooBig
+	}
 	return m.FillBytes(make([]byte, 32)), nil
 }
 

@@ -133,11 +133,11 @@ func TestE2ESkeleton(t *testing.T) {
 	if _, err := asRead(cl, ecb); err != nil {
 		t.Fatal(err)
 	}
-	// asm-модель (ночь-4): plaintext[0]=0x00 ('c'←0x0), sid=[esi+0xfc] на [1:5] LE
+	// capture/live-модель: plaintext[0]=0x23 (welcomePlainByte), sid-байты [1:4]
 	dec := make([]byte, 8)
 	srv.key1.Decrypt(dec, ecb[:8])
-	if dec[0] != 0x00 || binary.LittleEndian.Uint32(dec[1:5]) != 1 {
-		t.Fatalf("welcome dword0+sid: %x", dec[:5]) // sid = 1 (счётчик с 1)
+	if dec[0] != 0x23 || dec[1] != 1 || dec[2] != 0 || dec[3] != 0 {
+		t.Fatalf("welcome dword0: %x", dec[:4]) // sid = 1 (счётчик с 1)
 	}
 
 	// authd получил CltConnect
@@ -184,9 +184,9 @@ func TestE2ESkeleton(t *testing.T) {
 	copy(loginDec, "LOGIN-DEC-BUF-32-BYTES")
 	loginDec[31] = 0x21
 	pub2 := &sess.RSA.Priv.PublicKey
-	loginCT := new(big.Int).Exp(new(big.Int).SetBytes(loginDec), big.NewInt(int64(pub2.E)), pub2.N).FillBytes(make([]byte, 32))
+	loginCT := new(big.Int).Exp(new(big.Int).SetBytes(loginDec), big.NewInt(int64(pub2.E)), pub2.N).FillBytes(make([]byte, 128))
 	data := make([]byte, 184)
-	copy(data[96:128], loginCT) // [96 нулей][32Б шифртекст] = BE-число < n
+	copy(data[:128], loginCT) // полный RSA-1024 блок
 	binary.LittleEndian.PutUint32(data[128:132], 0x7d5214) // sessionId
 	binary.LittleEndian.PutUint32(data[148:152], 0x11223344)
 	if _, err := cl.Write(proto.WriteFrame(data)); err != nil {

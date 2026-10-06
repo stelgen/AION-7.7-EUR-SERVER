@@ -4,6 +4,7 @@ package server
 
 import (
 	"encoding/binary"
+	"encoding/hex"
 	"log"
 	"math/rand"
 	"net"
@@ -206,6 +207,7 @@ func (s *Server) handleConn(conn net.Conn) {
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendConnect(sid, ip) }) // CltConnect @0x406000
 
 	wargs := &proto.WelcomeArgs{
+		PlainByte:    byte(s.Cfg.WelcomePlainByte),
 		SessionID:    sid,
 		AuthdSession: s.authdSession(),
 		Modulus:      sess.RSA.Modulus128(),
@@ -215,7 +217,15 @@ func (s *Server) handleConn(conn net.Conn) {
 		B1:           byte(s.Cfg.WelcomeB1),
 		B2:           byte(s.Cfg.WelcomeB2),
 	}
-	if _, err := conn.Write(proto.BuildWelcome(wargs, s.key1)); err != nil {
+	w := proto.BuildWelcome(wargs, s.key1)
+	if s.Cfg.DumpPacket {
+		n := len(w)
+		if n > 64 {
+			n = 64
+		}
+		log.Printf("welcome len=%d hex=%s", len(w), hex.EncodeToString(w[:n]))
+	}
+	if _, err := conn.Write(w); err != nil {
 		return
 	}
 
@@ -225,6 +235,13 @@ func (s *Server) handleConn(conn net.Conn) {
 		payload, err := proto.ReadFrame(conn)
 		if err != nil {
 			return
+		}
+		if s.Cfg.DumpPacket {
+			n := len(payload)
+			if n > 64 {
+				n = 64
+			}
+			log.Printf("frame len=%d hex=%s", len(payload), hex.EncodeToString(payload[:n]))
 		}
 		switch {
 		case len(payload) == 32: // клиент 34b: AUTH_GG (дизasm ночь-4: echo=[sid][28×0], RSA НЕ участвует)

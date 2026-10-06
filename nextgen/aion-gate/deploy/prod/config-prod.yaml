@@ -1,5 +1,5 @@
-# aion-gate PROD (порт 2106 — оригинального гейта; свитч 06.10) — зеркало config.txt 41007
-serverPort: 2106
+# aion-gate PROD — порт 2109 ВРЕМЕННО (за прокси-дампом на :2106; вернуть 2106 после A/B)
+serverPort: 2109
 authAddr: 127.0.0.1
 authPort: 2110
 numThread: 32
@@ -20,7 +20,8 @@ useLogd: false
 tryInterval: 60
 tryCount: 20
 tryBlockInterval: 120
-dumpPacket: false
+dumpPacket: true
+welcomePlainByte: 35
 ggNumActive: 50
 useGCSideExtendAccount: true
 appLaunchBanDelay: 5
