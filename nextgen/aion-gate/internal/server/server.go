@@ -6,6 +6,7 @@ import (
 	crand "crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
 	"log"
 	"math/rand"
 	"net"
@@ -101,7 +102,7 @@ func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 
 // AuthdHandler — колбеки для authdclient (DialAuthd или инъекция в тестах).
 func (s *Server) AuthdHandler() authdclient.Handler {
-	return authdclient.Handler{OnPacket: s.onAuthdPacket, OnClosed: s.onAuthdClosed, OnAssigned: s.onAuthdAssigned}
+	return authdclient.Handler{OnPacket: s.onAuthdPacket, OnClosed: s.onAuthdClosed, OnAssigned: s.onAuthdAssigned, OnRaw: s.onAuthdRaw}
 }
 
 // DialAuthd — одна коннекция к authd (оригинал держит одну, готча p1–p5).
@@ -243,6 +244,14 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendConnect(sid, ip) }) // CltConnect @0x406000
 
+	// Гипотеза V=0: клиент отвергает welcome с нулевым authd-session → жддаём [03].
+	if ms := s.Cfg.WelcomeWaitAuthdMs; ms > 0 && s.authdSession() == 0 {
+		deadline := time.Now().Add(time.Duration(ms) * time.Millisecond)
+		for s.authdSession() == 0 && time.Now().Before(deadline) {
+			time.Sleep(20 * time.Millisecond)
+		}
+		log.Printf("welcome wait-authd: V=%d after %dms", s.authdSession(), ms)
+	}
 	var w []byte
 	vi := s.currentVariant()
 	if fx, ferr := hex.DecodeString(strings.TrimSpace(s.Cfg.WelcomeFixture)); ferr == nil && len(fx) >= 4 {
@@ -256,6 +265,7 @@ func (s *Server) handleConn(conn net.Conn) {
 			Key2:         key2,
 		}
 		w = proto.BuildWelcomeVariant(wargs, s.key1, vi)
+		log.Printf("welcome fields: variant=%d sid=%d(0x%08x) V=%d(0x%08x) mod8=%s key2=%s", vi, sid, sid, wargs.AuthdSession, wargs.AuthdSession, hex.EncodeToString(wargs.Modulus[:8]), hex.EncodeToString(key2[:]))
 		log.Printf("welcome variant=%d (probe, hold=%ds)", vi, s.Cfg.VariantHoldSec)
 	}
 	if s.Cfg.DumpPacket {
@@ -263,7 +273,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		if n > 64 {
 			n = 64
 		}
-		log.Printf("welcome len=%d hex=%s", len(w), hex.EncodeToString(w[:n]))
+		log.Printf("welcome len=%d hex=%s", len(w), hex.EncodeToString(w))
 	}
 	if _, err := conn.Write(w); err != nil {
 		return
@@ -281,7 +291,7 @@ func (s *Server) handleConn(conn net.Conn) {
 			if n > 64 {
 				n = 64
 			}
-			log.Printf("frame len=%d hex=%s", len(payload), hex.EncodeToString(payload[:n]))
+			log.Printf("frame len=%d hex=%s", len(payload), hex.EncodeToString(payload))
 		}
 		switch {
 		case len(payload) == 32: // клиент 34b: AUTH_GG (дизasm ночь-4: echo=[sid][28×0], RSA НЕ участвует)
@@ -311,6 +321,7 @@ func (s *Server) handleConn(conn net.Conn) {
 func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 	if data, err := proto.DecryptSecondary(sess.BF2, blob); err == nil {
 		if len(data) >= 4 {
+			log.Printf("auth-gg: dec sid=%d blob=%s", sess.ID, hex.EncodeToString(data))
 			if csid := binary.LittleEndian.Uint32(data); csid != sess.ID {
 				log.Printf("auth-gg: sid mismatch: client %d != session %d", csid, sess.ID)
 				s.send(ship.Event{Ev: "authgg.mismatch", Data: map[string]any{"sid": sess.ID, "client": csid}})
@@ -329,7 +340,9 @@ func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 	}
 	reply := make([]byte, 32)
 	binary.LittleEndian.PutUint32(reply, sess.ID) // [sid][28×0]
-	return sess.write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, reply)))
+	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, reply))
+	dumpRaw(fmt.Sprintf("G>C authgg-reply sid=%d", sess.ID), fr)
+	return sess.write(fr)
 }
 
 // handleLogin: релей логина в authd (§5.3, дизasm 05.10 + 0x417b60):
@@ -350,6 +363,7 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	}
 	dword148 := binary.LittleEndian.Uint32(data[148:152])
 	tail := data[152:]
+	log.Printf("login: sid=%d decbuf=%s dword148=%08x tail=%s", sess.ID, hex.EncodeToString(decbuf), dword148, hex.EncodeToString(tail))
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, tail)
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
 	s.send(ship.Event{Ev: "login", Remote: net.IP(sess.IP[:]).String(), Data: map[string]any{
@@ -360,7 +374,49 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 
 // onAuthdPacket — push от authd: тип 4 = serverlist (payload из capture, §3).
 // TODO §5.5: точный формат 74b/26b ответов клиенту; сейчас шлём payload зашифрованным key2 всем.
+// dumpRaw — RAW-дамп всего трафика в тот же gate-лог (требование 06.10: полный raw).
+func dumpRaw(tag string, b []byte) {
+	log.Printf("RAW %s len=%d hex=%s", tag, len(b), hex.EncodeToString(b))
+}
+
+func (s *Server) onAuthdRaw(dir string, b []byte) {
+	dumpRaw("AUTHD "+dir, b)
+}
+
+// parseServerList — [02]-type-4 (serverlist): полный дамп + эвристический парс
+// (count-byte, UTF-16 имена серверов; точная структура — по живому дампу).
+func parseServerList(typ byte, payload []byte) {
+	if typ != 4 || len(payload) < 1 {
+		return
+	}
+	cnt := int(payload[0])
+	log.Printf("serverlist: len=%d count-byte=%d rest=%d", len(payload), cnt, len(payload)-1)
+	head := len(payload)
+	if head > 24 {
+		head = 24
+	}
+	log.Printf("serverlist: head=%s", hex.EncodeToString(payload[:head]))
+	for i := 0; i+1 < len(payload); i++ {
+		if payload[i] >= 0x20 && payload[i] < 0x7f && payload[i+1] == 0 {
+			j := i
+			for j+1 < len(payload) && payload[j] >= 0x20 && payload[j] < 0x7f && payload[j+1] == 0 {
+				j += 2
+			}
+			if j-i >= 8 {
+				nm := make([]rune, 0, (j-i)/2)
+				for k := i; k < j; k += 2 {
+					nm = append(nm, rune(payload[k]))
+				}
+				log.Printf("serverlist: utf16-name@%d: %q", i, string(nm))
+				i = j
+			}
+		}
+	}
+}
+
 func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
+	log.Printf("RAW AUTHD pkt id=%d type=%d len=%d hex=%s", id, typ, len(payload), hex.EncodeToString(payload))
+	parseServerList(typ, payload)
 	if typ != 4 {
 		log.Printf("authd packet: id=%d type=%d len=%d (не serverlist — TODO §5.5)", id, typ, len(payload))
 		s.send(ship.Event{Ev: "authd.pkt", Svc: "authd", Data: map[string]any{"id": id, "type": typ, "len": len(payload)}})
@@ -373,7 +429,9 @@ func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	}
 	s.mu.Unlock()
 	for _, sess := range all {
-		_ = sess.write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, payload)))
+		fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, payload))
+		dumpRaw(fmt.Sprintf("G>C serverlist sid=%d", sess.ID), fr)
+		_ = sess.write(fr)
 	}
 	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"sessions": len(all), "len": len(payload)}})
 }
@@ -400,7 +458,9 @@ func (s *Server) onAuthdClosed(err error) {
 func sendCC(conn net.Conn, code byte) {
 	log.Printf("cc: send code=%d", code) // было невидимо — «blocked» без следа в логе!
 	_ = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
-	_, _ = conn.Write(proto.WriteFrame(proto.Assemble("cc", byte(1), code)))
+	ccf := proto.WriteFrame(proto.Assemble("cc", byte(1), code))
+	dumpRaw(fmt.Sprintf("G>C cc code=%d", code), ccf)
+	_, _ = conn.Write(ccf)
 }
 
 func sendCCSess(sess *Session, code byte) {

@@ -46,6 +46,7 @@ type Handler struct {
 	OnAssigned   func(sid uint32)                           // [03] authd назначил сессию
 	OnPacket     func(id uint32, typ byte, payload []byte)  // [02] тип<0x15
 	OnClosed     func(err error)                            // коннект потерян
+	OnRaw        func(dir string, b []byte)                 // RAW wire-дамп всего трафика (dir: "A>G"/"G>A")
 }
 
 type Client struct {
@@ -97,6 +98,9 @@ func (c *Client) write(b []byte) error {
 	if c.conn == nil {
 		return ErrNotConnected
 	}
+	if c.h.OnRaw != nil {
+		c.h.OnRaw("G>A", b)
+	}
 	_, err := c.conn.Write(b)
 	return err
 }
@@ -127,6 +131,10 @@ func (c *Client) readLoop() {
 				break
 			}
 			id := binary.LittleEndian.Uint32(rest[:])
+			if c.h.OnRaw != nil {
+				fb := append([]byte{ft[0]}, rest[:]...)
+				c.h.OnRaw("A>G", fb)
+			}
 			if ft[0] == InID && c.h.OnRegistered != nil {
 				c.h.OnRegistered(id)
 			}
@@ -149,6 +157,10 @@ func (c *Client) readLoop() {
 				break
 			}
 			if c.h.OnPacket != nil {
+				if c.h.OnRaw != nil {
+					fb := append(append([]byte{ft[0]}, hdr[:]...), buf...)
+					c.h.OnRaw("A>G", fb)
+				}
 				c.h.OnPacket(id, buf[0], buf[1:])
 			}
 		default:

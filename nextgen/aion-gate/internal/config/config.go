@@ -57,6 +57,9 @@ type Gate struct {
 	// WelcomeTestCC — >0: в ответ на AUTH_GG слать клиенту cc-код (тест сообщений:
 	// клиент показывает 22 как «аккаунт заблокирован» — живое наблюдение 06.10).
 	WelcomeTestCC    int    `yaml:"welcomeTestCC"`
+	// WelcomeWaitAuthdMs — >0: ждать [03] от authd до welcome (V≠0 в welcome; тест гипотезы
+	// «клиент отвергает V=0 → ошибка авторизации»). 0 = сразу (текущее поведение).
+	WelcomeWaitAuthdMs int `yaml:"welcomeWaitAuthdMs"`
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`
@@ -86,6 +89,7 @@ func (g *Gate) FillDefaults() {
 	set(&g.AppLaunchBanDelay, 5)
 	set(&g.VariantHoldSec, 180) // минимум 3 минуты на вариант (пауза на логин)
 	set(&g.WelcomeForceVariant, -1) // -1 = по кругу (probe); >=0 = всегда этот вариант
+	set(&g.WelcomeWaitAuthdMs, 0)
 }
 
 // Config — верхний уровень config.yaml.
