@@ -55,6 +55,9 @@ type Gate struct {
 	// WelcomeProbe — round-robin пробных вариантов welcome (оракул: frame-32 = принят).
 	WelcomeProbe     bool   `yaml:"welcomeProbe"`
 	VariantHoldSec   int    `yaml:"variantHoldSec"` // удержание варианта (мин. 180 = пауза на логин)
+	// WelcomeTestCC — >0: в ответ на AUTH_GG слать клиенту cc-код (тест сообщений:
+	// клиент показывает 22 как «аккаунт заблокирован» — живое наблюдение 06.10).
+	WelcomeTestCC    int    `yaml:"welcomeTestCC"`
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`

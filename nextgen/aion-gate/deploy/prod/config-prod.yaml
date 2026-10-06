@@ -33,5 +33,6 @@ welcomeB2: 0
 # ПРОБА: round-robin вариантов welcome, удержание каждого ≥3 мин (пауза на логин)
 welcomeProbe: true
 variantHoldSec: 180
+welcomeTestCC: 22   # в ответ на AUTH_GG слать cc-код 22 (клиент покажет «аккаунт заблокирован»)
 ship:
   enabled: false

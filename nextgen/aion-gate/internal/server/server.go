@@ -317,6 +317,13 @@ func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 		log.Printf("auth-gg: blob не расшифровался как EncryptSecondary (len=%d): %v", len(blob), err)
 		s.send(ship.Event{Ev: "authgg.blob", Data: map[string]any{"sid": sess.ID, "len": len(blob)}})
 	}
+	// Тест cc-сообщений: welcomeTestCC > 0 → в ответ на AUTH_GG шлём cc-код
+	// (проверка отображения клиентом: 22 = «аккаунт заблокирован» и т.п.).
+	if tc := s.Cfg.WelcomeTestCC; tc > 0 {
+		log.Printf("auth-gg: TEST cc=%d", tc)
+		sendCCSess(sess, byte(tc))
+		return nil
+	}
 	reply := make([]byte, 32)
 	binary.LittleEndian.PutUint32(reply, sess.ID) // [sid][28×0]
 	return sess.write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, reply)))
@@ -384,9 +391,11 @@ func (s *Server) onAuthdClosed(err error) {
 	}
 }
 
-// sendCC — cc-отказ @0x407e80: Assemble("cc", 1, code) → [01][code] plaintext
-// (22 = blocked IP, 45 = гейт не готов; точный wire — TODO §5.5).
+// sendCC — cc-отказ @0x407e80: Assemble("cc", 1, code) → [len u16][01][code] plaintext.
+// Клиент отображает код как сообщение: 22 = «аккаунт заблокирован» (наблюдено живым
+// клиентом 06.10!), 45 = гейт не готов; полный реестр кодов — TODO §5.5.
 func sendCC(conn net.Conn, code byte) {
+	log.Printf("cc: send code=%d", code) // было невидимо — «blocked» без следа в логе!
 	_ = conn.SetWriteDeadline(time.Now().Add(5 * time.Second))
 	_, _ = conn.Write(proto.WriteFrame(proto.Assemble("cc", byte(1), code)))
 }
