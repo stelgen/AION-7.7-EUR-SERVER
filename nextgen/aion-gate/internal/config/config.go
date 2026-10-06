@@ -60,6 +60,10 @@ type Gate struct {
 	// WelcomeWaitAuthdMs — >0: ждать [03] от authd до welcome (V≠0 в welcome; тест гипотезы
 	// «клиент отвергает V=0 → ошибка авторизации»). 0 = сразу (текущее поведение).
 	WelcomeWaitAuthdMs int `yaml:"welcomeWaitAuthdMs"`
+	// Фиксированная RSA-пара (эксперимент Pub.key клиента): если заданы — пул использует её.
+	RsaFixedN string `yaml:"rsaFixedN"`
+	RsaFixedD string `yaml:"rsaFixedD"`
+
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`

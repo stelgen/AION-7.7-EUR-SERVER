@@ -79,7 +79,7 @@ type Server struct {
 
 func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 	cfg.FillDefaults()
-	pool, err := proto.NewKeyPool()
+	pool, err := buildPool(&cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -97,6 +97,19 @@ func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 		key1:  key1,
 		sess:  map[uint32]*Session{},
 	}, nil
+}
+
+// buildPool — фиксированная пара (rsaFixedN/D) или обычный пул e=17.
+func buildPool(cfg *config.Gate) (*proto.KeyPool, error) {
+	if cfg.RsaFixedN != "" && cfg.RsaFixedD != "" {
+		k, err := proto.RSAKeyFromHex(cfg.RsaFixedN, cfg.RsaFixedD)
+		if err != nil {
+			return nil, err
+		}
+		log.Printf("rsa: FIXED key N[:8]=%s... (Pub.key-эксперимент)", cfg.RsaFixedN[:16])
+		return proto.NewKeyPoolFromKey(k), nil
+	}
+	return proto.NewKeyPool()
 }
 
 // AuthdHandler — колбеки для authdclient (DialAuthd или инъекция в тестах).

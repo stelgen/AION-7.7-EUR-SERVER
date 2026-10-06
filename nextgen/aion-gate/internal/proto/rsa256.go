@@ -105,12 +105,34 @@ func ScrambleModulus(m *[128]byte) {
 	}
 }
 
+// RSAKeyFromHex — фиксированная пара (N, D hex BE) для экспериментов Pub.key:
+// клиент может шифровать логин против фиксированного ключа (не из welcome).
+func RSAKeyFromHex(nHex, dHex string) (*RSAKey, error) {
+	n, ok := new(big.Int).SetString(nHex, 16)
+	if !ok || n.BitLen() != 1024 {
+		return nil, errors.New("rsa256: bad N hex")
+	}
+	d, ok := new(big.Int).SetString(dHex, 16)
+	if !ok {
+		return nil, errors.New("rsa256: bad D hex")
+	}
+	return &RSAKey{Priv: &rsa.PrivateKey{PublicKey: rsa.PublicKey{N: n, E: 17}, D: d}}, nil
+}
+
 // KeyPool — пул 5 RSA-ключей, выдача по кругу (GetKey = counter++ % 5).
 type KeyPool struct {
 	keys    [RSAPoolSize]*RSAKey
 	counter uint32
 }
 
+// NewKeyPoolFromKey — пул из одной фиксированной пары (эксперимент Pub.key).
+func NewKeyPoolFromKey(k *RSAKey) *KeyPool {
+	p := &KeyPool{}
+	for i := range p.keys {
+		p.keys[i] = k
+	}
+	return p
+}
 func NewKeyPool() (*KeyPool, error) {
 	p := &KeyPool{}
 	for i := range p.keys {
