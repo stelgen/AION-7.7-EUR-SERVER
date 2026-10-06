@@ -304,10 +304,9 @@ func (s *Server) handleConn(conn net.Conn) {
 				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "login"}})
 				return
 			}
-		default: // §5.2: dispatch по type — не вскрыт; кривой размер гасим
-			s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Data: map[string]any{"len": len(payload)}})
-			sendCC(conn, 45)
-			return
+		default: // §5.2: релей в authd (26b-пинги и пр.; тип = первый байт payload)
+			s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, payload) })
+			log.Printf("relay: sid=%d len=%d op=%02x", sess.ID, len(payload), payload[0])
 		}
 	}
 }
@@ -419,23 +418,19 @@ func parseServerList(typ byte, payload []byte) {
 func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	log.Printf("RAW AUTHD pkt id=%d type=%d len=%d hex=%s", id, typ, len(payload), hex.EncodeToString(payload))
 	parseServerList(typ, payload)
-	if typ != 4 {
-		log.Printf("authd packet: id=%d type=%d len=%d (не serverlist — TODO §5.5)", id, typ, len(payload))
-		s.send(ship.Event{Ev: "authd.pkt", Svc: "authd", Data: map[string]any{"id": id, "type": typ, "len": len(payload)}})
+	// ЛЮБОЙ тип authd -> конкретной сессии по id (74b/42b/26b = EncryptSecondary(payload)):
+	// payload 64->74b (serverlist), 32->42b (server-info IP:7777), 16->26b (пинги).
+	s.mu.Lock()
+	sess := s.sess[id]
+	s.mu.Unlock()
+	if sess == nil {
+		log.Printf("authd pkt: нет сессии id=%d type=%d", id, typ)
 		return
 	}
-	s.mu.Lock()
-	all := make([]*Session, 0, len(s.sess))
-	for _, sess := range s.sess {
-		all = append(all, sess)
-	}
-	s.mu.Unlock()
-	for _, sess := range all {
-		fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, payload))
-		dumpRaw(fmt.Sprintf("G>C serverlist sid=%d", sess.ID), fr)
-		_ = sess.write(fr)
-	}
-	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"sessions": len(all), "len": len(payload)}})
+	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, payload))
+	dumpRaw(fmt.Sprintf("G>C authd-pkt type=%d sid=%d", typ, sess.ID), fr)
+	_ = sess.write(fr)
+	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"type": typ, "len": len(payload)}})
 }
 
 func (s *Server) onAuthdClosed(err error) {

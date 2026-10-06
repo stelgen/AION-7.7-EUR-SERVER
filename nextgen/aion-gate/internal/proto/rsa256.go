@@ -87,18 +87,21 @@ func (k *RSAKey) DecryptBlock(ct []byte) ([]byte, error) {
 // 1) swap байтов 0..3 ↔ 0x4d..0x50; 2) m[0..63] ^= m[0x40..0x7f];
 // 3) dword @0x0d ^= dword @0x34; 4) m[0x40..0x7f] ^= m[0..63] (обновлённые).
 // keyIdx вне [0,128] → нулевой буфер (ошибка пула).
+// ScrambleModulus = ИНВЕРС клиентского 4-шагового unscramble (порядок ОБРАТНЫЙ!):
+// xor-upper -> dword 0x0d^0x34 -> xor-lower -> swap. Roundtrip проверен против
+// клиентского unscramble на живом модуле оригинала (06.10, fork-сессия).
 func ScrambleModulus(m *[128]byte) {
+	for i := 0x40; i < 0x80; i++ {
+		m[i] ^= m[i-0x40]
+	}
 	for i := 0; i < 4; i++ {
-		m[i], m[0x4d+i] = m[0x4d+i], m[i]
+		m[0x0d+i] ^= m[0x34+i]
 	}
 	for i := 0; i < 0x40; i++ {
 		m[i] ^= m[0x40+i]
 	}
 	for i := 0; i < 4; i++ {
-		m[0x0d+i] ^= m[0x34+i]
-	}
-	for i := 0x40; i < 0x80; i++ {
-		m[i] ^= m[i-0x40]
+		m[i], m[0x4d+i] = m[0x4d+i], m[i]
 	}
 }
 
