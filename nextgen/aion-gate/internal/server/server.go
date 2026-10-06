@@ -317,7 +317,9 @@ func (s *Server) handleConn(conn net.Conn) {
 				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "login"}})
 				return
 			}
-		default: // §5.2: релей в authd (26b-пинги и пр.; тип = первый байт payload)
+		case len(payload) == 26: // пинги/запросы клиента — эмуляция ответов оригинала
+			s.handle26(sess, payload)
+		default: // релей в authd (тип = первый байт payload)
 			s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, payload) })
 			log.Printf("relay: sid=%d len=%d op=%02x", sess.ID, len(payload), payload[0])
 		}
@@ -475,6 +477,33 @@ func sendCC(conn net.Conn, code byte) {
 
 func sendCCSess(sess *Session, code byte) {
 	_ = sess.write(proto.WriteFrame(proto.Assemble("cc", byte(1), code)))
+}
+
+// handle26 — эмуляция 26b-пингов (по capture 06.10: 42b server-info и 26b ack):
+// op=0x05 → 42b: [04][01 01 01][IP][port 7777][00 00][f4 01 01 01][00 00 00 02][01 00 01][12x0]
+// op=0x02 → 26b: [07][01 00 00 00][1010][01][5x0] (хвост ориг = резидуум, клиент толерантен)
+func (s *Server) handle26(sess *Session, payload []byte) {
+	op := payload[0]
+	var pt []byte
+	switch op {
+	case 0x05:
+		ip := net.ParseIP(s.Cfg.WorldIP).To4()
+		if ip == nil {
+			ip = net.IPv4(192, 168, 0, 125)
+		}
+		pt = append([]byte{0x04, 0x01, 0x01, 0x01}, ip...)
+		pt = append(pt, 0x61, 0x1e, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+		pt = append(pt, 0xf4, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x01)
+		pt = append(pt, make([]byte, 12)...) // 32
+	case 0x02:
+		pt = append([]byte{0x07, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x03, 0x00, 0x00, 0x01}, make([]byte, 6)...) // 16
+	default:
+		log.Printf("26b: op=%02x — без ответа (TODO)", op)
+		return
+	}
+	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, pt))
+	dumpRaw(fmt.Sprintf("G>C 26b-reply op=%02x sid=%d", op, sess.ID), fr)
+	_ = sess.write(fr)
 }
 
 // SessionByIndex — тест-хук.

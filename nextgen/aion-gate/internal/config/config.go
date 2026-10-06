@@ -63,6 +63,9 @@ type Gate struct {
 	// Фиксированная RSA-пара (эксперимент Pub.key клиента): если заданы — пул использует её.
 	RsaFixedN string `yaml:"rsaFixedN"`
 	RsaFixedD string `yaml:"rsaFixedD"`
+	// IP игрового мира для 42b server-info (ответ на 26b[05]).
+	WorldIP string `yaml:"worldIP"`
+
 
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
