@@ -13,7 +13,7 @@
 | Капча aion-captcha | ✅ **ЗАКРЫТА (05.10, в бою на :22206)**: PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd, exe MD5 `5394aab1`, буфер 10000 наливается за ~4с (оригинал 6.4 мин), Server64.err чист; откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run` (оригинал не тронут) |
 | Батники | ✅ `AION-START-ALL-v6.bat` на десктопе (наш логгер, всё в сессии 1); v5 рядом = откат; CAPTCHA стартует своей задачей (не в v6) |
 | aion-op (Трек A) | ✅ Phase 1 (SQL-вкладка живая, bind 0.0.0.0, operate с кнопками рестартов, kick-задачи); фаза 1.5 — НЕ начата |
-| Трек B | 🔄 порядок в §3; logd ✅ + captcha ✅ (в бою); **AuthGateD ~60%**: скелет готов (proto/authdclient/server/config/ship/main, e2e ✅), ресёрч SM_INIT закрыт (docs/authgate-research-20261005.md), блокер = byte-exact welcome → дизasm 0x407d50 |
+| Трек B | ✅ **AuthGateD СВИТЧНУТ В ПРОД (06.10 ~04:00)**: aion-gate.exe на :2106 (PID см. tasklist), оригинал потушен, откат = C:\Temp\gate.bat.orig-AUTHGATED → gate.bat + schtasks /run AionGate; дизasm 0x407d50 закрыт (док ночь-4), asm-модель self-test'ом подтверждена; лог D:\SAION\aion-gate\gate-prod.log; ОСТАЛОСЬ: живой клиент (решающий тест парадокса capture) |
 | Батники подмены логгера | процедура отработана 3 раза: `/end` → ЖДАТЬ смерти процесса (до 10с!) → copy → `/run` |
 
 ## 2. ОТКРЫТЫЕ ПУНКТЫ (по приоритету)

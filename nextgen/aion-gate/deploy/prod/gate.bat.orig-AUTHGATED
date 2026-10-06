@@ -1,0 +1,35 @@
+@echo off
+taskkill /F /IM aion-gate.exe >nul 2>&1
+setlocal enabledelayedexpansion
+REM === gate.bat v3-ORIG: wait L2Authd(2104) -> start AuthGateD -> wait 2106 -> retry ===
+REM (restore: copy this file over C:\Temp\gate.bat, then: schtasks /run /tn AionGate)
+set TRY=0
+:authw
+netstat -ano | findstr ":2104" | findstr "LISTENING" >nul
+if %errorlevel%==0 goto authok
+set /a TRY+=1
+if !TRY! GTR 40 (echo [FAIL] L2Authd 2104 not up & goto :eof)
+ping -n 6 127.0.0.1 >nul
+goto authw
+:authok
+cd /d D:\AION_LIVE_SERVER\AuthGateD
+start AuthGateD.exe
+set TRY=0
+:gw
+netstat -ano | findstr ":2106" | findstr "LISTENING" >nul
+if %errorlevel%==0 goto gok
+set /a TRY+=1
+if !TRY! GTR 20 goto gkill
+ping -n 9 127.0.0.1 >nul
+goto gw
+:gkill
+set /a TRY+=1
+if !TRY! GTR 3 (echo [FAIL] AuthGateD 2106 not up & goto :eof)
+echo [RETRY] AuthGateD restart
+taskkill /F /IM AuthGateD.exe >nul 2>&1
+ping -n 6 127.0.0.1 >nul
+start AuthGateD.exe
+set TRY=0
+goto gw
+:gok
+echo [OK] AuthGateD listening 2106

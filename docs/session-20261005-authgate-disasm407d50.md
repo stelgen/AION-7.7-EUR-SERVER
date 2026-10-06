@@ -96,5 +96,24 @@ _(173→177→184→192→194) сходится идеально — расхо�
 - ⚠ НАХОДКА: порт 2108 занят самим L2Authd (второй листенер!) — стенд переведён на 2109;
 - ✅ SELF-TEST с LAN-машины (python blowfish): TCP → welcome 194B → ECB-dec(key1) → dword0=0x00000100
   = [0]=0x00 + sid=1 ✓✓, хвост 188..191 нулевой ✓; 34b мусор → 42b ответ (echo жив) —
-  ASM-МОДЕЛЬ ПОДТВЕРЖДЕНА END-TO-END НА ЖИВОМ СТЕНДЕ. Осталось: живой КЛИЕНТ на 192.168.0.125:2109
-  (клиентский override логин-сервера) — он же решает парадокс capture-vs-asm.
+  ASM-МОДЕЛЬ ПОДТВЕРЖДЕНА END-ТО-END НА ЖИВОМ СТЕНДЕ.
+
+## ✅ СВИТЧ В ПРОД ВЫПОЛНЕН (06.10 ~04:00, по «го» юзера)
+- D:\SAION\aion-gate\ = aion-gate.exe + config-prod.yaml (порт 2106) + gate-prod.bat + etc\BlockIPs.txt;
+- C:\Temp\gate.bat заменён на наш (задача AionGate без ретаргета — она уже указывала на этот bat);
+  ОРИГИНАЛ сохранён: C:\Temp\gate.bat.orig-AUTHGATED (= старый v3: taskkill AuthGateD → wait 2104 →
+  start AuthGateD → wait 2106) — ОТКАТ: taskkill aion-gate; copy /y .orig-AUTHGATED → gate.bat;
+  schtasks /run AionGate; вернуть exe-строку в aion-op config;
+- оригинал AuthGateD (PID 8080) потушен, НАШ на 2106 (PID 8012), authd-связка ESTABLISHED 8012→2110;
+- ⚠ ИНЦИДЕНТ при свитче №1: я по ошибке запушил gate.bat.orig-AUTHGATED В C:\Temp\gate.bat → задача
+  подняла ОРИГИНАЛ обратно (PID 7404, ~1с после kill) — выглядело как «воскрешение», на деле мой
+  файл-ошибка; повторный свитч с верным bat — чисто;
+- aion-op: config-vm.yaml байт-замена python (exe: AuthGateD.exe → aion-gate.exe; лог-path →
+  D:/SAION/aion-gate/gate-prod.log) + рестарт задачи AionOp (новый PID, :10200 жив);
+- SELF-TEST ПРОДА: welcome 194B → dword0=0x00000100 ([0]=0x00, sid=1) ✓, echo 42b ✓;
+- 60с мониторинг: AuthGateD НЕ воскрес, L2Authd жив (2104/2110), цепочка не упала;
+- метод-уроки: scp multi-file на Windows-путь работает, но ВЕРИФИЦИРОВАТЬ dir после; НЕ пушить
+  файл-эталон отката в действующий путь; PS-правки конфигов — python bytes-replace.
+
+ОСТАЛОСЬ: живой КЛИЕНТ на прод 2106 (решающий эксперимент парадокса capture-vs-asm) — юзер логинится;
+наблюдать gate-prod.log (authgg.mismatch/authgg.blob события) и Server64.err.
