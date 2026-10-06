@@ -10,6 +10,7 @@ import (
 	"math/rand"
 	"net"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -215,13 +216,19 @@ func (s *Server) handleConn(conn net.Conn) {
 
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendConnect(sid, ip) }) // CltConnect @0x406000
 
-	wargs := &proto.WelcomeArgs{
-		SessionID:    sid, // fc = rand32 ([fc] @0x4041b8)
-		AuthdSession: s.authdSession(), // V = authd [03] ([global+0xa0])
-		Modulus:      sess.RSA.Modulus128(),
-		Key2:         key2,
+	var w []byte
+	if fx, ferr := hex.DecodeString(strings.TrimSpace(s.Cfg.WelcomeFixture)); ferr == nil && len(fx) >= 4 {
+		w = fx // ФИКСТУРА: байт-в-байт реплей дампа оригинала (dumpPacket-лог)
+		log.Printf("welcome FIXTURE replay: %d bytes", len(w))
+	} else {
+		wargs := &proto.WelcomeArgs{
+			SessionID:    sid, // fc = rand32 ([fc] @0x4041b8)
+			AuthdSession: s.authdSession(), // V = authd [03] ([global+0xa0])
+			Modulus:      sess.RSA.Modulus128(),
+			Key2:         key2,
+		}
+		w = proto.BuildWelcome(wargs, s.key1)
 	}
-	w := proto.BuildWelcome(wargs, s.key1)
 	if s.Cfg.DumpPacket {
 		n := len(w)
 		if n > 64 {

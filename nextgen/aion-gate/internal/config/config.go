@@ -44,10 +44,13 @@ type Gate struct {
 
 	// Welcome-вары (§5.1: происхождение plaintext[0]=0x23 и b0/b1/b2 — capture-зона
 	// @0x43c1b0 содержала UTF-16 «er»; дефолты ниже = гипотеза, верифицировать capture'ом).
-	WelcomePlainByte int `yaml:"welcomePlainByte"`
-	WelcomeB0        int `yaml:"welcomeB0"`
-	WelcomeB1        int `yaml:"welcomeB1"`
-	WelcomeB2        int `yaml:"welcomeB2"`
+	WelcomePlainByte int    `yaml:"welcomePlainByte"`
+	WelcomeB0        int    `yaml:"welcomeB0"`
+	WelcomeB1        int    `yaml:"welcomeB1"`
+	WelcomeB2        int    `yaml:"welcomeB2"`
+	// WelcomeFixture — hex ПОЛНОГО фрейма (len+c200...) из дампа ОРИГИНАЛА:
+	// если задан — шлём его байт-в-байт вместо сборки (тупой реплей, A/B-тест).
+	WelcomeFixture   string `yaml:"welcomeFixture"`
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`
