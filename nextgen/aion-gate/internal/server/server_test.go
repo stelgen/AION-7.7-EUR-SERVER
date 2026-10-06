@@ -236,8 +236,9 @@ func TestE2ESkeleton(t *testing.T) {
 	for off := 0; off < 24; off += 8 {
 		sess.BF2.Decrypt(decSL[off:off+8], pbody[off:off+8])
 	}
-	if string(decSL[:len(sl)]) != string(sl) {
-		t.Fatalf("serverlist: %q", decSL[:len(sl)])
+	// relay: клиентский опкод = тип от authd (гейт добавляет [04] в начало pt)
+	if decSL[0] != 0x04 || string(decSL[1:1+len(sl)]) != string(sl) {
+		t.Fatalf("serverlist: op=%02x %q", decSL[0], decSL[1:1+len(sl)])
 	}
 }
 

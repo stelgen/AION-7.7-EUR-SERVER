@@ -359,9 +359,14 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 		case len(payload) == 24: // пинги/запросы клиента (wire 26 = 2+len + 24 ECB) — эмуляция ответов оригинала
 			s.handle26(sess, payload)
-		default: // релей в authd (тип = первый байт payload)
-			s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, payload) })
-			log.Printf("relay: sid=%d len=%d op=%02x", sess.ID, len(payload), payload[0])
+		default: // релей в authd — ПОСЛЕ расшифровки key2 (релей RAW ECB был такой же готчей)
+			pt2, derr := proto.DecryptSecondary(sess.BF2, payload)
+			if derr != nil {
+				log.Printf("relay: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(payload), derr)
+				return
+			}
+			s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, pt2) })
+			log.Printf("relay: sid=%d len=%d op=%02x", sess.ID, len(pt2), pt2[0])
 		}
 	}
 }
@@ -520,8 +525,11 @@ func parseServerList(typ byte, payload []byte) {
 func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	log.Printf("RAW AUTHD pkt id=%d type=%d len=%d hex=%s", id, typ, len(payload), hex.EncodeToString(payload))
 	parseServerList(typ, payload)
-	// ЛЮБОЙ тип authd -> конкретной сессии по id (74b/42b/26b = EncryptSecondary(payload)):
-	// payload 64->74b (serverlist), 32->42b (server-info IP:7777), 16->26b (пинги).
+	// ЛЮБОЙ тип authd -> конкретной сессии по id.
+	// КОНТРАКТ (live 06.10): клиентский ОПКОД = ТИП от authd — гейт ОБЯЗАН добавить
+	// его в начало pt (capture: authd type=3 + payload 52Б → ориг шлёт клиенту
+	// [03]+payload+пад до 64Б = wire 74 login-ok; type=4 → [04] 42b; type=7 → [07] 26b).
+	// Без типа клиент получает неизвестный опкод (07...) и молча висит.
 	s.mu.Lock()
 	sess := s.sess[id]
 	s.mu.Unlock()
@@ -529,7 +537,11 @@ func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 		log.Printf("authd pkt: нет сессии id=%d type=%d", id, typ)
 		return
 	}
-	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, payload))
+	pt := append([]byte{typ}, payload...)
+	if typ == 3 && len(pt) < 64 { // login-ok: паритет с оригом (pt 64Б → wire 74)
+		pt = append(pt, make([]byte, 64-len(pt))...)
+	}
+	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, pt))
 	dumpRaw(fmt.Sprintf("G>C authd-pkt type=%d sid=%d", typ, sess.ID), fr)
 	_ = sess.write(fr)
 	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"type": typ, "len": len(payload)}})
@@ -577,6 +589,14 @@ func (s *Server) handle26(sess *Session, payload []byte) {
 		return
 	}
 	op := ptIn[0]
+	// ОРИГ релеит [05]/[02] в authd (ответы-типы 4/7 идут ОТ AUTHD); наша эмуляция
+	// 42b/26b — только фолбэк, когда authd недоступен.
+	relayed := false
+	s.withAuthd(func(a *authdclient.Client) { relayed = a.SendPacket(sess.ID, ptIn) == nil })
+	if relayed {
+		log.Printf("26b: relay authd sid=%d op=%02x len=%d", sess.ID, op, len(ptIn))
+		return
+	}
 	pt := s.build26ReplyPt(op)
 	if pt == nil {
 		return
