@@ -110,7 +110,7 @@ func ScrambleModulus(m *[128]byte) {
 // клиент может шифровать логин против фиксированного ключа (не из welcome).
 func RSAKeyFromHex(nHex, dHex string) (*RSAKey, error) {
 	n, ok := new(big.Int).SetString(nHex, 16)
-	if !ok || n.BitLen() != 1024 {
+	if !ok || n.BitLen() < 1020 {
 		return nil, errors.New("rsa256: bad N hex")
 	}
 	d, ok := new(big.Int).SetString(dHex, 16)
