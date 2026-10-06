@@ -60,6 +60,31 @@ func EncryptSecondary(bf *Blowfish, payload []byte) []byte {
 	return out
 }
 
+// DecryptPrimary — инверс EncryptPrimary (чтение welcome ОРИГИНАЛА в fork-режиме и тесты):
+// ECB-dec; csum = dword[(n-8)/4] (@ n-8); реверс цепочки: old[k] = new[k]^S; S -= old[k]
+// от k=(n-8)/4-1 до 1; инвариант: полученный S обязан равняться dword0 (иначе ErrChecksum).
+// Возвращает data-регион (n-8 байт) с востановленными dword'ами 1..(n-8)/4-1.
+func DecryptPrimary(bf *Blowfish, data []byte) ([]byte, error) {
+	if len(data) == 0 || len(data)%8 != 0 {
+		return nil, ErrBadPacketLen
+	}
+	dec := make([]byte, len(data))
+	for off := 0; off < len(data); off += 8 {
+		bf.Decrypt(dec[off:off+8], data[off:off+8])
+	}
+	k := (len(dec) - 8) / 4
+	S := binary.LittleEndian.Uint32(dec[k*4:])
+	for i := k - 1; i >= 1; i-- {
+		old := binary.LittleEndian.Uint32(dec[i*4:]) ^ S
+		binary.LittleEndian.PutUint32(dec[i*4:], old)
+		S -= old
+	}
+	if S != binary.LittleEndian.Uint32(dec[0:4]) {
+		return nil, ErrChecksum
+	}
+	return dec[:len(dec)-8], nil
+}
+
 // DecryptSecondary @0x417ad0 (client→server, key2): len кратно 8; ECB-dec;
 // XOR dword[0..(len-8)/4) обязан равняться dword[(len-8)/4] (чексумма сразу
 // за roundup8-данными); хвостовой dword (pad) не участвует.

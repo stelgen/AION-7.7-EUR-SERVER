@@ -180,16 +180,22 @@ func TestE2ESkeleton(t *testing.T) {
 		}
 	}
 
-	// 3. логин 186b → relay "cbdb" в authd (decbuf = RSA-dec 128Б-блока с ведущими нулями)
-	loginDec := make([]byte, 32)
-	copy(loginDec, "LOGIN-DEC-BUF-32-BYTES")
-	loginDec[31] = 0x21
+	// 3. логин 186b (П3 гит-форма: [op][ct 128][tail 55]) → relay "cbdb" с РЕАЛЬНЫМИ кредами:
+	// m = [zeros][user@94:108][pwd@108:124][otp=FFFFFFFF @124:128], decbuf = m[94:128] (34Б)
+	mLogin := make([]byte, 128)
+	copy(mLogin[94:108], "testuser01")
+	copy(mLogin[108:124], "pw12345")
+	binary.LittleEndian.PutUint32(mLogin[124:128], 0xFFFFFFFF)
 	pub2 := &sess.RSA.Priv.PublicKey
-	loginCT := new(big.Int).Exp(new(big.Int).SetBytes(loginDec), big.NewInt(int64(pub2.E)), pub2.N).FillBytes(make([]byte, 128))
-	data := make([]byte, 184)
-	copy(data[:128], loginCT) // полный RSA-1024 блок
-	binary.LittleEndian.PutUint32(data[128:132], 0x7d5214) // sessionId
-	binary.LittleEndian.PutUint32(data[148:152], 0x11223344)
+	loginCT := new(big.Int).Exp(new(big.Int).SetBytes(mLogin), big.NewInt(int64(pub2.E)), pub2.N).FillBytes(make([]byte, 128))
+	data := make([]byte, 0, 184)
+	data = append(data, 0x00)
+	data = append(data, loginCT...)
+	tail := make([]byte, 55)
+	binary.LittleEndian.PutUint32(tail[0:4], sess.ID)
+	copy(tail[20:27], []byte{0x20, 0, 0, 0, 0, 0, 0x01}) // magic гита (структура, не байты 7.7)
+	copy(tail[27:43], []byte{0x9D, 0xDA, 0x47, 0xA7, 0x21, 0xC0, 0xA6, 0xA5, 0x4B, 0xB7, 0x5E, 0xE3, 0xCE, 0xC9, 0x26, 0xAA})
+	data = append(data, tail...)
 	if _, err := cl.Write(proto.WriteFrame(data)); err != nil {
 		t.Fatal(err)
 	}
@@ -198,7 +204,8 @@ func TestE2ESkeleton(t *testing.T) {
 	blob := f.packets[0]
 	pktID := f.pktIDs[0]
 	f.mu.Unlock()
-	wantBlob := proto.Assemble("cbdb", byte(0), loginDec, uint32(0x11223344), data[152:])
+	// dword148 = data[148:152] = tail[19:23] = [00 20 00 00] → 0x00002000
+	wantBlob := proto.Assemble("cbdb", byte(0), mLogin[94:128], uint32(0x00002000), data[152:])
 	if string(blob) != string(wantBlob) {
 		t.Fatalf("relay blob: got %x want %x", blob, wantBlob)
 	}
@@ -260,6 +267,91 @@ func TestBlockedIP(t *testing.T) {
 	}
 	if buf[2] != 0x01 || buf[3] != 22 { // [len=4][01][16]
 		t.Fatalf("cc: %x", buf)
+	}
+}
+
+// Fork-режим (mode: fork): welcome оригинала доходит клиенту байт-в-байт,
+// фреймы клиента релеятся оригиналу, ответы оригинала — клиенту (прозрачный прокси).
+func TestForkPassthrough(t *testing.T) {
+	key1 := proto.GenerateInitialKey(0x04bd)
+	bf1, err := proto.NewBlowfish(key1[:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	var k2 [16]byte
+	for i := range k2 {
+		k2[i] = byte(0x10 + i)
+	}
+	bf2, err := proto.NewBlowfish(k2[:])
+	if err != nil {
+		t.Fatal(err)
+	}
+	var mod [128]byte
+	for i := range mod {
+		mod[i] = byte(i)
+	}
+	wantWelcome := proto.BuildWelcome(&proto.WelcomeArgs{SessionID: 777, AuthdSession: 3, Modulus: mod, Key2: k2}, bf1)
+
+	up, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer up.Close()
+	wantReply := proto.WriteFrame(proto.EncryptSecondary(bf2, []byte("orig-reply-payload-24b!!")))
+	go func() {
+		c, err := up.Accept()
+		if err != nil {
+			return
+		}
+		defer c.Close()
+		if _, err := c.Write(wantWelcome); err != nil {
+			return
+		}
+		if _, err := proto.ReadFrame(c); err != nil { // фрейм клиента (34b authgg)
+			return
+		}
+		if _, err := c.Write(wantReply); err != nil {
+			return
+		}
+		buf := make([]byte, 1)
+		_, _ = c.Read(buf) // держим до закрытия
+	}()
+
+	srv, err := New(config.Gate{Mode: "fork", ForkOrigPort: up.Addr().(*net.TCPAddr).Port}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	go srv.Serve(ln)
+
+	cl, err := net.Dial("tcp", ln.Addr().String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer cl.Close()
+	gotW := make([]byte, len(wantWelcome))
+	cl.SetReadDeadline(time.Now().Add(3 * time.Second))
+	if _, err := asRead(cl, gotW); err != nil {
+		t.Fatal(err)
+	}
+	if string(gotW) != string(wantWelcome) {
+		t.Fatal("fork: welcome оригинала искажён")
+	}
+	// фрейм клиента (расшифровываемый key2 ориг — клиентские байты)
+	pt := make([]byte, 24)
+	binary.LittleEndian.PutUint32(pt, 777)
+	if _, err := cl.Write(proto.WriteFrame(proto.EncryptSecondary(bf2, pt))); err != nil {
+		t.Fatal(err)
+	}
+	gotR := make([]byte, len(wantReply))
+	if _, err := asRead(cl, gotR); err != nil {
+		t.Fatal(err)
+	}
+	if string(gotR) != string(wantReply) {
+		t.Fatal("fork: ответ оригинала искажён")
 	}
 }
 

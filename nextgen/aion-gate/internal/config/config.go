@@ -63,8 +63,30 @@ type Gate struct {
 	// Фиксированная RSA-пара (эксперимент Pub.key клиента): если заданы — пул использует её.
 	RsaFixedN string `yaml:"rsaFixedN"`
 	RsaFixedD string `yaml:"rsaFixedD"`
-	// IP игрового мира для 42b server-info (ответ на 26b[05]).
-	WorldIP string `yaml:"worldIP"`
+	// IP игрового мира для 42b server-info (ответ на 26b[05]) и classic serverlist.
+	WorldIP   string `yaml:"worldIP"`
+	WorldPort int    `yaml:"worldPort"` // default 7777 (0x1e61)
+
+	// РЕЖИМ (байон-48 06.10, §7 П4):
+	//   authgate — живой 7.7 EU флоу (welcome 194/EncryptPrimary/key1, cc-plaintext,
+	//              длина-диспетчер) — НЕ ТРОГАЕТСЯ (дефолт);
+	//   classic  — beyond-aion-совместимый флоу 4.8: SM_INIT-192/encXORPass/static-ключ,
+	//              диспетчер по (op,state), LOGIN_OK/SERVER_LIST/PLAY_OK по раскладке гита;
+	//   fork     — форк-прокси: клиент ↔ наш гейт ↔ оригинальный AuthGateD (forkOrig*),
+	//              всё релеится raw, логируется расшифровка ориг-ответов и shadow-ответов
+	//              НАШЕГО движка — прямое сравнение «оригинал vs наш» (без authd-коннекта!).
+	Mode string `yaml:"mode"`
+	// rsaExponent — экспонента RSA-ключей гейта (П2): 17 (Pub.key[1]=0x11) или 65537
+	// (F4 из гита beyond-aion 4.8). Калибруется живым логином (валидная раскладка = тот e).
+	RsaExponent int `yaml:"rsaExponent"`
+	// loginDecbufLen — длина decbuf в authd-blob "cbdb": 34 (asm оригинала arg3=0x22,
+	// = user14+pwd16+otp4 из раскладки гита; дефолт) | 32 | 128 (полный m).
+	LoginDecbufLen int `yaml:"loginDecbufLen"`
+	// forkOrig* — куда форк-прокси форвардит клиента (оригинальный AuthGateD).
+	ForkOrigAddr string `yaml:"forkOrigAddr"`
+	ForkOrigPort int    `yaml:"forkOrigPort"`
+	// ggXorTail — classic: SM_AUTH_GG в форме гита (wire 50) вместо живой 32Б (wire 42).
+	GgXorTail bool `yaml:"ggXorTail"`
 
 
 
@@ -97,6 +119,12 @@ func (g *Gate) FillDefaults() {
 	set(&g.VariantHoldSec, 180) // минимум 3 минуты на вариант (пауза на логин)
 	set(&g.WelcomeForceVariant, -1) // -1 = по кругу (probe); >=0 = всегда этот вариант
 	set(&g.WelcomeWaitAuthdMs, 0)
+	setb(&g.Mode, "authgate")
+	set(&g.RsaExponent, 17)      // гипотеза Pub.key[1]; альтернатива 65537 (F4 гита)
+	set(&g.LoginDecbufLen, 34)   // asm arg3=0x22: user14+pwd16+otp4
+	setb(&g.ForkOrigAddr, "127.0.0.1")
+	set(&g.ForkOrigPort, 2109)   // ориг AuthGateD (AionGateOrig) на VM
+	set(&g.WorldPort, 7777)
 }
 
 // Config — верхний уровень config.yaml.

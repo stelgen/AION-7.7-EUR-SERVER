@@ -34,7 +34,8 @@ type WelcomeArgs struct {
 
 func (a *WelcomeArgs) plain() []byte {
 	mod := a.Modulus
-	ScrambleModulus(&mod)
+	// П1 байон-48: в welcome идёт СЕРВЕРНЫЙ скрамбл (клиент снимает его своим unscramble).
+	ScrambleModulusServer(&mod)
 	b := make([]byte, 0, 173)
 	b = append(b, 0x00)                                     // [0] = opcode SM_INIT (0x00, "c" va0)
 	b = binary.LittleEndian.AppendUint32(b, a.SessionID)    // [1:5] = sid (LE)
@@ -66,8 +67,10 @@ func BuildWelcome(a *WelcomeArgs, bf *Blowfish) []byte {
 //	9 = без welcomeExtra4 (pt 172 → wire 186, тест длины)
 func BuildWelcomeVariant(a *WelcomeArgs, bf *Blowfish, variant int) []byte {
 	mod := a.Modulus
+	// П1 байон-48: вариант 0 = ScrambleModulusServer (серверный); вариант 4 (RAW) —
+	// математически сломан (unscramble(raw) != N) — оставлен только для A/B-логов.
 	if variant != 4 {
-		ScrambleModulus(&mod)
+		ScrambleModulusServer(&mod)
 	}
 	b := make([]byte, 0, 176)
 	fc := a.SessionID

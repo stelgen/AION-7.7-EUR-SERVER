@@ -27,11 +27,19 @@ appLaunchBanDelay: 5
 useReportMail: false
 authReconnectInterval: 0   # 0 = как оригинал (не реконнектит); >0 — наш реконнект
 
-# welcome-вары (§5.1 — гипотеза, верифицировать capture'ом)
-welcomePlainByte: 35       # 0x23
-welcomeB0: 101             # 'e'
-welcomeB1: 114             # 'r'
-welcomeB2: 0
+# === РЕЖИМ (06.10, байон-48) ===
+# authgate — живой 7.7 EU флоу (дефолт); classic — beyond-aion 4.8 флоу;
+# fork — прозрачный прокси к оригиналу + сравнение ответов в логе.
+mode: authgate
+# rsaExponent: 17            # П2: 17 (Pub.key[1]) | 65537 (F4 гита) — калибруется живым логином
+# loginDecbufLen: 34         # decbuf в authd-blob: 34 (user14+pwd16+otp4) | 32 | 128
+# forkOrigAddr: 127.0.0.1    # fork: куда форвардить клиента (ориг AuthGateD)
+# forkOrigPort: 2109
+# worldIP: 192.168.0.125
+# worldPort: 7777
+
+# welcome-вары (для authgate; welcomePlainByte/B0/B1/B2 удалены — ночь-4 финал)
+welcomeForceVariant: 0     # 0 = СЕРВЕРНЫЙ скрамбл (гит); 4 = RAW (сломан, только A/B)
 
 # телеметрия TELEMETRY-SPEC (пакет ship копируется из aion-logd — TODO)
 ship:

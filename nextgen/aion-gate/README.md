@@ -4,6 +4,17 @@ Go-замена оригинального AuthGateD.exe (AION 7.7 PTS EU). Ре
 `docs/authgate-protocol-20261005.md` (криптосхема верифицирована capture 03.10,
 wire 2110 дизasm 05.10 байт-в-байт). Образец структуры: `../aion-captcha`.
 
+## Статус (06.10 день — байон-48 фиксы + fork/classic)
+
+- ✅ **Root-cause RSA-мусора закрыт**: в welcome идёт `ScrambleModulusServer` (гит-порядок);
+  старая функция = клиентский unscramble (док-спека beyond-aion §3). Доказано на проде:
+  fork расшифровал welcome оригинала — `ServerScramble(N_orig) == wire`, N_orig = 1024 бита.
+- ✅ `mode: authgate | classic | fork` (см. `docs/fork-classic-deploy-20261006.md`):
+  fork = прозрачный прокси к оригиналу (forkOrig*) + shadow-сравнение ответов + дамп ct/N_orig
+  для калибровки `rsaExponent` (17 vs 65537); classic = SM_INIT-210/encXORPass + диспетчер (op,state).
+- ✅ CM_LOGIN по раскладке гита (user@94/pwd@108/otp, loginex на склейке чанков),
+  blob authd с реальными кредами (loginDecbufLen=34). Прод сейчас: 2106=fork → 2109=ориг.
+
 ## Статус (05.10 ночь, скелет)
 
 - ✅ `internal/proto` — Blowfish ECB (0 зависимостей, P/S из exe, векторы python-blowfish),

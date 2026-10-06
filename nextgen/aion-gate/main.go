@@ -31,18 +31,30 @@ func main() {
 	if err != nil {
 		log.Fatalf("server: %v", err)
 	}
-	if err := srv.DialAuthd(); err != nil {
-		// Оригинал при недоступном authd молчит и не реконнектит — не фатально.
-		log.Printf("authd: %v (работаю без authd, authReconnectInterval=%d)", err, g.AuthReconnectInterval)
+	switch g.Mode {
+	case "authgate":
+		if err := srv.DialAuthd(); err != nil {
+			// Оригинал при недоступном authd молчит и не реконнектит — не фатально.
+			log.Printf("authd: %v (работаю без authd, authReconnectInterval=%d)", err, g.AuthReconnectInterval)
+		}
+	case "classic":
+		log.Printf("mode=classic: standalone-флоу 4.8 (без authd; SessionKey случайный, GS-прокси TODO)")
+	case "fork":
+		log.Printf("mode=fork: клиент :%d ↔ оригинал %s:%d (raw-релей + shadow-сравнение; authd не подключаем)",
+			g.ServerPort, g.ForkOrigAddr, g.ForkOrigPort)
+	default:
+		log.Fatalf("config: неизвестный mode=%q (authgate|classic|fork)", g.Mode)
 	}
 
 	ln, err := net.Listen("tcp", ":"+strconv.Itoa(g.ServerPort))
 	if err != nil {
 		log.Fatalf("listen: %v", err)
 	}
-	log.Printf("aion-gate: :%d → authd %s:%d (ship=%v)", g.ServerPort, g.AuthAddr, g.AuthPort, sh.Enabled())
+	log.Printf("aion-gate: mode=%s :%d rsa_exponent=%d authd=%s:%d (ship=%v)",
+		g.Mode, g.ServerPort, g.RsaExponent, g.AuthAddr, g.AuthPort, sh.Enabled())
 	sh.Send(ship.Event{Ev: ship.EvStart, Msg: "aion-gate started", Data: map[string]any{
-		"port": g.ServerPort, "authd": net.JoinHostPort(g.AuthAddr, strconv.Itoa(g.AuthPort)),
+		"port": g.ServerPort, "mode": g.Mode, "rsa_exponent": g.RsaExponent,
+		"authd": net.JoinHostPort(g.AuthAddr, strconv.Itoa(g.AuthPort)),
 	}})
 	if err := srv.Serve(ln); err != nil {
 		sh.Send(ship.Event{Ev: ship.EvStop, Msg: "aion-gate stopped", Err: err.Error()})
