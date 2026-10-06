@@ -125,7 +125,7 @@ func TestWelcome194(t *testing.T) {
 	}
 	// dword0 НЕ скрамблится = fc ЦЕЛИКОМ (capture-паритет dw0=0x7d521423!);
 	// dword1+ скрамблены (cumsum) — сырые поля напрямую не читаются
-	if binary.LittleEndian.Uint32(dec[0:4]) != 0x7d521423 {
+	if binary.LittleEndian.Uint32(dec[0:4]) != 0x52142300 { // [0x00][7d 52 14]
 		t.Fatalf("dword0 (fc): %x want 7d521423", dec[0:4])
 	}
 	// хвост [188..191] = нули (после csum@184, ничем не тронут — резидуум-зона оригинала не нулевая!)

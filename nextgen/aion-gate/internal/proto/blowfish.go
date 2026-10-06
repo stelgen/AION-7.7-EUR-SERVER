@@ -34,11 +34,11 @@ func (b *Blowfish) Encrypt(dst, src []byte) {
 	if len(src) != 8 || len(dst) < 8 {
 		panic("blowfish: 8-byte block required")
 	}
-	l := binary.BigEndian.Uint32(src[0:4])
-	r := binary.BigEndian.Uint32(src[4:8])
+	l := binary.LittleEndian.Uint32(src[0:4])
+	r := binary.LittleEndian.Uint32(src[4:8])
 	l, r = encryptBlock(l, r, b)
-	binary.BigEndian.PutUint32(dst[0:4], l)
-	binary.BigEndian.PutUint32(dst[4:8], r)
+	binary.LittleEndian.PutUint32(dst[0:4], l)
+	binary.LittleEndian.PutUint32(dst[4:8], r)
 }
 
 // Decrypt дешифрует один 8-байтный блок ECB.
@@ -46,11 +46,11 @@ func (b *Blowfish) Decrypt(dst, src []byte) {
 	if len(src) != 8 || len(dst) < 8 {
 		panic("blowfish: 8-byte block required")
 	}
-	l := binary.BigEndian.Uint32(src[0:4])
-	r := binary.BigEndian.Uint32(src[4:8])
+	l := binary.LittleEndian.Uint32(src[0:4])
+	r := binary.LittleEndian.Uint32(src[4:8])
 	l, r = decryptBlock(l, r, b)
-	binary.BigEndian.PutUint32(dst[0:4], l)
-	binary.BigEndian.PutUint32(dst[4:8], r)
+	binary.LittleEndian.PutUint32(dst[0:4], l)
+	binary.LittleEndian.PutUint32(dst[4:8], r)
 }
 
 func bfF(s *[4][256]uint32, x uint32) uint32 {

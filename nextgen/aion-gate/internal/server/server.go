@@ -3,7 +3,6 @@
 package server
 
 import (
-	crand "crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -147,9 +146,10 @@ func (s *Server) Serve(ln net.Listener) error {
 // nextSID @0x4041b8: fc = rand32() + base (CRT rand детерминирован от старта —
 // поэтому welcome dword0 повторяется после рестартов; у нас честный crypto/rand).
 func (s *Server) nextSID() uint32 {
-	var b [4]byte
-	_, _ = crand.Read(b[:])
-	return binary.LittleEndian.Uint32(b[:])
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.counter++
+	return s.counter
 }
 
 // onAuthdAssigned — [03] от authd: payload[0:4] → [global+0xa0] (V в welcome).
@@ -339,7 +339,8 @@ func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 		return nil
 	}
 	reply := make([]byte, 32)
-	binary.LittleEndian.PutUint32(reply, sess.ID) // [sid][28×0]
+	reply[0] = 0x0b // SM_AUTH_GG opcode (LE-дамп 06.10: [0b][sid][27×0])
+	binary.LittleEndian.PutUint32(reply[1:5], sess.ID)
 	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, reply))
 	dumpRaw(fmt.Sprintf("G>C authgg-reply sid=%d", sess.ID), fr)
 	return sess.write(fr)

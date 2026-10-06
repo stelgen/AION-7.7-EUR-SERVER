@@ -36,8 +36,9 @@ func (a *WelcomeArgs) plain() []byte {
 	mod := a.Modulus
 	ScrambleModulus(&mod)
 	b := make([]byte, 0, 173)
-	b = binary.LittleEndian.AppendUint32(b, a.SessionID)    // pt[0:4] = fc
-	b = binary.LittleEndian.AppendUint32(b, a.AuthdSession) // pt[4:8] = V
+	b = append(b, 0x00)                                     // [0] = opcode SM_INIT (0x00, "c" va0)
+	b = binary.LittleEndian.AppendUint32(b, a.SessionID)    // [1:5] = sid (LE)
+	b = binary.LittleEndian.AppendUint32(b, a.AuthdSession) // [5:9] = V (authd [03])
 	b = append(b, mod[:]...)      // 128
 	b = append(b, a.GGQuery[:]...) // 16
 	b = append(b, a.Key2[:]...)    // 16
@@ -73,6 +74,7 @@ func BuildWelcomeVariant(a *WelcomeArgs, bf *Blowfish, variant int) []byte {
 	if variant == 6 {
 		fc = 0x7d521423
 	}
+	b = append(b, 0x00) // [0] opcode
 	b = binary.LittleEndian.AppendUint32(b, fc)
 	v := a.AuthdSession
 	if variant == 7 {

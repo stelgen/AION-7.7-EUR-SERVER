@@ -136,7 +136,7 @@ func TestE2ESkeleton(t *testing.T) {
 	// финальная раскладка: dword0 = fc = sid (rand32) ЦЕЛИКОМ (не скрамблится)
 	dec := make([]byte, 8)
 	srv.key1.Decrypt(dec, ecb[:8])
-	sidFC := binary.LittleEndian.Uint32(dec[0:4])
+	sidFC := binary.LittleEndian.Uint32(dec[1:5]) // [0]=opcode 0x00
 
 	// authd получил CltConnect
 	waitFor(t, func() bool { f.mu.Lock(); defer f.mu.Unlock(); return len(f.connects) == 1 })
@@ -171,10 +171,10 @@ func TestE2ESkeleton(t *testing.T) {
 	for off := 0; off < 40; off += 8 {
 		sess.BF2.Decrypt(decX[off:off+8], body[off:off+8])
 	}
-	if binary.LittleEndian.Uint32(decX[0:4]) != sess.ID || binary.LittleEndian.Uint32(decX[32:36]) != sess.ID {
+	if decX[0] != 0x0b || binary.LittleEndian.Uint32(decX[1:5]) != sess.ID || binary.LittleEndian.Uint32(decX[32:36]) != binary.LittleEndian.Uint32(decX[0:4]) {
 		t.Fatalf("SM_AUTH_GG: dw0=%x dw8=%x", decX[0:4], decX[32:36])
 	}
-	for i := 4; i < 32; i++ {
+	for i := 5; i < 32; i++ {
 		if decX[i] != 0 {
 			t.Fatalf("SM_AUTH_GG zeros@%d: %02x", i, decX[i])
 		}
