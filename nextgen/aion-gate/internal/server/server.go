@@ -3,6 +3,7 @@
 package server
 
 import (
+	crand "crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"log"
@@ -97,7 +98,7 @@ func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 
 // AuthdHandler — колбеки для authdclient (DialAuthd или инъекция в тестах).
 func (s *Server) AuthdHandler() authdclient.Handler {
-	return authdclient.Handler{OnPacket: s.onAuthdPacket, OnClosed: s.onAuthdClosed}
+	return authdclient.Handler{OnPacket: s.onAuthdPacket, OnClosed: s.onAuthdClosed, OnAssigned: s.onAuthdAssigned}
 }
 
 // DialAuthd — одна коннекция к authd (оригинал держит одну, готча p1–p5).
@@ -139,11 +140,19 @@ func (s *Server) Serve(ln net.Listener) error {
 	}
 }
 
+// nextSID @0x4041b8: fc = rand32() + base (CRT rand детерминирован от старта —
+// поэтому welcome dword0 повторяется после рестартов; у нас честный crypto/rand).
 func (s *Server) nextSID() uint32 {
+	var b [4]byte
+	_, _ = crand.Read(b[:])
+	return binary.LittleEndian.Uint32(b[:])
+}
+
+// onAuthdAssigned — [03] от authd: payload[0:4] → [global+0xa0] (V в welcome).
+func (s *Server) onAuthdAssigned(sid uint32) {
 	s.mu.Lock()
-	defer s.mu.Unlock()
-	s.counter++
-	return s.counter
+	s.assigned = sid
+	s.mu.Unlock()
 }
 
 func (s *Server) authdSession() uint32 {
@@ -207,15 +216,10 @@ func (s *Server) handleConn(conn net.Conn) {
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendConnect(sid, ip) }) // CltConnect @0x406000
 
 	wargs := &proto.WelcomeArgs{
-		PlainByte:    byte(s.Cfg.WelcomePlainByte),
-		SessionID:    sid,
-		AuthdSession: s.authdSession(),
+		SessionID:    sid, // fc = rand32 ([fc] @0x4041b8)
+		AuthdSession: s.authdSession(), // V = authd [03] ([global+0xa0])
 		Modulus:      sess.RSA.Modulus128(),
 		Key2:         key2,
-		LoginType:    byte(s.Cfg.LoginType),
-		B0:           byte(s.Cfg.WelcomeB0),
-		B1:           byte(s.Cfg.WelcomeB1),
-		B2:           byte(s.Cfg.WelcomeB2),
 	}
 	w := proto.BuildWelcome(wargs, s.key1)
 	if s.Cfg.DumpPacket {

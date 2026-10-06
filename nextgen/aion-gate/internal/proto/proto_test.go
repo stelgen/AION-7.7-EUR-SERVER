@@ -107,10 +107,8 @@ func TestWelcome194(t *testing.T) {
 		t.Fatal(err)
 	}
 	a := &WelcomeArgs{
-		PlainByte:    0x23, // capture/live-версия (welcomePlainByte)
-		SessionID:    0x7d5214,
-		AuthdSession: 0x11223344,
-		LoginType:    2, B0: 'e', B1: 'r', B2: 0,
+		SessionID:    0x7d521423, // fc = rand32 (группа из capture 03.10!)
+		AuthdSession: 0x634692d8, // V = authd [03] (вторая половина пары!)
 	}
 	w := BuildWelcome(a, bf)
 	if len(w) != WelcomeLen {
@@ -125,13 +123,16 @@ func TestWelcome194(t *testing.T) {
 		bf.Decrypt(blk, w[off:off+8])
 		dec = append(dec, blk...)
 	}
-	if dec[0] != 0x23 {
-		t.Fatalf("plaintext[0]=%02x want 0x23 (capture/live)", dec[0])
-	}
-	// dword0 НЕ скрамблится = [0x23][sid-байты 1..3] LE = 0x7d521423 (capture-паритет!);
-	// dword1+ уже скрамблены (cumsum) — сырые поля напрямую не читаются
+	// dword0 НЕ скрамблится = fc ЦЕЛИКОМ (capture-паритет dw0=0x7d521423!);
+	// dword1+ скрамблены (cumsum) — сырые поля напрямую не читаются
 	if binary.LittleEndian.Uint32(dec[0:4]) != 0x7d521423 {
-		t.Fatalf("dword0: %x want 7d521423", dec[0:4])
+		t.Fatalf("dword0 (fc): %x want 7d521423", dec[0:4])
+	}
+	// хвост [188..191] = нули (после csum@184, ничем не тронут — резидуум-зона оригинала не нулевая!)
+	for i := 188; i < 192; i++ {
+		if dec[i] != 0 {
+			t.Fatalf("tail[%d]=%02x", i, dec[i])
+		}
 	}
 	if dec[188] != 0 || dec[189] != 0 || dec[190] != 0 || dec[191] != 0 {
 		t.Fatal("хвост ECB-области (188..191) не нулевой")

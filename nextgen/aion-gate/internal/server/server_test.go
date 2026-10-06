@@ -133,12 +133,10 @@ func TestE2ESkeleton(t *testing.T) {
 	if _, err := asRead(cl, ecb); err != nil {
 		t.Fatal(err)
 	}
-	// capture/live-модель: plaintext[0]=0x23 (welcomePlainByte), sid-байты [1:4]
+	// финальная раскладка: dword0 = fc = sid (rand32) ЦЕЛИКОМ (не скрамблится)
 	dec := make([]byte, 8)
 	srv.key1.Decrypt(dec, ecb[:8])
-	if dec[0] != 0x23 || dec[1] != 1 || dec[2] != 0 || dec[3] != 0 {
-		t.Fatalf("welcome dword0: %x", dec[:4]) // sid = 1 (счётчик с 1)
-	}
+	sidFC := binary.LittleEndian.Uint32(dec[0:4])
 
 	// authd получил CltConnect
 	waitFor(t, func() bool { f.mu.Lock(); defer f.mu.Unlock(); return len(f.connects) == 1 })
@@ -146,6 +144,9 @@ func TestE2ESkeleton(t *testing.T) {
 	sess := srv.SessionByIndex(0)
 	if sess == nil {
 		t.Fatal("нет сессии")
+	}
+	if sidFC != sess.ID {
+		t.Fatalf("welcome dword0 (fc)=%x != sess.ID %x", sidFC, sess.ID)
 	}
 
 	// 2. 34b AUTH_GG → 42b SM_AUTH_GG: клиент шлёт EncryptSecondary([sid][20B]),

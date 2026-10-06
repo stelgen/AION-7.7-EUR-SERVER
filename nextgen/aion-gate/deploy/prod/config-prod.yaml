@@ -1,5 +1,5 @@
-# aion-gate PROD — порт 2109 ВРЕМЕННО (за прокси-дампом на :2106; вернуть 2106 после A/B)
-serverPort: 2109
+# aion-gate PROD — порт 2106 (оригинальный; v.3-раскладка plaintext, ночь-4 финал)
+serverPort: 2106
 authAddr: 127.0.0.1
 authPort: 2110
 numThread: 32
