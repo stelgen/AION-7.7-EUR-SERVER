@@ -180,7 +180,8 @@ func TestE2ESkeleton(t *testing.T) {
 		}
 	}
 
-	// 3. логин 186b (П3 гит-форма: [op][ct 128][tail 55]) → relay "cbdb" с РЕАЛЬНЫМИ кредами:
+	// 3. логин 186b (К-3/P1-3: op=0x0B — эталон 7.7 CM_LOGIN; форма [op][ct 128][tail 55])
+	// → relay "cbdb" с РЕАЛЬНЫМИ кредами:
 	// m = [zeros][user@94:108][pwd@108:124][otp=FFFFFFFF @124:128], decbuf = m[94:128] (34Б)
 	mLogin := make([]byte, 128)
 	copy(mLogin[94:108], "testuser01")
@@ -189,7 +190,7 @@ func TestE2ESkeleton(t *testing.T) {
 	pub2 := &sess.RSA.Priv.PublicKey
 	loginCT := new(big.Int).Exp(new(big.Int).SetBytes(mLogin), big.NewInt(int64(pub2.E)), pub2.N).FillBytes(make([]byte, 128))
 	data := make([]byte, 0, 184)
-	data = append(data, 0x00)
+	data = append(data, 0x0B) // К-3 (P1-3): CM_LOGIN op 0x0B в AUTHED_GG (эталон 7.7)
 	data = append(data, loginCT...)
 	tail := make([]byte, 55)
 	binary.LittleEndian.PutUint32(tail[0:4], sess.ID)

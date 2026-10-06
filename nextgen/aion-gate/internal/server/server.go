@@ -3,6 +3,7 @@
 package server
 
 import (
+	crand "crypto/rand"
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
@@ -28,7 +29,9 @@ type Session struct {
 	BF2  *proto.Blowfish
 	RSA  *proto.RSAKey
 
-	// classic-режим (П4): state-машина CONNECTED→AUTHED_GG→AUTHED_LOGIN
+	// State-машина (К-2/P0-2, эталон AionPacketHandlerFactory): CONNECTED→AUTHED_GG
+	// (после эха AUTH_GG) →AUTHED_LOGIN (после успешного login-decode). Общая для
+	// classic (П4) и authgate-режимов; константы stConnected/stAuthedGG/stAuthedLogin в classic.go.
 	State   uint8
 	AccID   uint32
 	LoginOk uint32
@@ -346,29 +349,112 @@ func (s *Server) handleConn(conn net.Conn) {
 			}
 			continue
 		}
-		switch {
-		case len(payload) == 32: // клиент 34b: AUTH_GG (дизasm ночь-4: echo=[sid][28×0], RSA НЕ участвует)
-			if err := s.handleAuthGG(sess, payload); err != nil {
-				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "authgg"}})
-				return
-			}
-		case len(payload) >= 184: // логин 186/314
-			if err := s.handleLogin(sess, payload); err != nil {
-				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "login"}})
-				return
-			}
-		case len(payload) == 24: // пинги/запросы клиента (wire 26 = 2+len + 24 ECB) — эмуляция ответов оригинала
-			s.handle26(sess, payload)
-		default: // релей в authd — ПОСЛЕ расшифровки key2 (релей RAW ECB был такой же готчей)
-			pt2, derr := proto.DecryptSecondary(sess.BF2, payload)
-			if derr != nil {
-				log.Printf("relay: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(payload), derr)
-				return
-			}
-			s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, pt2) })
-			log.Printf("relay: sid=%d len=%d op=%02x", sess.ID, len(pt2), pt2[0])
+		// К-2 (P0-2): диспетчер по (state, op) как AionPacketHandlerFactory эталона;
+		// длины 32/24/≥184 — fallback-эвристика (leak-клиент 312/314b).
+		if err := s.dispatchAuthgate(sess, payload); err != nil {
+			s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "dispatch"}})
+			return
 		}
 	}
+}
+
+// stateName — имя состояния для логов (К-2/P0-2).
+func stateName(st uint8) string {
+	switch st {
+	case stConnected:
+		return "CONNECTED"
+	case stAuthedGG:
+		return "AUTHED_GG"
+	case stAuthedLogin:
+		return "AUTHED_LOGIN"
+	}
+	return fmt.Sprintf("state%d", st)
+}
+
+// dispatchAuthgate — диспетчер (state, op) по эталону AionPacketHandlerFactory (К-2/P0-2):
+//   CONNECTED{0x07→authgg, 0x08→UPDATE_SESSION}, AUTHED_GG{0x0B→login},
+//   AUTHED_LOGIN{0x05,0x02→relay}; прочее = лог "unknown packet state=... op=..." (НЕ cc45).
+// Длины 32/24/≥184 оставлены fallback-эвристикой (leak-клиент шлёт 312/314b).
+func (s *Server) dispatchAuthgate(sess *Session, payload []byte) error {
+	pt, err := proto.DecryptSecondary(sess.BF2, payload)
+	if err != nil {
+		// нерасшифрованный фрейм — только length-fallback (как раньше)
+		log.Printf("dispatch: key2-decrypt FAIL sid=%d len=%d: %v — length-fallback", sess.ID, len(payload), err)
+		return s.dispatchByLen(sess, payload)
+	}
+	if len(pt) < 1 {
+		return nil
+	}
+	op := pt[0]
+	switch sess.State {
+	case stConnected:
+		switch op {
+		case 0x07: // CM_AUTH_GG
+			return s.handleAuthGG(sess, payload) // эхо → State=AUTHED_GG
+		case 0x08: // CM_UPDATE_SESSION (эталон: accountId/loginOk/reconnectKey → authReconnectingAccount)
+			s.handleUpdateSession(sess, pt)
+			return nil
+		}
+	case stAuthedGG:
+		if op == 0x0B { // К-3 (P1-3): вход в login ТОЛЬКО по op=0x0B (эталон 7.7)
+			return s.handleLogin(sess, payload)
+		}
+		if len(payload) == 24 { // фолбэк длин: 26b-пинги (эмуляция/relay как раньше)
+			s.handle26(sess, payload)
+			return nil
+		}
+		// прочее в AUTHED_GG: лог + raw-relay (НЕ cc45, НЕ рвать)
+		log.Printf("login: op=0x%02x ≠ 0x0B (эталон 7.7) в AUTHED_GG — лог+raw-relay", op)
+		s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, pt) })
+		return nil
+	case stAuthedLogin:
+		if op == 0x05 || op == 0x02 { // CM_SERVER_LIST / CM_PLAY → relay/эмуляция
+			s.handle26pt(sess, pt)
+			return nil
+		}
+	}
+	// fallback: эвристики длин (старое поведение)
+	return s.dispatchByLen(sess, payload)
+}
+
+// dispatchByLen — прежний length-диспетчер (fallback эвристика, К-2: оставить).
+func (s *Server) dispatchByLen(sess *Session, payload []byte) error {
+	switch {
+	case len(payload) == 32: // клиент 34b: AUTH_GG (дизasm ночь-4: echo=[sid][28×0], RSA НЕ участвует)
+		return s.handleAuthGG(sess, payload)
+	case len(payload) >= 184: // логин 186/314
+		return s.handleLogin(sess, payload)
+	case len(payload) == 24: // пинги/запросы клиента (wire 26 = 2+len + 24 ECB) — эмуляция ответов оригинала
+		s.handle26(sess, payload)
+		return nil
+	default:
+		// unknown (К-2): лог state/op, соединение живо, raw-relay — НЕ cc45
+		pt2, derr := proto.DecryptSecondary(sess.BF2, payload)
+		if derr != nil {
+			log.Printf("relay: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(payload), derr)
+			return nil
+		}
+		op := byte(0)
+		if len(pt2) > 0 {
+			op = pt2[0]
+		}
+		log.Printf("unknown packet state=%s op=0x%02x len=%d — raw relay (НЕ cc45)", stateName(sess.State), op, len(pt2))
+		s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, pt2) })
+		return nil
+	}
+}
+
+// handleUpdateSession — CM_UPDATE_SESSION (0x08, CONNECTED, К-2/P0-2): релогин-флоу
+// эталона (accountId, loginOk, reconnectKey → authReconnectingAccount). Релеим в authd
+// с type=0x08 (клиентский опкод = тип по relay-контракту); при неоднозначности — лог+raw.
+func (s *Server) handleUpdateSession(sess *Session, pt []byte) {
+	if len(pt) >= 13 {
+		log.Printf("update-session: sid=%d acc=%d loginOk=%d reconnectKey=%08x — relay type=0x08",
+			sess.ID, binary.LittleEndian.Uint32(pt[1:5]), binary.LittleEndian.Uint32(pt[5:9]), binary.LittleEndian.Uint32(pt[9:13]))
+	} else {
+		log.Printf("update-session: sid=%d короткий pt=%d — relay-raw type=0x08", sess.ID, len(pt))
+	}
+	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, pt) })
 }
 
 // handleAuthGG: клиент 34b = [len][32Б blob] — CM_AUTH_GG, blob =
@@ -397,9 +483,18 @@ func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 		sendCCSess(sess, byte(tc))
 		return nil
 	}
-	reply := make([]byte, 32)
-	reply[0] = 0x0b // SM_AUTH_GG opcode (LE-дамп 06.10: [0b][sid][27×0])
-	binary.LittleEndian.PutUint32(reply[1:5], sess.ID)
+	// П3: форма SM_AUTH_GG — live 42b (default, live-принят — НЕ ТРОГАТЬ) или эталонная
+	// 50b ([0b][sid][35×0], smAuthGgWire=50, A/B против орига в fork).
+	var reply []byte
+	if s.Cfg.SmAuthGgWire == 50 {
+		reply = proto.BuildClassicAuthGG77(sess.ID)
+		log.Printf("auth-gg: эталонная форма smAuthGgWire=50 (pt=%d → wire 50)", len(reply))
+	} else {
+		reply = make([]byte, 32)
+		reply[0] = 0x0b // SM_AUTH_GG opcode (LE-дамп 06.10: [0b][sid][27×0])
+		binary.LittleEndian.PutUint32(reply[1:5], sess.ID)
+	}
+	sess.State = stAuthedGG // К-2 (P0-2): эхо AUTH_GG отправлено → AUTHED_GG
 	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, reply))
 	dumpRaw(fmt.Sprintf("G>C authgg-reply sid=%d", sess.ID), fr)
 	return sess.write(fr)
@@ -425,10 +520,15 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		log.Printf("login: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(data), err)
 		return err
 	}
-	chunks, _, shapeOK := proto.SplitLogin(pt)
+	op, chunks, tail, shapeOK := proto.SplitLogin(pt)
 	if !shapeOK {
-		log.Printf("login: sid=%d форма НЕ по гиту (pt=%d) — legacy-релей", sess.ID, len(pt))
+		log.Printf("login: sid=%d op=0x%02x форма НЕ по гиту (pt=%d) — legacy-релей", sess.ID, op, len(pt))
 		return s.handleLoginLegacy(sess, pt)
+	}
+	// К-3 (P1-3): op логируется всегда (эталон 7.7: CM_LOGIN = 0x0B в AUTHED_GG);
+	// диспетчер пускает сюда только 0x0B — тут страховка для length-fallback путей.
+	if op != 0x0B {
+		log.Printf("login: op=0x%02x ≠ 0x0B (эталон 7.7) sid=%d k=%d — обрабатываю по форме, сверить логом", op, sess.ID, len(chunks))
 	}
 	ms := make([][]byte, 0, len(chunks))
 	for i, ct := range chunks {
@@ -441,22 +541,93 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	}
 	dec, ok := proto.DecodeLoginPlain(ms)
 	if !ok {
-		log.Printf("login decode FAIL (exp=%d, chunks=%d): user=%q — legacy-релей (не рвать)",
-			s.Cfg.RsaExponent, len(ms), dec.User)
+		// К-4: логируем ОБЕ гипотезы k=1 (4.8 и 7.7-эталон) — первый живой прогон покажет раскладку
+		log.Printf("login decode FAIL (exp=%d, chunks=%d): 4.8-user=%q 7.7-user=%q — legacy-релей (не рвать)",
+			s.Cfg.RsaExponent, len(ms), dec.User, dec.Alt77User)
 		s.send(ship.Event{Ev: "login.decodefail", Data: map[string]any{"sid": sess.ID, "exp": s.Cfg.RsaExponent, "chunks": len(ms)}})
 		return s.handleLoginLegacy(sess, pt)
 	}
-	log.Printf("login OK: sid=%d chunks=%d loginex=%v user=%q pwd=%q pwdHex=%s otp=%08x",
-		sess.ID, len(ms), dec.Ex, dec.User, dec.Pwd, dec.PwdHex, dec.Otp)
+	log.Printf("login OK: sid=%d chunks=%d layout=%s loginex=%v user=%q pwd=%q pwdHex=%s otp=%08x",
+		sess.ID, len(ms), dec.Layout, dec.Ex, dec.User, dec.Pwd, dec.PwdHex, dec.Otp)
 	s.send(ship.Event{Ev: "login", Remote: net.IP(sess.IP[:]).String(), Data: map[string]any{
-		"sid": sess.ID, "user": dec.User, "otp": dec.Otp, "chunks": len(ms),
+		"sid": sess.ID, "user": dec.User, "otp": dec.Otp, "chunks": len(ms), "layout": dec.Layout,
 	}})
-	decbuf := proto.BuildLoginDecbuf(dec.User, dec.Pwd, dec.Otp, s.Cfg.LoginDecbufLen)
-	dword148 := binary.LittleEndian.Uint32(pt[148:152])
-	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, pt[152:])
+	// К-5 (P1-5): эталон .trim().toLowerCase() — authd-автосоздание аккаунта чувствительно
+	// к регистру/пробелам («StelGeN» vs «stelgen» = разные аккаунты).
+	user := strings.TrimSpace(strings.ToLower(dec.User))
+	if user != dec.User {
+		log.Printf("login: username normalize: %q → %q (эталон trim+toLowerCase)", dec.User, user)
+	}
+	decbuf := proto.BuildLoginDecbuf(user, dec.Pwd, dec.Otp, s.Cfg.LoginDecbufLen)
+	// К-1 (P0-1): k=1 — asm-позиции оригинала (dword = data+148, tail-блоб с data+152);
+	// k≥2 (loginex) pt[148:152]/pt[152:] — ЗОНА ШИФРТЕКСТА (ct=pt[1:1+k*128]) →
+	// dword/tail берём из SplitLogin-хвоста. При сомнении НЕ рвать — relay.
+	var dword uint32
+	var blobTail []byte
+	if len(chunks) == 1 && len(pt) >= 156 {
+		dword = binary.LittleEndian.Uint32(pt[148:152])
+		blobTail = pt[152:]
+	} else {
+		dword = s.loginDwordFromTail(tail)
+		blobTail = tail
+		if len(chunks) == 1 {
+			log.Printf("login: короткий k=1 (pt=%d) — dword/tail из SplitLogin-хвоста (defensive)", len(pt))
+		}
+	}
+	blob := proto.Assemble("cbdb", byte(0), decbuf, dword, blobTail)
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
-	log.Printf("login: relay authd sid=%d decbufLen=%d blobLen=%d", sess.ID, len(decbuf), len(blob))
+	log.Printf("login: relay authd sid=%d decbufLen=%d blobLen=%d k=%d dword=%08x taillen=%d",
+		sess.ID, len(decbuf), len(blob), len(chunks), dword, len(blobTail))
+	sess.State = stAuthedLogin // К-2 (P0-2): успешный login-decode → AUTHED_LOGIN
 	return nil
+}
+
+// loginDwordFromTail — К-1 (P0-1): loginex-хвост → dword для blob "cbdb".
+// Live-хвост 47Б: [sid LE][нули][0x20][7×0][68ffdab3e2fda892][2d9cc7baa87e0d49][dword].
+// Ищем 0x20-блок (0x20 + ≥7 нулей); кандидаты ЛОГИРУЮТСЯ ВСЕ (первый прогон живого
+// loginex покажет верный): (а) dword после полного 0x20-блока с magic-ами,
+// (б) dword сразу после байта 0x20, (в) asm-эквивалент k=1 (на байт раньше 0x20).
+// При неоднозначности/отсутствии блока → константный 0 (НЕ рвать — relay продолжается).
+func (s *Server) loginDwordFromTail(tail []byte) uint32 {
+	p := -1
+	for i := 0; i+8 <= len(tail); i++ {
+		if tail[i] != 0x20 {
+			continue
+		}
+		z := true
+		for _, c := range tail[i+1 : i+8] {
+			if c != 0 {
+				z = false
+				break
+			}
+		}
+		if z {
+			p = i
+			break
+		}
+	}
+	if p < 0 {
+		log.Printf("loginex: 0x20-блок в хвосте (%dБ) не найден → dword=0 (tail=%s)", len(tail), hex.EncodeToString(tail))
+		return 0
+	}
+	var afterBlock, after20, straddle uint32
+	hasAfterBlock := p+28 <= len(tail)
+	if hasAfterBlock {
+		afterBlock = binary.LittleEndian.Uint32(tail[p+24 : p+28])
+	}
+	if p+5 <= len(tail) {
+		after20 = binary.LittleEndian.Uint32(tail[p+1 : p+5])
+	}
+	if p >= 1 {
+		straddle = binary.LittleEndian.Uint32(tail[p-1 : p+3])
+	}
+	chosen := uint32(0)
+	if hasAfterBlock {
+		chosen = afterBlock // хвост заканчивается dword'ом после 0x20-блока — единственная чистая позиция
+	}
+	log.Printf("loginex: dword-кандидаты (0x20@%d/%d): после-блока=%08x после-0x20=%08x asm-эквив=%08x → выбор=%08x",
+		p, len(tail), afterBlock, after20, straddle, chosen)
+	return chosen
 }
 
 // handleLoginLegacy — старый релей (до П3): полный m 128Б + dword148 + хвост.
@@ -464,7 +635,9 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 func (s *Server) handleLoginLegacy(sess *Session, data []byte) error {
 	const rsaLen = 128
 	if len(data) < rsaLen+24 {
-		sendCCSess(sess, 45) // кривой логин — гасим (TODO §5.2: точная семантика)
+		// К-2 (P0-2): кривой/короткий логин — лог + raw-relay, соединение живо (НЕ cc45)
+		log.Printf("login legacy: sid=%d короткий pt=%d (<%d) — лог+raw-relay (НЕ cc45)", sess.ID, len(data), rsaLen+24)
+		s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, data) })
 		return nil
 	}
 	decbuf, err := sess.RSA.DecryptBlock(data[:rsaLen])
@@ -578,14 +751,22 @@ func sendCCSess(sess *Session, code byte) {
 	_ = sess.write(proto.WriteFrame(proto.Assemble("cc", byte(1), code)))
 }
 
-// handle26 — эмуляция 26b-пингов (по capture 06.10: 42b server-info и 26b ack):
-// op=0x05 → 42b: [04][01 01 01][IP][port 7777][00 00][f4 01 01 01][00 00 00 02][01 00 01][12x0]
-// op=0x02 → 26b: [07][01 00 00 00][1010][01][5x0] (хвост ориг = резидуум, клиент толерантен)
+// handle26 — обёртка: payload = RAW ECB(key2) → расшифровка → handle26pt
+// (та же готча, что и в login).
 func (s *Server) handle26(sess *Session, payload []byte) {
-	// payload = RAW ECB(key2) — расшифровываем (та же готча, что и в login)
 	ptIn, err := proto.DecryptSecondary(sess.BF2, payload)
 	if err != nil {
 		log.Printf("26b: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(payload), err)
+		return
+	}
+	s.handle26pt(sess, ptIn)
+}
+
+// handle26pt — эмуляция 26b-пингов (по capture 06.10: 42b server-info и 26b ack):
+// op=0x05 → 42b: [04][01 01 01][IP][port 7777][00 00][f4 01 01 01][00 00 00 02][01 00 01][12x0]
+// op=0x02 → 26b: [07][pk1 Rnd][pk2 Rnd][serverID][6x0] (хвост ориг = резидуум, клиент толерантен)
+func (s *Server) handle26pt(sess *Session, ptIn []byte) {
+	if len(ptIn) < 1 {
 		return
 	}
 	op := ptIn[0]
@@ -597,7 +778,7 @@ func (s *Server) handle26(sess *Session, payload []byte) {
 		log.Printf("26b: relay authd sid=%d op=%02x len=%d", sess.ID, op, len(ptIn))
 		return
 	}
-	pt := s.build26ReplyPt(op)
+	pt := s.build26ReplyPt(op, sess)
 	if pt == nil {
 		return
 	}
@@ -607,8 +788,11 @@ func (s *Server) handle26(sess *Session, payload []byte) {
 }
 
 // build26ReplyPt — сборка plaintext-ответа на 26b (op=0x05 → 42b server-info,
-// op=0x02 → 26b play-ok); nil = ответа нет. Реюз: handle26 + fork-shadow.
-func (s *Server) build26ReplyPt(op byte) []byte {
+// op=0x02 → 26b play-ok); nil = ответа нет. Реюз: handle26 + fork-shadow (sess=nil).
+// К-6 (P2-6): playOk1/playOk2 = crypto/rand u32 (эталон SessionKey: playOk1=Rnd,
+// playOk2=Rnd — НЕ хардкод 1/1010); serverId — из конфига (serverID); значения
+// сохраняются в сессию (checkLogin-семантика эталона).
+func (s *Server) build26ReplyPt(op byte, sess *Session) []byte {
 	var pt []byte
 	switch op {
 	case 0x05:
@@ -623,7 +807,17 @@ func (s *Server) build26ReplyPt(op byte) []byte {
 		pt = append(pt, 0xf4, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x01)
 		pt = append(pt, make([]byte, 12)...) // 32
 	case 0x02:
-		pt = append([]byte{0x07, 0x01, 0x00, 0x00, 0x00, 0xf2, 0x03, 0x00, 0x00, 0x01}, make([]byte, 6)...) // 16
+		var pk1, pk2 [4]byte
+		_, _ = crand.Read(pk1[:])
+		_, _ = crand.Read(pk2[:])
+		if sess != nil {
+			sess.PlayOk1 = binary.LittleEndian.Uint32(pk1[:])
+			sess.PlayOk2 = binary.LittleEndian.Uint32(pk2[:])
+		}
+		pt = append([]byte{0x07}, pk1[:]...)
+		pt = append(pt, pk2[:]...)
+		pt = append(pt, byte(s.Cfg.ServerID))
+		pt = append(pt, make([]byte, 6)...) // 16
 	default:
 		log.Printf("26b: op=%02x — без ответа (TODO)", op)
 		return nil

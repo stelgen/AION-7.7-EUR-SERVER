@@ -66,6 +66,13 @@ type Gate struct {
 	// IP игрового мира для 42b server-info (ответ на 26b[05]) и classic serverlist.
 	WorldIP   string `yaml:"worldIP"`
 	WorldPort int    `yaml:"worldPort"` // default 7777 (0x1e61)
+	// ServerID — id сервера в эмуляции play-ok (26b[02] → [07][pk1][pk2][serverID][6×0],
+	// К-6/P2-6); default 1.
+	ServerID int `yaml:"serverID"`
+	// SmAuthGgWire — форма SM_AUTH_GG (П3): 42 = live-форма [0b][sid][27×0] (wire 42,
+	// ДЕФОЛТ — live-принят, НЕ ТРОГАТЬ); 50 = эталонная форма 7.7 (SM_AUTH_GG.java:
+	// D sid + B35 = pt 40 → wire 50) для A/B-сверки с оригом в fork-режиме.
+	SmAuthGgWire int `yaml:"smAuthGgWire"`
 
 	// РЕЖИМ (байон-48 06.10, §7 П4):
 	//   authgate — живой 7.7 EU флоу (welcome 194/EncryptPrimary/key1, cc-plaintext,
@@ -125,6 +132,8 @@ func (g *Gate) FillDefaults() {
 	setb(&g.ForkOrigAddr, "127.0.0.1")
 	set(&g.ForkOrigPort, 2109)   // ориг AuthGateD (AionGateOrig) на VM
 	set(&g.WorldPort, 7777)
+	set(&g.ServerID, 1)
+	set(&g.SmAuthGgWire, 42)     // live-форма (эталонная 50 — только по явному конфигу)
 }
 
 // Config — верхний уровень config.yaml.

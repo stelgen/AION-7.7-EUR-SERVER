@@ -51,6 +51,28 @@ Client echo: `authgg [07][sid][27×0][...PRO-резидент]` → наш от�
    (RSA глушил ещё зашифрованные байты; handleAuthGG расшифровывал — потому authgg «жил»).
 3. Relay без байта-типа (клиент получал оп 0x07 вместо `[03]`).
 
+### Реестр кодов LoginFail/PlayFail = messageId AionAuthResponse (P2-7, эталон Mobius 7.7)
+cc-канал и SM_LOGIN_FAIL/SM_PLAY_FAIL шлют один и тот же D messageId; 45 = authgate-спец.
+
+| Код | Константа | Смысл |
+|----|-----------|-------|
+| 0 | AUTHED | успех |
+| 1 | SYSTEM_ERROR | системная ошибка |
+| 2 | INVALID_PASSWORD | неверный пароль |
+| 4 | FAILED_ACCOUNT_INFO | ошибка данных аккаунта |
+| 5 | FAILED_SOCIAL_NUMBER | ошибка соц. номера |
+| 6 | NO_GS_REGISTERED | нет зарегистрированного GS |
+| 7 | ALREADY_LOGGED_IN | уже в игре |
+| 8 | SERVER_DOWN | сервер недоступен |
+| 10 | NO_SUCH_ACCOUNT | нет такого аккаунта |
+| 11 | DISCONNECTED | разрыв |
+| 12 | AGE_LIMIT | возрастное ограничение |
+| 15 | SERVER_FULL | сервер полон |
+| 16 | GM_ONLY | только GM |
+| 18 | TIME_EXPIRED | время истекло |
+| 21 | ALREADY_USED_IP | IP уже используется |
+| 22 | BAN_IP | аккаунт заблокирован (**live-подтверждено** 06.10: клиент показывает «заблокирован») |
+
 ## РЕЖИМЫ (mode в config.yaml)
 - **authgate** — живой 7.7 EU флоу (ПРОД СЕЙЧАС). welcome 194/EncryptPrimary/key1,
   диспетчер по длинам (32=authgg, 24=26b-пинги, ≥184=login), релей authd.

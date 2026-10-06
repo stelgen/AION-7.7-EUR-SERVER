@@ -81,10 +81,13 @@ func (s *Server) classicAuthGG(sess *Session) error {
 // classicLogin — CM_LOGIN: RSA-чанки → креды (П3); SM_LOGIN_OK со случайными
 // accountId/loginOk/playOk1/playOk2 (гит SessionKey); фейл → LOGIN_FAIL.
 func (s *Server) classicLogin(sess *Session, pt []byte) error {
-	chunks, tail, shapeOK := proto.SplitLogin(pt)
+	opC, chunks, tail, shapeOK := proto.SplitLogin(pt)
 	if !shapeOK {
-		log.Printf("classic login: форма НЕ по гиту (len=%d) → LOGIN_FAIL", len(pt))
+		log.Printf("classic login: op=0x%02x форма НЕ по гиту (len=%d) → LOGIN_FAIL", opC, len(pt))
 		return s.classicLoginFail(sess)
+	}
+	if opC != 0x00 { // classic-эталон 4.8: CM_LOGIN = op 0x00 (7.7 = 0x0B)
+		log.Printf("classic login: op=0x%02x ≠ 0x00 (эталон 4.8)", opC)
 	}
 	ms := make([][]byte, 0, len(chunks))
 	for i, ct := range chunks {

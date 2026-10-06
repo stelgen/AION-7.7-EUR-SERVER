@@ -502,9 +502,9 @@ func TestCMLoginParse(t *testing.T) {
 	// не-loginex
 	pt := append([]byte{0x00}, encrypt(mkChunk())...)
 	pt = append(pt, tail...)
-	chunks, tl, ok := SplitLogin(pt)
-	if !ok || len(chunks) != 1 || len(tl) != 55 {
-		t.Fatalf("split: ok=%v chunks=%d", ok, len(chunks))
+	opS, chunks, tl, ok := SplitLogin(pt)
+	if !ok || opS != 0x00 || len(chunks) != 1 || len(tl) != 55 {
+		t.Fatalf("split: ok=%v op=%02x chunks=%d", ok, opS, len(chunks))
 	}
 	dec := make([][]byte, 0, len(chunks))
 	for _, ct := range chunks {
@@ -528,7 +528,7 @@ func TestCMLoginParse(t *testing.T) {
 	pt2 := append([]byte{0x00}, encrypt(m1)...)
 	pt2 = append(pt2, encrypt(m2)...)
 	pt2 = append(pt2, tail...)
-	chunks2, _, ok2 := SplitLogin(pt2)
+	_, chunks2, _, ok2 := SplitLogin(pt2)
 	if !ok2 || len(chunks2) != 2 {
 		t.Fatalf("loginex split: ok=%v chunks=%d", ok2, len(chunks2))
 	}
@@ -591,7 +591,7 @@ func TestSplitLoginDynamicTail(t *testing.T) {
 	if len(pt) != 304 {
 		t.Fatalf("pt len=%d", len(pt))
 	}
-	chunks, tl, ok := SplitLogin(pt)
+	_, chunks, tl, ok := SplitLogin(pt)
 	if !ok || len(chunks) != 2 || len(tl) != 47 {
 		t.Fatalf("split: ok=%v chunks=%d tail=%d", ok, len(chunks), len(tl))
 	}

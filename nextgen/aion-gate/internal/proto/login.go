@@ -21,24 +21,26 @@ import "encoding/binary"
 // [68ffdab3e2fda892][2d9cc7baa87e0d49][00000000].
 const LoginTailMax = 64
 
-// SplitLogin режет plaintext CM_LOGIN на RSA-чанки (по 128B, ct) и вариативный хвост.
+// SplitLogin режет plaintext CM_LOGIN на op, RSA-чанки (по 128B, ct) и вариативный хвост.
+// К-3 (P1-3): op = pt[0] ВОЗВРАЩАЕТСЯ и логируется вызывающим (эталон 7.7: CM_LOGIN
+// = op 0x0B в AUTHED_GG); ct/tail от значения op не зависят (не смещаются).
 // ok=false — форма не сходится → вызывающий релеит raw.
-func SplitLogin(pt []byte) (chunks [][]byte, tail []byte, ok bool) {
+func SplitLogin(pt []byte) (op byte, chunks [][]byte, tail []byte, ok bool) {
 	if len(pt) < 1+128 {
-		return nil, nil, false
+		return 0, nil, nil, false
 	}
 	body := len(pt) - 1
 	k := body / 128
 	rem := body % 128
 	if k == 0 || rem > LoginTailMax {
-		return nil, nil, false
+		return 0, nil, nil, false
 	}
 	ct := pt[1 : 1+k*128]
 	tail = pt[1+k*128:]
 	for i := 0; i < k; i++ {
 		chunks = append(chunks, ct[i*128:(i+1)*128])
 	}
-	return chunks, tail, true
+	return pt[0], chunks, tail, true
 }
 
 // ReadCStr — ASCII до нуля (charset Cp1252; для ASCII-подмножества совпадает).
@@ -70,6 +72,14 @@ type DecodedLogin struct {
 	PwdHex string // RAW-байты поля пароля (hex) — во 2-м блоке 7.7 есть иные данные
 	Otp    uint32
 	Ex     bool // loginex (k>1)
+	// К-4 (P1-4): k=1 — раскладки. Layout = что сработало: "48" (байон-4.8: user@94:108,
+	// pwd@108:124, otp LE @124), "77" (эталон 7.7: user=m[64:96](32), pwd=m[96:128](32),
+	// otp LE m[124:128]) или "ex" (loginex). 4.8 пробуется ПЕРВОЙ, 7.7 — при не-printable.
+	Layout string
+	// Alt77 — вторая (не сработавшая/проигравшая) гипотеза 7.7 для k=1: ОБЕ гипотезы
+	// возвращаются для лога (первый живой k=1 покажет верную раскладку).
+	Alt77User string
+	Alt77Pwd  string
 }
 
 // DecodeLoginPlain расшифрованные чанки → креды по раскладке гита.
@@ -83,10 +93,27 @@ func DecodeLoginPlain(ms [][]byte) (DecodedLogin, bool) {
 	switch {
 	case len(ms) == 1:
 		m := ms[0]
+		// Гипотеза 1 (байон-4.8, прежнее поведение): user@94:108(14), pwd@108:124(16), otp LE @124.
 		d.User = ReadCStr(m[94:108])
 		d.Pwd = ReadCStr(m[108:124])
 		d.PwdHex = hexEncode(m[108:124])
 		d.Otp = binary.LittleEndian.Uint32(m[124:128])
+		d.Layout = "48"
+		if isPrintableASCII(d.User) {
+			return d, true
+		}
+		// К-4 (P1-4): гипотеза 2 — эталон 7.7: user=m[64:96](32), pwd=m[96:128](32),
+		// otp = LE m[124:128]. Валидатор тот же: username printable.
+		d.Alt77User = ReadCStr(m[64:96])
+		d.Alt77Pwd = ReadCStr(m[96:128])
+		if isPrintableASCII(d.Alt77User) {
+			d.User = d.Alt77User
+			d.Pwd = d.Alt77Pwd
+			d.PwdHex = hexEncode(m[96:128])
+			d.Layout = "77"
+			return d, true
+		}
+		return d, false // ни 4.8, ни 7.7 не дали printable user — обе гипотезы в логе вызывающего
 	case len(ms) >= 2:
 		d.Ex = true
 		buf := make([]byte, 0, len(ms)*128)
@@ -96,6 +123,7 @@ func DecodeLoginPlain(ms [][]byte) (DecodedLogin, bool) {
 		if len(buf) < 242 {
 			return d, false
 		}
+		d.Layout = "ex"
 		d.User = ReadCStr(buf[78:142])
 		d.Pwd = ReadCStr(buf[206:238])
 		d.PwdHex = hexEncode(buf[206:238])

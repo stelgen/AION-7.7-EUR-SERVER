@@ -112,6 +112,15 @@ func BuildClassicAuthGG(sid uint32, gitForm bool) []byte {
 	return pt
 }
 
+// BuildClassicAuthGG77 — SM_AUTH_GG ЭТАЛОНА 7.7 (SM_AUTH_GG.java Mobius_AionEmu):
+// writeD(sessionId) + writeB(new byte[35]) = [0b][sid][35×0] = pt 40 → ECB 48 → wire 50.
+// Опция (П3, smAuthGgWire=50): A/B-сверка с оригом в fork-режиме; live-форма 42b — дефолт.
+func BuildClassicAuthGG77(sid uint32) []byte {
+	pt := []byte{0x0b}
+	pt = binary.LittleEndian.AppendUint32(pt, sid)
+	return append(pt, make([]byte, 35)...)
+}
+
 // BuildClassicLoginOK — SM_LOGIN_OK (0x03): [accountId][loginOk][0][0][0x000003ea][7×0][19×0].
 func BuildClassicLoginOK(accountID, loginOk uint32) []byte {
 	pt := []byte{0x03}

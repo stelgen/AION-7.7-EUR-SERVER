@@ -193,12 +193,13 @@ func (s *Server) forkAnalyze(dir string, payload []byte, bf2 *proto.Blowfish, si
 			log.Printf("FORK O>C authgg orig pt=%s", hex.EncodeToString(pt))
 			log.Printf("FORK O>C authgg ours=%s → %s", hex.EncodeToString(ours), diffVerdict(ours, pt))
 		case op == 0x04 && len(pt) == 32: // server-info 42b — сравнение с нашей 26b-эмуляцией
-			if ours := s.build26ReplyPt(0x05); ours != nil {
+			if ours := s.build26ReplyPt(0x05, nil); ours != nil {
 				log.Printf("FORK O>C 0x04/42b orig=%s ours=%s → %s", hex.EncodeToString(pt), hex.EncodeToString(ours), diffVerdict(ours, pt))
 			}
-		case op == 0x07 && len(pt) == 16: // play-ok 26b
-			if ours := s.build26ReplyPt(0x02); ours != nil {
-				log.Printf("FORK O>C 0x07/26b orig=%s ours=%s → %s", hex.EncodeToString(pt), hex.EncodeToString(ours), diffVerdict(ours, pt))
+		case op == 0x07 && len(pt) == 16: // play-ok 26b (К-6: playOk1/2 = Rnd — сверяем ФОРМУ, не байты)
+			if ours := s.build26ReplyPt(0x02, nil); ours != nil {
+				log.Printf("FORK O>C 0x07/26b orig=%s ours=%s → %s (playOk Rnd — сверка формы [1:9])",
+					hex.EncodeToString(pt), hex.EncodeToString(ours), diffVerdictMasked(ours, pt, 1, 9))
 			}
 		default:
 			log.Printf("FORK O>C op=%02x len=%d pt=%s", op, len(pt), truncHex(pt, 96))
@@ -213,8 +214,8 @@ func (s *Server) forkAnalyze(dir string, payload []byte, bf2 *proto.Blowfish, si
 		log.Printf("FORK C>O authgg наш shadow-ответ=%s (сравнение придёт в O>C)", hex.EncodeToString(ours))
 	case op == 0x00: // CM_LOGIN — ГЛАВНЫЙ дамп: ПОЛНЫЙ pt (хвост 7.7 вариативный, shape может не сойтись!) + N_orig
 		log.Printf("FORK C>O LOGIN FULL pt(%d) = %s", len(pt), hex.EncodeToString(pt))
-		chunks, tail, ok := proto.SplitLogin(pt)
-		log.Printf("FORK C>O LOGIN len=%d shape_ok=%v chunks=%d", len(pt), ok, len(chunks))
+		opL, chunks, tail, ok := proto.SplitLogin(pt)
+		log.Printf("FORK C>O LOGIN len=%d op=0x%02x (эталон 7.7 = 0x0B) shape_ok=%v chunks=%d", len(pt), opL, ok, len(chunks))
 		for i, ct := range chunks {
 			log.Printf("FORK C>O LOGIN ct[%d/%d] = %s", i+1, len(chunks), hex.EncodeToString(ct))
 		}
@@ -225,7 +226,7 @@ func (s *Server) forkAnalyze(dir string, payload []byte, bf2 *proto.Blowfish, si
 		s.send(ship.Event{Ev: "login", Svc: "fork", Data: map[string]any{"chunks": len(chunks), "len": len(pt)}})
 	case op == 0x05 || op == 0x02: // 26b-пинги/запросы
 		log.Printf("FORK C>O op=%02x len=%d pt=%s", op, len(pt), truncHex(pt, 48))
-		if ours := s.build26ReplyPt(op); ours != nil {
+		if ours := s.build26ReplyPt(op, nil); ours != nil {
 			log.Printf("FORK C>O наш shadow-ответ на %02x=%s (сравнение придёт в O>C)", op, hex.EncodeToString(ours))
 		}
 	default:
@@ -238,4 +239,21 @@ func diffVerdict(ours, orig []byte) string {
 		return "SAME"
 	}
 	return "DIFF"
+}
+
+// diffVerdictMasked — сравнение форм с маской: байты [from:to) исключаются
+// (случайные поля playOk1/playOk2 эталонного SessionKey — К-6/P2-6).
+func diffVerdictMasked(ours, orig []byte, from, to int) string {
+	if len(ours) != len(orig) {
+		return "DIFF-LEN"
+	}
+	for i := 0; i < len(ours); i++ {
+		if i >= from && i < to {
+			continue
+		}
+		if ours[i] != orig[i] {
+			return "DIFF"
+		}
+	}
+	return "SAME-ФОРМА"
 }
