@@ -185,12 +185,21 @@ func (s *Server) forkAnalyze(dir string, payload []byte, bf2 *proto.Blowfish, si
 	}
 	op := pt[0]
 	if !fromClient {
-		// ориг → клиент: лог + сравнение с НАШИМ shadow-ответом
+		// ориг → клиент: лог + сравнение с НАШИМ shadow-ответом (требование юзера:
+		// «сравнивать наши ответы с оригом»)
 		switch {
 		case op == 0x0b: // SM_AUTH_GG
 			ours := proto.BuildClassicAuthGG(sid, false)
 			log.Printf("FORK O>C authgg orig pt=%s", hex.EncodeToString(pt))
 			log.Printf("FORK O>C authgg ours=%s → %s", hex.EncodeToString(ours), diffVerdict(ours, pt))
+		case op == 0x04 && len(pt) == 32: // server-info 42b — сравнение с нашей 26b-эмуляцией
+			if ours := s.build26ReplyPt(0x05); ours != nil {
+				log.Printf("FORK O>C 0x04/42b orig=%s ours=%s → %s", hex.EncodeToString(pt), hex.EncodeToString(ours), diffVerdict(ours, pt))
+			}
+		case op == 0x07 && len(pt) == 16: // play-ok 26b
+			if ours := s.build26ReplyPt(0x02); ours != nil {
+				log.Printf("FORK O>C 0x07/26b orig=%s ours=%s → %s", hex.EncodeToString(pt), hex.EncodeToString(ours), diffVerdict(ours, pt))
+			}
 		default:
 			log.Printf("FORK O>C op=%02x len=%d pt=%s", op, len(pt), truncHex(pt, 96))
 		}
@@ -202,7 +211,8 @@ func (s *Server) forkAnalyze(dir string, payload []byte, bf2 *proto.Blowfish, si
 		log.Printf("FORK C>O authgg pt=%s", hex.EncodeToString(pt))
 		ours := proto.BuildClassicAuthGG(sid, false)
 		log.Printf("FORK C>O authgg наш shadow-ответ=%s (сравнение придёт в O>C)", hex.EncodeToString(ours))
-	case op == 0x00: // CM_LOGIN — ГЛАВНЫЙ дамп: ct + N_orig → оффлайн m^e mod N == ct
+	case op == 0x00: // CM_LOGIN — ГЛАВНЫЙ дамп: ПОЛНЫЙ pt (хвост 7.7 вариативный, shape может не сойтись!) + N_orig
+		log.Printf("FORK C>O LOGIN FULL pt(%d) = %s", len(pt), hex.EncodeToString(pt))
 		chunks, tail, ok := proto.SplitLogin(pt)
 		log.Printf("FORK C>O LOGIN len=%d shape_ok=%v chunks=%d", len(pt), ok, len(chunks))
 		for i, ct := range chunks {
