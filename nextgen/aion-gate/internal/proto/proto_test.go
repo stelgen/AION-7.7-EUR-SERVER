@@ -546,22 +546,57 @@ func TestCMLoginParse(t *testing.T) {
 	}
 }
 
-// LoginDecbuf: 34 = m[94:128] (user14+pwd16+otp4), 32 = m[96:128], 128 = полный m.
-func TestLoginDecbuf(t *testing.T) {
-	m := make([]byte, 128)
-	copy(m[94:108], "user123")
-	copy(m[108:124], "pass123")
-	binary.LittleEndian.PutUint32(m[124:128], 0xFFFFFFFF)
-	if d := LoginDecbuf(m, 34); len(d) != 34 || string(d[0:7]) != "user123" {
-		t.Fatalf("34: %q", d[:8])
+// BuildLoginDecbuf: 34 = user14+pwd16+otp4 (asm arg3=0x22), 32, 128 — из полей.
+func TestBuildLoginDecbuf(t *testing.T) {
+	d := BuildLoginDecbuf("user123", "pass123", 0xFFFFFFFF, 34)
+	if len(d) != 34 || string(d[0:7]) != "user123" || string(d[14:21]) != "pass123" {
+		t.Fatalf("34: %q", d[:16])
 	}
-	if d := LoginDecbuf(m, 32); len(d) != 32 || string(d[:3]) != "er1" { // m[96:128] = хвост user
-		t.Fatalf("32: len=%d head=%q", len(d), d[:4])
+	if binary.LittleEndian.Uint32(d[30:34]) != 0xFFFFFFFF {
+		t.Fatalf("34 otp: %x", d[30:34])
 	}
-	if d := LoginDecbuf(m, 128); len(d) != 128 {
-		t.Fatalf("128: len=%d", len(d))
+	d32 := BuildLoginDecbuf("user123", "pass123", 0xFFFFFFFF, 32)
+	if len(d32) != 32 {
+		t.Fatalf("32: len=%d", len(d32))
 	}
-	if d := LoginDecbuf(m, 0); len(d) != 34 {
+	d128 := BuildLoginDecbuf("user123", "pass123", 0xFFFFFFFF, 128)
+	if len(d128) != 128 || string(d128[94:101]) != "user123" {
+		t.Fatalf("128: len=%d", len(d128))
+	}
+	if d := BuildLoginDecbuf("user123", "pass123", 0xFFFFFFFF, 0); len(d) != 34 {
 		t.Fatalf("дефолт: len=%d", len(d))
+	}
+}
+
+// Live-шейп 7.7 (06.10, юзер 1/1): pt=304 = [op][ct1][ct2][хвост 47Б] — вариативный хвост.
+func TestSplitLoginDynamicTail(t *testing.T) {
+	k, err := GenerateRSAKey(65537)
+	if err != nil {
+		t.Fatal(err)
+	}
+	enc := func(m []byte) []byte {
+		c := new(big.Int).Exp(new(big.Int).SetBytes(m), big.NewInt(65537), k.Priv.PublicKey.N)
+		return c.FillBytes(make([]byte, 128))
+	}
+	m1 := make([]byte, 128); m1[78] = '1'
+	m2 := make([]byte, 128)
+	tail := make([]byte, 47)
+	tail[0] = 0x02
+	tail[20] = 0x20
+	copy(tail[28:36], []byte{0x68, 0xff, 0xda, 0xb3, 0xe2, 0xfd, 0xa8, 0x92})
+	copy(tail[36:44], []byte{0x2d, 0x9c, 0xc7, 0xba, 0xa8, 0x7e, 0x0d, 0x49})
+	pt := append([]byte{0x00}, enc(m1)...)
+	pt = append(pt, enc(m2)...)
+	pt = append(pt, tail...)
+	if len(pt) != 304 {
+		t.Fatalf("pt len=%d", len(pt))
+	}
+	chunks, tl, ok := SplitLogin(pt)
+	if !ok || len(chunks) != 2 || len(tl) != 47 {
+		t.Fatalf("split: ok=%v chunks=%d tail=%d", ok, len(chunks), len(tl))
+	}
+	d1, e1 := k.DecryptBlock(chunks[0])
+	if e1 != nil || d1[78] != '1' {
+		t.Fatalf("chunk1: %v", e1)
 	}
 }

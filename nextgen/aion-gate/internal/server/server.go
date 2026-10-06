@@ -428,16 +428,17 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	}
 	dec, ok := proto.DecodeLoginPlain(ms)
 	if !ok {
-		log.Printf("login decode FAIL (exp=%d, chunks=%d): user=%q pwd=%q otp=%08x — legacy-релей (не рвать)",
-			s.Cfg.RsaExponent, len(ms), dec.User, dec.Pwd, dec.Otp)
+		log.Printf("login decode FAIL (exp=%d, chunks=%d): user=%q — legacy-релей (не рвать)",
+			s.Cfg.RsaExponent, len(ms), dec.User)
 		s.send(ship.Event{Ev: "login.decodefail", Data: map[string]any{"sid": sess.ID, "exp": s.Cfg.RsaExponent, "chunks": len(ms)}})
 		return s.handleLoginLegacy(sess, data)
 	}
-	log.Printf("login OK: sid=%d chunks=%d loginex=%v user=%q pwd=%q otp=%08x", sess.ID, len(ms), dec.Ex, dec.User, dec.Pwd, dec.Otp)
+	log.Printf("login OK: sid=%d chunks=%d loginex=%v user=%q pwd=%q pwdHex=%s otp=%08x",
+		sess.ID, len(ms), dec.Ex, dec.User, dec.Pwd, dec.PwdHex, dec.Otp)
 	s.send(ship.Event{Ev: "login", Remote: net.IP(sess.IP[:]).String(), Data: map[string]any{
 		"sid": sess.ID, "user": dec.User, "otp": dec.Otp, "chunks": len(ms),
 	}})
-	decbuf := proto.LoginDecbuf(ms[0], s.Cfg.LoginDecbufLen)
+	decbuf := proto.BuildLoginDecbuf(dec.User, dec.Pwd, dec.Otp, s.Cfg.LoginDecbufLen)
 	dword148 := binary.LittleEndian.Uint32(data[148:152])
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, data[152:])
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })

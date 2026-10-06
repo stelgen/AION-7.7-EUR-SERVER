@@ -15,21 +15,26 @@ import "encoding/binary"
 //   loginex:    username = чанк1[78:142] (64B), password = чанк2[78:110] (32B),
 //               otp = чанк2[110:114]
 
-// LoginTailLen — фикс-хвост CM_LOGIN.
-const LoginTailLen = 55
+// Хвост CM_LOGIN у 7.7 клиента ВАРИАТИВНЫЙ (live 06.10: pt=304 = 1+128+128+47;
+// rsa-hunt видел 312 = 1+256+55) — фикс-55 из гита НЕ работает. Правило: k = (len-1)/128,
+// хвост = остаток (≤64Б). Live-структура хвоста 47Б: [sid LE][нули][0x20][7×0]
+// [68ffdab3e2fda892][2d9cc7baa87e0d49][00000000].
+const LoginTailMax = 64
 
-// SplitLogin режет plaintext CM_LOGIN на RSA-чанки (по 128B, ct) и хвост 55B.
-// ok=false — форма не сходится (клиент другой сборки) → вызывающий релеит raw.
+// SplitLogin режет plaintext CM_LOGIN на RSA-чанки (по 128B, ct) и вариативный хвост.
+// ok=false — форма не сходится → вызывающий релеит raw.
 func SplitLogin(pt []byte) (chunks [][]byte, tail []byte, ok bool) {
-	if len(pt) < 1+128+LoginTailLen {
+	if len(pt) < 1+128 {
 		return nil, nil, false
 	}
-	tail = pt[len(pt)-LoginTailLen:]
-	ct := pt[1 : len(pt)-LoginTailLen]
-	if len(ct)%128 != 0 || len(ct) == 0 {
+	body := len(pt) - 1
+	k := body / 128
+	rem := body % 128
+	if k == 0 || rem > LoginTailMax {
 		return nil, nil, false
 	}
-	k := len(ct) / 128
+	ct := pt[1 : 1+k*128]
+	tail = pt[1+k*128:]
 	for i := 0; i < k; i++ {
 		chunks = append(chunks, ct[i*128:(i+1)*128])
 	}
@@ -60,17 +65,19 @@ func isPrintableASCII(s string) bool {
 
 // DecodedLogin — результат DecodeLoginPlain.
 type DecodedLogin struct {
-	User string
-	Pwd  string
-	Otp  uint32
-	Ex   bool // loginex (k>1)
+	User   string
+	Pwd    string
+	PwdHex string // RAW-байты поля пароля (hex) — во 2-м блоке 7.7 есть иные данные
+	Otp    uint32
+	Ex     bool // loginex (k>1)
 }
 
 // DecodeLoginPlain расшифрованные чанки → креды по раскладке гита.
-// Валидатор (готовый оракул для выбора e): username printable, otp == 0xFFFFFFFF.
-// loginex (k>1): чанки СКЛЕИВАЮТСЯ в один буфер и режутся по общим смещениям
-// (гит CM_LOGIN.decryptLoginData): user = [78:142], pwd = [128+78 : 128+110],
-// otp = [128+110 : 128+114] — «password @78 в чанке 2, otp следом».
+// КАЛИБРОВКА 06.10 (живой ct юзера, e=65537 HIT): loginex-блоки, user =
+// combined[78:142] (блок1[78:128]+блок2[0:14]) — ПОДТВЕРЖДЕНО; pwd = combined[206:238],
+// otp = combined[238:242] — во 2-м блоке 7.7 есть иные данные (ct2 не сводится к
+// простым формам), поэтому pwd/otp — best-effort (authd пароль игнорирует).
+// Валидатор: username printable (обязательно); pwd/otp логируются как есть.
 func DecodeLoginPlain(ms [][]byte) (DecodedLogin, bool) {
 	var d DecodedLogin
 	switch {
@@ -78,6 +85,7 @@ func DecodeLoginPlain(ms [][]byte) (DecodedLogin, bool) {
 		m := ms[0]
 		d.User = ReadCStr(m[94:108])
 		d.Pwd = ReadCStr(m[108:124])
+		d.PwdHex = hexEncode(m[108:124])
 		d.Otp = binary.LittleEndian.Uint32(m[124:128])
 	case len(ms) >= 2:
 		d.Ex = true
@@ -90,19 +98,44 @@ func DecodeLoginPlain(ms [][]byte) (DecodedLogin, bool) {
 		}
 		d.User = ReadCStr(buf[78:142])
 		d.Pwd = ReadCStr(buf[206:238])
+		d.PwdHex = hexEncode(buf[206:238])
 		d.Otp = binary.LittleEndian.Uint32(buf[238:242])
 	default:
 		return d, false
 	}
-	ok := isPrintableASCII(d.User) && isPrintableASCII(d.Pwd) && d.Otp == 0xFFFFFFFF
-	return d, ok
+	return d, isPrintableASCII(d.User)
 }
 
-// LoginDecbuf — decbuf для authd-blob "cbdb": срез полного m по loginDecbufLen
-// (34 = user14+pwd16+otp4 ровно по раскладке; 32 = i2osp 0x20 asm-модели; 128 = полный m).
-func LoginDecbuf(m []byte, decbufLen int) []byte {
-	if decbufLen <= 0 || decbufLen > len(m) {
-		decbufLen = 34
+func hexEncode(b []byte) string { const h = "0123456789abcdef"; s := make([]byte, 0, len(b)*2); for _, c := range b { s = append(s, h[c>>4], h[c&15]) }; return string(s) }
+
+// BuildLoginDecbuf — decbuf для authd-blob "cbdb", собирается из РЕАЛЬНЫХ полей
+// (asm оригинала arg3=0x22=34 = user14+pwd16+otp4; работает одинаково для обеих форм —
+// не-loginex эти же байты лежат в m[94:128], loginex собирается из склейки чанков).
+func BuildLoginDecbuf(user, pwd string, otp uint32, decbufLen int) []byte {
+	pad := func(s string, n int) []byte {
+		b := []byte(s)
+		if len(b) > n {
+			b = b[:n]
+		}
+		out := make([]byte, n)
+		copy(out, b)
+		return out
 	}
-	return m[len(m)-decbufLen:]
+	var ob []byte
+	switch decbufLen {
+	case 32:
+		oy := otp
+		ob = []byte{byte(oy), byte(oy >> 8)}
+		out := append(pad(user, 14), pad(pwd, 16)...)
+		return append(out, ob...)
+	case 128:
+		out := make([]byte, 128)
+		copy(out[94:108], pad(user, 14))
+		copy(out[108:124], pad(pwd, 16))
+		binary.LittleEndian.PutUint32(out[124:128], otp)
+		return out
+	default: // 34
+		out := append(pad(user, 14), pad(pwd, 16)...)
+		return binary.LittleEndian.AppendUint32(out, otp)
+	}
 }

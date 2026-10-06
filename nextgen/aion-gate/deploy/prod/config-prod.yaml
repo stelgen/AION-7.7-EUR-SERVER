@@ -28,23 +28,24 @@ appLaunchBanDelay: 5
 useReportMail: false
 authReconnectInterval: 30
 
-# === РЕЖИМ ===
-# fork  = прозрачный форк-прокси к оригиналу + сравнение ответов (АКТИВЕН)
-# authgate = наш собственный флоу 7.7 (welcome 194/EncryptPrimary/key1) — вернуть после калибровки e
-# classic = beyond-aion 4.8 флоу (SM_INIT-210, encXORPass, op+state диспетчер)
-mode: fork
+# === РЕЖИМ (06.10 evening: e=65537 ДОКАЗАН на живом ct юзера) ===
+# authgate = наш собственный флоу 7.7 — АКТИВЕН (решающий логин)
+# fork     = прозрачный прокси к оригиналу (forkOrig*) — откат одной строкой
+# classic  = beyond-aion 4.8 флоу (SM_INIT-210, encXORPass, op+state диспетчер)
+mode: authgate
 forkOrigAddr: 127.0.0.1
-forkOrigPort: 2109          # оригинальный AuthGateD (задача AionGateOrig, D:\AION_LIVE_SERVER\AuthGateD-2109)
+forkOrigPort: 2109          # оригинальный AuthGateD (задача AionGateOrig — держится для отката)
 
 # === RSA (П2) ===
-rsaExponent: 17             # калибруется форком: m^17 / m^65537 mod N_orig == ct по известным кредам
+rsaExponent: 65537          # ДОКАЗАНО: m^65537 mod N_orig == ct (креды 1/1, loginex user@78)
 loginDecbufLen: 34          # asm оригинала arg3=0x22: user14+pwd16+otp4
 
-# welcome-вары (для authgate-режима; в fork не используются)
-welcomeForceVariant: 0      # 0 = СЕРВЕРНЫЙ скрамбл (гит-порядок) — root-cause fix
+# welcome-вары (authgate)
+welcomeForceVariant: 0      # 0 = СЕРВЕРНЫЙ скрамбл (гит-порядок) — root-cause fix, доказан на ориге
 welcomeProbe: false
 variantHoldSec: 180
 welcomeTestCC: 0
+welcomeWaitAuthdMs: 2000    # ждём V≠0 от authd [03] (у ориг V=0x0000c621; не блокируем дольше 2с)
 worldIP: 192.168.0.125
 worldPort: 7777
 ship:
