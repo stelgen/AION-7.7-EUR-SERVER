@@ -3,26 +3,29 @@
 // STELGEN/projects/aion_server_2026-10-02/reference/Mobius_AionEmu, JDK-сорс).
 //
 // Сорс-факты, на которых построен этот файл:
-//   SM_LOGIN_FAIL.java  = super(0x01) + writeD(response.getMessageId())  → pt 5Б;
-//   SM_PLAY_FAIL.java   = super(0x06) + writeD(response.getMessageId())  → pt 5Б;
-//     (pt 5Б → EncryptSecondary roundup8+8 → wire 18 — ровно live-форма 18Б,
-//      пойманная 06.10 11:08 на не-ASCII логине);
-//   AionAuthResponse.java = полный реестр messageIds (константы ниже);
-//   CM_LOGIN.java: RSA-fail → sendPacket(SM_LOGIN_FAIL(SYSTEM_ERROR)) БЕЗ close;
-//     брутфорс-бан → close(SM_LOGIN_FAIL(BAN_IP), false); прочие фейлы → close(...,false);
-//   CM_PLAY.java: GS offline → sendPacket(SM_PLAY_FAIL(SERVER_DOWN)) БЕЗ close;
-//     GS full → SM_PLAY_FAIL(SERVER_FULL); кривая SessionKey → close(SM_LOGIN_FAIL(SYSTEM_ERROR));
-//   AccountController.login: релогин акка, сидящего на GS → kickAccountFromGameServer +
-//     вернуть ALREADY_LOGGED_IN(7) — СЛЕДУЮЩАЯ попытка проходит; акк уже на LS →
-//     closeNow старого соединения + ALREADY_LOGGED_IN(7).
+//
+//	SM_LOGIN_FAIL.java  = super(0x01) + writeD(response.getMessageId())  → pt 5Б;
+//	SM_PLAY_FAIL.java   = super(0x06) + writeD(response.getMessageId())  → pt 5Б;
+//	  (pt 5Б → EncryptSecondary roundup8+8 → wire 18 — ровно live-форма 18Б,
+//	   пойманная 06.10 11:08 на не-ASCII логине);
+//	AionAuthResponse.java = полный реестр messageIds (константы ниже);
+//	CM_LOGIN.java: RSA-fail → sendPacket(SM_LOGIN_FAIL(SYSTEM_ERROR)) БЕЗ close;
+//	  брутфорс-бан → close(SM_LOGIN_FAIL(BAN_IP), false); прочие фейлы → close(...,false);
+//	CM_PLAY.java: GS offline → sendPacket(SM_PLAY_FAIL(SERVER_DOWN)) БЕЗ close;
+//	  GS full → SM_PLAY_FAIL(SERVER_FULL); кривая SessionKey → close(SM_LOGIN_FAIL(SYSTEM_ERROR));
+//	AccountController.login: релогин акка, сидящего на GS → kickAccountFromGameServer +
+//	  вернуть ALREADY_LOGGED_IN(7) — СЛЕДУЮЩАЯ попытка проходит; акк уже на LS →
+//	  closeNow старого соединения + ALREADY_LOGGED_IN(7).
 //
 // Триггеры T1 (наш план, закрытый сорсом):
-//   (а) authd молчит после релея blob дольше loginTimeoutSec → SM_LOGIN_FAIL(loginFailCode,
-//       а если user в онлайн-кэше → loginFailOnline);
-//   (б) relogin акка моложе onlineTtlSec после его login-ok → НЕМЕДЛЕННЫЙ
-//       SM_LOGIN_FAIL(loginFailOnline=7), blob ВСЁ РАВНО релеить (эталон: kick + 7,
-//       следующая попытка проходит; authd сам решает по своему флагу);
-//   (в) authd молчит после релея [05]/[02] дольше playTimeoutSec → SM_PLAY_FAIL(playFailCode).
+//
+//	(а) authd молчит после релея blob дольше loginTimeoutSec → SM_LOGIN_FAIL(loginFailCode,
+//	    а если user в онлайн-кэше → loginFailOnline);
+//	(б) relogin акка моложе onlineTtlSec после его login-ok → НЕМЕДЛЕННЫЙ
+//	    SM_LOGIN_FAIL(loginFailOnline=7), blob ВСЁ РАВНО релеить (эталон: kick + 7,
+//	    следующая попытка проходит; authd сам решает по своему флагу);
+//	(в) authd молчит после релея [05]/[02] дольше playTimeoutSec → SM_PLAY_FAIL(playFailCode).
+//
 // После фейла соединение НЕ рвём (FailCloseSec=0 — план T1: «сообщение + экран логина жив»);
 // эталон в дефолт-ветках делает close(packet,false) — включается FailCloseSec>0.
 package server
@@ -31,6 +34,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"sync/atomic"
 	"time"
 
 	"aion-gate/internal/proto"
@@ -46,15 +50,15 @@ const (
 // AionAuthResponse messageId — ПОЛНЫЙ реестр из сорса эталона
 // (reference/Mobius_AionEmu/.../network/aion/AionAuthResponse.java).
 const (
-	RespAuthed             uint32 = 0  // внутренний, клиенту не шлётся
-	RespSystemError        uint32 = 1  // «System error»
-	RespInvalidPassword    uint32 = 2  // ID/password mismatch
+	RespAuthed             uint32 = 0 // внутренний, клиенту не шлётся
+	RespSystemError        uint32 = 1 // «System error»
+	RespInvalidPassword    uint32 = 2 // ID/password mismatch
 	RespInvalidPassword2   uint32 = 3
 	RespFailedAccountInfo  uint32 = 4
 	RespFailedSocialNumber uint32 = 5
 	RespNoGSRegistered     uint32 = 6
-	RespAlreadyLoggedIn    uint32 = 7  // «You are already logged in»
-	RespServerDown         uint32 = 8  // «The selected server is down»
+	RespAlreadyLoggedIn    uint32 = 7 // «You are already logged in»
+	RespServerDown         uint32 = 8 // «The selected server is down»
 	RespInvalidPassword3   uint32 = 9
 	RespNoSuchAccount      uint32 = 10
 	RespDisconnected       uint32 = 11
@@ -157,6 +161,21 @@ func (s *Server) firePending(sess *Session, kind byte, user string) {
 		log.Printf("play TIMEOUT sid=%d op=[05]/[02] (authd молчал %ds) → SM_PLAY_FAIL(%d)", sess.ID, s.Cfg.PlayTimeoutSec, s.Cfg.PlayFailCode)
 		s.sendAuthFail(sess, opPlayFail, uint32(s.Cfg.PlayFailCode), "play.timeout")
 	}
+}
+
+// testFailCode — код тест-фейла «матюгания ошибками»: cfgVal>0 = фиксированный код;
+// cfgVal<0 (CYCLE) = seq-инкремент: 1..22 (messageId AionAuthResponse), затем 45
+// (authgate-спец), по кругу. seq — адрес счётчика (&s.testFailSeqLogin / Play).
+func testFailCode(seq *int64, cfgVal int) uint32 {
+	if cfgVal > 0 {
+		return uint32(cfgVal)
+	}
+	n := atomic.AddInt64(seq, 1)
+	idx := (n - 1) % 23
+	if idx < 22 {
+		return uint32(idx + 1)
+	}
+	return 45
 }
 
 // cancelPending — authd ответил (ЛЮБОЙ [02]-пакет по id) или сессия умерла.

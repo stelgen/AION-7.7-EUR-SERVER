@@ -52,6 +52,9 @@ func main() {
 	}
 	log.Printf("aion-gate: mode=%s :%d rsa_exponent=%d authd=%s:%d (ship=%v)",
 		g.Mode, g.ServerPort, g.RsaExponent, g.AuthAddr, g.AuthPort, sh.Enabled())
+	if g.LoginTestFail != 0 || g.PlayTestFail != 0 {
+		log.Printf("TEST-FAIL MODE: loginTestFail=%d playTestFail=%d (CYCLE=-1) — НЕ для прода, вернуть 0 после теста!", g.LoginTestFail, g.PlayTestFail)
+	}
 	log.Printf("authd-fail: loginTimeout=%ds playTimeout=%ds onlineTtl=%ds codes login=%d play=%d online=%d failClose=%ds",
 		g.LoginTimeoutSec, g.PlayTimeoutSec, g.OnlineTtlSec, g.LoginFailCode, g.PlayFailCode, g.LoginFailOnline, g.FailCloseSec)
 	sh.Send(ship.Event{Ev: ship.EvStart, Msg: "aion-gate started", Data: map[string]any{

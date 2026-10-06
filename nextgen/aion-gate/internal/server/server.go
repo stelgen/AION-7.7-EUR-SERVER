@@ -13,6 +13,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"aion-gate/internal/authdclient"
@@ -90,6 +91,10 @@ type Server struct {
 	pend     map[uint32]*pendingReq
 	onlineMu sync.Mutex
 	online   map[string]time.Time
+
+	// Тест-режим «матюгания ошибками» (loginTestFail/playTestFail): cycle-счётчики кодов.
+	testFailSeqLogin int64
+	testFailSeqPlay  int64
 }
 
 func New(cfg config.Gate, sh *ship.S) (*Server, error) {
@@ -104,14 +109,14 @@ func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 		return nil, err
 	}
 	return &Server{
-		Cfg:   cfg,
-		sh:    sh,
-		pool:  pool,
-		brute: NewBrute(cfg.TryCount, cfg.TryIntervalSec, cfg.TryBlockIntervalSec),
-		ips:   LoadIPList(cfg.BlockIPsFile),
-		key1:  key1,
-		sess:  map[uint32]*Session{},
-		pend:  map[uint32]*pendingReq{},
+		Cfg:    cfg,
+		sh:     sh,
+		pool:   pool,
+		brute:  NewBrute(cfg.TryCount, cfg.TryIntervalSec, cfg.TryBlockIntervalSec),
+		ips:    LoadIPList(cfg.BlockIPsFile),
+		key1:   key1,
+		sess:   map[uint32]*Session{},
+		pend:   map[uint32]*pendingReq{},
 		online: map[string]time.Time{},
 	}, nil
 }
@@ -283,7 +288,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		// welcome 194B — финальная раскладка (variant 0 = серверный скрамбл) live-принята
 		// 7.7 EU клиентом; эпоха probe-перебора вариантов/фикстур завершена (07.10 релиз).
 		wargs := &proto.WelcomeArgs{
-			SessionID:    sid,                // fc = rand32 @0x4041b8
+			SessionID:    sid,              // fc = rand32 @0x4041b8
 			AuthdSession: s.authdSession(), // V = authd [03] ([global+0xa0])
 			Modulus:      sess.RSA.Modulus128(),
 			Key2:         key2,
@@ -346,8 +351,10 @@ func stateName(st uint8) string {
 }
 
 // dispatchAuthgate — диспетчер (state, op) по эталону AionPacketHandlerFactory (К-2/P0-2):
-//   CONNECTED{0x07→authgg, 0x08→UPDATE_SESSION}, AUTHED_GG{0x0B→login},
-//   AUTHED_LOGIN{0x05,0x02→relay}; прочее = лог "unknown packet state=... op=..." (НЕ cc45).
+//
+//	CONNECTED{0x07→authgg, 0x08→UPDATE_SESSION}, AUTHED_GG{0x0B→login},
+//	AUTHED_LOGIN{0x05,0x02→relay}; прочее = лог "unknown packet state=... op=..." (НЕ cc45).
+//
 // Длины 32/24/≥184 оставлены fallback-эвристикой (leak-клиент шлёт 312/314b).
 func (s *Server) dispatchAuthgate(sess *Session, payload []byte) error {
 	pt, err := proto.DecryptSecondary(sess.BF2, payload)
@@ -542,6 +549,14 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		log.Printf("login: relogin онлайн-акка %q (моложе onlineTtlSec=%d) = SM_LOGIN_FAIL(%d) немедленно; blob релеится (kick-семантика эталона)", user, s.Cfg.OnlineTtlSec, s.Cfg.LoginFailOnline)
 		s.sendAuthFail(sess, opLoginFail, uint32(s.Cfg.LoginFailOnline), "login.onlinefail")
 	}
+	// ТЕСТ «матюгания ошибками» (loginTestFail): SM_LOGIN_FAIL с перебором кодов на живом
+	// клиенте; blob НЕ релеится (authd не видит логин = акк НЕ лочится), соединение живо.
+	if tf := s.Cfg.LoginTestFail; tf != 0 {
+		code := testFailCode(&s.testFailSeqLogin, tf)
+		log.Printf("TEST login-fail: user=%q -> SM_LOGIN_FAIL(%d) seq=%d (blob НЕ релеится, соединение живо)", user, code, atomic.LoadInt64(&s.testFailSeqLogin))
+		s.sendAuthFail(sess, opLoginFail, code, "login.testfail")
+		return nil
+	}
 	// К-1 REVISED 07.10 (probe-доказательство): authd требует ПОЛНУЮ asm-форму blob —
 	// dword = pt[148:152], tail = pt[152:] для ЛЮБОГО k (ровно как оригинал; loginex = 191Б).
 	// Прежний «К-1 фикс» (86Б blob: dword=0, tail=47 из SplitLogin) → authd МОЛЧИТ на
@@ -718,6 +733,14 @@ func (s *Server) handle26pt(sess *Session, ptIn []byte) {
 		return
 	}
 	op := ptIn[0]
+	// ТЕСТ «матюгания ошибками» (playTestFail): SM_PLAY_FAIL с перебором кодов на [05]/[02]
+	// после успешного логина; authd НЕ релеится, соединение живо.
+	if tf := s.Cfg.PlayTestFail; tf != 0 && sess.State == stAuthedLogin && (op == 0x05 || op == 0x02) {
+		code := testFailCode(&s.testFailSeqPlay, tf)
+		log.Printf("TEST play-fail: op=%02x -> SM_PLAY_FAIL(%d) seq=%d (authd НЕ релеится)", op, code, atomic.LoadInt64(&s.testFailSeqPlay))
+		s.sendAuthFail(sess, opPlayFail, code, "play.testfail")
+		return
+	}
 	// ОРИГ релеит [05]/[02] в authd (ответы-типы 4/7 идут ОТ AUTHD); наша эмуляция
 	// 42b/26b — только фолбэк, когда authd недоступен.
 	relayed := false

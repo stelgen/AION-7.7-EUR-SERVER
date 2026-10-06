@@ -32,22 +32,22 @@ type Gate struct {
 	LogdPort           int    `yaml:"logdport"`
 	UseLogd            bool   `yaml:"useLogd"`
 
-	TryIntervalSec       int  `yaml:"tryInterval"` // 60
-	TryCount             int  `yaml:"tryCount"`    // 20
-	TryBlockIntervalSec  int  `yaml:"tryBlockInterval"`
-	DumpPacket           bool `yaml:"dumpPacket"`
-	GgNumActive          int  `yaml:"ggNumActive"`
+	TryIntervalSec         int  `yaml:"tryInterval"` // 60
+	TryCount               int  `yaml:"tryCount"`    // 20
+	TryBlockIntervalSec    int  `yaml:"tryBlockInterval"`
+	DumpPacket             bool `yaml:"dumpPacket"`
+	GgNumActive            int  `yaml:"ggNumActive"`
 	UseGCSideExtendAccount bool `yaml:"useGCSideExtendAccount"`
-	AppLaunchBanDelay    int  `yaml:"appLaunchBanDelay"`
-	UseReportMail        bool `yaml:"useReportMail"`
-	AuthReconnectInterval int `yaml:"authReconnectInterval"` // 0 = не реконнектит (как оригинал)
+	AppLaunchBanDelay      int  `yaml:"appLaunchBanDelay"`
+	UseReportMail          bool `yaml:"useReportMail"`
+	AuthReconnectInterval  int  `yaml:"authReconnectInterval"` // 0 = не реконнектит (как оригинал)
 
 	// Welcome-статики сняты дизasm'ом: plaintext[0:4]=fc, [168:172]=image-константы 65650072 —
 	// конфиг-полей для них нет (финал). Эпоха probe-вариантов/фикстур завершена 07.10
 	// (welcome 194B variant-0 live-принят; код удалён — см. леджер docs/fork-classic-deploy).
 	// WelcomeTestCC — >0: в ответ на AUTH_GG слать клиенту cc-код (тест сообщений:
 	// клиент показывает 22 как «аккаунт заблокирован» — живое наблюдение 06.10).
-	WelcomeTestCC    int    `yaml:"welcomeTestCC"`
+	WelcomeTestCC int `yaml:"welcomeTestCC"`
 	// WelcomeWaitAuthdMs — >0: ждать [03] от authd до welcome (V≠0 в welcome; тест гипотезы
 	// «клиент отвергает V=0 → ошибка авторизации»). 0 = сразу (текущее поведение).
 	WelcomeWaitAuthdMs int `yaml:"welcomeWaitAuthdMs"`
@@ -103,7 +103,13 @@ type Gate struct {
 	LoginFailOnline int `yaml:"loginFailOnline"`
 	FailCloseSec    int `yaml:"failCloseSec"`
 
-
+	// ТЕСТ «матюгания ошибками» (запрос юзера 08.10): перебор messageId AionAuthResponse
+	// на живом клиенте. loginTestFail: 0 = выкл (обычный релей); -1 = CYCLE (каждый логин =
+	// следующий код 1..22, затем 45, по кругу); >0 = фиксированный код. В тест-режиме blob
+	// в authd НЕ релеится (authd не видит логин = акк НЕ лочится), соединение не рвём.
+	// playTestFail — то же для SM_PLAY_FAIL на [05]/[02] после успешного логина.
+	LoginTestFail int `yaml:"loginTestFail"`
+	PlayTestFail  int `yaml:"playTestFail"`
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`
@@ -119,8 +125,16 @@ const (
 
 // FillDefaults — значения из оригинального config.txt (§4 дока).
 func (g *Gate) FillDefaults() {
-	set := func(dst *int, v int) { if *dst == 0 { *dst = v } }
-	setb := func(dst *string, v string) { if *dst == "" { *dst = v } }
+	set := func(dst *int, v int) {
+		if *dst == 0 {
+			*dst = v
+		}
+	}
+	setb := func(dst *string, v string) {
+		if *dst == "" {
+			*dst = v
+		}
+	}
 	set(&g.ServerPort, 2106)
 	setb(&g.AuthAddr, "127.0.0.1")
 	set(&g.AuthPort, 2110)
@@ -141,21 +155,21 @@ func (g *Gate) FillDefaults() {
 	set(&g.AppLaunchBanDelay, 5)
 	set(&g.WelcomeWaitAuthdMs, 0)
 	setb(&g.Mode, "authgate")
-	set(&g.RsaExponent, 17)      // гипотеза Pub.key[1]; альтернатива 65537 (F4 гита)
-	set(&g.LoginDecbufLen, 34)   // asm arg3=0x22: user14+pwd16+otp4
+	set(&g.RsaExponent, 17)    // гипотеза Pub.key[1]; альтернатива 65537 (F4 гита)
+	set(&g.LoginDecbufLen, 34) // asm arg3=0x22: user14+pwd16+otp4
 	setb(&g.ForkOrigAddr, "127.0.0.1")
-	set(&g.ForkOrigPort, 2109)   // ориг AuthGateD (AionGateOrig) на VM
+	set(&g.ForkOrigPort, 2109) // ориг AuthGateD (AionGateOrig) на VM
 	set(&g.WorldPort, 7777)
 	set(&g.ServerID, 1)
-	set(&g.SmAuthGgWire, 42)     // live-форма (эталонная 50 — только по явному конфигу)
+	set(&g.SmAuthGgWire, 42) // live-форма (эталонная 50 — только по явному конфигу)
 	// T1-фейлы (дефолты из плана T1; коды = messageId AionAuthResponse):
-	set(&g.LoginTimeoutSec, 8)  // нет type=3 за 8с = LoginFail
-	set(&g.PlayTimeoutSec, 8)   // нет type=4/7 за 8с = PlayFail
-	set(&g.OnlineTtlSec, 300)   // relogin моложе 5 мин = немедленный LoginFail(7)
-	set(&g.LoginFailCode, serverRespSystemError)         // 1 SYSTEM_ERROR (альт: 8 SERVER_DOWN)
-	set(&g.PlayFailCode, serverRespServerDown)           // 8 SERVER_DOWN (альт: 15 SERVER_FULL)
-	set(&g.LoginFailOnline, serverRespAlreadyLoggedIn)  // 7 ALREADY_LOGGED_IN
-	set(&g.FailCloseSec, 0)     // НЕ рвать после фейла (эталон: close = конфигурируемо)
+	set(&g.LoginTimeoutSec, 8)                         // нет type=3 за 8с = LoginFail
+	set(&g.PlayTimeoutSec, 8)                          // нет type=4/7 за 8с = PlayFail
+	set(&g.OnlineTtlSec, 300)                          // relogin моложе 5 мин = немедленный LoginFail(7)
+	set(&g.LoginFailCode, serverRespSystemError)       // 1 SYSTEM_ERROR (альт: 8 SERVER_DOWN)
+	set(&g.PlayFailCode, serverRespServerDown)         // 8 SERVER_DOWN (альт: 15 SERVER_FULL)
+	set(&g.LoginFailOnline, serverRespAlreadyLoggedIn) // 7 ALREADY_LOGGED_IN
+	set(&g.FailCloseSec, 0)                            // НЕ рвать после фейла (эталон: close = конфигурируемо)
 }
 
 // Config — верхний уровень config.yaml.

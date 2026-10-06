@@ -1,10 +1,10 @@
 // Тесты T1 «фейлы как эталон» (сорс: reference/Mobius_AionEmu 7.7, Aion-Lightning):
 //  1. TestAuthFailFrames     — SM_LOGIN_FAIL(0x01)/SM_PLAY_FAIL(0x06): pt [op][D messageId]
-//                              → wire 18 (live-форма 06.10 11:08), roundtrip DecryptSecondary;
+//     → wire 18 (live-форма 06.10 11:08), roundtrip DecryptSecondary;
 //  2. TestLoginTimeoutFail   — authd молчит после blob → 18Б [01][D loginFailCode] за loginTimeoutSec;
 //  3. TestPlayTimeoutFail    — релей [05] без ответа authd → 18Б [06][D playFailCode];
 //  4. TestReloginOnlineCache — relogin моложе onlineTtlSec → немедленный [01][D 7],
-//                              blob всё равно релеить (kick-семантика AccountController.login);
+//     blob всё равно релеить (kick-семантика AccountController.login);
 //  5. TestAuthFailCancel     — type=3 пришёл → таймаут НЕ стреляет, онлайн-кэш обновился.
 package server
 
@@ -248,5 +248,61 @@ func TestAuthFailCancel(t *testing.T) {
 	dec := readFrame(t, cl2, sess2, 3*time.Second)
 	if dec[0] != opLoginFail || binary.LittleEndian.Uint32(dec[1:5]) != RespAlreadyLoggedIn {
 		t.Fatalf("relogin after ok: op=%02x id=%d", dec[0], binary.LittleEndian.Uint32(dec[1:5]))
+	}
+}
+
+// Тест 6 (запрос юзера 08.10): loginTestFail=-1 CYCLE — каждый логин следующий код
+// (1,2,...), blob НЕ релеится (акк не лочится), соединение живо.
+func TestLoginTestFailCycle(t *testing.T) {
+	srv, f, ln := newFailSrv(t, config.Gate{LoginTestFail: -1})
+	cl1 := dialClient(t, ln)
+	sess1 := srv.SessionByIndex(0)
+	if sess1 == nil {
+		t.Fatal("нет сессии")
+	}
+	doLogin(t, cl1, sess1, "testfail01")
+	dec := readFrame(t, cl1, sess1, 3*time.Second)
+	if dec[0] != opLoginFail || binary.LittleEndian.Uint32(dec[1:5]) != 1 {
+		t.Fatalf("cycle #1: op=%02x id=%d want [01][1]", dec[0], binary.LittleEndian.Uint32(dec[1:5]))
+	}
+	cl2 := dialClient(t, ln)
+	sess2 := otherSess(t, srv, sess1)
+	doLogin(t, cl2, sess2, "testfail01")
+	dec = readFrame(t, cl2, sess2, 3*time.Second)
+	if dec[0] != opLoginFail || binary.LittleEndian.Uint32(dec[1:5]) != 2 {
+		t.Fatalf("cycle #2: op=%02x id=%d want [01][2]", dec[0], binary.LittleEndian.Uint32(dec[1:5]))
+	}
+	f.mu.Lock()
+	n := len(f.packets)
+	f.mu.Unlock()
+	if n != 0 {
+		t.Fatalf("test-режим: blob релеится (%d), должен НЕ релеиться", n)
+	}
+}
+
+// Тест 7: playTestFail=-1 — после успешного логина [05] -> SM_PLAY_FAIL(1), authd НЕ релеится.
+func TestPlayTestFail(t *testing.T) {
+	srv, f, ln := newFailSrv(t, config.Gate{PlayTestFail: -1, LoginTimeoutSec: 30})
+	cl := dialClient(t, ln)
+	sess := srv.SessionByIndex(0)
+	if sess == nil {
+		t.Fatal("нет сессии")
+	}
+	doLogin(t, cl, sess, "playtest01")
+	waitFor(t, func() bool { f.mu.Lock(); defer f.mu.Unlock(); return len(f.packets) == 1 })
+	pushType3(t, f, sess)
+	if fr := readFrame(t, cl, sess, 3*time.Second); fr[0] != 0x03 {
+		t.Fatalf("login-ok relay: op=%02x", fr[0])
+	}
+	sendPt(cl, sess, []byte{0x05, 1, 0, 0, 0})
+	dec := readFrame(t, cl, sess, 3*time.Second)
+	if dec[0] != opPlayFail || binary.LittleEndian.Uint32(dec[1:5]) != 1 {
+		t.Fatalf("play test: op=%02x id=%d want [06][1]", dec[0], binary.LittleEndian.Uint32(dec[1:5]))
+	}
+	f.mu.Lock()
+	n := len(f.packets)
+	f.mu.Unlock()
+	if n != 1 { // login-блоб урёл ился, [05] — нет
+		t.Fatalf("play test: [05] релеится (%d пакетов)", n)
 	}
 }
