@@ -55,8 +55,8 @@ func main() {
 	if g.LoginTestFail != 0 || g.PlayTestFail != 0 {
 		log.Printf("TEST-FAIL MODE: loginTestFail=%d playTestFail=%d (CYCLE=-1) — НЕ для прода, вернуть 0 после теста!", g.LoginTestFail, g.PlayTestFail)
 	}
-	log.Printf("authd-fail: loginTimeout=%ds playTimeout=%ds onlineTtl=%ds codes login=%d play=%d online=%d failClose=%ds",
-		g.LoginTimeoutSec, g.PlayTimeoutSec, g.OnlineTtlSec, g.LoginFailCode, g.PlayFailCode, g.LoginFailOnline, g.FailCloseSec)
+	log.Printf("authd-fail: authdTimeout=%ds onlineTtl=%ds codes login=%d play=%d online=%d failClose=%ds",
+		g.AuthdTimeoutSec, g.OnlineTtlSec, g.LoginFailCode, g.PlayFailCode, g.LoginFailOnline, g.FailCloseSec)
 	sh.Send(ship.Event{Ev: ship.EvStart, Msg: "aion-gate started", Data: map[string]any{
 		"port": g.ServerPort, "mode": g.Mode, "rsa_exponent": g.RsaExponent,
 		"authd": net.JoinHostPort(g.AuthAddr, strconv.Itoa(g.AuthPort)),

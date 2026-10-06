@@ -157,7 +157,7 @@ func TestAuthFailFrames(t *testing.T) {
 
 // Тест 2: authd молчит после blob → SM_LOGIN_FAIL(loginFailCode) за loginTimeoutSec.
 func TestLoginTimeoutFail(t *testing.T) {
-	srv, f, ln := newFailSrv(t, config.Gate{LoginTimeoutSec: 1, OnlineTtlSec: 60})
+	srv, f, ln := newFailSrv(t, config.Gate{AuthdTimeoutSec: 1, OnlineTtlSec: 60})
 	cl := dialClient(t, ln)
 	sess := srv.SessionByIndex(0)
 	if sess == nil {
@@ -177,7 +177,7 @@ func TestLoginTimeoutFail(t *testing.T) {
 
 // Тест 3: [05]-релей без ответа authd → SM_PLAY_FAIL(playFailCode) за playTimeoutSec.
 func TestPlayTimeoutFail(t *testing.T) {
-	srv, f, ln := newFailSrv(t, config.Gate{PlayTimeoutSec: 1, LoginTimeoutSec: 30})
+	srv, f, ln := newFailSrv(t, config.Gate{AuthdTimeoutSec: 1})
 	cl := dialClient(t, ln)
 	sess := srv.SessionByIndex(0)
 	if sess == nil {
@@ -199,7 +199,7 @@ func TestPlayTimeoutFail(t *testing.T) {
 
 // Тест 4: relogin онлайн-акка → немедленный SM_LOGIN_FAIL(7), blob всё равно релеить.
 func TestReloginOnlineCache(t *testing.T) {
-	srv, f, ln := newFailSrv(t, config.Gate{OnlineTtlSec: 60, LoginTimeoutSec: 30})
+	srv, f, ln := newFailSrv(t, config.Gate{OnlineTtlSec: 60})
 	cl1 := dialClient(t, ln)
 	sess1 := srv.SessionByIndex(0)
 	if sess1 == nil {
@@ -227,7 +227,7 @@ func TestReloginOnlineCache(t *testing.T) {
 
 // Тест 5: type=3 пришёл → таймаут не стреляет; онлайн-кэш получил user (relogin → 7).
 func TestAuthFailCancel(t *testing.T) {
-	srv, f, ln := newFailSrv(t, config.Gate{LoginTimeoutSec: 1, OnlineTtlSec: 60})
+	srv, f, ln := newFailSrv(t, config.Gate{AuthdTimeoutSec: 1, OnlineTtlSec: 60})
 	cl1 := dialClient(t, ln)
 	sess1 := srv.SessionByIndex(0)
 	if sess1 == nil {
@@ -282,7 +282,7 @@ func TestLoginTestFailCycle(t *testing.T) {
 
 // Тест 7: playTestFail=-1 — после успешного логина [05] -> SM_PLAY_FAIL(1), authd НЕ релеится.
 func TestPlayTestFail(t *testing.T) {
-	srv, f, ln := newFailSrv(t, config.Gate{PlayTestFail: -1, LoginTimeoutSec: 30})
+	srv, f, ln := newFailSrv(t, config.Gate{PlayTestFail: -1})
 	cl := dialClient(t, ln)
 	sess := srv.SessionByIndex(0)
 	if sess == nil {
@@ -304,5 +304,20 @@ func TestPlayTestFail(t *testing.T) {
 	f.mu.Unlock()
 	if n != 1 { // login-блоб урёл ился, [05] — нет
 		t.Fatalf("play test: [05] релеится (%d пакетов)", n)
+	}
+}
+
+// Тест 8 (юзер 08.10): живые тексты клиента есть для ВСЕХ выдаваемых кодов 1..22+45.
+func TestAuthFailTexts(t *testing.T) {
+	for id := uint32(1); id <= 22; id++ {
+		if authFailTextOf(id) == "" {
+			t.Fatalf("нет текста клиента для messageId=%d", id)
+		}
+	}
+	if authFailTextOf(45) == "" {
+		t.Fatal("нет текста для 45 (authgate-спец)")
+	}
+	if authFailTextOf(0) != "" {
+		t.Fatal("0 AUTHED не шлётся клиенту — текст не нужен")
 	}
 }

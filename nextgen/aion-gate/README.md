@@ -1,6 +1,6 @@
 # aion-gate — замена AuthGateD для AION 7.7 EU (Go)
 
-**РЕЛИЗ 07.10.2026 + T1-фейлы 08.10.** Прод: `192.168.0.125:2106`, `mode: authgate`, полный живой флоу
+**РЕЛИЗ 07.10.2026 + T1-фейлы/таймауты 08.10.** Прод: `192.168.0.125:2106`, `mode: authgate`, полный живой флоу
 доказан на двух аккаунтах (`1/1` → accId 7; `stelgen` → accId 1010):
 `welcome 194B → AUTH_GG 42b → CM_LOGIN → blob cbdb → authd type=3 → [03]74Б →
 [05] relay → [04]42Б → [02] relay → [07]26Б → мир 7777`.
@@ -39,25 +39,52 @@
 15 SERVER_FULL, 16 GM_ONLY, 18 TIME_EXPIRED, 21 ALREADY_USED_IP, **22 BAN_IP** («заблокирован» — live);
 45 = authgate-спец (гейт не готов). Полный список 0–22 — `internal/server/authfail.go`.
 
-Триггеры (конфиг `loginTimeoutSec`/`playTimeoutSec`/`onlineTtlSec`, дефолты 8/8/300):
+Триггеры (конфиг; **`authdTimeoutSec=15` — ЕДИНЫЙ бизнес-таймаут тишины authd** для
+логина И play, `onlineTtlSec=300`, `failCloseSec=2` = после фейла сессия рвётся через 2с
+(«рве сессии с ошибкой» — юзер 08.10), дефолт-коды: login=1, play=8, online=7):
 
-- **(а) таймаут authd** — после релея blob нет type=3 за `loginTimeoutSec` →
-  `SM_LOGIN_FAIL(loginFailCode=1)`; если user в онлайн-кэше → `loginFailOnline=7`.
+- **(а) таймаут authd** — после релея blob нет type=3 за `authdTimeoutSec` →
+  `SM_LOGIN_FAIL(loginFailCode=1)`; если user в онлайн-кэше → `loginFailOnline=7`;
+  сессия закрывается через `failCloseSec` (клиент НЕ висит по 1-2 мин).
 - **(б) relogin онлайн-акка** — login-ok по этому username моложе `onlineTtlSec` →
   НЕМЕДЛЕННЫЙ `SM_LOGIN_FAIL(7)` (клиент не висит 30-60с); blob всё равно релеится —
   эталон `AccountController.login`: kick старой GS-сессии + ALREADY_LOGGED_IN(7),
   следующая попытка проходит. Онлайн-кэш наполняется на type=3 (authd помечает акк
   онлайн именно там — probe 07.10).
-- **(в) таймаут play** — после релея `[05]`/`[02]` нет type=4/7 за `playTimeoutSec` →
-  `SM_PLAY_FAIL(playFailCode=8)`. Эталон `CM_PLAY`: GS offline → SERVER_DOWN без close;
-  SERVER_FULL=15 — альтернатива конфигом.
+- **(в) таймаут play** — после релея `[05]`/`[02]` нет type=4/7 за тот же
+  `authdTimeoutSec` → `SM_PLAY_FAIL(playFailCode=8)`. Эталон `CM_PLAY`: GS offline →
+  SERVER_DOWN без close; SERVER_FULL=15 — альтернатива конфигом.
 
 Семантика close: эталон в дефолт-ветках делает `close(packet,false)` (фейл + закрыть),
 но RSA-fail в CM_LOGIN и SERVER_DOWN в CM_PLAY — БЕЗ close. Наш дефолт `failCloseSec=0` =
 соединение НЕ рвать (план T1: сообщение + экран логина живы — проверить клиентом);
 `failCloseSec>0` = закрыть через N сек (как эталон).
 
-Тесты: `TestAuthFailFrames` (wire 18 + roundtrip), `TestLoginTimeoutFail`,
+**Живые тексты клиента 7.7 EU (прогон юзера 08.10, полный цикл 1→22+45)** — захардкожены
+в `authfail.go` (`authFailText`), логируются на КАЖДУЮ выдачу: `SM_*_FAIL -> КЛИЕНТ:
+messageId=N (NAME) текст="..." sid= ip=` + ship-событие `text`:
+
+| ID | Текст клиента | ID | Текст клиента |
+|---|---|---|---|
+| 1 | Ошибка авторизации. Пожалуйста, попробуйте зайти в игру позже. | 12 | Ваш возраст не соответствует возрастному цензу игры. |
+| 2/3 | Неверный логин или пароль. | 13 | Под вашим аккаунтом зашли с другого компьютера. |
+| 4 | Невозможно найти информацию об аккаунте. | 14 | Вы уже в игре. |
+| 5 | Отсутствуют паспортные данные | 15 | Сервер переполнен. |
+| 6 | Ни один игровой сервер не был авторизован на сервере авторизации. | 16 | На сервере ведутся работы. Повторите попытку позже. |
+| 7 | Вы уже залогинись. | 17 | Смените пароль и повторите попытку входа. |
+| 8 | Выбранный сервер временно недоступен. Подключение невозможно. | 18 | Соединение невозможно. Время подписки закончилось… |
+| 9 | Введенная информация при входе в игру не соответсвует указанной ранее. | 19 | На аккаунте не осталось оплаченного времени. |
+| 10 | Отсутсвует информация о входе в игру. | 20 | Системная ошибка. Пожалуйста, обратитесь в системную поддержку пользователей. |
+| 11 | Соединение было прервано обращением на главную страницу plaync. | 21 | Данный IP уже используется. |
+|  |  | 22 | Ваш аккаунт заблокирован. |
+|  |  | 45 | Вы сможете запустить AION только после авторизации на главной странице сайта. |
+
+**Тест-крутилка ошибок** (`loginTestFail`/`playTestFail`: -1=CYCLE 1→22+45, >0=фикс; blob
+не релеится, акк не лочится) — фича в коде/конфиге ОСТАВЛЕНА, на проде НЕ используется
+(в config-prod.yaml строка закомментирована; прогон 08.10 = 24 логина, весь реестр
+1..22+45 подтверждён живым клиентом).
+
+Тесты: `TestAuthFailFrames` (wire 18 + roundtrip), `TestAuthFailTexts`, `TestLoginTimeoutFail`,
 `TestPlayTimeoutFail`, `TestReloginOnlineCache`, `TestAuthFailCancel` (`authfail_test.go`).
 Логи: `RAW G>C SM_LOGIN_FAIL messageId=…` + ship-события `login.onlinefail`/`login.timeout`/`play.timeout`.
 
@@ -113,8 +140,8 @@ AUTH_GG вердикт) или решающий логин.
 ## ⚙️ Ключи конфига (config-prod.yaml на VM)
 
 `serverPort:2106, authAddr/AuthPort:127.0.0.1:2110, mode:authgate, rsaExponent:65537,
-loginTimeoutSec:8, playTimeoutSec:8, onlineTtlSec:300, loginFailCode:1, playFailCode:8,
-loginFailOnline:7, failCloseSec:0 (T1-фейлы, секция 🛡️ выше),
+authdTimeoutSec:15 (ЕДИНЫЙ бизнес-таймаут), onlineTtlSec:300, loginFailCode:1, playFailCode:8,
+loginFailOnline:7, failCloseSec:2 (T1-фейлы, секция 🛡️ выше); loginTestFail/playTestFail = тест-крутилка (не юзаем, закомментирована),
 loginDecbufLen:34, forkOrigAddr/Port:127.0.0.1:2109, worldIP:192.168.0.125, worldPort:7777,
 welcomeTestCC:0, welcomeWaitAuthdMs:2000, serverID:1, smAuthGgWire:42 (live-форма;
 50 = эталон Mobius для A/B), dumpPacket, blockIPsFile, tryInterval/Count/BlockInterval`.

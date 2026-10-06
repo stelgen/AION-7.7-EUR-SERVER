@@ -34,6 +34,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"log"
+	"net"
 	"sync/atomic"
 	"time"
 
@@ -75,6 +76,91 @@ const (
 	RespBanIP              uint32 = 22 // live: «аккаунт заблокирован» (cc22)
 )
 
+// authFailText — ЖИВЫЕ тексты клиента 7.7 EU для messageId (прогон юзера 08.10,
+// полный цикл 1..22+45; юзер: «эти тексты — для логов/обработчика, чтобы не потерять»).
+// Логируются на КАЖДУЮ выдачу фейла: код + имя + текст клиента.
+var authFailText = map[uint32]string{
+	1:  "Ошибка авторизации. Пожалуйста, попробуйте зайти в игру позже.",
+	2:  "Неверный логин или пароль.",
+	3:  "Неверный логин или пароль.",
+	4:  "Невозможно найти информацию об аккаунте.",
+	5:  "Отсутствуют паспортные данные",
+	6:  "Ни один игровой сервер не был авторизован на сервере авторизации.",
+	7:  "Вы уже залогинись.",
+	8:  "Выбранный сервер временно недоступен. Подключение невозможно.",
+	9:  "Введенная информация при входе в игру не соответсвует указанной ранее.",
+	10: "Отсутсвует информация о входе в игру.",
+	11: "Соединение было прервано обращением на главную страницу plaync.",
+	12: "Ваш возраст не соответствует возрастному цензу игры.",
+	13: "Под вашим аккаунтом зашли с другого компьютера.",
+	14: "Вы уже в игре.",
+	15: "Сервер переполнен.",
+	16: "На сервере ведутся работы. Повторите попытку позже.",
+	17: "Смените пароль и повторите попытку входа.",
+	18: "Соединение невозможно. Время подписки закончилось, либо произошла временная ошибка соединения. Пожалуйста, обратитесь в службу поддержки.",
+	19: "На аккаунте не осталось оплаченного времени.",
+	20: "Системная ошибка. Пожалуйста, обратитесь в системную поддержку пользователей.",
+	21: "Данный IP уже используется.",
+	22: "Ваш аккаунт заблокирован.",
+	45: "Вы сможете запустить AION только после авторизации на главной странице сайта.",
+}
+
+// respName — имя messageId по реестру AionAuthResponse (сорс Mobius 7.7).
+func respName(id uint32) string {
+	switch id {
+	case RespAuthed:
+		return "AUTHED"
+	case RespSystemError:
+		return "SYSTEM_ERROR"
+	case RespInvalidPassword:
+		return "INVALID_PASSWORD"
+	case RespInvalidPassword2:
+		return "INVALID_PASSWORD2"
+	case RespFailedAccountInfo:
+		return "FAILED_ACCOUNT_INFO"
+	case RespFailedSocialNumber:
+		return "FAILED_SOCIAL_NUMBER"
+	case RespNoGSRegistered:
+		return "NO_GS_REGISTERED"
+	case RespAlreadyLoggedIn:
+		return "ALREADY_LOGGED_IN"
+	case RespServerDown:
+		return "SERVER_DOWN"
+	case RespInvalidPassword3:
+		return "INVALID_PASSWORD3"
+	case RespNoSuchAccount:
+		return "NO_SUCH_ACCOUNT"
+	case RespDisconnected:
+		return "DISCONNECTED"
+	case RespAgeLimit:
+		return "AGE_LIMIT"
+	case RespAlreadyLoggedIn2:
+		return "ALREADY_LOGGED_IN2"
+	case RespAlreadyLoggedIn3:
+		return "ALREADY_LOGGED_IN3"
+	case RespServerFull:
+		return "SERVER_FULL"
+	case RespGMOnly:
+		return "GM_ONLY"
+	case RespError17:
+		return "ERROR_17"
+	case RespTimeExpired:
+		return "TIME_EXPIRED"
+	case RespTimeExpired2:
+		return "TIME_EXPIRED2"
+	case RespSystemError2:
+		return "SYSTEM_ERROR2"
+	case RespAlreadyUsedIP:
+		return "ALREADY_USED_IP"
+	case RespBanIP:
+		return "BAN_IP"
+	}
+	return "AUTHGATE_45"
+}
+
+// authFailTextOf — текст клиента для messageId ("" — не в реестре).
+func authFailTextOf(id uint32) string { return authFailText[id] }
+
 // pending-виды (таймер тишины authd).
 const (
 	pendLogin byte = 1 // ждём type=3 (login-ok)
@@ -99,8 +185,12 @@ func (s *Server) sendAuthFail(sess *Session, op byte, messageId uint32, ev strin
 		name = "SM_PLAY_FAIL"
 	}
 	dumpRaw(fmt.Sprintf("G>C %s messageId=%d sid=%d", name, messageId, sess.ID), fr)
+	// Лог на КАЖДУЮ выдачу ошибки: код + имя реестра + живой текст клиента (прогон 08.10)
+	// — требование юзера: «видеть в логах на каждую обработку выдачу такой ошибки».
+	log.Printf("%s -> КЛИЕНТ: messageId=%d (%s) текст=%q sid=%d ip=%s (failClose=%ds)",
+		name, messageId, respName(messageId), authFailTextOf(messageId), sess.ID, net.IP(sess.IP[:]).String(), s.Cfg.FailCloseSec)
 	if err := sess.write(fr); err == nil {
-		s.send(ship.Event{Ev: ev, Data: map[string]any{"sid": sess.ID, "messageId": messageId}})
+		s.send(ship.Event{Ev: ev, Data: map[string]any{"sid": sess.ID, "messageId": messageId, "code": respName(messageId), "text": authFailTextOf(messageId)}})
 	}
 	// План T1: соединение НЕ рвём (FailCloseSec=0); эталон в дефолт-ветках делает
 	// close(packet,false) — при FailCloseSec>0 закрываем отложенно.
@@ -112,10 +202,9 @@ func (s *Server) sendAuthFail(sess *Session, op byte, messageId uint32, ev strin
 // armPending — таймер тишины authd (T1-а/в). kind: pendLogin/pendPlay.
 // Повторный вызов заменяет прежний pending того же sid.
 func (s *Server) armPending(sess *Session, kind byte, user string) {
-	ttlSec := s.Cfg.LoginTimeoutSec
-	if kind == pendPlay {
-		ttlSec = s.Cfg.PlayTimeoutSec
-	}
+	// ЕДИНЫЙ бизнес-таймаут тишины authd (юзер 08.10: «общий таймаут — бизнесовая
+	// настройка, рвать сессии секунд за 15»; логин и play — один и тот же).
+	ttlSec := s.Cfg.AuthdTimeoutSec
 	s.cancelPending(sess.ID)
 	if ttlSec <= 0 { // <=0 = таймеры выключены (конфиг)
 		return
@@ -155,10 +244,12 @@ func (s *Server) firePending(sess *Session, kind byte, user string) {
 		if s.onlineRecent(user) {
 			code = uint32(s.Cfg.LoginFailOnline)
 		}
-		log.Printf("login TIMEOUT sid=%d user=%q (authd молчал %ds) → SM_LOGIN_FAIL(%d)", sess.ID, user, s.Cfg.LoginTimeoutSec, code)
+		log.Printf("login TIMEOUT sid=%d user=%q (authd молчал %ds) → SM_LOGIN_FAIL(%d) — сессия рвётся через %ds (failCloseSec)",
+			sess.ID, user, s.Cfg.AuthdTimeoutSec, code, s.Cfg.FailCloseSec)
 		s.sendAuthFail(sess, opLoginFail, code, "login.timeout")
 	case pendPlay:
-		log.Printf("play TIMEOUT sid=%d op=[05]/[02] (authd молчал %ds) → SM_PLAY_FAIL(%d)", sess.ID, s.Cfg.PlayTimeoutSec, s.Cfg.PlayFailCode)
+		log.Printf("play TIMEOUT sid=%d op=[05]/[02] (authd молчал %ds) → SM_PLAY_FAIL(%d) — сессия рвётся через %ds (failCloseSec)",
+			sess.ID, s.Cfg.AuthdTimeoutSec, s.Cfg.PlayFailCode, s.Cfg.FailCloseSec)
 		s.sendAuthFail(sess, opPlayFail, uint32(s.Cfg.PlayFailCode), "play.timeout")
 	}
 }
