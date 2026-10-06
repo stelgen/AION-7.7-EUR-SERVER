@@ -379,7 +379,7 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	}
 	dword148 := binary.LittleEndian.Uint32(data[148:152])
 	tail := data[152:]
-	log.Printf("login: sid=%d decbuf=%s dword148=%08x tail=%s", sess.ID, hex.EncodeToString(decbuf), dword148, hex.EncodeToString(tail))
+	log.Printf("login: sid=%d declen=%d decbuf=%s dword148=%08x taillen=%d tail=%s", sess.ID, len(decbuf), hex.EncodeToString(decbuf), dword148, len(tail), hex.EncodeToString(tail))
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, tail)
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
 	s.send(ship.Event{Ev: "login", Remote: net.IP(sess.IP[:]).String(), Data: map[string]any{

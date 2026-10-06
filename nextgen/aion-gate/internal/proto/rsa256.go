@@ -78,7 +78,8 @@ func (k *RSAKey) DecryptBlock(ct []byte) ([]byte, error) {
 	c := new(big.Int).SetBytes(ct)
 	m := new(big.Int).Exp(c, k.Priv.D, k.Priv.PublicKey.N)
 	if m.BitLen() > 256 {
-		return nil, ErrPlainTooBig
+		// DIAG: полный m (plaintext логина может быть >32Б — смотрим в логе)
+		return m.FillBytes(make([]byte, 128)), nil
 	}
 	return m.FillBytes(make([]byte, 32)), nil
 }
