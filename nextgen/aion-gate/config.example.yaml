@@ -40,8 +40,11 @@ mode: authgate
 # serverID: 1                # id сервера в эмуляции play-ok ([07][pk1][pk2][serverID][6×0])
 # smAuthGgWire: 42           # SM_AUTH_GG: 42 = live-форма (дефолт) | 50 = эталон 7.7 (D sid+B35)
 
-# welcome-вары (для authgate; welcomePlainByte/B0/B1/B2 удалены — ночь-4 финал)
-welcomeForceVariant: 0     # 0 = СЕРВЕРНЫЙ скрамбл (гит); 4 = RAW (сломан, только A/B)
+# welcome (authgate): финальная раскладка 194B зашита в код (серверный скрамбл, live-принята);
+# эпоха probe-вариантов/фикстур завершена 07.10 — ключи welcomeProbe/welcomeForceVariant/
+# welcomeFixture/variantHoldSec удалены (история — docs/fork-classic-deploy-20261006.md)
+# welcomeTestCC: 0          # >0: в ответ на AUTH_GG слать cc-код (тест сообщений: 22 = «заблокирован»)
+# welcomeWaitAuthdMs: 2000  # ждать [03] от authd до welcome (V≠0), 0 = сразу
 
 # телеметрия TELEMETRY-SPEC (пакет ship копируется из aion-logd — TODO)
 ship:

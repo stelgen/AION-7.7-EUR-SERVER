@@ -43,17 +43,8 @@ type Gate struct {
 	AuthReconnectInterval int `yaml:"authReconnectInterval"` // 0 = не реконнектит (как оригинал)
 
 	// Welcome-статики сняты дизasm'ом: plaintext[0:4]=fc, [168:172]=image-константы 65650072 —
-	// конфиг-полей для них больше нет (ночь-4 финал; welcomePlainByte/B0/B1/B2 удалены).
-	// WelcomeFixture — hex ПОЛНОГО фрейма (len+c200...) из дампа ОРИГИНАЛА:
-	// если задан — шлём его байт-в-байт вместо сборки (тупой реплей, A/B-тест).
-	// Приоритет выше welcomeProbe.
-	WelcomeFixture   string `yaml:"welcomeFixture"`
-	// WelcomeProbe — round-robin пробных вариантов welcome (оракул: frame-32 = принят).
-	WelcomeProbe     bool   `yaml:"welcomeProbe"`
-	VariantHoldSec   int    `yaml:"variantHoldSec"` // удержание варианта (мин. 180 = пауза на логин)
-	// WelcomeForceVariant — >=0: ВСЕГДА этот вариант (закрепление найденного: 4 = raw-модуль,
-	// единственный, где живой клиент СРЕАГИРОВАЛ «ошибка авторизации» 07:59:50 06.10).
-	WelcomeForceVariant int `yaml:"welcomeForceVariant"`
+	// конфиг-полей для них нет (финал). Эпоха probe-вариантов/фикстур завершена 07.10
+	// (welcome 194B variant-0 live-принят; код удалён — см. леджер docs/fork-classic-deploy).
 	// WelcomeTestCC — >0: в ответ на AUTH_GG слать клиенту cc-код (тест сообщений:
 	// клиент показывает 22 как «аккаунт заблокирован» — живое наблюдение 06.10).
 	WelcomeTestCC    int    `yaml:"welcomeTestCC"`
@@ -123,8 +114,6 @@ func (g *Gate) FillDefaults() {
 	set(&g.TryBlockIntervalSec, 120)
 	set(&g.GgNumActive, 50)
 	set(&g.AppLaunchBanDelay, 5)
-	set(&g.VariantHoldSec, 180) // минимум 3 минуты на вариант (пауза на логин)
-	set(&g.WelcomeForceVariant, -1) // -1 = по кругу (probe); >=0 = всегда этот вариант
 	set(&g.WelcomeWaitAuthdMs, 0)
 	setb(&g.Mode, "authgate")
 	set(&g.RsaExponent, 17)      // гипотеза Pub.key[1]; альтернатива 65537 (F4 гита)

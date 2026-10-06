@@ -130,7 +130,7 @@ func (s *Server) forkParseWelcome(remote string, wraw []byte) (uint32, *proto.Bl
 		Modulus:      s.pool.Get().Modulus128(),
 		Key2:         key2,
 	}
-	w := proto.BuildWelcomeVariant(wargs, s.key1, 0)
+	w := proto.BuildWelcome(wargs, s.key1)
 	{
 		if opt, derr := proto.DecryptPrimary(s.key1, w[2:]); derr == nil && len(opt) >= 173 {
 			log.Printf("FORK welcome-diff(наш вар.0 vs ориг): sid=EQ V=EQ key2=EQ | mod ours[0:16]=%s orig[0:16]=%s (N разные — ожидаемо)",

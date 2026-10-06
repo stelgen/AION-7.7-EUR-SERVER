@@ -334,7 +334,7 @@ func TestScrambleNotInvolution(t *testing.T) {
 	}
 }
 
-// welcome (plain()) и BuildWelcomeVariant(вар. 0) обязаны класть СЕРВЕРНЫЙ скрамбл.
+// welcome (plain() и BuildWelcome) обязан класть СЕРВЕРНЫЙ скрамбл.
 func TestWelcomeUsesServerScramble(t *testing.T) {
 	var n [128]byte
 	if _, err := crand.Read(n[:]); err != nil {
@@ -348,7 +348,7 @@ func TestWelcomeUsesServerScramble(t *testing.T) {
 		t.Fatal("plain(): модуль не серверно-скрамблен")
 	}
 	wbf, _ := NewBlowfish([]byte("variant0-test-key"))
-	w := BuildWelcomeVariant(&WelcomeArgs{Modulus: n, SessionID: 1, AuthdSession: 2}, wbf, 0)
+	w := BuildWelcome(&WelcomeArgs{Modulus: n, SessionID: 1, AuthdSession: 2}, wbf)
 	if len(w) != WelcomeLen {
 		t.Fatalf("variant0: len=%d", len(w))
 	}

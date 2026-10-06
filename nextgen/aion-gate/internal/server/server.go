@@ -83,8 +83,6 @@ type Server struct {
 	sess     map[uint32]*Session
 	counter    uint32 // TODO §5.6: генератор sid @0x4041b8 (время+база) — сейчас счётчик с 1
 	assigned   uint32 // [authd_sock+0xa0] — sid, назначенный authd ([03])
-	variantIdx uint32   // round-robin привет-вариантов (welcomeProbe)
-	variantAt  time.Time // момент последней смены варианта
 }
 
 func New(cfg config.Gate, sh *ship.S) (*Server, error) {
@@ -183,31 +181,6 @@ func (s *Server) onAuthdAssigned(sid uint32) {
 	s.mu.Unlock()
 }
 
-// currentVariant — текущий пробный вариант welcome; ротация НЕ чаще VariantHoldSec
-// (минимум 3 минуты на вариант — пауза на логин юзера).
-func (s *Server) currentVariant() int {
-	if s.Cfg.WelcomeForceVariant >= 0 {
-		return s.Cfg.WelcomeForceVariant // закреплённый вариант (генератор реакции)
-	}
-	if !s.Cfg.WelcomeProbe {
-		return 0
-	}
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	hold := time.Duration(s.Cfg.VariantHoldSec) * time.Second
-	if hold < 3*time.Minute {
-		hold = 3 * time.Minute // жёсткий минимум по требованию юзера
-	}
-	if s.variantAt.IsZero() {
-		s.variantAt = time.Now()
-	}
-	if time.Since(s.variantAt) >= hold {
-		s.variantIdx = (s.variantIdx + 1) % 10
-		s.variantAt = time.Now()
-	}
-	return int(s.variantIdx)
-}
-
 func (s *Server) authdSession() uint32 {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -296,26 +269,17 @@ func (s *Server) handleConn(conn net.Conn) {
 		w = proto.BuildClassicWelcome(sid, sess.RSA.Modulus128(), sk, s.key1)
 		log.Printf("welcome CLASSIC: sid=%d wire=%d sessionKey=random → [153:169]", sid, len(w))
 	}
-	vi := s.currentVariant()
-	if vi == 4 {
-		log.Printf("welcome variant=4 RAW: математически СЛОМАН (unscramble(raw)!=N, байон-48 §3) — только для A/B-логов")
-	}
 	if w == nil {
-		if fx, ferr := hex.DecodeString(strings.TrimSpace(s.Cfg.WelcomeFixture)); ferr == nil && len(fx) >= 4 {
-			w = fx // ФИКСТУРА: байт-в-байт реплей дампа оригинала (dumpPacket-лог)
-			log.Printf("welcome FIXTURE replay: %d bytes", len(w))
-		}
-	}
-	if w == nil {
+		// welcome 194B — финальная раскладка (variant 0 = серверный скрамбл) live-принята
+		// 7.7 EU клиентом; эпоха probe-перебора вариантов/фикстур завершена (07.10 релиз).
 		wargs := &proto.WelcomeArgs{
-			SessionID:    sid, // fc = rand32 ([fc] @0x4041b8)
+			SessionID:    sid,                // fc = rand32 @0x4041b8
 			AuthdSession: s.authdSession(), // V = authd [03] ([global+0xa0])
 			Modulus:      sess.RSA.Modulus128(),
 			Key2:         key2,
 		}
-		w = proto.BuildWelcomeVariant(wargs, s.key1, vi)
-		log.Printf("welcome fields: variant=%d sid=%d(0x%08x) V=%d(0x%08x) mod8=%s key2=%s", vi, sid, sid, wargs.AuthdSession, wargs.AuthdSession, hex.EncodeToString(wargs.Modulus[:8]), hex.EncodeToString(key2[:]))
-		log.Printf("welcome variant=%d (probe, hold=%ds)", vi, s.Cfg.VariantHoldSec)
+		w = proto.BuildWelcome(wargs, s.key1)
+		log.Printf("welcome fields: sid=%d(0x%08x) V=%d(0x%08x) mod8=%s key2=%s", sid, sid, wargs.AuthdSession, wargs.AuthdSession, hex.EncodeToString(wargs.Modulus[:8]), hex.EncodeToString(key2[:]))
 	}
 	if s.Cfg.DumpPacket {
 		n := len(w)
