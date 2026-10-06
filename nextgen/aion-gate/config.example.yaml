@@ -46,6 +46,18 @@ mode: authgate
 # welcomeTestCC: 0          # >0: в ответ на AUTH_GG слать cc-код (тест сообщений: 22 = «заблокирован»)
 # welcomeWaitAuthdMs: 2000  # ждать [03] от authd до welcome (V≠0), 0 = сразу
 
-# телеметрия TELEMETRY-SPEC (пакет ship копируется из aion-logd — TODO)
+# === T1 ФЕЙЛЫ (08.10, сорс Mobius_AionEmu 7.7; тексты клиента — authfail.go) ===
+authdTimeoutSec: 15         # ЕДИНЫЙ бизнес-таймаут тишины authd (login+play) → фейл+close
+failCloseSec: 2             # после фейла рвать сессию через N сек
+loginFailCode: 1            # SM_LOGIN_FAIL при таймауте (1 = «Ошибка авторизации…»)
+playFailCode: 8             # SM_PLAY_FAIL при таймауте (8 = «Сервер временно недоступен»)
+onlineTtlSec: 0             # гейт-лок relogin ВЫКЛ (юзер 08.10); N>0 = немедленный LoginFail(7)
+loginFailOnline: 7          # код гейт-лока (7 = «Вы уже залогинись.»)
+
+# ТЕСТ-КРУТИЛКА ошибок (08.10, прогон завершён — НЕ юзаем; вкл = loginTestFail: -1/-N/N)
+# loginTestFail: -1         # -1 = CYCLE 1..22+45 (каждый логин следующий код), >0 = фикс-код
+# playTestFail: -1          # то же для SM_PLAY_FAIL на [05]/[02]
+
+# телеметрия TELEMETRY-SPEC (пакет ship копируется из aion-logd)
 ship:
   enabled: false

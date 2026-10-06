@@ -7,6 +7,9 @@
 
 - **Трек A** (недели): `aion-op` оператор — supervisor + watchdog + лог-тейлеры + метрики (SQL waits/CCU/RAM/хендлы) + алерты + вкладки. Прод не трогает (Phase 0 = SSH read-only).
 - **Трек B** (месяцы): замены — CAPTCHA → AuthGateD → L2Authd → LogServer64 → AccountCache → ChannelChat → CacheD(RAM-кэш) → ICServer. Server64+NPCSvr+ScriptDLL64 — НЕ переписывать: Ghidra+PDB точечные патчи (метод #180).
+  Статус: ✅ **aion-logd** (прод 2051), ✅ **aion-captcha** (прод 22206), ✅ **aion-gate** (прод 2106, РЕЛИЗ 08.10 —
+  замена AuthGateD; README/архитектура: [aion-gate/README.md](aion-gate/README.md), [aion-gate/docs/architecture-aion-gate-20261007.md](aion-gate/docs/architecture-aion-gate-20261007.md)).
+  L2Authd = NC-ориг (жизненный цикл сессии/authd-флаг — открытая зона T2-T3 в гейт-README).
 
 **Джекпот проекта:** на VM лежат родные PDB-символы NC ко всем ключевым нативным бинарям (~1.1 ГБ; локально скачаны малые, MD5-манифест гигантов: [manifest-pdb-big.md](manifest-pdb-big.md), бинарей: [manifest-bin.md](manifest-bin.md)).
 
