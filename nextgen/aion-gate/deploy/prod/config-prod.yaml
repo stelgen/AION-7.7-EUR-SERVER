@@ -30,7 +30,8 @@ authReconnectInterval: 30
 welcomeB0: 101
 welcomeB1: 114
 welcomeB2: 0
-# ФИКСТУРА: полный 194Б-фрейм welcome ИЗ ДАМПА ОРИГИНАЛА (05:41:11) — тупой реплей
-welcomeFixture: "c2009f93f6972356e1e4966ad2908eab03508fc6b49dea6c8a00191b327a8d14e4829982fddfe5f1f01480435e34efd9774dd68df7c73d069055da547c5d8350743d2ce3ed7184e6a94c9521d82b856bbdab70c53f65456468ce69b665805ee5477fd60ee09248f8f7fdb5663fd7b68b49929d9b97cb8ad892e2325f2c0509a24be1b38fff5719c94dcc73dcafe7398e8d0b03cf0fc630b50ff3a5a31e1448b682208e03495ae3a393474ccb01631c0dea0095ab324fc9b20308c4f4990b910c575b"
+# ПРОБА: round-robin вариантов welcome, удержание каждого ≥3 мин (пауза на логин)
+welcomeProbe: true
+variantHoldSec: 180
 ship:
   enabled: false

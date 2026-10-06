@@ -50,7 +50,11 @@ type Gate struct {
 	WelcomeB2        int    `yaml:"welcomeB2"`
 	// WelcomeFixture — hex ПОЛНОГО фрейма (len+c200...) из дампа ОРИГИНАЛА:
 	// если задан — шлём его байт-в-байт вместо сборки (тупой реплей, A/B-тест).
+	// Приоритет выше welcomeProbe.
 	WelcomeFixture   string `yaml:"welcomeFixture"`
+	// WelcomeProbe — round-robin пробных вариантов welcome (оракул: frame-32 = принят).
+	WelcomeProbe     bool   `yaml:"welcomeProbe"`
+	VariantHoldSec   int    `yaml:"variantHoldSec"` // удержание варианта (мин. 180 = пауза на логин)
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`
@@ -82,6 +86,7 @@ func (g *Gate) FillDefaults() {
 	set(&g.WelcomeB0, 'e')
 	set(&g.WelcomeB1, 'r')
 	set(&g.WelcomeB2, 0)
+	set(&g.VariantHoldSec, 180) // минимум 3 минуты на вариант (пауза на логин)
 }
 
 // Config — верхний уровень config.yaml.

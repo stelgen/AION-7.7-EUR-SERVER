@@ -51,3 +51,77 @@ func BuildWelcome(a *WelcomeArgs, bf *Blowfish) []byte {
 	plain := append(a.plain(), make([]byte, welcomeExtra4)...) // 173+4=177
 	return WriteFrame(EncryptPrimary(bf, plain))
 }
+
+// BuildWelcomeVariant — пробная сборка для живого перебора раскладки через оракул
+// (frame-32 от клиента = вариант принят). Варианты:
+//	0 = базовый (fc,V,mod-scramble,gg-нули,key2,статки 65650072,хвост 0x00,+4)
+//	1 = хвост-байт 0x23 (PlainByte-гипотеза)
+//	2 = статики [168:172] = нули (без 65650072)
+//	3 = GG-зона = 16×0xFF (проверка валидации зоны)
+//	4 = БЕЗ скрамбла модуля (raw)
+//	5 = csum = XOR дворов (как DecryptSecondary) вместо cumsum
+//	6 = fc фикс. 0x7d521423 (из capture)
+//	7 = V фикс. 0x634692d8 (из capture)
+//	9 = без welcomeExtra4 (pt 172 → wire 186, тест длины)
+func BuildWelcomeVariant(a *WelcomeArgs, bf *Blowfish, variant int) []byte {
+	mod := a.Modulus
+	if variant != 4 {
+		ScrambleModulus(&mod)
+	}
+	b := make([]byte, 0, 176)
+	fc := a.SessionID
+	if variant == 6 {
+		fc = 0x7d521423
+	}
+	b = binary.LittleEndian.AppendUint32(b, fc)
+	v := a.AuthdSession
+	if variant == 7 {
+		v = 0x634692d8
+	}
+	b = binary.LittleEndian.AppendUint32(b, v)
+	b = append(b, mod[:]...) // 128
+	if variant == 3 {
+		for i := 0; i < 16; i++ {
+			b = append(b, 0xFF)
+		}
+	} else {
+		b = append(b, a.GGQuery[:]...) // 16
+	}
+	b = append(b, a.Key2[:]...) // 16
+	if variant == 2 {
+		b = append(b, 0, 0, 0, 0)
+	} else {
+		b = append(b, 0x65, 0x65, 0x00, 0x72) // S,B0,B1,B2 (image-статики)
+	}
+	if variant == 1 {
+		b = append(b, 0x23)
+	} else {
+		b = append(b, 0x00)
+	}
+	if variant == 9 {
+		return WriteFrame(EncryptPrimaryXor(bf, b)) // 172 → 184 → wire 186
+	}
+	b = append(b, make([]byte, welcomeExtra4)...) // +4 → 177
+	if variant == 5 {
+		return WriteFrame(EncryptPrimaryXor(bf, b))
+	}
+	return WriteFrame(EncryptPrimary(bf, b))
+}
+
+// EncryptPrimaryXor — как EncryptPrimary, но чек-сумма = XOR дворов вместо cumsum
+// (проба альтернативной модели чек-суммы).
+func EncryptPrimaryXor(bf *Blowfish, data []byte) []byte {
+	n := (len(data) + 7) &^ 7
+	buf := make([]byte, n+8)
+	copy(buf, data)
+	var x uint32
+	for k := 0; k < n/4; k++ {
+		x ^= binary.LittleEndian.Uint32(buf[k*4:])
+	}
+	binary.LittleEndian.PutUint32(buf[n:], x)
+	out := make([]byte, n+8)
+	for off := 0; off < n+8; off += 8 {
+		bf.Encrypt(out[off:off+8], buf[off:off+8])
+	}
+	return out
+}
