@@ -196,7 +196,9 @@ func TestE2ESkeleton(t *testing.T) {
 	copy(tail[20:27], []byte{0x20, 0, 0, 0, 0, 0, 0x01}) // magic гита (структура, не байты 7.7)
 	copy(tail[27:43], []byte{0x9D, 0xDA, 0x47, 0xA7, 0x21, 0xC0, 0xA6, 0xA5, 0x4B, 0xB7, 0x5E, 0xE3, 0xCE, 0xC9, 0x26, 0xAA})
 	data = append(data, tail...)
-	if _, err := cl.Write(proto.WriteFrame(data)); err != nil {
+	// клиент шлёт CM_LOGIN зашифрованным key2 (готча 06.10 №2: без DecryptSecondary
+	// в handleLogin гейт глушил RAW-ECB как RSA-блоки — все старые «decbuf мусор»)
+	if _, err := cl.Write(proto.WriteFrame(proto.EncryptSecondary(sess.BF2, data))); err != nil {
 		t.Fatal(err)
 	}
 	waitFor(t, func() bool { f.mu.Lock(); defer f.mu.Unlock(); return len(f.packets) == 1 })

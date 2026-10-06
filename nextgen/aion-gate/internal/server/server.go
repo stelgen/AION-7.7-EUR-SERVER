@@ -357,7 +357,7 @@ func (s *Server) handleConn(conn net.Conn) {
 				s.send(ship.Event{Ev: ship.EvParseErr, Remote: remote, Err: err.Error(), Data: map[string]any{"stage": "login"}})
 				return
 			}
-		case len(payload) == 26: // пинги/запросы клиента — эмуляция ответов оригинала
+		case len(payload) == 24: // пинги/запросы клиента (wire 26 = 2+len + 24 ECB) — эмуляция ответов оригинала
 			s.handle26(sess, payload)
 		default: // релей в authd (тип = первый байт payload)
 			s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, payload) })
@@ -412,17 +412,25 @@ func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 // blob "cbdb" с РЕАЛЬНЫМИ кредами (decbuf = m[128-loginDecbufLen:]; asm ориг arg3=0x22=34).
 // Невалидно → лог "login decode FAIL (exp=...)" + legacy-релей (полный m) — не рвать.
 func (s *Server) handleLogin(sess *Session, data []byte) error {
-	chunks, _, shapeOK := proto.SplitLogin(data)
+	// КОРНЕВАЯ ГОТЧА 06.10 №2: data = RAW ECB(key2) — ОБЯЗАТЕЛЬНО DecryptSecondary
+	// до SplitLogin/RSA (handleAuthGG это делал, login/26b — НЕТ; этим объясняются
+	// и все старые «decbuf мусор»: RSA глушили ещё зашифрованные байты).
+	pt, err := proto.DecryptSecondary(sess.BF2, data)
+	if err != nil {
+		log.Printf("login: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(data), err)
+		return err
+	}
+	chunks, _, shapeOK := proto.SplitLogin(pt)
 	if !shapeOK {
-		log.Printf("login: sid=%d форма НЕ по гиту (len=%d) — legacy-релей", sess.ID, len(data))
-		return s.handleLoginLegacy(sess, data)
+		log.Printf("login: sid=%d форма НЕ по гиту (pt=%d) — legacy-релей", sess.ID, len(pt))
+		return s.handleLoginLegacy(sess, pt)
 	}
 	ms := make([][]byte, 0, len(chunks))
 	for i, ct := range chunks {
 		m, err := sess.RSA.DecryptBlock(ct)
 		if err != nil {
 			log.Printf("login: RSA decrypt FAIL chunk %d/%d len=%d: %v", i+1, len(chunks), len(ct), err)
-			return s.handleLoginLegacy(sess, data)
+			return s.handleLoginLegacy(sess, pt)
 		}
 		ms = append(ms, m)
 	}
@@ -431,7 +439,7 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		log.Printf("login decode FAIL (exp=%d, chunks=%d): user=%q — legacy-релей (не рвать)",
 			s.Cfg.RsaExponent, len(ms), dec.User)
 		s.send(ship.Event{Ev: "login.decodefail", Data: map[string]any{"sid": sess.ID, "exp": s.Cfg.RsaExponent, "chunks": len(ms)}})
-		return s.handleLoginLegacy(sess, data)
+		return s.handleLoginLegacy(sess, pt)
 	}
 	log.Printf("login OK: sid=%d chunks=%d loginex=%v user=%q pwd=%q pwdHex=%s otp=%08x",
 		sess.ID, len(ms), dec.Ex, dec.User, dec.Pwd, dec.PwdHex, dec.Otp)
@@ -439,14 +447,15 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		"sid": sess.ID, "user": dec.User, "otp": dec.Otp, "chunks": len(ms),
 	}})
 	decbuf := proto.BuildLoginDecbuf(dec.User, dec.Pwd, dec.Otp, s.Cfg.LoginDecbufLen)
-	dword148 := binary.LittleEndian.Uint32(data[148:152])
-	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, data[152:])
+	dword148 := binary.LittleEndian.Uint32(pt[148:152])
+	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, pt[152:])
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
 	log.Printf("login: relay authd sid=%d decbufLen=%d blobLen=%d", sess.ID, len(decbuf), len(blob))
 	return nil
 }
 
-// handleLoginLegacy — старый релей (до П3): полный m 128Б + dword148 + data[152:].
+// handleLoginLegacy — старый релей (до П3): полный m 128Б + dword148 + хвост.
+// Вход — УЖЕ расшифрованный pt (DecryptSecondary сделан в handleLogin).
 func (s *Server) handleLoginLegacy(sess *Session, data []byte) error {
 	const rsaLen = 128
 	if len(data) < rsaLen+24 {
@@ -561,7 +570,13 @@ func sendCCSess(sess *Session, code byte) {
 // op=0x05 → 42b: [04][01 01 01][IP][port 7777][00 00][f4 01 01 01][00 00 00 02][01 00 01][12x0]
 // op=0x02 → 26b: [07][01 00 00 00][1010][01][5x0] (хвост ориг = резидуум, клиент толерантен)
 func (s *Server) handle26(sess *Session, payload []byte) {
-	op := payload[0]
+	// payload = RAW ECB(key2) — расшифровываем (та же готча, что и в login)
+	ptIn, err := proto.DecryptSecondary(sess.BF2, payload)
+	if err != nil {
+		log.Printf("26b: key2-decrypt FAIL sid=%d len=%d: %v", sess.ID, len(payload), err)
+		return
+	}
+	op := ptIn[0]
 	pt := s.build26ReplyPt(op)
 	if pt == nil {
 		return
