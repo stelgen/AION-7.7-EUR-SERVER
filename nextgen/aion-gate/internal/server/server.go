@@ -322,7 +322,7 @@ func (s *Server) handleAuthGG(sess *Session, blob []byte) error {
 	if data, err := proto.DecryptSecondary(sess.BF2, blob); err == nil {
 		if len(data) >= 4 {
 			log.Printf("auth-gg: dec sid=%d blob=%s", sess.ID, hex.EncodeToString(data))
-			if csid := binary.LittleEndian.Uint32(data); csid != sess.ID {
+			if csid := binary.LittleEndian.Uint32(data[1:5]); csid != sess.ID {
 				log.Printf("auth-gg: sid mismatch: client %d != session %d", csid, sess.ID)
 				s.send(ship.Event{Ev: "authgg.mismatch", Data: map[string]any{"sid": sess.ID, "client": csid}})
 			}
@@ -360,6 +360,7 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	}
 	decbuf, err := sess.RSA.DecryptBlock(data[:rsaLen])
 	if err != nil {
+		log.Printf("login: RSA decrypt FAIL len=%d: %v", len(data), err)
 		return err
 	}
 	dword148 := binary.LittleEndian.Uint32(data[148:152])
