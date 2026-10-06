@@ -91,6 +91,13 @@ func authgg07(t *testing.T, cl net.Conn, sess *Session) {
 	if binary.LittleEndian.Uint16(rl) != 42 {
 		t.Fatalf("authgg reply len: %d want 42", binary.LittleEndian.Uint16(rl))
 	}
+	// ДОЧИТАТЬ тело 42b (40Б): без этого поток клиента рассинхронизирован и все
+	// последующие чтения фреймов ловят мусор (нашли 08.10 через DBG header=reply[2:4]).
+	body := make([]byte, 40)
+	if _, err := asRead(cl, body); err != nil {
+		t.Fatalf("authgg reply body: %v", err)
+	}
+	cl.SetReadDeadline(time.Time{})
 	if sess.State != stAuthedGG {
 		t.Fatalf("state после AUTH_GG = %s want AUTHED_GG", stateName(sess.State))
 	}

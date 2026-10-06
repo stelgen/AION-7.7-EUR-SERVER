@@ -110,6 +110,18 @@
     старым мусорным dword из ct-зоны + 152Б хвостом (19:12 06.10 → type=3 login-ok acc=7).
     Authd читает только decbuf (user); dword/tail игнорит. К-1 фикс оставлен (гигиена логов).
 
+14. «Реестр кодов/форм фейлов надо гадать» — ЗАКРЫТО СОРСОМ (08.10): клон эталона
+    Mobius_AionEmu 7.7 в reference/; SM_LOGIN_FAIL=[01][D messageId]→wire 18 (=live 06.10
+    11:08), SM_PLAY_FAIL=[06][D messageId]; полный реестр messageId — AionAuthResponse.java
+    (7=ALREADY_LOGGED_IN, 8=SERVER_DOWN, 15=SERVER_FULL, 22=BAN_IP); семантика relogin —
+    AccountController.login: kick+7 (следующая попытка проходит); CM_PLAY: GS offline =
+    SM_PLAY_FAIL(8) БЕЗ close; кривая SessionKey = close(SM_LOGIN_FAIL(1)).
+    Реализация T1: authfail.go + таймеры тишины (loginTimeoutSec/playTimeoutSec=8) +
+    онлайн-кэш (onlineTtlSec=300); failCloseSec=0 = НЕ рвать (план T1), >0 = как эталон.
+15. Готча тестов (08.10): хелпер authgg07 (flow_test.go) читал только 2Б-заголовок 42b —
+    40Б тела оставались в потоке → все последующие readFrame ловили мусор (header=reply[2:4]).
+    Фикс: хелпер обязан потреблять фрейм ЦЕЛИКОМ. Симптом искали через DBG-логи чтения.
+
 ### RUNBOOK ПОСЛЕ РЕБУТА ВМ (доказанный порядок)
 1. Десктоп ВМ → `AION-START-ALL-v6.bat` (или /IT-задача `AionAuthIT` → C:\Temp\auth.bat →
    `call C:\Temp\start-all.bat`). СТРОГО session 1 — SYSTEM/session-0 L2Authd умирает молча.

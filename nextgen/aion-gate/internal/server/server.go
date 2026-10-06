@@ -81,8 +81,15 @@ type Server struct {
 	mu       sync.Mutex
 	authd    *authdclient.Client
 	sess     map[uint32]*Session
-	counter    uint32 // TODO §5.6: генератор sid @0x4041b8 (время+база) — сейчас счётчик с 1
-	assigned   uint32 // [authd_sock+0xa0] — sid, назначенный authd ([03])
+	counter  uint32 // TODO §5.6: генератор sid @0x4041b8 (время+база) — сейчас счётчик с 1
+	assigned uint32 // [authd_sock+0xa0] — sid, назначенный authd ([03])
+
+	// T1 «фейлы как эталон» (authfail.go, сорс Mobius 7.7): таймеры тишины authd
+	// и онлайн-кэш «акк был в login-ok» для немедленного LoginFail на relogin.
+	pendMu   sync.Mutex
+	pend     map[uint32]*pendingReq
+	onlineMu sync.Mutex
+	online   map[string]time.Time
 }
 
 func New(cfg config.Gate, sh *ship.S) (*Server, error) {
@@ -104,6 +111,8 @@ func New(cfg config.Gate, sh *ship.S) (*Server, error) {
 		ips:   LoadIPList(cfg.BlockIPsFile),
 		key1:  key1,
 		sess:  map[uint32]*Session{},
+		pend:  map[uint32]*pendingReq{},
+		online: map[string]time.Time{},
 	}, nil
 }
 
@@ -206,6 +215,7 @@ func (s *Server) drop(sess *Session) {
 	s.mu.Lock()
 	delete(s.sess, sess.ID)
 	s.mu.Unlock()
+	s.cancelPending(sess.ID) // T1: таймер тишины authd больше не нужен
 	sess.close()
 }
 
@@ -524,6 +534,14 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		log.Printf("login: username normalize: %q → %q (эталон trim+toLowerCase)", dec.User, user)
 	}
 	decbuf := proto.BuildLoginDecbuf(user, dec.Pwd, dec.Otp, s.Cfg.LoginDecbufLen)
+	// T1-б (эталон AccountController.login: релогин акка на GS = kick + ALREADY_LOGGED_IN(7),
+	// следующая попытка проходит): relogin моложе onlineTtlSec = НЕМЕДЛЕННЫЙ LoginFail(7)
+	// вместо 30-60с тишины; blob всё равно релеим (authd сам решает по своему флагу).
+	onlineFail := s.onlineRecent(user)
+	if onlineFail {
+		log.Printf("login: relogin онлайн-акка %q (моложе onlineTtlSec=%d) = SM_LOGIN_FAIL(%d) немедленно; blob релеится (kick-семантика эталона)", user, s.Cfg.OnlineTtlSec, s.Cfg.LoginFailOnline)
+		s.sendAuthFail(sess, opLoginFail, uint32(s.Cfg.LoginFailOnline), "login.onlinefail")
+	}
 	// К-1 REVISED 07.10 (probe-доказательство): authd требует ПОЛНУЮ asm-форму blob —
 	// dword = pt[148:152], tail = pt[152:] для ЛЮБОГО k (ровно как оригинал; loginex = 191Б).
 	// Прежний «К-1 фикс» (86Б blob: dword=0, tail=47 из SplitLogin) → authd МОЛЧИТ на
@@ -543,7 +561,12 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
 	log.Printf("login: relay authd sid=%d decbufLen=%d blobLen=%d k=%d dword=%08x taillen=%d",
 		sess.ID, len(decbuf), len(blob), len(chunks), dword, len(blobTail))
-	sess.State = stAuthedLogin // К-2 (P0-2): успешный login-decode → AUTHED_LOGIN
+	sess.State = stAuthedLogin // К-2 (P0-2): успешный login-decode
+	if !onlineFail {
+		// T1-а: таймаут тишины authd (нет type=3 за loginTimeoutSec = LoginFail);
+		// при onlineFail ответ уже дан — таймер не нужен.
+		s.armPending(sess, pendLogin, user)
+	}
 	return nil
 }
 
@@ -567,6 +590,7 @@ func (s *Server) handleLoginLegacy(sess *Session, data []byte) error {
 	log.Printf("login legacy: sid=%d decbuf=%s dword148=%08x taillen=%d tail=%s", sess.ID, hex.EncodeToString(decbuf), dword148, len(tail), hex.EncodeToString(tail))
 	blob := proto.Assemble("cbdb", byte(0), decbuf, dword148, tail)
 	s.withAuthd(func(a *authdclient.Client) { _ = a.SendPacket(sess.ID, blob) })
+	s.armPending(sess, pendLogin, "") // T1-а: тишина authd на legacy-пути тоже = LoginFail
 	return nil
 }
 
@@ -615,6 +639,13 @@ func parseServerList(typ byte, payload []byte) {
 func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	log.Printf("RAW AUTHD pkt id=%d type=%d len=%d hex=%s", id, typ, len(payload), hex.EncodeToString(payload))
 	parseServerList(typ, payload)
+	// T1: authd ответил = таймер тишины отменяется; type=3 (login-ok) = онлайн-кэш
+	// (authd помечает акк онлайн именно на type=3 — probe-доказательство 07.10).
+	failUser := s.pendingUser(id)
+	s.cancelPending(id)
+	if typ == 3 && failUser != "" {
+		s.markOnline(failUser)
+	}
 	// ЛЮБОЙ тип authd -> конкретной сессии по id.
 	// КОНТРАКТ (live 06.10): клиентский ОПКОД = ТИП от authd — гейт ОБЯЗАН добавить
 	// его в начало pt (capture: authd type=3 + payload 52Б → ориг шлёт клиенту
@@ -693,6 +724,11 @@ func (s *Server) handle26pt(sess *Session, ptIn []byte) {
 	s.withAuthd(func(a *authdclient.Client) { relayed = a.SendPacket(sess.ID, ptIn) == nil })
 	if relayed {
 		log.Printf("26b: relay authd sid=%d op=%02x len=%d", sess.ID, op, len(ptIn))
+		// T1-в: после релея [05]/[02] в AUTHED_LOGIN ждём type=4/7; тишина дольше
+		// playTimeoutSec = SM_PLAY_FAIL(playFailCode) (эталон CM_PLAY: GS offline = SERVER_DOWN).
+		if sess.State == stAuthedLogin && (op == 0x05 || op == 0x02) {
+			s.armPending(sess, pendPlay, "")
+		}
 		return
 	}
 	pt := s.build26ReplyPt(op, sess)

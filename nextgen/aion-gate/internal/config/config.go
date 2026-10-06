@@ -86,11 +86,36 @@ type Gate struct {
 	// ggXorTail — classic: SM_AUTH_GG в форме гита (wire 50) вместо живой 32Б (wire 42).
 	GgXorTail bool `yaml:"ggXorTail"`
 
+	// T1 «фейлы как эталон» (релиз 08.10, сорс Mobius_AionEmu 7.7 = Aion-Lightning;
+	// реестр messageId — AionAuthResponse.java, формы — SM_LOGIN_FAIL/SM_PLAY_FAIL.java):
+	// loginTimeoutSec — таймаут тишины authd после релея blob (нет type=3) = SM_LOGIN_FAIL;
+	// playTimeoutSec  — таймаут тишины после релея [05]/[02] (нет type=4/7) = SM_PLAY_FAIL;
+	// onlineTtlSec    — гейт-кэш «акк был в login-ok»: relogin моложе TTL = НЕМЕДЛЕННЫЙ
+	//                   SM_LOGIN_FAIL(loginFailOnline), blob всё равно релеить
+	//                   (эталон AccountController.login: kick + ALREADY_LOGGED_IN(7));
+	// failCloseSec    — 0 = соединение после фейла НЕ рвать (план T1, проверить клиентом);
+	//                   >0 = закрыть через N сек (эталон в дефолт-ветках делает close(packet,false)).
+	LoginTimeoutSec int `yaml:"loginTimeoutSec"`
+	PlayTimeoutSec  int `yaml:"playTimeoutSec"`
+	OnlineTtlSec    int `yaml:"onlineTtlSec"`
+	LoginFailCode   int `yaml:"loginFailCode"`
+	PlayFailCode    int `yaml:"playFailCode"`
+	LoginFailOnline int `yaml:"loginFailOnline"`
+	FailCloseSec    int `yaml:"failCloseSec"`
+
 
 
 	// Ship — телеметрия TELEMETRY-SPEC (syslog RFC5424/http/file; не критичный путь).
 	Ship ship.Cfg `yaml:"ship"`
 }
+
+// messageId AionAuthResponse для дефолтов T1 (сорс эталона: AionAuthResponse.java,
+// Mobius_AionEmu 7.7; полный реестр — server/authfail.go; импорт сюда невозможен (server импортирует config).
+const (
+	serverRespSystemError     = 1
+	serverRespServerDown      = 8
+	serverRespAlreadyLoggedIn = 7
+)
 
 // FillDefaults — значения из оригинального config.txt (§4 дока).
 func (g *Gate) FillDefaults() {
@@ -123,6 +148,14 @@ func (g *Gate) FillDefaults() {
 	set(&g.WorldPort, 7777)
 	set(&g.ServerID, 1)
 	set(&g.SmAuthGgWire, 42)     // live-форма (эталонная 50 — только по явному конфигу)
+	// T1-фейлы (дефолты из плана T1; коды = messageId AionAuthResponse):
+	set(&g.LoginTimeoutSec, 8)  // нет type=3 за 8с = LoginFail
+	set(&g.PlayTimeoutSec, 8)   // нет type=4/7 за 8с = PlayFail
+	set(&g.OnlineTtlSec, 300)   // relogin моложе 5 мин = немедленный LoginFail(7)
+	set(&g.LoginFailCode, serverRespSystemError)         // 1 SYSTEM_ERROR (альт: 8 SERVER_DOWN)
+	set(&g.PlayFailCode, serverRespServerDown)           // 8 SERVER_DOWN (альт: 15 SERVER_FULL)
+	set(&g.LoginFailOnline, serverRespAlreadyLoggedIn)  // 7 ALREADY_LOGGED_IN
+	set(&g.FailCloseSec, 0)     // НЕ рвать после фейла (эталон: close = конфигурируемо)
 }
 
 // Config — верхний уровень config.yaml.

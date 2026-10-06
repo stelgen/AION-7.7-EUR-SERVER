@@ -1,6 +1,6 @@
 # aion-gate — замена AuthGateD для AION 7.7 EU (Go)
 
-**РЕЛИЗ 07.10.2026.** Прод: `192.168.0.125:2106`, `mode: authgate`, полный живой флоу
+**РЕЛИЗ 07.10.2026 + T1-фейлы 08.10.** Прод: `192.168.0.125:2106`, `mode: authgate`, полный живой флоу
 доказан на двух аккаунтах (`1/1` → accId 7; `stelgen` → accId 1010):
 `welcome 194B → AUTH_GG 42b → CM_LOGIN → blob cbdb → authd type=3 → [03]74Б →
 [05] relay → [04]42Б → [02] relay → [07]26Б → мир 7777`.
@@ -21,6 +21,60 @@
 | State-машина | CONNECTED{0x07→authgg, 0x08→UPDATE_SESSION relay} → AUTHED_GG{0x00‖0x0B→login} → AUTHED_LOGIN{0x05,0x02→relay}; unknown = лог, НЕ cc45 |
 | Username | `TrimSpace+ToLower` перед decbuf (К-5) |
 | LoginFail | cc/SM_LOGIN_FAIL = messageId AionAuthResponse: 0,1,2,4,5,6,7,8,10,11,12,15,16,18,21,22 (22=BAN_IP «заблокирован» — live); 45 = authgate-спец |
+
+## 🛡️ T1 — фейлы вместо тишины (08.10; ИСТОЧНИК = сорс эталона, не догадки)
+
+Эталон: `reference/Mobius_AionEmu` (Aion-Germany 7.7 → Aion-Lightning; клон в
+`STELGEN/projects/aion_server_2026-10-02/reference/`). Формы и коды взяты из сорса:
+
+| Пакет | Форма (plaintext) | Wire |
+|---|---|---|
+| `SM_LOGIN_FAIL.java` (super 0x01) | `[01][D messageId]` (5Б) | **18Б** = EncryptSecondary(8Б) — ровно live-форма 06.10 11:08 |
+| `SM_PLAY_FAIL.java` (super 0x06) | `[06][D messageId]` (5Б) | **18Б** |
+| `SM_UPDATE_SESSION.java` (super 0x0c) | `[D accountId][D loginOk][C 0x00]` (9Б) | 26Б |
+
+Реестр кодов = `AionAuthResponse.java` (messageId): 0 AUTHED(внутр.), 1 SYSTEM_ERROR,
+2 INVALID_PASSWORD, 4 FAILED_ACCOUNT_INFO, 5 FAILED_SOCIAL_NUMBER, 6 NO_GS_REGISTERED,
+**7 ALREADY_LOGGED_IN**, **8 SERVER_DOWN**, 10 NO_SUCH_ACCOUNT, 11 DISCONNECTED, 12 AGE_LIMIT,
+15 SERVER_FULL, 16 GM_ONLY, 18 TIME_EXPIRED, 21 ALREADY_USED_IP, **22 BAN_IP** («заблокирован» — live);
+45 = authgate-спец (гейт не готов). Полный список 0–22 — `internal/server/authfail.go`.
+
+Триггеры (конфиг `loginTimeoutSec`/`playTimeoutSec`/`onlineTtlSec`, дефолты 8/8/300):
+
+- **(а) таймаут authd** — после релея blob нет type=3 за `loginTimeoutSec` →
+  `SM_LOGIN_FAIL(loginFailCode=1)`; если user в онлайн-кэше → `loginFailOnline=7`.
+- **(б) relogin онлайн-акка** — login-ok по этому username моложе `onlineTtlSec` →
+  НЕМЕДЛЕННЫЙ `SM_LOGIN_FAIL(7)` (клиент не висит 30-60с); blob всё равно релеится —
+  эталон `AccountController.login`: kick старой GS-сессии + ALREADY_LOGGED_IN(7),
+  следующая попытка проходит. Онлайн-кэш наполняется на type=3 (authd помечает акк
+  онлайн именно там — probe 07.10).
+- **(в) таймаут play** — после релея `[05]`/`[02]` нет type=4/7 за `playTimeoutSec` →
+  `SM_PLAY_FAIL(playFailCode=8)`. Эталон `CM_PLAY`: GS offline → SERVER_DOWN без close;
+  SERVER_FULL=15 — альтернатива конфигом.
+
+Семантика close: эталон в дефолт-ветках делает `close(packet,false)` (фейл + закрыть),
+но RSA-fail в CM_LOGIN и SERVER_DOWN в CM_PLAY — БЕЗ close. Наш дефолт `failCloseSec=0` =
+соединение НЕ рвать (план T1: сообщение + экран логина живы — проверить клиентом);
+`failCloseSec>0` = закрыть через N сек (как эталон).
+
+Тесты: `TestAuthFailFrames` (wire 18 + roundtrip), `TestLoginTimeoutFail`,
+`TestPlayTimeoutFail`, `TestReloginOnlineCache`, `TestAuthFailCancel` (`authfail_test.go`).
+Логи: `RAW G>C SM_LOGIN_FAIL messageId=…` + ship-события `login.onlinefail`/`login.timeout`/`play.timeout`.
+
+## ⏭️ T2/T3 — планы экспериментов (обоснование из того же сорса)
+
+- **T2-б (relogin через ориг)**: эталон на relogin НЕ молчит — он отвечает 7 и кикает.
+  Наш authd молчит (flag TTL 2-6 мин) → наш немедленный LoginFail(7) + relay = корректная
+  адаптация. Проверить на ВМ: fork-логин онлайн-акка — ожидаем тип 1 ОТ authd (не тишина)?
+  Наш `onAuthdPacket` ретранслирует type=1 как `[01]+payload` = та же 18Б-форма — не глотает.
+- **T2-а (TTL флага authd)**: probe-цикл 30с после type=3 до повторного type=3; сверить
+  с `onlineTtlSec` гейта (300) — при расхождении подстроить конфиг.
+- **T2-в (GS-logout снимает ли флаг)**: корректный выход из мира → немедленный relogin;
+  сорс-аналог = GS шлёт LS logout → LS снимает аккаунт. У нас аналог = Server64→authd.
+- **T3 (CM_UPDATE_SESSION 0x08)**: relay реализован (type=0x08 prepend). Сорс-контракт:
+  валидный reconnectKey → SM_UPDATE_SESSION (26Б), иначе `closeNow()`. Сценарий: уйти в мир →
+  убить клиент → перезайти; форк-дамп против ориг; наш тест — relay-форма.
+- **Health-check без лока (T2-г)**: probe свежим акком (авто-создание) — в README runbook уже есть.
 
 ## 🔧 Режимы (`mode` в config.yaml)
 
@@ -59,6 +113,8 @@ AUTH_GG вердикт) или решающий логин.
 ## ⚙️ Ключи конфига (config-prod.yaml на VM)
 
 `serverPort:2106, authAddr/AuthPort:127.0.0.1:2110, mode:authgate, rsaExponent:65537,
+loginTimeoutSec:8, playTimeoutSec:8, onlineTtlSec:300, loginFailCode:1, playFailCode:8,
+loginFailOnline:7, failCloseSec:0 (T1-фейлы, секция 🛡️ выше),
 loginDecbufLen:34, forkOrigAddr/Port:127.0.0.1:2109, worldIP:192.168.0.125, worldPort:7777,
 welcomeTestCC:0, welcomeWaitAuthdMs:2000, serverID:1, smAuthGgWire:42 (live-форма;
 50 = эталон Mobius для A/B), dumpPacket, blockIPsFile, tryInterval/Count/BlockInterval`.
@@ -70,3 +126,6 @@ welcomeTestCC:0, welcomeWaitAuthdMs:2000, serverID:1, smAuthGgWire:42 (live-фо
 - `docs/mobius-77-flow-review-20261006.md` — сверка с эталоном Mobius (К-1..К-6, все закрыты;
   К-1 REVISED, К-3 live-поправка op=0x00).
 - `docs/beyond-aion-48-…`, `docs/rsa-hunt-…` — АРХИВ (история гипотез, не актуальны).
+- `reference/` (вне репо: `STELGEN/projects/aion_server_2026-10-02/reference/`) — клоны эталонов:
+  `Mobius_AionEmu` (7.7, главный) и `beyond-aion/aion-server@4.8`. ПРАВИЛО: ответы по протоколу
+  фейлов/сессии брать из сорса эталона (`loginserver/network/aion/...`), НЕ гадать; live-дамп — арбитр.
