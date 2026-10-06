@@ -123,7 +123,7 @@ func TestLoginRelayTailLoginex(t *testing.T) {
 	copy(tail[35:43], []byte{0x2d, 0x9c, 0xc7, 0xba, 0xa8, 0x7e, 0x0d, 0x49})
 
 	pt := make([]byte, 0, 304)
-	pt = append(pt, 0x0B)
+	pt = append(pt, 0x00) // live 7.7 EU клиент шлёт CM_LOGIN op=0x00 (форк-дамп 00:43)
 	pt = append(pt, rsaEnc(sess, m1)...)
 	pt = append(pt, rsaEnc(sess, m2)...)
 	pt = append(pt, tail...)
@@ -198,7 +198,7 @@ func TestStateMachineTransitions(t *testing.T) {
 	tail := make([]byte, 55)
 	binary.LittleEndian.PutUint32(tail[0:4], sess.ID)
 	tail[20] = 0x20
-	pt := append([]byte{0x0B}, rsaEnc(sess, m)...)
+	pt := append([]byte{0x00}, rsaEnc(sess, m)...) // live 7.7 EU: CM_LOGIN op=0x00 в AUTHED_GG
 	pt = append(pt, tail...)
 	sendPt(cl, sess, pt)
 	waitFor(t, func() bool { f.mu.Lock(); defer f.mu.Unlock(); return len(f.packets) == 3 })
@@ -230,7 +230,7 @@ func TestUsernameNormalize(t *testing.T) {
 	tail := make([]byte, 55)
 	binary.LittleEndian.PutUint32(tail[0:4], sess.ID)
 	tail[20] = 0x20
-	pt := append([]byte{0x0B}, rsaEnc(sess, m)...)
+	pt := append([]byte{0x00}, rsaEnc(sess, m)...) // live 7.7 EU: CM_LOGIN op=0x00 в AUTHED_GG
 	pt = append(pt, tail...)
 	sendPt(cl, sess, pt)
 	waitFor(t, func() bool { f.mu.Lock(); defer f.mu.Unlock(); return len(f.packets) == 1 })

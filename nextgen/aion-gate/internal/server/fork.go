@@ -215,7 +215,7 @@ func (s *Server) forkAnalyze(dir string, payload []byte, bf2 *proto.Blowfish, si
 	case op == 0x00: // CM_LOGIN — ГЛАВНЫЙ дамп: ПОЛНЫЙ pt (хвост 7.7 вариативный, shape может не сойтись!) + N_orig
 		log.Printf("FORK C>O LOGIN FULL pt(%d) = %s", len(pt), hex.EncodeToString(pt))
 		opL, chunks, tail, ok := proto.SplitLogin(pt)
-		log.Printf("FORK C>O LOGIN len=%d op=0x%02x (эталон 7.7 = 0x0B) shape_ok=%v chunks=%d", len(pt), opL, ok, len(chunks))
+		log.Printf("FORK C>O LOGIN len=%d op=0x%02x (live 7.7 EU = 0x00, эталон Mobius = 0x0B) shape_ok=%v chunks=%d", len(pt), opL, ok, len(chunks))
 		for i, ct := range chunks {
 			log.Printf("FORK C>O LOGIN ct[%d/%d] = %s", i+1, len(chunks), hex.EncodeToString(ct))
 		}

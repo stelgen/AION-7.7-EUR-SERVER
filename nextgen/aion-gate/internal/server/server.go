@@ -396,7 +396,10 @@ func (s *Server) dispatchAuthgate(sess *Session, payload []byte) error {
 			return nil
 		}
 	case stAuthedGG:
-		if op == 0x0B { // К-3 (P1-3): вход в login ТОЛЬКО по op=0x0B (эталон 7.7)
+		// К-3 (P1-3) + live-поправка 07.10: живой 7.7 EU клиент шлёт CM_LOGIN с op=0x00
+		// (форк-дамп 00:43: pt(304)=00 6fb8...; эталон Mobius = 0x0B — НЕ для leak-клиента).
+		// Принимаем ОБЕ формы: 0x00 (live, доказано) и 0x0B (эталон, страховка).
+		if op == 0x0B || op == 0x00 {
 			return s.handleLogin(sess, payload)
 		}
 		if len(payload) == 24 { // фолбэк длин: 26b-пинги (эмуляция/relay как раньше)
@@ -525,11 +528,9 @@ func (s *Server) handleLogin(sess *Session, data []byte) error {
 		log.Printf("login: sid=%d op=0x%02x форма НЕ по гиту (pt=%d) — legacy-релей", sess.ID, op, len(pt))
 		return s.handleLoginLegacy(sess, pt)
 	}
-	// К-3 (P1-3): op логируется всегда (эталон 7.7: CM_LOGIN = 0x0B в AUTHED_GG);
-	// диспетчер пускает сюда только 0x0B — тут страховка для length-fallback путей.
-	if op != 0x0B {
-		log.Printf("login: op=0x%02x ≠ 0x0B (эталон 7.7) sid=%d k=%d — обрабатываю по форме, сверить логом", op, sess.ID, len(chunks))
-	}
+	// К-3: op логируется (live 7.7 EU = 0x00; эталон Mobius = 0x0B — обе приняты диспетчером;
+	// length-fallback может привести сюда с любым op — формаSplitLogin от op не зависит).
+	_ = op
 	ms := make([][]byte, 0, len(chunks))
 	for i, ct := range chunks {
 		m, err := sess.RSA.DecryptBlock(ct)
