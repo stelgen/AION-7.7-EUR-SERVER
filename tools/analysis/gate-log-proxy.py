@@ -47,6 +47,7 @@ def handle(cs, addr):
     log(f'--- new client {addr[0]}:{addr[1]}')
     try:
         up = socket.create_connection(('127.0.0.1', TARGET), timeout=5)
+        up.settimeout(300)  # connect-таймаут не должен протекать в recv
     except Exception as e:
         log(f'UPSTREAM FAIL {e}')
         cs.close()
