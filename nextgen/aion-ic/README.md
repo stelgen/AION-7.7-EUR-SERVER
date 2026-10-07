@@ -57,3 +57,6 @@
 ## 📊 Сосед узнал (08.10, чат aion-main R0/RES)
 - PDB Server64 publics (74164) содержат классы `MatchingMgr`, `World_BattleGround`, `World_IDArenaTournament`, `World_IDARENAPvP` — **matchmaker-миры существуют в бинаре ядра** = подтверждение теории InterSvrType=2 из бинаря.
 - `ServerToIC` (44 публича) — RPC-семейство IC в Server64, имя совпадает с паттерном ServerToDb/ServerToNPCServer (Shared-код NC).
+
+## 📊 Сосед узнал (10.10, чат aion-cache R1-prep)
+- IC-канал со стороны CacheD64 снят в нумерации: **IC2DB 11 ops / DB2IC 9 ops** (cached-ref/profile-opcode-map.md) — донор для IC-подпротокола, плюс ICClient-классы в publics CacheD (14281).

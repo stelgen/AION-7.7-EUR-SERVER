@@ -1,0 +1,408 @@
+
+[Statics CPU Average START]==========================================<br />
+
+<br/>id: 0, query: <br/>
+
+INSERT INTO #deletedItem with (tablock) SELECT ID from user_item where warehouse = @warehouse AND tid = 0 AND update_date < @deleteda<br/>
+
+
+<br/>id: 1, query: <br/>
+SELECT target_data
+									FROM sys.dm_xe_session_targets xet WITH(nolock)
+									JOIN sys.dm_xe_sessions xes WITH(nolock)
+									ON xes.address = xet.event_session_address
+									WHERE xes.name = 'telemetry_xevents'
+									AND xet.target_name = 'ring_buffe<br/>
+
+
+<br/>id: 2, query: <br/>
+ SELECT
+      db_id() as database_id,
+      sm.[is_inlineable] AS InlineableScalarCount,
+
+<br/>id: 3, query: <br/>
+)SELECT
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+sp.name AS [Name],
+sp.object_id AS [ID],
+CAST(
+ case 
+    when sp.is_ms_shipped = 1 then 1
+    when (
+        select 
+            major_id 
+        from 
+            sys.extended_properties 
+        where 
+            major_id = sp.object_id and 
+            minor_id = 0 and 
+            class = 1 and 
+            name = N'microsoft_database_tools_support') 
+        is not null then 1
+    else 0
+end          
+             AS bit) AS [IsSystemOb<br/>
+
+
+<br/>id: 4, query: <br/>
+ SELECT
+      db_id() AS database_id,
+      o.[type] AS object_type,
+      i.[type] AS index_type,
+      p.[data_compression],
+      COUNT_BIG(DISTINCT p.[object_id]) AS NumTables,
+      COUNT_BIG(DISTINCT CAST(p.[object_id] AS VARCHAR(30)) + '|' + CAST(p.[index_id] AS VARCHAR(10))) AS NumIndexes,
+      ISNULL(px.[IsPartitioned], 0) AS IsPartitioned,
+      IIF(px.[IsPartitioned] = 1, COUNT_BIG(1), 0) NumPartitions,
+      SUM(p.[rows]) NumRows
+      FROM sys.partitions p
+      INNER JOIN sys.objects o
+     <br/>
+
+
+<br/>id: 5, query: <br/>
+	SELECT 
+	CASE 
+		WHEN name like  '%msdtcprx.dll%' THEN 'msdtcprx'
+		WHEN name like  '%sqljdbc_xa.dll%' THEN 'sqljdbc_xa'
+		ELSE NULL 
+	END AS LoadedModules,
+	COUNT(1) AS ModuleCount
+        FROM sys.dm_os_loaded_modules WITH (NOLOCK)
+        WHERE name like  '%msdtcprx.dll%' 
+	OR name like  '%sqljdbc_xa.dll%'
+        GROUP BY 
+	CASE WHEN name like  '%msdtcprx.dll%' THEN 'msdtcprx'
+		WHEN name like  '%sqljdbc_xa.dll%' THEN 'sqljdbc_xa'
+		ELSE NULL 
+	E<br/>
+
+
+<br/>id: 6, query: <br/>
+)SELECT
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+sp.name AS [Name],
+sp.object_id AS [ID],
+CAST(
+ case 
+    when sp.is_ms_shipped = 1 then 1
+    when (
+        select 
+            major_id 
+        from 
+            sys.extended_properties 
+        where 
+            major_id = sp.object_id and 
+            minor_id = 0 and 
+            class = 1 and 
+            name = N'microsoft_database_tools_support') 
+        is not null then 1
+    else 0
+end          
+             AS bit) AS [IsSystemOb<br/>
+
+
+<br/>id: 7, query: <br/>
+select   	category_id,     /*1*/	category_name,	    /*2*/	type,      	        /*3*/	j.trace_event_id,   /*4*/	name,               /*5*/	j.trace_column_id,  /*6*/	subclass_value,     /*7*/	subclass_name from  /*8*/  ( 	select a.category_id, a.name as category_name, a.type, b.trace_event_id, b.name, trace_column_id from 	       sys.trace_categories as a, 	       sys.trace_events as b, 	       sys.trace_event_bindings as c	where (a.category_id=b.category_id) and (b.trace_event_id = c.trace_event_id)   )as j l<br/>
+
+
+<br/>id: 8, query: <br/>
+)SELECT
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+sp.name AS [Name],
+sp.object_id AS [ID],
+CAST(
+ case 
+    when sp.is_ms_shipped = 1 then 1
+    when (
+        select 
+            major_id 
+        from 
+            sys.extended_properties 
+        where 
+            major_id = sp.object_id and 
+            minor_id = 0 and 
+            class = 1 and 
+            name = N'microsoft_database_tools_support') 
+        is not null then 1
+    else 0
+end          
+             AS bit) AS [IsSystemOb<br/>
+
+
+<br/>id: 9, query: <br/>
+)SELECT
+sp.name AS [Name],
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+'Server[@Name=' + quotename(CAST(
+        serverproperty(N'Servername')
+       AS sysname),'''') + ']' + '/Database[@Name=' + quotename(db_name(),'''') + ']' + '/StoredProcedure[@Name=' + quotename(sp.name,'''') + ' and @Schema=' + quotename(SCHEMA_NAME(sp.schema_id),'''') + ']' AS [Urn],
+sp.create_date AS [CreateDate],
+ISNULL(ssp.name, N'') AS [Owner],
+CAST(CASE WHEN ISNULL(smsp.definition, ssmsp.definition) IS NULL THEN 1 ELSE 0 END AS b<br/>
+
+[Statics CPU Average END]=============================================<br/><br/><br />
+
+
+[Statics CPU Sum START]==========================================<br />
+
+<br/><br/>id: 10, query: 
+<br/>SELECT target_data
+									FROM sys.dm_xe_session_targets xet WITH(nolock)
+									JOIN sys.dm_xe_sessions xes WITH(nolock)
+									ON xes.address = xet.event_session_address
+									WHERE xes.name = 'telemetry_xevents'
+									AND xet.target_name = 'ring_buffer' 
+<br/>
+
+<br/><br/>id: 11, query: 
+<br/>CREATE proc [dbo].[Log_TblGameWorldInfo_UpdateMainStatus]
+	@light_users	int,
+	@dark_users		int,
+	@npc_count		int,
+	@pc_store_light_users	int,
+	@pc_store_dark_users	int,
+	@world_id		tinyint,
+	@zone_id		int
+AS
+	UPDATE	aiongm_ur.TBL_GAME_WORLD_INFO
+	SET		LIGHT_USERS = @light_users
+			, DARK_USERS = @dark_users
+			, NPC_COUNT = @npc_count
+			, PC_STORE_LIGHT_USERS = @pc_store_light_users
+			, PC_STORE_DARK_USERS = @pc_store_dark_users
+			, REGDATE = GETDATE() 
+	WHERE	WORLD_ID = @world_id and ZO 
+<br/>
+
+<br/><br/>id: 12, query: 
+<br/>CREATE PROCEDURE [dbo].[aion_DeleteItemByDate_20111227]
+	@date INT,
+	@warehouse INT
+AS
+SET NOCOUNT ON
+
+-- 
+
+<br/><br/>id: 13, query: 
+<br/>
+           
+       DECLARE @msticks bigint, @mstickstime datetime, @LastHour datetime
+                SELECT @mstickstime = GETDATE(), @msticks = ms_ticks from sys.dm_os_sys_info
+                SELECT @LastHour = DATEADD(HOUR, -1, @mstickstime);
+                
+                WITH Quartiles AS (
+                SELECT DISTINCT       
+                    CONVERT(VARCHAR(10), CAST(DATEADD (ms, -1 * (@msticks - [timestamp]),@mstickstime) AS DATE), 112) EventDate,
+                       CONVERT(VARCHAR(30) 
+<br/>
+
+<br/><br/>id: 14, query: 
+<br/>CREATE proc [dbo].[Log_TblWorldStatusInfo_InsertServerinfo]
+	@world_id	int,
+	@server_nm	int,
+	@cpu_usage	int,
+	@free_phy_memory	nvarchar(20),
+	@process_memory		nvarchar(20)
+AS
+	INSERT aiongm_ur.TBL_WORLD_STATUS_INFO (WORLD_ID, SERVER_NM, CONCURRENT_USERS, CPU_USAGE, FREE_PHY_MEMORY, PROCESS_MEMORY, DB_FREE, REGDATE) 
+	VALUES (@world_id, @server_nm, 1, @cpu_usage, @free_phy_memory, @process_memory, 1, GETDATE())
+ 
+<br/>
+
+<br/><br/>id: 15, query: 
+<br/>CREATE PROCEDURE [dbo].[aion_GetVendorItemListAllLight_20160627]
+	@warehouse	TINYINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	SELECT vendor_item_light.id, user_item.name_id, vendor_item_light.sale_price, 
+		vendor_item_light.user_price, vendor_item_light.commit_amount, 
+		vendor_item_light.commit_date,	vendor_item_light.remain_amount,
+		vendor_item_light.can_buy_partial, vendor_item_light.afterUnitFee, vendor_item_light.afterUnitTax,
+		user_item.id,  user_data.char_id, user_data.user_id,
+		isnull(user_item_opti 
+<br/>
+
+<br/><br/>id: 16, query: 
+<br/>CREATE PROCEDURE [dbo].[aion_GetVendorItemListAllDark_20160627]
+	@warehouse	TINYINT
+AS
+BEGIN
+	SET NOCOUNT ON
+	SELECT vendor_item_dark.id, user_item.name_id, vendor_item_dark.sale_price, 
+		vendor_item_dark.user_price, vendor_item_dark.commit_amount, 
+		vendor_item_dark.commit_date,	vendor_item_dark.remain_amount,
+		vendor_item_dark.can_buy_partial, vendor_item_dark.afterUnitFee, vendor_item_dark.afterUnitTax,
+		user_item.id,  user_data.char_id, user_data.user_id,
+		isnull(user_item_option.soul_bo 
+<br/>
+
+<br/><br/>id: 17, query: 
+<br/>-- 
+
+<br/><br/>id: 18, query: 
+<br/>
+      SELECT
+      db_id() as database_id,
+      sm.[is_inlineable] AS InlineableScalarCount,
+
+<br/><br/>id: 19, query: 
+<br/>(@_msparam_0 nvarchar(4000),@_msparam_1 nvarchar(4000),@_msparam_2 nvarchar(4000),@_msparam_3 nvarchar(4000),@_msparam_4 nvarchar(4000))SELECT
+sp.name AS [Name],
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+'Server[@Name=' + quotename(CAST(
+        serverproperty(N'Servername')
+       AS sysname),'''') + ']' + '/Database[@Name=' + quotename(db_name(),'''') + ']' + '/StoredProcedure[@Name=' + quotename(sp.name,'''') + ' and @Schema=' + quotename(SCHEMA_NAME(sp.schema_id),'''') + ']' AS [Urn],
+sp.create_date AS  
+<br/>
+[Statics CPU Sum END]============================================<br/><br/><br />
+
+
+[Statics IO Total START]==========================================<br />
+
+<br/>id: 20, query: 
+<br/>(@_msparam_0 nvarchar(4000),@_msparam_1 nvarchar(4000),@_msparam_2 nvarchar(4000))SELECT
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+sp.name AS [Name],
+sp.object_id AS [ID],
+CAST(
+ case 
+    when sp.is_ms_shipped = 1 then 1
+    when (
+        select 
+            major_id 
+        from 
+            sys.extended_properties 
+        where 
+            major_id = sp.object_id and 
+            minor_id = 0 and 
+            class = 1 and 
+            name = N'microsoft_database_tools_support') 
+        i 
+<br/>
+
+<br/>id: 21, query: 
+<br/>(@_msparam_0 nvarchar(4000),@_msparam_1 nvarchar(4000),@_msparam_2 nvarchar(4000))SELECT
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+sp.name AS [Name],
+sp.object_id AS [ID],
+CAST(
+ case 
+    when sp.is_ms_shipped = 1 then 1
+    when (
+        select 
+            major_id 
+        from 
+            sys.extended_properties 
+        where 
+            major_id = sp.object_id and 
+            minor_id = 0 and 
+            class = 1 and 
+            name = N'microsoft_database_tools_support') 
+        i 
+<br/>
+
+<br/>id: 22, query: 
+<br/>(@_msparam_0 nvarchar(4000),@_msparam_1 nvarchar(4000),@_msparam_2 nvarchar(4000))SELECT
+SCHEMA_NAME(sp.schema_id) AS [Schema],
+sp.name AS [Name],
+sp.object_id AS [ID],
+CAST(
+ case 
+    when sp.is_ms_shipped = 1 then 1
+    when (
+        select 
+            major_id 
+        from 
+            sys.extended_properties 
+        where 
+            major_id = sp.object_id and 
+            minor_id = 0 and 
+            class = 1 and 
+            name = N'microsoft_database_tools_support') 
+        i 
+<br/>
+
+<br/>id: 23, query: 
+<br/>CREATE PROCEDURE [dbo].[aion_GetDbProfile_StatisticsCpuSum]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	set transaction isolation level read uncommitted;
+
+	SELECT TOP 10
+	sum(qs.total_worker_time) as total_cpu_time_sum,
+	sum(qs.execution_count) as total_execution_count_sum,
+	count(*) as '#_statements',
+	0, --qt.dbid, 
+	qt.[text], 
+	isnull(object_name(objectid, dbid), 'unknown') as 'OBJName'
+	FROM sys.dm_exec_qu 
+<br/>
+
+<br/>id: 24, query: 
+<br/>
+      SELECT
+      db_id() as database_id,
+      sm.[is_inlineable] AS InlineableScalarCount,
+
+<br/>id: 25, query: 
+<br/>(@_msparam_0 nvarchar(4000),@_msparam_1 nvarchar(4000),@_msparam_2 nvarchar(4000),@_msparam_3 nvarchar(4000),@_msparam_4 nvarchar(4000),@_msparam_5 nvarchar(4000),@_msparam_6 nvarchar(4000),@_msparam_7 nvarchar(4000))SELECT
+tbl.name AS [Name],
+SCHEMA_NAME(tbl.schema_id) AS [Schema],
+'Server[@Name=' + quotename(CAST(
+        serverproperty(N'Servername')
+       AS sysname),'''') + ']' + '/Database[@Name=' + quotename(db_name(),'''') + ']' + '/Table[@Name=' + quotename(tbl.name,'''') + ' and @Schema=' + qu 
+<br/>
+
+<br/>id: 26, query: 
+<br/>CREATE PROCEDURE [dbo].[aion_DeleteItemByDate_20111227]
+	@date INT,
+	@warehouse INT
+AS
+SET NOCOUNT ON
+
+-- 
+
+<br/>id: 27, query: 
+<br/>
+      SELECT
+      db_id() AS database_id,
+      o.[type] AS object_type,
+      i.[type] AS index_type,
+      p.[data_compression],
+      COUNT_BIG(DISTINCT p.[object_id]) AS NumTables,
+      COUNT_BIG(DISTINCT CAST(p.[object_id] AS VARCHAR(30)) + '|' + CAST(p.[index_id] AS VARCHAR(10))) AS NumIndexes,
+      ISNULL(px.[IsPartitioned], 0) AS IsPartitioned,
+      IIF(px.[IsPartitioned] = 1, COUNT_BIG(1), 0) NumPartitions,
+      SUM(p.[rows]) NumRows
+      FROM sys.partitions p
+      INNER JOIN sys.objects o 
+<br/>
+
+<br/>id: 28, query: 
+<br/>CREATE PROCEDURE [dbo].[aion_GetDbProfile_StatisticsCpuAve]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	set transaction isolation level read uncommitted;
+
+	SELECT TOP 10 
+	 [Average CPU used] = total_worker_time / qs.execution_count
+	,[Total CPU used] = total_worker_time
+	,[Last CPU used] = last_worker_time
+	,[MAX CPU used] = max_worker_time
+	,[Execution count] = qs.execution_count
+	,[Individual Query] = SUBSTRI 
+<br/>
+
+<br/>id: 29, query: 
+<br/>select   	category_id,     /*1*/	category_name,	    /*2*/	type,      	        /*3*/	j.trace_event_id,   /*4*/	name,               /*5*/	j.trace_column_id,  /*6*/	subclass_value,     /*7*/	subclass_name from  /*8*/  ( 	select a.category_id, a.name as category_name, a.type, b.trace_event_id, b.name, trace_column_id from 	       sys.trace_categories as a, 	       sys.trace_events as b, 	       sys.trace_event_bindings as c	where (a.category_id=b.category_id) and (b.trace_event_id = c.trace_event_id)   )as j l 
+<br/>
+[Statics IO Total END]============================================<br/><br/><br />
+

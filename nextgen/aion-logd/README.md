@@ -43,3 +43,6 @@ GOOS=windows GOARCH=amd64 go build -o aion-logd.exe .        # кросс-сбо
 | Ресёрч/план/промпт | RESEARCH.md (анализ+протокол), SNAPSHOT.md (статус) — в этой папке |
 
 `D:\SAION\` = папка наших переписанных апок (следующие — туда же).
+
+## 📊 Сосед узнал (10.10, чат aion-cache R1-prep)
+- Лог-канал CacheD64 (2051) = семейство **LP_**: Log2Server 6 ops / Server2Log 13 ops (LP_LOG_ALIVE/LP_VERSION_AND_TIME/LP_PING_RESPONSE...) — нумерация в cached-ref/profile-opcode-map.md (наш logd уже в бою — сверить с тем, что реально шлёт CacheD).

@@ -1,6 +1,6 @@
 # aion-cache — перепись CacheD64 (RAM-кэш мира, :2006/2007/2009) — код НЕ начат
 
-> 🔬 **Ресёрч R0 ЗАКРЫТ 08.10, кода НЕТ.** Самый большой компонент трека B: ~590 RPC-команд (8× ACS). Оценка MVP 2–4 нед, шанс ~85%.
+> 🔬 **Ресёрч R0 ЗАКРЫТ 08.10; R1-prep 10.10 (опкод-нумерация всех каналов из .profile + дифф 5.8↔7.7); кода НЕТ.** Самый большой компонент трека B: ~590 RPC-команд (8× ACS). Оценка MVP 2–4 нед, шанс ~85%.
 > Ресёрч: [../CACHE-RESEARCH.md](RESEARCH.md) · референсы: [../cached-ref/](../cached-ref/README.md) · запуск чата: `WORKFLOW: cache` ([../WORKFLOW.md](../WORKFLOW.md)).
 > Прод НЕ тронут: ориг CacheD64 жив; рестарт Server64 дорогой — capture только pktmon.
 
@@ -9,14 +9,15 @@
 | Фаза | Статус |
 |---|---|
 | R0 ресёрч (PDB 106МБ, словари, DB-контракт, 356МБ логов) | ✅ 08.10 |
-| R1 wire 2006 (pktmon + разбор log/*.log) | ⬜ СЛЕДУЮЩИЙ |
-| R2 дизasm dispatch по словарю | ⬜ |
+| R1-prep: .profile-нумерация 8 протоколов (RP238/RQ381/LP6+13/IC11+9/NPRelay55+52), дифф 5.8↔7.7 (append-only), топ-нагрузка, веб-волна | ✅ 10.10 |
+| R1 wire 2006 (pktmon; из log/*.profile уже снята нумерация 8 протоколов + топ-нагрузка) | ⬜ СЛЕДУЮЩИЙ |
+| R2 семантика dispatch (нумерация уже снята 10.10 → profile-opcode-map.md) | 🔶 |
 | R3 Go MVP (read-путь логина чара + write-транзит SQL) | ⬜ |
 | R4 A/B pktmon-сверка | ⬜ |
 | R5 свитч (common.xml serverPort) по «го» | ⬜ |
 | R6 наблюдение (abyss-цикл 60с) | ⬜ |
 
-**Общий прогресс ~15%** (ресёрч = фундамент, кода 0).
+**Общий прогресс ~20%** (ресёрч+нумерация = фундамент, кода 0).
 
 ## 📟 Канон (что уже известно — НЕ переснимай заново)
 
@@ -28,6 +29,10 @@
 | Каналы: 2006 (мир, единственный TCP-клиент = Server64) / 2007 interactive / 2009 третий листенер (NPC-DB гипотеза) → IC 2305, лог 2051 | netstat+strings |
 | Словари: RQ_ 382 / RP_ 255 (мир), GQ_ 55 / GP_ 53 (builder/GM), ACQ_ 39 / ACP_ 28 (встроенный ACS-клиент) | strings |
 | L2 CacheD C1 MasterToma (cached-ref/l2-c1-cached) = единственный публичный reversed CacheD: карта каналов serverHandlers↔2006 / adminHandlers↔2007 / npcDbHandlers↔2009; L2 wire `[u16 self-len][op][payload][2Б csum]` + rolling-XOR DummyCrypt | cached-ref |
+| **Опкод-нумерация ВСЕХ 8 протоколов снята из log/*.profile (DBProfiler): DB2Server=238 RP, Server2DB=381 RQ, Log2Server/Server2Log=6/13 (LP_), IC2DB/DB2IC=11/9, NPRelay2Server/Server2NPRelay=55/52** — дизasm-таблицы не нужны | profile-opcode-map.md (10.10) |
+| **Словарь append-only**: 5.8 ⊂ 7.7 (RQ+31/RP+19/GP+1, GQ/ACQ/ACP равны, 0 удалений) → dispatch = superset, нумерация стабильна между версиями | diff-dict-58-77.md (10.10) |
+| **Топ-нагрузка prod (агрегат *.profile 02–07.10)**: write = RQ_ALERT_MSG/RQ_UPDATE_ABYSS_INFO/RQ_SET_SERVER_INFO (фон) + RQ_U_* (юзер); read-логин = RP_CHARACTER_LIST + RP_LOAD_WAREHOUSE/FIELDHOUSE/ITEMS/CLIENT_SETTINGS/…; RP_LOAD_FIELDHOUSE = 283МБ (самый жирный) | profile-агрегат (10.10) |
+| **.err-логи = SQL-транзит с полными параметрами** (`{call aion_SetAbyssInfoNew_20160520(...)}` + `[SAVE] ...` structured) — параметры write-RPC восстановимы без capture | log/*.err (10.10) |
 | DB-контракт: exe ссылается 789 procs, в прод-БД есть 781, 140 старых версионных отсутствуют (мультиверсионный dispatch) | R0 |
 | МВП-стратегия: MVP read-путь (char login/item load) + write-транзит в SQL; остальное итерациями | RESEARCH |
 
@@ -47,8 +52,18 @@
 |---|---|
 | Ресёрч-док | ../CACHE-RESEARCH.md |
 | RPC-карты/словари/procs-списки/strings | ../cached-ref/ (README-индекс) |
+| Опкод-карты .profile, дифф 5.8↔7.7, 5.8-конфиги, mmo-dev 1164 HTML | ../cached-ref/{profile-opcode-map,diff-dict-58-77}.md, 58-cached/, ragezone/ |
+| R1-prep анализ (веб+локально) | docs/r1-prep-web-local-20261007.md |
+| Экстрактор профилей | tools/analysis/cache_profile_parse.py |
+| L2OFF MyExt64 (патчи L2 CacheD) | reference/l2off-boomzabboy/ (вне гита) |
 | PDB/бинари/логи 356МБ | локально `aion_rev/artifacts/pdb-big/CacheD64/`; VM `D:\AION_LIVE_SERVER\CacheServer\` |
 | Креды/доступы | VM `D:\SAION\creds\` (CREDS.md) |
+
+## 📊 Сосед узнал (10.10, чат cache R1-prep — outbound)
+- **aion-relay**: CacheD64 УЧАСТНИК NPRelay-протокола — в .profile секции NPRelay2Server (55 ops) / Server2NPRelay (52 ops); нумерация в cached-ref/profile-opcode-map.md.
+- **aion-logd**: лог-канал CacheD64 = LP_семейство: Log2Server 6 ops / Server2Log 13 ops (LP_LOG_ALIVE, LP_VERSION_AND_TIME, LP_PING_RESPONSE…) — карта в profile-opcode-map.md.
+- **aion-ic**: IC-канал CacheD64: IC2DB 11 / DB2IC 9 ops — карта в profile-opcode-map.md (донор для IC-подпротокола).
+- **aion-main**: новые в 7.7 vs 5.8 семейства (achievement/collection/fame/reinvent/quna/extslot/matter_option) = ровно семейства proc_missing-алертов → TD2-донор 5.8 DB подтверждён структурно.
 
 ## 📜 Логи
 

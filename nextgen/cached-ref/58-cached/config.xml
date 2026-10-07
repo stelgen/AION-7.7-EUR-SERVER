@@ -1,0 +1,57 @@
+<config>
+	<serverTitle>AION Cache Server</serverTitle>
+	<!-- Country code -->
+	<country>5</country>
+	<!-- Server Info -->
+	<serverID>10</serverID>
+
+	<!-- Number of threads working for transaction. -->
+	<numberOfDBThreads>10</numberOfDBThreads>
+
+	<!-- Port numbers -->
+	<serverPort>2006</serverPort>
+	<interactivePort>2007</interactivePort>
+
+	<!-- Log directory -->
+	<logDirectory>F:\Server\CacheD\log</logDirectory>
+
+	<!-- Lua directory -->
+	<mapDirectory>F:\Server\Map</mapDirectory>
+
+	<!-- Beep when the connection from main server disconnected. -->
+	<alert>false</alert>
+
+	<!-- Server time out in seconds -->
+	<serverTimeOut>0</serverTimeOut>
+
+	<mailServer>127.0.0.1</mailServer>	<!-- CBT Mail Server -->
+	<useBackupAionErr>TRUE</useBackupAionErr>
+	<sendServerStartMail>false</sendServerStartMail>
+	<checkWindbg>TRUE</checkWindbg>
+	<MailReceiver>aionserver@ncsoft.com</MailReceiver>
+
+  	<UseFullDump>true</UseFullDump>
+	<supportSMS>false</supportSMS>	
+	
+	<!-- LogServer -->
+	<logserveraddr>127.0.0.1</logserveraddr>
+	<logserverport>2051</logserverport>
+	
+	<!-- For Internal CBT Only : 2008.03.28 -> Not Used Any More -->
+	<!-- <deleteCharacterDelay>300</deleteCharacterDelay> -->
+
+	<!-- autoShutdown -->
+	<autoShutdown>true</autoShutdown>
+	<reportMemoryLeakWithMsgBox>false</reportMemoryLeakWithMsgBox>
+
+	<!-- Ver1.2 -->
+	<deleteitembydate>false</deleteitembydate>
+
+	<!-- ICServer -->
+	<ICServerAddr>127.0.0.1</ICServerAddr>
+	<ICServerPort>2305</ICServerPort>
+	<ICServerId>1</ICServerId>
+
+	<deadlockDBCheckEnable>False</deadlockDBCheckEnable>
+	<numDBConn>128</numDBConn>
+</config>

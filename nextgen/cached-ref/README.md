@@ -28,3 +28,7 @@ L2 wire: `[u16 self-len LE][opcode][payload][2Б csum]` + rolling-XOR DummyCrypt
 
 - НЕ mirror-прокси на 2006 (рестарт Server64 дорогой) — **pktmon filter port 2006** на VM.
 - Готовый материал без capture: `log/` 171 файл 356МБ (RPC-строки с параметрами, .memory/.itemload/.leak) — локально в `aion_rev/artifacts/pdb-big/CacheD64/CacheServer/log/`.
+| `profile-opcode-map.md` | **НУМЕРАЦИЯ опкодов всех 8 протоколов из log/*.profile (DBProfiler)**: DB2Server 238 RP / Server2DB 381 RQ / Log2Server 6 + Server2Log 13 (LP_) / IC2DB 11 + DB2IC 9 / NPRelay2Server 55 + Server2NPRelay 52 |
+| `diff-dict-58-77.md` | дифф словарей 5.8 vs 7.7: append-only (0 удалений; RQ+31/RP+19/GP+1) → dispatch = superset |
+| `58-cached/` | конфиги 5.8 CacheD (config/common.xml + DBLogDetail/DBLogSummary); exe 5.8 вне гита: `aion_rev/artifacts/kits-58/Cached/` |
+| `ragezone/mmodev-1164-cached-ex-packets.html` | mmo-dev 1164 «Метод добавления новых расширенных пакетов в CacheD» (kick, hook Bind @0x460547) — публичная часть |

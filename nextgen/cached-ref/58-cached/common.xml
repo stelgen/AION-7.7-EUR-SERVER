@@ -1,0 +1,22 @@
+<config>
+	<!-- Number of threads working for transaction. -->
+	<numberOfDBThreads>10</numberOfDBThreads>
+
+	<!-- Port numbers -->
+	<serverPort>2006</serverPort>
+	<interactivePort>2007</interactivePort>
+	<logserverport>2051</logserverport>	
+
+	<!-- Beep when the connection from main server disconnected. -->
+	<alert>false</alert>
+
+	<!-- Server time out in seconds -->
+	<serverTimeOut>0</serverTimeOut>
+
+  	<UseFullDump>true</UseFullDump>
+	<supportSMS>false</supportSMS>
+
+	<!-- autoShutdown -->
+	<autoShutdown>true</autoShutdown>
+	<reportMemoryLeakWithMsgBox>false</reportMemoryLeakWithMsgBox>
+</config>
