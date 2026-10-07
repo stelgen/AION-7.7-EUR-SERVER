@@ -72,7 +72,7 @@
 | S9 | **Тесты** | `go vet ./... && go test ./...` зелёные ДО пуша; golden-фреймы по capture; silence-тесты перепрогоном; фейк-клиенты/эталоны в `cmd/probe`, `cmd/forkprobe` | per-проект README |
 | S10 | **Роадмап + промпт** | На каждый компонент: ROADMAP (фазы R0..R6 + журнал теорий) + PROMPT.md (копипаст нового чата); закрытые помечать ⚠ АРХИВ; новые компоненты — self-contained (всё в папке) | [README-TEMPLATE.md](README-TEMPLATE.md) |
 | S11 | **WORKFLOW (процесс)** | Запуск чата `WORKFLOW: <имя>`; пульс каждого сообщения; теорий-журнал; «исправил = удалил» из всех доков сразу; самоорганизация под цель | [WORKFLOW.md](WORKFLOW.md) |
-| S12 | **Agent API (канал VM)** | Взаимодействие с VM — HTTP/JSON `:10200/api/agent/*` (run/file/ls/log, токен `X-Agent-Token`, обёртка `agent-cli.sh`), НЕ ssh-консоль: без кавычек/кодировок, параллельно, с audit-логом. Новый шаг на VM = ps1 через `aionput`+`aionrun`. SSH = только деплой op | [AGENT-SPEC.md](AGENT-SPEC.md) |
+| S12 | **Agent API (канал VM)** | Взаимодействие с VM — HTTP/JSON `:10200/api/agent/*` (run/file/ls/log, токен `X-Agent-Token`, обёртка `agent-cli.sh`), НЕ ssh-консоль: без кавычек/кодировок, параллельно. Firewall = Any (NAT-защита, токен — единственный рубеж); audit = `C:\aionop\op.log`. Новый шаг на VM = ps1 через `aionput`+`aionrun`. SSH = только деплой op | [AGENT-SPEC.md](AGENT-SPEC.md) |
 
 ## 5. ГДЕ ЧТО ЛЕЖИТ (карта артефактов)
 
