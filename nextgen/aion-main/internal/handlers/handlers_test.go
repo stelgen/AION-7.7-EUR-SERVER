@@ -7,7 +7,7 @@ import (
 )
 
 func TestPingHandler(t *testing.T) {
-	hs := Build()
+	hs := Build(nil)
 	var sent []string
 	s := &Session{Peer: "test:1"}
 	hs["CM_PING"](s, nil, func(n string, p []byte) { sent = append(sent, n) }, log.Default())
@@ -17,7 +17,7 @@ func TestPingHandler(t *testing.T) {
 }
 
 func TestMoveHandlerUpdatesState(t *testing.T) {
-	hs := Build()
+	hs := Build(nil)
 	s := &Session{Peer: "test:2"}
 	var last []byte
 	hs["CM_MOVE"](s, makePayload(), func(n string, p []byte) { last = p; _ = n }, log.Default())
@@ -30,7 +30,7 @@ func TestMoveHandlerUpdatesState(t *testing.T) {
 }
 
 func TestChatEcho(t *testing.T) {
-	hs := Build()
+	hs := Build(nil)
 	s := &Session{Peer: "test:3", CharName: "Test"}
 	var got string
 	hs["CM_CHAT_MESSAGE_PUBLIC"](s, chatReq("hello"), func(n string, p []byte) {

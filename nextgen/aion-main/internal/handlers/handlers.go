@@ -28,7 +28,7 @@ type Sender func(name string, payload []byte)
 type Registry map[string]func(s *Session, payload []byte, send Sender, logger *log.Logger)
 
 // Build — все MVP-хендлеры R3.
-func Build() Registry {
+func Build(initFn func(Sender)) Registry {
 	return Registry{
 		// --- Версия/время/пинг (handshake-фаза) ---
 		"CM_VERSION_CHECK": func(s *Session, p []byte, send Sender, l *log.Logger) {
@@ -67,8 +67,11 @@ func Build() Registry {
 			send("SM_LOOKATOBJECT", lookPayload(p))
 		},
 		"CM_LEVEL_READY": func(s *Session, p []byte, send Sender, l *log.Logger) {
-			// клиент сообщил «мир загружен» — MVP: отправляем SM_FLAG_INFO (канон 0x0152)
+			// клиент сообщил «мир загружен» — канон: SM_FLAG_INFO + последовательность мира (capture-раскладки)
 			send("SM_FLAG_INFO", nil)
+			if initFn != nil {
+				initFn(send)
+			}
 		},
 	}
 }

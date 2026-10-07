@@ -19,12 +19,14 @@ import (
 	"aion-main/internal/integrations"
 	"aion-main/internal/ops"
 	"aion-main/internal/wire"
+	"aion-main/internal/world"
 )
 
 var hs handlers.Registry
 
 func main() {
 	cfg := flag.String("config", "ops.yaml", "YAML-реестр опкодов (S7)")
+	layouts := flag.String("layouts", "internal/world/testdata/layouts", "раскладки мира (capture S4-паритет)")
 	listen := flag.String("listen", ":7778", "адрес тени (fork, S4)")
 	flag.Parse()
 
@@ -32,10 +34,22 @@ func main() {
 	if err != nil {
 		log.Fatalf("FATAL config: %v", err)
 	}
-	hs = handlers.Build()
+	wls, werr := world.New(*layouts)
+	if werr != nil {
+		log.Printf("[WARN] layouts: %v (мир без раскладок)", werr)
+	}
+	hs = handlers.Build(func(send handlers.Sender) {
+		if wls == nil {
+			return
+		}
+		for _, e := range wls.InitSequence() {
+			send(e[0], []byte(e[1]))
+		}
+		log.Printf("[WORLD] init sequence sent (%d раскладок, %d Б)", wls.Count(), wls.Bytes())
+	})
 	// Канарейка-баннер (S7): конфиг прочитан, ключевой пакет на месте.
 	_, hasSMKey := reg.Lookup(0x48, "SM")
-	log.Printf("[CANARY] cfg loaded: packets=%d, SM_KEY(0x48)=%v, mode=shadow %s", reg.Count(), hasSMKey, *listen)
+	log.Printf("[CANARY] cfg loaded: packets=%d, SM_KEY(0x48)=%v, layouts=%d(%dB), mode=shadow %s", reg.Count(), hasSMKey, wls.Count(), wls.Bytes(), *listen)
 	if !hasSMKey {
 		log.Fatalf("FATAL: SM_KEY отсутствует в реестре — конфиг битый, откат")
 	}
