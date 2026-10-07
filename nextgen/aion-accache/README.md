@@ -60,3 +60,9 @@ server e2e: FIRST_LOAD → 5×int-ответ, unknown → дроп, bad-marker �
 - Event ship: поля Ev/Svc/Msg (не Time/Text) — фейл компиляции при копировании из старых апок.
 - ACP-ответы в каркасе = эхо-cmd (TODO R1) — НЕ деплоить без R4-диффа.
 - `sh`/braces в шелле песочницы; yaml править байтово (правила ROADMAP §4).
+
+## 🔗 09.10 cross-pulse (authd R6): наш authd в ACS пока НЕ ходит
+
+- Ориг L2Authd имел ленивый клиент к ACS :2220 (AccountContainer); наш authd-клиент ACS не
+  реализован (T3, см. authd ROADMAP тех-бэклог) — мир сам ходит в ACS 2220, логины работают.
+  При фичах «сервер-инфо из ACS» (char-count и т.п.) — вспомнить этот канал.

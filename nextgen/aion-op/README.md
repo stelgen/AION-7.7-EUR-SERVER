@@ -113,3 +113,10 @@ internal/web/          — API (GET-only) + embedded UI (вкладки, кно�
 - **0** ✅ скелет observe-only. **0.5** ✅ глаза.
 - **1** ✅ ЖИВОТ на VM (решение юзера 05.10: без агента — op на VM, `vm.mode: local`, `operate`, dry_run=false; start/stop/restart через schtasks/kick-задачи, кириллические пароли задач берутся из реестра Winlogon — в гит не сохраняются).
 - **1.5** ⬜: watchdog-автопилот (ночной рестарт пары = тумблер юзера, эскалации), async-ожидания маркеров в act-шагах.
+
+## 🔗 09.10 cross-pulse (authd R6): новая задача AionAuthdProd
+
+- Живой путь authd = **наш aion-authd** (задача **AionAuthdProd**, SYSTEM, 2104+2110,
+  конфиг `D:\SAION\aion-authd\config-prod-authd.yaml`, лог authd-prod.log); ориг L2Authd =
+  остановлен, откат-задача AionAuthOnly + authd-rollback.cmd. op-конфиг: сервис authdn (2117)
+  = тень; предложить добавить сервис authdprod (контроль портов 2104/2110).

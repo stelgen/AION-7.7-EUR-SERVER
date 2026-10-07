@@ -140,3 +140,10 @@ raw-first (S3): `[RAW-FAIL]` hex тела до парсинга; `[C2S]` имя+
 
 ## ⏭️ Следующий шаг (для нового чата)
 `WORKFLOW: main` → **R3.8**: живой мир-стейт (дизасм-смещения полей раскладок: PDB + cached-ref карты; после aion-cache R1 — прямые данные из кеша). Промпт: [PROMPT.md](PROMPT.md), план: [ROADMAP.md](ROADMAP.md). Кросс-пульс соседям обязателен (WORKFLOW §5).
+## 🔗 09.10 R6-cross-pulse (authd-трек): Server64 ходит в НАШ authd
+
+- После R6-свитча: Server64 → **наш aion-authd :2104** (ESTABLISHED; greeting [03][2017012601][1][00]
+  принят, heartbeat ping/pong жив, ack=эхо pk1). Мир 8/8 не пострадал; ориг L2Authd остановлен
+  (откат: authd-rollback.cmd + schtasks AionAuthOnly).
+- При выходе из мира Server64 шлёт type=40/3 (logout-сигнал) → наш authd снимает онлайн-флаг →
+  мгновенный перелогин работает. События type=35/24/25/9/38/27 — покрыты квитанциями (см. authd ROADMAP).

@@ -51,3 +51,7 @@
 ## 📜 Логи
 
 Стандарт S3/S2 ([../LOGGING-SPEC.md](../LOGGING-SPEC.md), [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md)); инцидент-факт: PA мёртв = SYSTEM_ERROR(20) — op-кнопка pa (aionact pa start).
+## 🔗 09.10 cross-pulse (authd R6): PA жив, наш authd его не зовёт
+
+- PA 10057 остаётся запущенным (общая дисциплина стека), но наш aion-authd НЕ общается с PA
+  (проверка пароля отсутствует как и у ориг) — login не зависит от PA на нашем пути.

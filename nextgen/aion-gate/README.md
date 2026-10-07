@@ -174,3 +174,11 @@ welcomeTestCC:0, welcomeWaitAuthdMs:2000, serverID:1, smAuthGgWire:42 (live-фо
   count-байт в хвост type=4 (wire 42Б не меняется); **сейчас 0 = байт-паритет с ориг** — две попытки
   заполнения вердикта не дали, приоритет ниже среднего; гипотезы и история:
   ../aion-authd/docs/techdebt-charcount-20261009.md.
+
+## 🔗 09.10 R6-финал (authd-трек): гейт свитчен на наш authd
+
+- `authPort: 2110` — гейт ходит в **наш aion-authd** (задача AionAuthdProd, живой путь R6);
+  fork-цепочка 2116 остановлена как путь (forkauthd жив, откат = rollback-gate.ps1 + authd-rollback.cmd).
+- Сервер-селект: наш type=4 = SM_SERVER_LIST (26Б) — колонка «Персонажи» пустая у ВСЕХ (и у ориг):
+  см. charcount-секцию выше (тех-долг ниже среднего).
+- Статус сервера для клиента: ip/port для клиента берутся из `AionAccounts.dbo.server` (ip=192.168.0.125).
