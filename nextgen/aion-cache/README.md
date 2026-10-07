@@ -53,3 +53,6 @@
 ## 📜 Логи
 
 Стандарт S3 ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)): raw-first — при реализации io-дампы + fork-лог C>/O>/N>; ориг-логи CacheD (log/*.log) = эталон материала R1, трогать только read-only.
+
+## 📊 Сосед узнал (08.10, чат aion-main R0/RES)
+- PDB Server64 (74164 publics): `ServerToDb`/`DbToServer`/`ServerToDb_Update` имена 1-в-1 с RPC-картами cached-ref — канал 2006 является симметричным с серверной стороны ядра (маппинг RQ/RP продолжается из обеих сторон).

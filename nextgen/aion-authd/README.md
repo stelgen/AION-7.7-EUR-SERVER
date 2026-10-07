@@ -93,3 +93,7 @@ type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid
    тени с оригом (shadow быстрее), сравнивать по позициям в логе (fork-authd.log).
 5. Дисциплина: L2Authd хрупкий; probe-логины лочат акки (TTL 2–6 мин, тестовый пул
    probeacc*); PA жив ДО authd; секреты не в гит.
+
+## 📊 Сосед узнал (08.10, чат aion-main R0/RES)
+- Утёкшие сурсы Encom 7.5–7.7 (`reference/encom-leak-7577/`) содержат `network/loginserver/clientpackets/*` = **Java-эталон GS↔LS протокола 2104** (CM_GS_AUTH_RESPONSE, CM_ACCOUNT_RECONNECT_KEY и др.) — прямой материал для R6-блокера 2104-канала.
+- Крипта/флоу 7777 Server64: GG(GameGuard)+Blowfish+AES из PDB publics.

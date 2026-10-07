@@ -53,3 +53,7 @@
 ## 📜 Логи
 
 Стандарт S3: raw-first io-дампы + fork C>/O>/N> ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)), ship-события по [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
+
+## 📊 Сосед узнал (08.10, чат aion-main R0/RES)
+- PDB Server64 publics (74164) содержат классы `MatchingMgr`, `World_BattleGround`, `World_IDArenaTournament`, `World_IDARENAPvP` — **matchmaker-миры существуют в бинаре ядра** = подтверждение теории InterSvrType=2 из бинаря.
+- `ServerToIC` (44 публича) — RPC-семейство IC в Server64, имя совпадает с паттерном ServerToDb/ServerToNPCServer (Shared-код NC).
