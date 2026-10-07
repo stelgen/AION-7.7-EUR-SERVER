@@ -7,9 +7,9 @@
 | Фаза | Что | Статус |
 |---|---|---|
 | R0 | Разведка: каналы, ScriptDLL64-инвентарь, 2.7-кит дифф, PDB publics → карта функций; эталонные словари из Java-эталонов — [RESEARCH.md](RESEARCH.md) | ✅ 08.10 закрыт: каналы live + MD5 + строки + PDB-реестры (4630 класса/7051 пар) + словарь AI (111↔143) — [docs/r0-vm-inventory-20261008.md](docs/r0-vm-inventory-20261008.md) |
-| R1 | pktmon 2002/2009 capture (мир жив, рестарт дорогой) → wire NPC↔Server64 | ⬜ |
+| R1 | Capture 2002 (8 NPC-коннектов) → wire NPC↔Server64; метод = tshark-follow hex (урок aion-main: retransmission-safe) вместо pktmon; выверка по 148-реестру хендлеров PDB Server64 ([docs/npcsvr-2002-handlers-raw.txt](docs/npcsvr-2002-handlers-raw.txt)); 2006-wire = cache-ресёрч ([u16 self-len][op][payload][2Б csum]+rolling XOR) | ⬜ |
 | R2 | Дизasm dispatch по словарям (метод accache/cache) | ⬜ |
-| R3 | Go MVP: спавны из XML + движение/агро-цикл + интеграция aion-cache (RPC) и aion-main (2002) — минимальный мир для соло | ⬜ |
+| R3 | Go MVP: спавны из XML + движение/агро-цикл + интеграция aion-cache (RPC 2006, их R1-карта) и aion-main (2002) — минимальный мир для соло. ⚠ КРОСС-ЗАВИСИМОСТЬ: R4.1/R5 aion-main (свитч main) = после нашего R3 MVP (гейт их свитча вшит: main зависит от cache+npc) | ⬜ |
 | R4 | A/B fork: NPC-тень (соседний порт при test-мире) — байт-в-байт по наблюдаемым пакетам | ⬜ |
 | R5 | Свитч по «го»: пара NPC+MAIN через op (restart_pair); откат = ориг | ⬜ |
 | R6 | Наблюдение (abyss-цикл 60с, RAM-профиль, утечки — наши должны быть ЧИЩЕ ориг) | ⬜ |

@@ -22,6 +22,7 @@
 | Пара NPC+MAIN = ЕДИНАЯ единица управления (рестарт только парой; окно загрузки = рестарты заблокированы) | op |
 | abyss-цикл 60с (в логах CacheD «abyss-цикл 60с» — R6-критерий cache-свитча) | RESEARCH cache |
 | **live 08.10**: NPCSvr64 ↔ CacheD по **2006** (общий пул); CacheD слушает 2006/2007/**2009**, клиентов на 2009 НЕТ; 8/8 conns :2002 = NPCSvr→Server64; Server64 слушает :2012 (⏳); CacheD→IC по 2305 | netstat live ([r0-vm-inventory](docs/r0-vm-inventory-20261008.md)) |
+| **wire 2002 = 148 хендлеров из PDB Server64** (cros-пульс aion-main R3.7): ServerToNPCServer (86: SendCreateMonster(2)/SendDespawn/SendMagic_Summon(Trap/Servant)/SendDoorState/SendWeather/SendTeleport/EncodeAbyssInfo/EncodeCreateDynamicWorld/Quest*/Duel/ValidMemberList...), NPCServerToServer (62: DecodeMove2(PointFloat)/DecodeAttack/DecodeGiveSkill/DecodeLoot/DecodeAbyssBossDie/DecodePet*/Quest*/Fly...); семантика в мангл-сигнатурах (PointFloat/EmotionType/KillerInfo/QuestShareInfoMultiple) — реестр: [docs/npcsvr-2002-handlers-raw.txt](docs/npcsvr-2002-handlers-raw.txt) | PDB Server64 publics (74164) |
 | ScriptDLL64 = **C++ классы скриптов NPC** (V/U/I-интерфейсы: VIScriptDLL, VIAIScriptNpc::UpdateNpcPatterns), NPCSvr = ядро (спавн/таймеры/движение/Abyss); PDB NPCSvr64 с символами (4630 класса/7051 пар — [docs/](docs/npcsvr64-mangled-classes.txt)) | PDB live 08.10 |
 | Кросс-версионный эталон: 2.7-кит NPCSvr64.exe (28МБ Server64/19.9МБ CacheD64/NPCSvr64) на VM | ic-RESEARCH §3 |
 
@@ -32,7 +33,7 @@
 
 ## ⏭️ Следующий шаг
 
-`WORKFLOW: npc` → R0: инвентарь каналов (netstat 2002/:2009), ScriptDLL64-инвентарь, 2.7-кит дифф → ROADMAP-детализация. Промпт: [PROMPT.md](PROMPT.md).
+`WORKFLOW: npc` → R1: wire-карта 2002 — golden-кадры с 8 NPC-коннектов (метод aion-main: tshark-follow hex, retransmission-safe; выверка по 148-реестру) + 2006-wire из cache-ресёрча ([u16 self-len][op][payload][2Б csum] + rolling XOR — NPCSvr-коннект к 2006 тем же фреймом). Промпт: [PROMPT.md](PROMPT.md).
 
 ## 📦 Артефакты
 
