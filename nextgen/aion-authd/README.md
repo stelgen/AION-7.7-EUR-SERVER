@@ -10,7 +10,7 @@
 
 | Фаза | Статус |
 |---|---|
-| R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | 🟡 procs ✅ 09.10: 31 proc + тела сняты → authd-ref/procs-aionaccounts-77.rpt (логин = ap_GPwdWithFlag→ap_AutoReg, serverlist = ap_GetServers); 2104 = блокер R6 |
+| R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | 🟡 procs ✅ 09.10: 31 proc + тела сняты → authd-ref/procs-aionaccounts-77.rpt (логин = ap_GPwdWithFlag→ap_AutoReg, serverlist = ap_GetServers); 2104 ✅ 09.10: протокол-корень снят живым packet-логом authd (heartbeat 60с + type0-релей логина + uid-эхо; корпус authd-ref/logs-2104/) — дизasm не нужен |
 | R1 wire-фундамент | ✅ `docs/authd-wire-20261007.md` + golden-тесты |
 | R2 каркас (framing/listener/config/ship) | ✅ |
 | R3 логика (логин/автосоздание/online-TTL/фейлы) | ✅ live-факты 06-07.10 + каноны fork (type=3/4/7/fail) |
@@ -85,9 +85,11 @@ type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid
 
 ## ⚠ Перед R6 (свитч) — блокеры
 
-1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: канал нужно
-   дизasm-верифицировать (R0) и реализовать, иначе свитч уронит мир.
-2. **procs AionAccounts** — сверить sp_helptext с дефолтами C1-схемы (`authd-ref/`).
+1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: протокол-корень уже снят
+   живым packet-логом authd (09.10, дизasm не нужен — см. docs/authd-2104-recon-20261009.md +
+   authd-ref/logs-2104/): heartbeat 60с (type 2/5), релей логина type 0, uid-эхо 13–44.
+   Осталось реализовать тонкий MVP (heartbeat + type0-релей + квитанции).
+2. **procs AionAccounts** — ✅ 09.10 сняты (authd-ref/procs-aionaccounts-77.rpt), SQLStore → на ap_* procs.
 3. **mssql-стор в shadow** — сейчас mem-store: до свитча подключить SQLStore.
 4. **Арбитраж fork-лога** — очередь запрос-ответ по (sid,type): N-ONLY-вердикты = гонка
    тени с оригом (shadow быстрее), сравнивать по позициям в логе (fork-authd.log).

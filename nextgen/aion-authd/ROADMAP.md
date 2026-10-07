@@ -15,6 +15,11 @@
 > serverlist = `ap_GetServers` (таблица `server`: id/name/ip/inner_ip/ageLimit/pk_flag/kind/port/region);
 > блок = `ap_GetRestriction` (block_msg: reason,msg по uid); `ap_SLog`/`ap_GUserTime` канон C1; `ap_SUserData` = стаб (SELECT 9).
 > → SQLStore (mssql-стор) переводится на ВЫЗОВ ЭТИХ procs по имени вместо inline-C1 SQL.
+> **R0-2104 ✅ 09.10 (протокол-first, решение юзера)**: дизasm НЕ нужен — L2Authd сам пишет полный wire-дамп
+> `etc/log/*.packet`; словарь 2104 снят живым логином юзера: heartbeat 60с (type 2 A→W / 5 W→A),
+> релей логина type 0 (uid+аккаунт в мир + ack), uid-эхо-события 13-44, type 35 = char_id+lev.
+> Словарь+корпус: docs/authd-2104-recon-20261009.md + ../authd-ref/logs-2104/. Мир сам реконнектится.
+> MVP 2104 = heartbeat + type0-релей + квитанции.
 > Сессия-док: [docs/session-20261007-authd-mvp.md](docs/session-20261007-authd-mvp.md).
 > Метод-референс: треки aion-logd → aion-captcha → aion-gate (метод отработан 3 раза).
 > Приложение-цель: `L2Authd.exe` (1,198,592 Б) — **2104** (serverPort), **2110** (serverExPort → AuthGateD),

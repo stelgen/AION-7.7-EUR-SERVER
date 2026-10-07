@@ -1,0 +1,11 @@
+2026.10.07 09:01.51:WebLoginTry : 0,ClientLoginTry : 11
+2026.10.07 09:06.51:WebLoginTry : 0,ClientLoginTry : 11
+2026.10.07 09:11.51:WebLoginTry : 0,ClientLoginTry : 11
+2026.10.07 09:16.51:WebLoginTry : 0,ClientLoginTry : 11
+2026.10.07 09:21.51:WebLoginTry : 0,ClientLoginTry : 11
+2026.10.07 09:26.51:WebLoginTry : 0,ClientLoginTry : 11
+2026.10.07 09:30.43:AuthenticateOtp - user forgot otp status. uid[1010]
+2026.10.07 09:30.47:account (1010) has been kicked in AccountDB::KickAccount()
+2026.10.07 09:31.51:WebLoginTry : 0,ClientLoginTry : 12
+2026.10.07 09:32.56:AuthenticateOtp - user forgot otp status. uid[1010]
+2026.10.07 09:36.51:WebLoginTry : 0,ClientLoginTry : 13
