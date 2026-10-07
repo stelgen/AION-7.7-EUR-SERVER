@@ -164,3 +164,13 @@ welcomeTestCC:0, welcomeWaitAuthdMs:2000, serverID:1, smAuthGgWire:42 (live-фо
 - `reference/` (вне репо: `STELGEN/projects/aion_server_2026-10-02/reference/`) — клоны эталонов:
   `Mobius_AionEmu` (7.7, главный) и `beyond-aion/aion-server@4.8`. ПРАВИЛО: ответы по протоколу
   фейлов/сессии брать из сорса эталона (`loginserver/network/aion/...`), НЕ гадать; live-дамп — арбитр.
+## 🔬 Cross-pulse 09.10 (из authd-чата): сервер-селект «Персонажи» = пусто
+
+- 74Б login-ok = **SM_LOGIN_OK** (Packet Samurai Login_4.0: accountId/loginOk/?/?/1002/126282164/garbage47) —
+  НЕ serverlist; байт [63] клиент игнорирует (эксперимент, вердикт №1).
+- SM_SERVER_LIST = type=4 (42Б): 26Б payload = [listSize][lastServer][id][ip][port D][age][pvp][cur h][max h]
+  [online][bits d][brackets][countsSize h=1][autoConnect] — **обрыв, count-байтов нет (и у ориг)** →
+  колонка «Персонажи» всегда пустая. У НАШЕГО гейта флаг `serverListCharCount` (padLoginOK): >0 добавляет
+  count-байт в хвост type=4 (wire 42Б не меняется); **сейчас 0 = байт-паритет с ориг** — две попытки
+  заполнения вердикта не дали, приоритет ниже среднего; гипотезы и история:
+  ../aion-authd/docs/techdebt-charcount-20261009.md.
