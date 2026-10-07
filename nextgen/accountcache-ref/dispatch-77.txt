@@ -1,0 +1,95 @@
+=== TABLE 1 ===
+T1 cmd 0x0 (  0) handler@0x14006c050 name=ACQ_UNUSED_0
+T1 cmd 0x1 (  1) handler@0x14006c230 name=ACQ_VERSION_PACKET
+T1 cmd 0x2 (  2) handler@0x14006c660 name=ACQ_TEST_INSERT
+T1 cmd 0x3 (  3) handler@0x14006c860 name=ACQ_TEST_SELECT
+T1 cmd 0x4 (  4) handler@0x14006cbd0 name=ACQ_FIRST_LOAD_ACCOUNT_INFO
+T1 cmd 0x5 (  5) handler@0x14006d4a0 name=ACQ_LOAD_BM_PACK_LIST
+T1 cmd 0x6 (  6) handler@0x14006d680 name=ACQ_UPDATE_BM_PACK
+T1 cmd 0x7 (  7) handler@0x14006d890 name=ACQ_LOAD_TRIAL_ACCOUNT_DATA
+T1 cmd 0x8 (  8) handler@0x14006db30 name=ACQ_UPDATE_TRIAL_ACCOUNT_DATA
+T1 cmd 0x9 (  9) handler@0x14006ced0 name=ACQ_SYNC_PACKET_TEST
+T1 cmd 0xa ( 10) handler@0x14006e010 name=ACQ_SAVE_CAHR_CUSTOM
+T1 cmd 0xb ( 11) handler@0x14006eb40 name=ACQ_LOAD_CAHR_CUSTOM
+T1 cmd 0xc ( 12) handler@0x14006f9a0 name=ACQ_LOAD_CHAR_CUSTOM_BY_ITEM
+T1 cmd 0xd ( 13) handler@0x1400707b0 name=ACQ_SAVE_CHAR_CUSTOM_TO_ITEM
+T1 cmd 0xe ( 14) handler@0x140071300 name=ACQ_LOG_INFO
+T1 cmd 0xf ( 15) handler@0x140071510 name=ACQ_CHAR_CREATED
+T1 cmd 0x10 ( 16) handler@0x1400718f0 name=ACQ_CHAR_LOGIN
+T1 cmd 0x11 ( 17) handler@0x1400724f0 name=ACQ_CHAR_LOGOUT
+T1 cmd 0x12 ( 18) handler@0x140072850 name=ACQ_CHAR_DELETE
+T1 cmd 0x13 ( 19) handler@0x140072b60 name=ACQ_CHAR_DELETE_COMPLETED
+T1 cmd 0x14 ( 20) handler@0x140072e70 name=ACQ_CHAR_INFO_REFRESH
+T1 cmd 0x15 ( 21) handler@0x140073250 name=ACQ_CHAR_LEVEL_CHANGED
+T1 cmd 0x17 ( 23) handler@0x140073ec0 name=ACQ_UPDATE_LOGIN_EVENT_RECORD
+T1 cmd 0x18 ( 24) handler@0x1400743f0 name=ACQ_DELETE_LOGIN_EVENT_RECORD
+T1 cmd 0x19 ( 25) handler@0x140074590 name=ACQ_UPDATE_HIDDEN_FATIGUE
+T1 cmd 0x1a ( 26) handler@0x140074780 name=ACQ_LOAD_LUNA
+T1 cmd 0x1b ( 27) handler@0x140074b80 name=ACQ_UPDATE_LUNA
+T1 cmd 0x1c ( 28) handler@0x140075220 name=ACQ_CONFIRM_LUNA_REWARD
+T1 cmd 0x1d ( 29) handler@0x140075740 name=ACQ_DECREASE_LUNA_KEY
+T1 cmd 0x1e ( 30) handler@0x140076a00 name=ACQ_UPDATE_BOARD_BM_STATE
+T1 cmd 0x1f ( 31) handler@0x140076d10 name=ACQ_ASK_CAN_MAKE_JUMPING_CHARACTER
+T1 cmd 0x20 ( 32) handler@0x140077360 name=ACQ_LOAD_PREVIOUS_PLAYTIMES_FOR_POLLS
+T1 cmd 0x21 ( 33) handler@0x140077950 name=ACQ_LOAD_PREVIOUS_PLAYTIME_FOR_ONE_POLL
+T1 cmd 0x22 ( 34) handler@0x140077c50 name=ACQ_UPDATE_PREVIOUS_PLAYTIME_FOR_ONE_POLL
+T1 cmd 0x23 ( 35) handler@0x140077f60 name=ACQ_UPDATE_PREVIOUS_PLAYTIMES_FOR_POLLS
+T1 cmd 0x24 ( 36) handler@0x140075c70 name=ACQ_RESET_LUNA_REWARD
+T1 cmd 0x25 ( 37) handler@0x1400766a0 name=ACQ_TRANSFORM_OPERATION
+T1 cmd 0x26 ( 38) handler@0x140078570 name=ACQ_MONSTER_CORE_UPDATE_VALUE
+T1 cmd 0x27 ( 39) handler@0x140078890 name=ACQ_MONSTER_CORE_UPGRADE
+=== TABLE 2 ===
+T2 cmd 0x0 (  0) handler@0x14006c050 name=ACQ_GEN_TEST_PACKET1
+T2 cmd 0x1 (  1) handler@0x140073870 name=ACQ_GEN_TEST_PACKET2
+T2 cmd 0x2 (  2) handler@0x140073a10 name=ACQ_GEN_TEST_PACKET3
+T2 cmd 0x3 (  3) handler@0x140073a20 name=ACQ_MoveCharResultPacket
+T2 cmd 0x4 (  4) handler@0x14006dd70 name=ACQ_MoveCharByServicePacket
+T2 cmd 0x5 (  5) handler@0x140073560 name=ACQ_SetPromotionCoolTimePacket
+T2 cmd 0x6 (  6) handler@0x140073a30 name=ACQ_DeletePromotionCoolTimePacket
+T2 cmd 0x7 (  7) handler@0x140073ce0 name=?
+=== HANDLERS -> calls ===
+handler@0x14006c230: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SendIOBuffer@AC_Socket', '_malloc@Memory', 'CheckGlobalUserInServer@CheckGlobalUserDataTimer', '0DBConn', 'SendIOBuffer@AC_Socket']
+handler@0x14006c660: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x14006c860: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'FetchDbg@DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x14006cbd0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'LoadHiddenFatigueInfoByAccountId@AccountDb', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x14006d4a0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'ReleaseReferenceGarbage', 'GetInstructionPointer', '0DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x14006d680: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x14006d890: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x14006db30: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SetTrialAccountData@AccountDb', 'ReleaseReferenceGarbage']
+handler@0x14006ced0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x14006e010: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'ExecuteInsert@DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x14006eb40: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x14006f9a0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x1400707b0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'ExecuteInsert@DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140071300: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'ReleaseReferenceGarbage', 'GetInstructionPointer', '0DBConn', 'SendIOBuffer@AC_Socket', '1DBConn']
+handler@0x140071510: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x1400718f0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'SendIOBuffer@AC_Socket', 'ResetHtmt@DBConn', 'SendIOBuffer@AC_Socket']
+handler@0x1400724f0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140072850: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140072b60: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140072e70: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140073250: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140073ec0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '0?$basic_streambuf@_WU?$char_traits@_W@std', 'str@?$basic_stringbuf@_WU?$char_traits@_W@std', '_free@Memory', '_Ios_base_dtor@ios_base@std']
+handler@0x1400743f0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'ReleaseReferenceGarbage', 'GetInstructionPointer', 'ReleaseReferenceGarbage']
+handler@0x140074590: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'ReleaseReferenceGarbage', 'GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'Add@FileLog']
+handler@0x140074780: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'Add@FileLog', 'ResetHtmt@DBConn', 'FetchDbg@DBConn']
+handler@0x140074b80: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'Add@FileLog', '0DBConn', 'Add@FileLog', 'Add@FileLog', 'ResetHtmt@DBConn']
+handler@0x140075220: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'Add@FileLog', '0DBConn', 'Add@FileLog', 'ResetHtmt@DBConn', 'FetchDbg@DBConn']
+handler@0x140075740: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'Add@FileLog', '0DBConn', 'Add@FileLog', 'ResetHtmt@DBConn', 'FetchDbg@DBConn']
+handler@0x140076a00: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'AddLog', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140076d10: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x140077360: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'AddLog', 'swprintf_s', 'append@?$basic_string@_WU?$char_traits@_W@std', '_free@Memory', '0DBConn']
+handler@0x140077950: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140077c50: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', 'FetchDbg@DBConn', 'SendIOBuffer@AC_Socket', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140077f60: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'AddLog', 'swprintf_s', 'append@?$basic_string@_WU?$char_traits@_W@std', '_free@Memory', 'swprintf_s']
+handler@0x140075c70: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'Add@FileLog', '0DBConn', 'Add@FileLog', 'Add@FileLog', 'ResetHtmt@DBConn']
+handler@0x1400766a0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '1DBConn', '0DBConn', '1DBConn', 'AddLog']
+handler@0x140078570: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140078890: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', '0DBConn', '1DBConn', 'ReleaseReferenceGarbage']
+handler@0x140073870: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'ReleaseReferenceGarbage', 'GetInstructionPointer', 'SetPromotionData@AccountDb', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x140073a10: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SetPromotionData@AccountDb', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x140073a20: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SetPromotionData@AccountDb', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x14006dd70: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SendIOBuffer@AC_Socket', 'AddLog', 'ReleaseReferenceGarbage']
+handler@0x140073560: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SendIOBuffer@AC_Socket', 'AddLog', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x140073a30: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'SetPromotionData@AccountDb', 'SendIOBuffer@AC_Socket', 'ReleaseReferenceGarbage']
+handler@0x140073ce0: DECODE=[] ENCODE=[] OTHER=['GetInstructionPointer', 'DeletePromotionData@AccountDb', 'ReleaseReferenceGarbage']
