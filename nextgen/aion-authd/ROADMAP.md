@@ -99,3 +99,24 @@ usage у нас минимальный (PA вырублен, OTP off, QMAS мё�
 - fork-proxy скромничает: копирует, НЕ модифицирует; при смерти L2Authd — рестарт-ритуал `C:\Temp\restart-auth.ps1`.
 - Probe-логины ЛОЧАТ акки на 2-6 мин (онлайн-флаг) — тестовые креды держать пулом, не долбить.
 - Секреты (connStr/пароли) — только в конфиге на VM.
+
+## 📡 Дельта 09.10 вечер: юзер-сессия «зашёл-поиграл-вышел» — новые каноны
+
+- **MSSQL-стор на тени ВЕРИФИЦИРОВАН ЖИВЬЁМ** (config-shadow: driver mssql, connStr
+  `sqlserver://localhost?database=AionAccounts` = L2Conn.dsn Trusted_Connection, SSPI из
+  SYSTEM-задачи прошёл): probe probeacc2 → type=3 payload с **РЕАЛЬНЫМ uid=1020** (ap_GPwdWithFlag→
+  ap_AutoReg), канон 52Б. На юзер-логине type=3 больше не DIFF по uid.
+- **type=7 pk1 = ТОЧНОЕ ЭХО World-ack** (W→A type=0 [uid][N] → A→Gate type=7 pk1=N):
+  три логина 2→2 / 4→4 / 8→8. Реализовано: наш authd на CM_PLAY (op=0x02) при включённом
+  мире шлёт relay type=0 (A→W) и ЖДЁТ ack → OnPlayAck → SendPlayOK (type=7 pk1=ack);
+  при выключенном мире — старый путь pk1=1 (fallback). A→W type=0 = релей PLAY,
+  НЕ логина (login мир не касается — type=3/4 идут до мира).
+- **LOGOUT-флоу 2104 (юзер вышел корректно)**: W→A type=40 (uid) → W→A type=3
+  (uid + 76000000 + char_id + lev) → heartbeat type=5 users 1→0 (`0100f401`→`0000f401` —
+  theory users/limit → ✅ канон). C1-семантика: packet03_userQuits / packet04_userDropped.
+- **forkauthd: переподключение тени** (ensureShadow, кулдаун 5с): рестарт shadow-authd больше
+  не отключает копию до конца gate-сессии (баг 10:48 — fork держал мёртвый сокет, N-стороны
+  не было, ARBITRATION-DROP отработал штатно).
+- Деплой: aion-authd.exe (`3c0458c8`) + forkauthd.exe (`3bd24ff3`) на VM, gate d5b9c708
+  (serverListCharCount=0 — паритет); forkd/authdn/gate RUNNING, мир 8/8.
+- ОСТАТОК: fork type=3/7 SAME на СЛЕДУЮЩЕМ юзер-логине (тень уже на mssql + pk1-эхо) → R6 «го».
