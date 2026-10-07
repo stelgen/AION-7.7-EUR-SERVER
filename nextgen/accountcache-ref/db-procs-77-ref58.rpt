@@ -1,0 +1,2825 @@
+=====TABLES=====
+account_data
+account_fatigue
+account_luna
+account_luna_reward
+account_pack
+account_playtime_polls
+aion_ranking_info
+aion_ranking_season_status
+aion_server_data
+aion_serverlist
+aion_user_ranking_season_history
+aion_user_ranking_servermove
+cosmetic_data
+global_user_data
+jumping_character_config
+server_operation
+test_data
+trial_account_data
+user_board_bm
+user_board_bm_dice
+user_board_bm_game
+user_login_event_data
+user_login_event_data_daily
+user_login_event_data_other
+user_login_event_data_renewal
+user_monster_core
+user_promotion_cooltime
+user_transform
+aion_ConfirmLunaReward=====BODY=====CREATE procedure [dbo].[aion_ConfirmLunaReward]
+	@accountId int,
+	@keyCount int, 
+	@decrease int,
+	@remain int
+as
+begin
+	
+	declare @currentRemain int	
+	declare @currentKey int
+	
+	set @currentKey = 0
+	set @currentRemain = 0
+	
+	declare @curdate datetime	
+	
+	set @curdate = dateadd(hour, 9, convert(datetime, convert(date, GETDATE())))
+	if @curdate > GETDATE()
+		set @curdate = dateadd(day, -1, @curdate)
+		
+	select @currentRemain = remain_reward, @currentKey = key_count from account_luna_reward where accountId = @accountId and updatedate >= @curdate
+	
+	if @@ROWCOUNT <=0	-- ??? ???? ??? ?? ????.
+	begin			
+		return -3
+	end
+		
+	if (@currentRemain <> @remain)	-- ???? ?? ?? ?? ?? DB? ?? ?? ??? ???? ??.
+	begin				
+		return -1
+	end		
+		
+	if (@currentRemain - @decrease) > 0 --?? ??? ? ? ?? ??? ??.
+	begin			
+		return -2
+	end
+	set nocount on	
+	update account_luna_reward set key_count = key_Count + @keyCount, remain_reward = @decrease where accountId = @accountId	
+	
+	set nocount off
+	return 0
+end
+
+aion_DecreaseLunaKey=====BODY=====CREATE procedure [dbo].[aion_DecreaseLunaKey] 
+	@accountId int,
+	@decreaseKey int
+as 
+begin
+
+	if @decreaseKey < 0
+		return -1	
+	
+	declare @currentKey int
+	
+	set @currentKey = 0		
+	
+	begin tran	
+			
+	select @currentKey = key_count  from account_luna_reward where accountId = @accountId
+			
+	if @@ROWCOUNT = 0
+	begin
+	commit tran
+		return -2
+	end
+	else	
+		begin			
+			if @currentKey + @decreaseKey < 0 
+			begin
+				commit tran
+				return -3
+			end
+			
+			update account_luna_reward set key_count = key_count - @decreaseKey, updatedate = GETDATE() where accountId = @accountId 
+		end		
+	commit tran	
+	return 0
+end
+
+aion_DeleteLoginEventInfo=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_DeleteLoginEventInfo]
+	@account_id int,
+	@event_id int,
+	@days int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    IF (@account_id = 0 and @event_id = 0)
+    begin
+		DELETE FROM user_login_event_data_daily 
+		WHERE be_rewarded <> 1 and DATEDIFF(D, recent_count_update_date, GETDATE()) >= @days
+		
+		DELETE FROM user_login_event_data_other 
+		WHERE be_rewarded <> 1 and DATEDIFF(D, recent_count_update_date, GETDATE()) >= @days
+	end
+	ELSE
+    begin
+		DELETE FROM user_login_event_data_daily
+		WHERE account_id = @account_id and event_id = @event_id and DATEDIFF(D, recent_count_update_date, GETDATE()) >= @days
+		
+		DELETE FROM user_login_event_data_other
+		WHERE account_id = @account_id and event_id = @event_id and DATEDIFF(D, recent_count_update_date, GETDATE()) >= @days
+	end
+	
+	
+    RETURN @@rowcount			
+END
+
+aion_DeletePromotionCoolTimeForAC=====BODY=====CREATE procedure [dbo].[aion_DeletePromotionCoolTimeForAC]
+	@nAccountId int,
+	@nPromotionId smallint
+as 
+SET NOCOUNT ON
+DELETE
+FROM user_promotion_cooltime
+WHERE account_id=@nAccountId and promotion_id=@nPromotionId
+set nocount off
+
+aion_DeleteUserInfo_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_DeleteUserInfo_20120703]
+	@char_id int,
+	@server_id int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    DECLARE @utc_adjust BIGINT
+
+	delete
+	from global_user_data
+	WHERE char_id = @char_id and server_id = @server_id
+		    
+    RETURN @@rowcount			
+END
+
+aion_GetAccountData=====BODY=====CREATE PROCEDURE [dbo].[aion_GetAccountData]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select hidden_fatigue_point, hidden_fatigue_updatetime from account_data WHERE account_id=@accountId
+	
+	SET NOCOUNT OFF;
+END
+
+aion_GetAccountData_20151117=====BODY=====CREATE PROCEDURE [dbo].[aion_GetAccountData_20151117]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select hidden_fatigue_point, hidden_fatigue_updatetime, isnull(hidden_fatigue_npckill,0) from account_data WHERE account_id=@accountId
+	
+	SET NOCOUNT OFF;
+END
+
+aion_GetAccountData_20170428=====BODY=====CREATE PROCEDURE [dbo].[aion_GetAccountData_20170428]
+	@accountId int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	select hidden_fatigue_point, hidden_fatigue_updatetime, isnull(hidden_fatigue_npckill, 0), limit_play_reset_time, limit_play_accum_time from account_data WHERE account_id=@accountId
+	
+	SET NOCOUNT OFF;
+END
+
+aion_GetAccountPackList=====BODY=====CREATE PROCEDURE [dbo].[aion_GetAccountPackList]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select pack_type, expire_date from account_pack where account_id=@accountId
+	
+	SET NOCOUNT OFF;
+END
+
+aion_GetBoardBMInfo=====BODY=====CREATE PROCEDURE [dbo].[aion_GetBoardBMInfo]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    -- Insert statements for procedure here
+    declare @maxLevAmongNormalServers int 
+    declare @maxLevAmongSpecialServers int
+    select @maxLevAmongNormalServers  = MAX(user_level) from global_user_data with (NOLOCK) where account_id = @accountId and is_special_server = 0 and delete_date = 0 group by account_id
+    select @maxLevAmongSpecialServers = MAX(user_level) from global_user_data with (NOLOCK) where account_id = @accountId and is_special_server != 0 and delete_date = 0 group by account_id
+    
+	SELECT game_id, current_pos, visited_pos, last_freecharge_time, last_reset_time, free_dice_remain, paid_dice_remain, paid_reset_remain, ISNULL(@maxLevAmongNormalServers, 0), ISNULL(@maxLevAmongSpecialServers, 0)
+	FROM user_board_bm with (NOLOCK)
+	WHERE account_id = @accountId
+	
+END
+
+aion_GetBoardBMInfo_2017=====BODY=====CREATE PROCEDURE [dbo].[aion_GetBoardBMInfo_2017]
+	@accountId int,
+	@isSpecial int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    -- Insert statements for procedure here
+    declare @maxLevAmongNormalServers int 
+    declare @maxLevAmongSpecialServers int
+    select @maxLevAmongNormalServers  = MAX(user_level) from global_user_data with (NOLOCK) where account_id = @accountId and is_special_server = 0 and delete_date = 0 group by account_id
+    select @maxLevAmongSpecialServers = MAX(user_level) from global_user_data with (NOLOCK) where account_id = @accountId and is_special_server != 0 and delete_date = 0 group by account_id
+    
+    declare @last_freecharge_time bigint
+    declare @free_dice_remain int
+    declare @paid_dice_remain int
+    declare @paid_reset_remain int
+    SELECT 
+		@last_freecharge_time = last_freecharge_time, 
+		@free_dice_remain = free_dice_remain,
+		@paid_dice_remain = paid_dice_remain,
+		@paid_reset_remain = paid_reset_remain
+	FROM user_board_bm_dice with (NOLOCK)
+	WHERE account_id = @accountId
+        
+    declare @game_id int
+    declare @current_pos int
+    declare @visited_pos int
+    declare @last_reset_time bigint
+    SELECT 
+		@game_id = game_id,
+		@current_pos = current_pos,
+		@visited_pos = visited_pos,
+		@last_reset_time = last_reset_time
+	FROM user_board_bm_game with (NOLOCK)
+    WHERE account_id = @accountId and is_special_server = @isSpecial
+    
+	SELECT 
+		ISNULL(@game_id, 0),
+		ISNULL(@current_pos, 0),
+		ISNULL(@visited_pos, 0),
+		ISNULL(@last_reset_time, 0),
+		ISNULL(@last_freecharge_time, 0),
+		ISNULL(@free_dice_remain, 0),
+		ISNULL(@paid_dice_remain, 0),
+		ISNULL(@paid_reset_remain, 0),
+		ISNULL(@maxLevAmongNormalServers, 0),
+		ISNULL(@maxLevAmongSpecialServers, 0)
+	
+END
+
+aion_GetCosmetic=====BODY=====CREATE PROCEDURE [dbo].[aion_GetCosmetic]
+	-- Add the parameters for the stored procedure here
+	@nCosmeticId int
+AS
+BEGIN
+	SET NOCOUNT ON
+	
+	SELECT account_id, server_id, char_id, race, gender, 
+	
+	feat_version,
+	
+	head_face_color, head_hair_color, head_eye_color, head_lip_color, head_face_type, 
+	head_hair_type, height_scale, head_voice_type, 
+	head_feat_type1, head_feat_type2,
+	ISNULL(head_bump_type, 0), ISNULL(head_expression_type, 0),
+		
+	feat_face_shape,
+	feat_forehead_shape,
+	feat_eye_position,
+	feat_eye_glabella,
+	feat_eye_length,
+	feat_eye_height,
+	feat_eye_shape,
+	feat_eye_tail,
+	feat_eyeblow_pos,
+	feat_eyeblow_angle,
+	feat_eyeblow_shape,
+	feat_nose_pos,
+	feat_nose_bridge,
+	feat_nose_side,
+	feat_nose_tip,
+	feat_cheek_shape,
+	feat_mouth_pos,
+	feat_mouth_size,
+	feat_lip_thickness,
+	feat_lip_tail,
+	feat_lip_shape,
+	feat_jaw_pos,
+	feat_jaw_shape,
+	feat_ear_shape,
+	feat_head_size,
+	feat_neck_thickness,
+	feat_neck_length,
+	feat_shoulder_size,
+	feat_upper_size,
+	feat_bust_size,
+	feat_waist_size,
+	feat_hip_size,
+	feat_arm_thickness,
+	feat_hand_size,
+	feat_leg_thickness,
+	feat_foot_size,
+	feat_face_ratio,
+	feat_wing_size,
+	feat_arm_length,
+	feat_leg_length,
+	feat_shoulder_width,
+	ISNULL(feat_head_figure, 0)	
+FROM cosmetic_data 
+WHERE cosmetic_id = @nCosmeticId
+
+	SET NOCOUNT OFF
+END
+
+aion_GetLastCheckTimeUserMoveSvr=====BODY=====CREATE PROCEDURE [dbo].[aion_GetLastCheckTimeUserMoveSvr]
+	@serverId int
+AS
+BEGIN
+
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+	DECLARE @curr_time int
+	DECLARE @last_checktime int
+	
+	set @curr_time = dbo.GetUnixtimeWithUTCAdjust(GetUTCDate(),0)
+
+    -- Insert statements for procedure here
+	select @last_checktime = movesvr_last_checktime
+	from aion_server_data
+	where server_id = @serverId
+	
+	if @@ROWCOUNT = 0 
+	begin
+		set @last_checktime = @curr_time
+		
+		insert aion_server_data(server_id, movesvr_last_checktime)
+		values (@serverId, @curr_time)
+	end	
+	else begin
+	
+		update aion_server_data
+		set movesvr_last_checktime = @last_checktime
+		where server_id = @serverId 
+	end
+
+	return @last_checktime
+	
+END
+
+aion_GetLoginEventInfo=====BODY=====CREATE PROCEDURE [dbo].[aion_GetLoginEventInfo]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT event_id, valid_login_count, recent_count_update_date, be_rewarded
+	FROM user_login_event_data_daily with (NOLOCK)
+	WHERE account_id = @accountId
+	UNION
+	SELECT event_id, valid_login_count, recent_count_update_date, be_rewarded
+	FROM user_login_event_data_other with (NOLOCK)
+	WHERE account_id = @accountId
+
+END
+
+aion_GetLoginEventInfo_2016=====BODY=====CREATE PROCEDURE [dbo].[aion_GetLoginEventInfo_2016]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT event_id, stamp_count, recent_count_update_date, recent_anniversity_reward_time
+	FROM user_login_event_data with (NOLOCK)
+	WHERE account_id = @accountId
+	
+END
+
+aion_GetLoginEventInfoRenewal=====BODY=====-- --------------------------------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE [dbo].[aion_GetLoginEventInfoRenewal]
+(
+	@accountId INT,
+	@specialsvrType INT
+)
+AS
+BEGIN	
+	SET NOCOUNT ON
+    
+	SELECT eventId, stampCount, recentCountUpdateDate FROM user_login_event_data_renewal with (NOLOCK)
+	WHERE accountId = @accountId AND specialsvrType = @specialsvrType
+END
+
+aion_GetLunaReward=====BODY=====CREATE procedure [dbo].[aion_GetLunaReward]
+	@accountId int
+as 
+begin 
+	set nocount on
+	declare @curdate datetime	
+	declare @currentReward int, @remainReward int, @keycount int
+	declare @updateTime datetime
+	set @currentReward = 0
+	set @remainReward = 0
+	set @keycount = 0
+	set @curdate = dateadd(hour, 9, convert(datetime, convert(date, GETDATE())))	
+		
+	begin tran	
+			
+	select @currentReward = today_reward, @remainReward = remain_reward, @keycount = key_count, @updateTime = updatedate from account_luna_reward where accountId = @accountId
+			
+	if @@ROWCOUNT = 0 
+		begin 			
+			set @currentReward = 0
+			set @remainReward = 0
+			set @keycount = 0
+			insert into account_luna_reward (accountId, today_reward, remain_reward, key_count) values (@accountid, @currentReward, @remainReward, @keycount)			
+		end
+	else	
+		begin
+			if getdate() > @curdate and @updateTime <= @curdate	--??? ??? ??? ?? ?? ????			
+			begin 				
+				set @currentReward = 0
+				set @remainReward = 0
+				update account_luna_reward set today_reward = @currentReward, remain_reward = @remainReward, updatedate = GETDATE() where accountId = @accountid
+			end		
+		end		
+	commit tran		
+	set nocount off
+	select isnull(@currentReward, 0), isnull(@remainReward, 0), isnull(@keycount,0)	
+End
+
+aion_GetMonsterCoreInfo=====BODY=====CREATE PROC [dbo].[aion_GetMonsterCoreInfo]
+	@accountId	int
+AS
+BEGIN
+
+	SELECT	core_id, core_grade, core_count
+	FROM	user_monster_core
+	WHERE	account_id = @accountId
+
+END
+
+aion_GetOldestCreateDate=====BODY=====CREATE PROCEDURE [dbo].[aion_GetOldestCreateDate]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT ISNULL(min(create_date), 0)
+	FROM global_user_data with (NOLOCK)
+	WHERE account_id = @accountId 
+
+END
+
+aion_GetPlayTimeForPoll=====BODY=====CREATE PROCEDURE [dbo].[aion_GetPlayTimeForPoll]
+	@poll_id		INT,
+	@account_id		INT
+	
+AS
+BEGIN
+	SET NOCOUNT ON;
+	DECLARE @playTime BIGINT
+	SET @playTime = 0
+
+	SELECT @playTime = previous_playtime
+	FROM account_playtime_polls (nolock)
+	WHERE poll_id = @poll_id AND account_id = @account_id
+
+	SELECT ISNULL(@playTime, 0) as previous_playtime
+END
+
+aion_GetPlayTimesForPolls=====BODY=====CREATE procedure [dbo].[aion_GetPlayTimesForPolls]
+	@pollIds	NVARCHAR(MAX),
+	@account_id	INT
+as
+BEGIN
+	SET NOCOUNT ON;
+	DECLARE @S_VAL NVARCHAR(MAX)
+	DECLARE @S_SPLIT_CHAR NVARCHAR(1)
+	DECLARE @oPos INT, @nPos INT, @i INT
+	DECLARE @tempVar NVARCHAR(4000)
+	DECLARE @T_SPLIT TABLE(
+		NUM INT, 
+		VAL NVARCHAR(4000)
+	)
+	DECLARE @PollIDList TABLE(poll_id INT)
+
+	BEGIN
+		SET @S_VAL = @pollIds
+		SET @S_SPLIT_CHAR = N','
+		SET @oPos = 1
+		SET @nPos = 1
+		SET @i = 0
+
+		WHILE(@nPos > 0)
+		BEGIN
+			SET @nPos = CHARINDEX(@S_SPLIT_CHAR, @S_VAL, @oPos)
+		
+			IF @nPos = 0
+				SET @tempVar = RIGHT(@S_VAL, LEN(@S_VAL) - @oPos + 1)
+			ELSE
+				SET @tempVar = SUBSTRING(@S_VAL, @oPos, @nPos - @oPos)
+
+			IF LEN(@tempVar) > 0
+			INSERT INTO @T_SPLIT VALUES (@i, @tempVar)
+
+			SET @oPos = @nPos + 1
+			SET @i = @i + 1
+		END
+
+		BEGIN
+			INSERT INTO @PollIDList SELECT CONVERT(INT, VAL) FROM @T_SPLIT
+		END
+	END
+
+	SELECT templete.poll_id, ISNULL(app.previous_playtime, 0) as previous_playtime FROM @PollIDList AS templete
+	LEFT JOIN account_playtime_polls AS app ON app.poll_id = templete.poll_id AND app.account_id = @account_id
+END
+
+aion_GetPromotionCoolTimeListForAC=====BODY=====CREATE procedure [dbo].[aion_GetPromotionCoolTimeListForAC]
+	@nAccountId	int	
+as
+set nocount on
+SELECT promotion_id, last_promotion_time, received_item_count, cycle_received_item_count, cycle_next_reset_time
+FROM user_promotion_cooltime
+WHERE account_id=@nAccountId
+set nocount off
+
+aion_GetServerReplaceList=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_GetServerReplaceList]	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT orgServerId, newServerId from server_operation where operation = 0
+END
+
+aion_GetTransformList=====BODY=====CREATE PROCEDURE [dbo].[aion_GetTransformList]
+	@account_id	int,	
+	@server_id	int
+AS
+BEGIN
+
+SET NOCOUNT ON
+SELECT name_id, count FROM user_transform WITH(NOLOCK)
+WHERE (account_id = @account_id) AND (count > 0 and server_id = @server_id)
+SET NOCOUNT OFF
+
+END
+
+aion_GetTrialAccountData=====BODY=====CREATE PROCEDURE [dbo].[aion_GetTrialAccountData]
+	@accountId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	select reset_time, sell_gold_sum, trade_gold_sum, decompose_sum, gather_sum, extract_gather_sum from trial_account_data (NOLOCK) WHERE account_id=@accountId
+	
+	SET NOCOUNT OFF;
+END
+
+aion_GetUnmatchLoginTimeUser=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_GetUnmatchLoginTimeUser]
+	@serverId int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	select char_id
+	from global_user_data
+	where last_login_time >= last_logout_time and DATEDIFF(dd, last_logout_time, '2000-01-01') < 0 and server_id = @serverId
+
+END
+
+aion_insert_test=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_insert_test]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	insert test_data(int_value, nchar10_value, date_value) values(0, 'test', getdate())
+END
+
+aion_loadLuna=====BODY=====create procedure [dbo].[aion_loadLuna]
+	@accid int
+as
+	select luna from account_luna where accountId = @accId
+
+aion_LoadLunaPrice=====BODY=====create procedure [dbo].[aion_LoadLunaPrice]
+	@char_id int
+as 
+begin
+	select luna_id, use_count, reset_type, reset_week_value, reset_time_value, create_time from user_luna_price where char_id = @char_id
+end
+
+aion_MonsterCoreAddCount=====BODY=====CREATE PROC [dbo].[aion_MonsterCoreAddCount]
+	@accountId	int,
+	@coreId		int,
+	@addCount	int
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	UPDATE	user_monster_core
+	SET		core_count += @addCount,
+			total_added += @addCount
+	WHERE	account_id = @accountId AND core_id = @coreId
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		INSERT	user_monster_core (account_id, core_id, core_grade, core_count, total_added, total_used)
+		VALUES (@accountId, @coreId, 0, @addCount, @addCount, 0)
+	END
+
+END
+
+aion_MonsterCoreUpdate=====BODY=====CREATE PROC [dbo].[aion_MonsterCoreUpdate]
+	@accountId	int,
+	@coreId		int,
+	@coreGrade	int,
+	@coreCount	int
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	UPDATE	user_monster_core
+	SET		core_count = @coreCount,
+			core_grade = @coreGrade
+	WHERE	account_id = @accountId AND core_id = @coreId
+	
+	IF (@@ROWCOUNT = 0)
+	BEGIN
+		INSERT	user_monster_core (account_id, core_id, core_grade, core_count, total_added, total_used)
+		VALUES (@accountId, @coreId, @coreGrade, @coreCount, @coreCount, 0)
+	END
+	
+END
+
+aion_MonsterCoreUpgradeAndDecreaseCount=====BODY=====CREATE PROC [dbo].[aion_MonsterCoreUpgradeAndDecreaseCount]
+	@accountId	int,
+	@coreId		int,
+	@countForUpgrade	int
+AS
+BEGIN
+	SET NOCOUNT ON
+	
+	UPDATE	user_monster_core
+	SET		core_grade += 1,
+			core_count -= @countForUpgrade,
+			total_used += @countForUpgrade
+	WHERE	account_id = @accountId AND core_id = @coreId
+	
+END
+
+aion_PutCosmetic=====BODY=====/****** ??: ?? ???? dbo.aion_PutCosmetic  ???? ??: 2005-05-27 ?? 10:58:35 ******/
+
+CREATE PROCEDURE [dbo].[aion_PutCosmetic]
+	-- Add the parameters for the stored procedure here
+	@nAccountID		int,
+	@nServerId		tinyint,
+	@nCharId			int,
+	@nRace				tinyint,
+	@nGender			tinyint,	
+	
+	@feat_version		tinyint,
+		
+	@nHeadFaceColor	int,
+	@nHeadHairColor	int,
+	@nEyeColor		int,
+	@nLipColor		int,
+	@nHeadFaceType	tinyint,
+	@nHeadHairType	tinyint,
+	@fScale		float,
+	@nVoiceType		tinyint,
+	@nFeatType1		tinyint, -- ??
+	@nFeatType2		tinyint, -- ??
+	@nHeadBumpType	tinyint, -- bumpType
+	@nHeadExpressionType	tinyint, -- ??	
+
+	@feat_face_shape 	tinyint,
+	@feat_forehead_shape 	tinyint,
+	@feat_eye_position 	tinyint,
+	@feat_eye_glabella 	tinyint,
+	@feat_eye_length 	tinyint,
+	@feat_eye_height 	tinyint,
+	@feat_eye_shape 	tinyint,
+	@feat_eye_tail 		tinyint,
+	@feat_eyeblow_pos 	tinyint,
+	@feat_eyeblow_angle 	tinyint,
+	@feat_eyeblow_shape 	tinyint,
+	@feat_nose_pos 		tinyint,
+	@feat_nose_bridge 	tinyint,
+	@feat_nose_side 	tinyint,
+	@feat_nose_tip 		tinyint,
+	@feat_cheek_shape 	tinyint,
+	@feat_mouth_pos 	tinyint,
+	@feat_mouth_size 	tinyint,
+	@feat_lip_thickness 	tinyint,
+	@feat_lip_tail 		tinyint,
+	@feat_lip_shape 	tinyint,
+	@feat_jaw_pos 		tinyint,
+	@feat_jaw_shape 	tinyint,
+	@feat_ear_shape		tinyint,
+	@feat_head_size 	tinyint,
+	@feat_neck_thickness 	tinyint,
+	@feat_neck_length 	tinyint,
+	@feat_shoulder_size 	tinyint,
+	@feat_upper_size 	tinyint,
+	@feat_bust_size 	tinyint,
+	@feat_waist_size 	tinyint,
+	@feat_hip_size 		tinyint,
+	@feat_arm_thickness 	tinyint,
+	@feat_hand_size 	tinyint,
+	@feat_leg_thickness 	tinyint,
+	@feat_foot_size 	tinyint,
+	@feat_face_ratio 	tinyint,
+	@feat_wing_size 	tinyint,
+	@feat_arm_length 	tinyint,
+	@feat_leg_length 	tinyint,
+	@feat_shoulder_width 	tinyint,
+	@feat_head_figure	tinyint -- ????
+AS
+BEGIN
+set nocount on
+INSERT cosmetic_data (account_id, server_id, char_id, race, gender, 
+	feat_version,
+	
+	head_face_color, head_hair_color, head_eye_color, head_lip_color, head_face_type, head_hair_type, 
+	height_scale, head_voice_type, 
+	head_feat_type1, head_feat_type2, head_bump_type, head_expression_type,	
+	
+	feat_face_shape,
+	feat_forehead_shape,
+	feat_eye_position,
+	feat_eye_glabella,
+	feat_eye_length,
+	feat_eye_height,
+	feat_eye_shape,
+	feat_eye_tail,
+	feat_eyeblow_pos,
+	feat_eyeblow_angle,
+	feat_eyeblow_shape,
+	feat_nose_pos,
+	feat_nose_bridge,
+	feat_nose_side,
+	feat_nose_tip,
+	feat_cheek_shape,
+	feat_mouth_pos,
+	feat_mouth_size,
+	feat_lip_thickness,
+	feat_lip_tail,
+	feat_lip_shape,
+	feat_jaw_pos,
+	feat_jaw_shape,
+	feat_ear_shape,
+	feat_head_size,
+	feat_neck_thickness,
+	feat_neck_length,
+	feat_shoulder_size,
+	feat_upper_size,
+	feat_bust_size,
+	feat_waist_size,
+	feat_hip_size,
+	feat_arm_thickness,
+	feat_hand_size,
+	feat_leg_thickness,
+	feat_foot_size,
+	feat_face_ratio,
+	feat_wing_size,
+	feat_arm_length,
+	feat_leg_length,
+	feat_shoulder_width,
+	feat_head_figure,
+	create_date
+)
+ VALUES ( @nAccountId, @nServerId, @nCharId, @nRace, @nGender, 
+ 
+ 	@feat_version,
+ 
+	@nHeadFaceColor, @nHeadHairColor, @nEyeColor, @nLipColor, @nHeadFaceType, @nHeadHairType, 
+	@fScale, @nVoiceType, 
+	@nFeatType1, @nFeatType2, @nHeadBumpType, @nHeadExpressionType,	
+	
+	@feat_face_shape,
+	@feat_forehead_shape,
+	@feat_eye_position,
+	@feat_eye_glabella,
+	@feat_eye_length,
+	@feat_eye_height,
+	@feat_eye_shape,
+	@feat_eye_tail,
+	@feat_eyeblow_pos,
+	@feat_eyeblow_angle,
+	@feat_eyeblow_shape,
+	@feat_nose_pos,
+	@feat_nose_bridge,
+	@feat_nose_side,
+	@feat_nose_tip,
+	@feat_cheek_shape,
+	@feat_mouth_pos,
+	@feat_mouth_size,
+	@feat_lip_thickness,
+	@feat_lip_tail,
+	@feat_lip_shape,
+	@feat_jaw_pos,
+	@feat_jaw_shape,
+	@feat_ear_shape,
+	@feat_head_size,
+	@feat_neck_thickness,
+	@feat_neck_length,
+	@feat_shoulder_size,
+	@feat_upper_size,
+	@feat_bust_size,
+	@feat_waist_size,
+	@feat_hip_size,
+	@feat_arm_thickness,
+	@feat_hand_size,
+	@feat_leg_thickness,
+	@feat_foot_size,
+	@feat_face_ratio,
+	@feat_wing_size,
+	@feat_arm_length,
+	@feat_leg_length,
+	@feat_shoulder_width,
+	@feat_head_figure,
+	GetDate()	
+)
+set nocount off
+
+ IF @@ERROR <> 0
+	return 0
+
+return @@IDENTITY
+END
+
+aion_PutTransform=====BODY=====CREATE PROCEDURE [dbo].[aion_PutTransform]
+	@account_id		int,
+	@name_id		int,
+	@count			int,
+	@server_id		int
+AS
+BEGIN
+	SET NOCOUNT ON
+
+	IF EXISTS (SELECT account_id FROM user_transform (UPDLOCK) WHERE account_id = @account_id AND name_id = @name_id and server_id = @server_id)
+		BEGIN
+			UPDATE user_transform 
+			SET count = @count, update_time = GETDATE() 
+			WHERE account_id = @account_id AND name_id = @name_id and server_id = @server_id
+		END
+	ELSE 
+		BEGIN
+			INSERT user_transform(account_id, name_id, count,server_id) VALUES (@account_id, @name_id, @count,@server_id)
+		END
+
+	SET NOCOUNT OFF
+END
+
+aion_PutUserDataFromAllServer=====BODY=====CREATE PROCEDURE [dbo].[aion_PutUserDataFromAllServer] 
+	@db_userId	nvarchar(64),
+	@db_passwd	nvarchar(64)
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+
+	declare @server_id int 
+	declare @sync_server_id int
+	declare @ret int
+
+	declare syncChar_cursor cursor for select server_id from aion_serverlist
+	open syncChar_cursor
+	fetch next from syncChar_cursor into @sync_server_id
+
+	while @@fetch_status = 0
+	begin
+		SET @ret = -10000
+		exec aion_PutUserDataFromServer @db_userId, @db_passwd, @sync_server_id, @ret output
+
+		update aion_serverlist set update_result = @ret where server_id = @sync_server_id
+
+
+		fetch next from syncChar_cursor into @sync_server_id
+	end
+
+	close syncChar_cursor
+	deallocate syncChar_cursor
+
+END
+
+aion_PutUserDataFromServer=====BODY=====/*
+Return ??
+	:
+
+*/
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_PutUserDataFromServer] 
+	@db_userId	nvarchar(64),
+	@db_passwd	nvarchar(64),
+	@serverId int,
+	@ret	int	output
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	declare @serverName  nvarchar(128)
+	set @serverName = ''
+	declare @databaseName  nvarchar(64)
+	set @databaseName = ''
+	select @serverName = datasource, @databaseName = database_name from aion_serverlist where server_id = @serverId
+	if @@rowcount = 0
+	begin
+		set @ret = -1	-- DB? ?? ??? ??
+		return
+	end
+
+	declare @db_info nvarchar(256)
+	set @db_info = '''' + @serverName + ''';''' + @db_userId + ''';''' + @db_passwd + ''''
+
+
+	declare @sql	nvarchar(4000)
+
+
+	-- ?? ?? ?? acc db? ??
+	set @sql = 'insert into global_user_data('
+				+ ' char_id, account_id, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, user_level, server_id'
+				+ ') '
+				+ ' select '
+				+ ' o.char_id, o.account_id, o.create_date, o.last_login_time, o.last_logout_time, o.delete_date, o.delete_complete_date, o.lev, '
+				+ ' ' + cast(@serverId as nvarchar) 
+				+ ' from openrowset (''SQLOLEDB'', ' + @db_info + ','
+				+ ' ''select char_id, account_id, lev, create_date, last_login_time, last_logout_time, delete_date, delete_complete_date from ' + @databaseName + '.dbo.user_data '' ) as o'
+				+ ' left join global_user_data on global_user_data.char_id = o.char_id and global_user_data.server_id = ' + cast(@serverId as nvarchar) 
+				+ ' where global_user_data.char_id is null'
+
+	--print @sql
+	exec (@sql)
+	set @ret = @@ROWCOUNT
+	
+	if @@error <> 0	
+	begin 
+		set @ret = -2	-- ?? ??!!!
+	end
+	
+	
+/*
+
+insert global_user_data(char_id, account_id, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, user_level, server_id)
+select char_id, account_data, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, lev, @serverId
+from openrowset('SQLOLEDB', 'jungsuk-pc-i7';'sa';'dkdldhs2005!', 'select char_id, account_id, lev, create_date, last_login_time, last_logout_time, delete_date, delete_complete_date from aionworldjung.dbo.user_data' ) as o 
+		left join global_user_data on global_user_data.char_id = o.char_id and global_user_data.server_id = @serverId
+where global_user_data.char_id is null
+
+*/
+	
+END
+
+aion_QueryCanCreateJumpingCharacter=====BODY=====CREATE PROCEDURE [dbo].[aion_QueryCanCreateJumpingCharacter]
+	@account_id int,
+	@server_id int,					-- ?????? ?? ????
+	@from_special tinyint,			-- ?????/?????? ?? ????? ???
+	
+	@can_create_num int output,		-- ?? ? ?? ?? ??? ?
+	@satisfy_date tinyint output,
+	@satisfy_char_lev tinyint output
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    declare @cur_date datetime
+    set @cur_date = getdate()
+    
+    declare @max_creation_count int
+    declare @required_char_level int
+    declare @start_date datetime
+    declare @end_date datetime
+    SELECT @max_creation_count = max_creation_count, @required_char_level = required_char_level, @start_date = start_date, @end_date = end_date
+    FROM jumping_character_config(nolock) WHERE server_id = @server_id and start_date < @cur_date and @cur_date < end_date and is_deleted = 0
+    
+    IF (ISNULL(@max_creation_count, 0) > 0)
+	begin
+		set @satisfy_date = 1;
+		-- ???? ??? ???? ??? ??		
+		IF (EXISTS(SELECT char_id FROM global_user_data(nolock) WHERE account_id = @account_id and is_special_server = @from_special and user_level >= @required_char_level and delete_completed_date = 0)
+			OR @required_char_level = 0) -- 0??? ??? ?? ??? ???? ??
+		begin
+			set @satisfy_char_lev = 1;
+			-- ?? ??? ?? ?? ???? ?? ?????? ???
+			declare @cur_creation_num int
+			SELECT @cur_creation_num = COUNT(*)
+			FROM global_user_data(nolock)
+			WHERE account_id = @account_id and is_special_server = @from_special and create_date > @start_date and create_date < @end_date and is_jumping_character != 0
+			
+			set @cur_creation_num = ISNULL(@cur_creation_num, 0)
+			set @can_create_num = @max_creation_count - @cur_creation_num
+		end
+		ELSE
+		begin
+			set @satisfy_char_lev = 0
+			set @can_create_num = 0
+		end
+	end
+    ELSE
+	begin
+		set @satisfy_date = 0
+		set @satisfy_char_lev = 0
+		set @can_create_num = 0
+    end
+END
+
+aion_QueryCanCreateJumpingCharacter_20170428=====BODY=====CREATE PROCEDURE [dbo].[aion_QueryCanCreateJumpingCharacter_20170428]
+	@account_id int,
+	@server_id int,					-- ?????? ?? ????
+	@from_special tinyint,			-- ?????/?????? ?? ????? ???
+	
+	@can_create_num int output,		-- ?? ? ?? ?? ??? ?
+	@satisfy_date tinyint output,
+	@satisfy_char_lev tinyint output,
+
+	@limit_reset_time int output,
+	@limit_play_time int output
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    declare @cur_date datetime
+    set @cur_date = getdate()
+    
+    declare @max_creation_count int
+    declare @required_char_level int
+    declare @start_date datetime
+    declare @end_date datetime
+    SELECT @max_creation_count = max_creation_count, @required_char_level = required_char_level, @start_date = start_date, @end_date = end_date
+    FROM jumping_character_config(nolock) WHERE server_id = @server_id and start_date < @cur_date and @cur_date < end_date and is_deleted = 0
+    
+    IF (ISNULL(@max_creation_count, 0) > 0)
+	begin
+		set @satisfy_date = 1;
+		-- ???? ??? ???? ??? ??		
+		IF (EXISTS(SELECT char_id FROM global_user_data(nolock) WHERE account_id = @account_id and is_special_server = @from_special and user_level >= @required_char_level and delete_completed_date = 0)
+			OR @required_char_level = 0) -- 0??? ??? ?? ??? ???? ??
+		begin
+			set @satisfy_char_lev = 1;
+			-- ?? ??? ?? ?? ???? ?? ?????? ???
+			declare @cur_creation_num int
+			SELECT @cur_creation_num = COUNT(*)
+			FROM global_user_data(nolock)
+			WHERE account_id = @account_id and is_special_server = @from_special and create_date > @start_date and create_date < @end_date and is_jumping_character != 0
+			
+			set @cur_creation_num = ISNULL(@cur_creation_num, 0)
+			set @can_create_num = @max_creation_count - @cur_creation_num
+
+			-- ????
+			SELECT @limit_reset_time = limit_play_reset_time, @limit_play_time = limit_play_accum_time FROM account_data WHERE account_id = @account_id
+
+			set @limit_reset_time = ISNULL(@limit_reset_time, 0)
+			set @limit_play_time = ISNULL(@limit_play_time, 0)
+		end
+		ELSE
+		begin
+			set @satisfy_char_lev = 0
+			set @can_create_num = 0
+			set @limit_reset_time = 0
+			set @limit_play_time = 0
+		end
+	end
+    ELSE
+	begin
+		set @satisfy_date = 0
+		set @satisfy_char_lev = 0
+		set @can_create_num = 0
+		set @limit_reset_time = 0
+		set @limit_play_time = 0
+    end
+END
+
+aion_ResetLunaReward=====BODY=====create procedure [dbo].[aion_ResetLunaReward] 
+	@accountId int	
+as 
+begin
+	declare @currentReward int, @remainReward int
+	declare @updateTime datetime
+	set @currentReward = 0
+	set @remainReward = 0
+	
+	declare @curdate datetime
+	set @curdate = dateadd(hour, 9, convert(datetime, convert(date, GETDATE())))
+		
+	begin tran	
+			
+	select @currentReward = today_reward, @remainReward = remain_reward, @updateTime = updatedate from account_luna_reward where accountId = @accountId
+			
+	if @@ROWCOUNT <> 0 			
+		begin
+			if getdate() > @curdate and  @updateTime <= @curdate	--?? ???? ??? ?? ???? ???. ??? ??? ?? ??? ????.
+			begin 
+				set @currentReward = 0
+				set @remainReward = 0
+				update account_luna_reward set today_reward = @currentReward, remain_reward = @remainReward, updatedate = GETDATE() where accountId = @accountId 
+			end					
+		end		
+	commit tran	
+	return 0
+end
+
+aion_select_test=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_select_test]
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    -- Insert statements for procedure here
+	SELECT * from test_data
+END
+
+aion_SetAccountData=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetAccountData]
+	@accountId int,
+	@hidden_fatigue_point int,
+	@hidden_fatigue_updatetime int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if EXISTS (SELECT account_id FROM account_data(UPDLOCK) WHERE account_id=@accountId) 
+	begin
+		UPDATE account_data
+		SET hidden_fatigue_point = hidden_fatigue_point
+	end
+	else
+	begin
+		INSERT account_data(account_id, hidden_fatigue_point, hidden_fatigue_updatetime) 
+		VALUES (@accountId, @hidden_fatigue_point, @hidden_fatigue_updatetime)	
+	end
+	
+	SET NOCOUNT OFF;
+END
+
+aion_SetAccountPack=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetAccountPack]
+	@accountId		int,
+	@packType		tinyint, 
+	@expireDate		int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if EXISTS (SELECT account_id FROM account_pack(UPDLOCK) WHERE account_id=@accountId and pack_type=@packType) 
+	begin
+		UPDATE account_pack
+		SET expire_date = @expireDate
+		WHERE account_id=@accountId and pack_type=@packType 
+	end
+	else
+	begin
+		INSERT account_pack(account_id, pack_type, expire_date) 
+		VALUES (@accountId, @packType, @expireDate)	
+	end
+	
+	SET NOCOUNT OFF;
+END
+
+aion_SetCreateUser_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetCreateUser_20120703]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@account_id int,
+	@create_date datetime
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    /*
+	INSERT global_user_data(char_id, account_id, create_date, server_id, cur_server_id, user_level)
+	VALUES (@char_id, @account_id, @create_date, @server_id, @cur_server_id, 1)
+	*/
+		
+    if EXISTS (select char_id from global_user_data with(UPDLOCK) where char_id = @char_id and server_id = @server_id)
+    begin
+		UPDATE global_user_data
+		SET create_date = @create_date, cur_server_id = @cur_server_id
+		WHERE char_id = @char_id and server_id = @server_id
+    end
+    else begin
+		INSERT global_user_data(char_id, account_id, create_date, server_id, cur_server_id, user_level)
+		VALUES (@char_id, @account_id, @create_date, @server_id, @cur_server_id, 1)
+	end	
+END
+
+aion_SetCreateUser_20121206=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetCreateUser_20121206]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@account_id int,
+	@create_date datetime,
+	@class_type int,
+	@race_type int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    /*
+	INSERT global_user_data(char_id, account_id, create_date, server_id, cur_server_id, user_level)
+	VALUES (@char_id, @account_id, @create_date, @server_id, @cur_server_id, 1)
+	*/
+		
+    if EXISTS (select char_id from global_user_data with(UPDLOCK) where char_id = @char_id and server_id = @server_id)
+    begin
+		UPDATE global_user_data
+		SET create_date = @create_date, cur_server_id = @cur_server_id, class_type = @class_type, race_type = @race_type 
+		WHERE char_id = @char_id and server_id = @server_id
+    end
+    else begin
+		INSERT global_user_data(char_id, account_id, create_date, server_id, cur_server_id, user_level, class_type, race_type)
+		VALUES (@char_id, @account_id, @create_date, @server_id, @cur_server_id, 1, @class_type, @race_type)
+	end	
+END
+
+aion_SetCreateUser_20160303=====BODY=====CREATE PROCEDURE [dbo].[aion_SetCreateUser_20160303]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@account_id int,
+	@create_date datetime,
+	@class_type int,
+	@race_type int,
+	@level int,
+	@is_special_server tinyint,
+	@is_jumping_character tinyint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    /*
+	INSERT global_user_data(char_id, account_id, create_date, server_id, cur_server_id, user_level)
+	VALUES (@char_id, @account_id, @create_date, @server_id, @cur_server_id, 1)
+	*/
+		
+    if EXISTS (select char_id from global_user_data with(UPDLOCK) where char_id = @char_id and server_id = @server_id)
+    begin
+		UPDATE global_user_data
+		SET create_date = @create_date, cur_server_id = @cur_server_id, class_type = @class_type, race_type = @race_type 
+		WHERE char_id = @char_id and server_id = @server_id
+    end
+    else begin
+		INSERT global_user_data(char_id, account_id, create_date, server_id, cur_server_id, user_level, class_type, race_type, is_special_server, is_jumping_character)
+		VALUES (@char_id, @account_id, @create_date, @server_id, @cur_server_id, @level, @class_type, @race_type, @is_special_server, @is_jumping_character)
+	end	
+END
+
+aion_SetDeleteCompletedUser_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetDeleteCompletedUser_20120703]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@delete_completed_time int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+/*
+    DECLARE @utc_adjust BIGINT
+    SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    update global_user_data
+    set delete_completed_date = dateadd(ss,@delete_completed_time+@utc_adjust,'1970-01-01')
+    where char_id = @char_id and server_id = @server_id
+*/
+    update global_user_data
+    set delete_completed_date = @delete_completed_time, cur_server_id = @cur_server_id
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetDeleteUser_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetDeleteUser_20120703]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@delete_time int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+/*
+    DECLARE @utc_adjust BIGINT
+    SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    update global_user_data
+    set delete_date = dateadd(ss,@delete_time+@utc_adjust,'1970-01-01')
+    where char_id = @char_id and server_id = @server_id
+*/
+    update global_user_data
+    set delete_date = @delete_time, cur_server_id = @cur_server_id
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetLoginUser_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetLoginUser_20120703]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@login_time datetime
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+    
+   -- Insert statements for procedure here
+    update global_user_data
+    set last_login_time = @login_time,cur_server_id = @cur_server_id , last_logout_time = @login_time --dateadd(ss,@login_time+@utc_adjust,'1970-01-01')
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetLoginUser_20121120=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetLoginUser_20121120]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@login_time datetime,
+	@global_char_id bigint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+    
+   -- Insert statements for procedure here
+    update global_user_data
+    set last_login_time = @login_time,cur_server_id = @cur_server_id , last_logout_time = @login_time, global_char_id = @global_char_id --dateadd(ss,@login_time+@utc_adjust,'1970-01-01')
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetLoginUser_20121206=====BODY=====CREATE PROCEDURE [dbo].[aion_SetLoginUser_20121206]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@login_time datetime,
+	@global_char_id bigint,
+	@class_type int,
+	@race_type int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+    
+   -- Insert statements for procedure here
+    update global_user_data
+    set last_login_time = @login_time,cur_server_id = @cur_server_id , last_logout_time = @login_time, global_char_id = @global_char_id, class_type = @class_type, race_type = @race_type --dateadd(ss,@login_time+@utc_adjust,'1970-01-01')
+		, delete_date = 0, delete_completed_date = 0 -- ??????
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetLogoutUser_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetLogoutUser_20120703]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@logout_time datetime
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    update global_user_data
+    set last_logout_time = @logout_time, cur_server_id = @cur_server_id --dateadd(ss,@logout_time+@utc_adjust,'1970-01-01')
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetLogoutUser_20121206=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetLogoutUser_20121206]
+	@char_id int,
+	@server_id int,
+	@cur_server_id int,
+	@logout_time datetime,
+	@class_type int,
+	@race_type int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+    --DECLARE @utc_adjust BIGINT
+    --SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    update global_user_data
+    set last_logout_time = @logout_time, cur_server_id = @cur_server_id, class_type = @class_type, race_type = @race_type  --dateadd(ss,@logout_time+@utc_adjust,'1970-01-01')
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SetPromotionCooltimeForAC=====BODY=====CREATE procedure [dbo].[aion_SetPromotionCooltimeForAC]
+	@nCharId							int,
+	@nPromotionId 				smallint,
+	@nLastPromotionTime 	int,
+	@nReceivedItemCount		int,
+	@nCycleReceivedItemCount	int,
+	@nCycleNextResetTime		int
+as
+set nocount on
+if EXISTS (SELECT promotion_id FROM user_promotion_cooltime(UPDLOCK) WHERE account_id=@nCharId and promotion_id=@nPromotionId) 
+begin
+	UPDATE user_promotion_cooltime
+	SET last_promotion_time = @nLastPromotionTime, received_item_count = @nReceivedItemCount, cycle_received_item_count = @nCycleReceivedItemCount, cycle_next_reset_time = @nCycleNextResetTime	
+	WHERE account_id=@nCharId and promotion_id=@nPromotionId
+end
+else
+begin
+	INSERT user_promotion_cooltime(account_id, promotion_id, last_promotion_time, received_item_count, cycle_received_item_count, cycle_next_reset_time) 
+	VALUES (@nCharId, @nPromotionId, @nLastPromotionTime, @nReceivedItemCount, @nCycleReceivedItemCount, @nCycleNextResetTime)	
+end
+set nocount off
+
+aion_SetTrialAccountData=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetTrialAccountData]
+	@accountId int,
+	@updateTime int,
+	@resetTime int,
+	@sellGold bigint,
+	@tradeGold bigint,
+	@decomposeSum int,
+	@gatherSum int,
+	@extractGatherSum int	
+	
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if EXISTS (SELECT account_id FROM trial_account_data(UPDLOCK) WHERE account_id=@accountId) 
+	begin
+		UPDATE trial_account_data
+		SET update_time=@updateTime, reset_time=@resetTime, sell_gold_sum=@sellGold,
+			trade_gold_sum=@tradeGold, decompose_sum=@decomposeSum, gather_sum=@gatherSum, extract_gather_sum=@extractGatherSum	
+		WHERE account_id=@accountId AND @updateTime > update_time 
+	end
+	else
+	begin
+		INSERT trial_account_data(account_id, update_time, reset_time, sell_gold_sum, trade_gold_sum, decompose_sum, gather_sum, extract_gather_sum) 
+		VALUES (@accountId, @updateTime, @resetTime, @sellGold, @tradeGold, @decomposeSum, @gatherSum, @extractGatherSum)	
+	end
+	
+	SET NOCOUNT OFF;
+END
+
+aion_SetUserInfo_20120703=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetUserInfo_20120703]
+	@char_id int,
+	@account_id int,
+	@server_id int,
+	@cur_server_id int,
+	@char_lev int,
+	@create_date datetime,
+	@login_time datetime,
+	@logout_time datetime,
+	--@create_date int,
+	--@login_time int,
+	--@logout_time int,
+	@delete_date int,
+	@delete_complete_date int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    DECLARE @utc_adjust BIGINT
+    SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    if EXISTS (select char_id from global_user_data with(UPDLOCK) where char_id = @char_id and server_id = @server_id)
+    begin
+		UPDATE global_user_data
+		SET create_date = @create_date, last_login_time = @login_time, last_logout_time = @logout_time, delete_date = @delete_date, delete_completed_date = @delete_complete_date, user_level = @char_lev, cur_server_id = @cur_server_id
+		WHERE char_id = @char_id and server_id = @server_id
+    end
+    else begin
+		INSERT global_user_data(char_id, account_id, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, server_id, cur_server_id, user_level)
+		VALUES (@char_id, @account_id
+				, @create_date
+				, @login_time
+				, @logout_time
+				--, dateadd(ss,@create_date+@utc_adjust,'1970-01-01')
+				--, dateadd(ss,@login_time+@utc_adjust,'1970-01-01')  /* last_login_time */
+				--, dateadd(ss,@logout_time+@utc_adjust,'1970-01-01')  /* @logout_time */
+				, @delete_date  /* @delete_date */
+				, @delete_complete_date /* @delete_complete_date */
+				, @server_id, @cur_server_id, @char_lev)
+	end
+			    
+    RETURN @@rowcount			
+END
+
+aion_SetUserInfo_20121210=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetUserInfo_20121210]
+	@char_id int,
+	@account_id int,
+	@server_id int,
+	@cur_server_id int,
+	@char_lev int,
+	@create_date datetime,
+	@login_time datetime,
+	@logout_time datetime,
+	--@create_date int,
+	--@login_time int,
+	--@logout_time int,
+	@delete_date int,
+	@delete_complete_date int,
+	@class_type int,
+	@race_type int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    DECLARE @utc_adjust BIGINT
+    SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    if EXISTS (select char_id from global_user_data with(UPDLOCK) where char_id = @char_id and server_id = @server_id)
+    begin
+		UPDATE global_user_data
+		SET create_date = @create_date, last_login_time = @login_time, last_logout_time = @logout_time, delete_date = @delete_date, delete_completed_date = @delete_complete_date, user_level = @char_lev, cur_server_id = @cur_server_id, class_type = @class_type, race_type = @race_type
+		WHERE char_id = @char_id and server_id = @server_id
+    end
+    else begin
+		INSERT global_user_data(char_id, account_id, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, server_id, cur_server_id, user_level, class_type, race_type)
+		VALUES (@char_id, @account_id
+				, @create_date
+				, @login_time
+				, @logout_time
+				--, dateadd(ss,@create_date+@utc_adjust,'1970-01-01')
+				--, dateadd(ss,@login_time+@utc_adjust,'1970-01-01')  /* last_login_time */
+				--, dateadd(ss,@logout_time+@utc_adjust,'1970-01-01')  /* @logout_time */
+				, @delete_date  /* @delete_date */
+				, @delete_complete_date /* @delete_complete_date */
+				, @server_id
+				, @cur_server_id
+				, @char_lev
+				, @class_type
+				, @race_type)
+	end
+			    
+    RETURN @@rowcount			
+END
+
+aion_SetUserInfo_20160303=====BODY=====CREATE PROCEDURE [dbo].[aion_SetUserInfo_20160303]
+	@char_id int,
+	@account_id int,
+	@server_id int,
+	@cur_server_id int,
+	@char_lev int,
+	@create_date datetime,
+	@login_time datetime,
+	@logout_time datetime,
+	--@create_date int,
+	--@login_time int,
+	--@logout_time int,
+	@delete_date int,
+	@delete_complete_date int,
+	@class_type int,
+	@race_type int,
+	@is_special_server tinyint,
+	@is_jumping_character tinyint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+	
+    DECLARE @utc_adjust BIGINT
+    SET @utc_adjust = dbo.GetUtcAdjustSecWithUTC_Local(GetUTCDate(), GetDate())
+
+    -- Insert statements for procedure here
+    if EXISTS (select char_id from global_user_data with(UPDLOCK) where char_id = @char_id and server_id = @server_id)
+    begin
+		UPDATE global_user_data
+		SET create_date = @create_date, last_login_time = @login_time, last_logout_time = @logout_time, delete_date = @delete_date, delete_completed_date = @delete_complete_date, user_level = @char_lev, cur_server_id = @cur_server_id, class_type = @class_type, race_type = @race_type, is_special_server = @is_special_server, is_jumping_character = @is_jumping_character
+		WHERE char_id = @char_id and server_id = @server_id
+    end
+    else begin
+		INSERT global_user_data(char_id, account_id, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, server_id, cur_server_id, user_level, class_type, race_type, is_special_server, is_jumping_character)
+		VALUES (@char_id, @account_id
+				, @create_date
+				, @login_time
+				, @logout_time
+				--, dateadd(ss,@create_date+@utc_adjust,'1970-01-01')
+				--, dateadd(ss,@login_time+@utc_adjust,'1970-01-01')  /* last_login_time */
+				--, dateadd(ss,@logout_time+@utc_adjust,'1970-01-01')  /* @logout_time */
+				, @delete_date  /* @delete_date */
+				, @delete_complete_date /* @delete_complete_date */
+				, @server_id
+				, @cur_server_id
+				, @char_lev
+				, @class_type
+				, @race_type
+				, @is_special_server, @is_jumping_character)
+	end
+			    
+    RETURN @@rowcount			
+END
+
+aion_SetUserLevelChanged=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SetUserLevelChanged]
+	@char_id int,
+	@server_id int,
+	@char_level BIGINT
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+   -- Insert statements for procedure here
+    update global_user_data
+    set user_level = @char_level
+    where char_id = @char_id and server_id = @server_id
+    
+    RETURN @@rowcount
+END
+
+aion_SyncUserDataFromServer=====BODY=====/*
+Return ??
+	:
+
+*/
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_SyncUserDataFromServer] 
+	@db_userId	nvarchar(64),
+	@db_passwd	nvarchar(64),
+	@serverId int,
+	@ret	int	output
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	declare @serverName  nvarchar(128)
+	set @serverName = ''
+	declare @databaseName  nvarchar(64)
+	set @databaseName = ''
+	select @serverName = datasource, @databaseName = database_name from aion_serverlist where server_id = @serverId
+	if @@rowcount = 0
+	begin
+		set @ret = -1	-- DB? ?? ??? ??
+		return
+	end
+
+	declare @db_info nvarchar(256)
+	set @db_info = '''' + @serverName + ''';''' + @db_userId + ''';''' + @db_passwd + ''''
+
+
+	declare @sql	nvarchar(4000)
+
+
+	-- ?? ?? ?? acc db? ??
+	set @sql = 'update global_user_data'
+				+ ' set create_date = o.create_date, last_login_time = o.last_login_time, last_logout_time = o.last_logout_time, delete_date = o.delete_date, delete_completed_date = o.delete_complete_date, user_level = o.lev'
+				+ ' from global_user_data'
+				+ ' join openrowset (''SQLOLEDB'', ' + @db_info + ','
+				+ ' ''select char_id, account_id, lev, create_date, last_login_time, last_logout_time, delete_date, delete_complete_date from ' + @databaseName + '.dbo.user_data '' ) as o'
+				+ '   on global_user_data.char_id = o.char_id '
+				+ ' 	and ( global_user_data.create_date != o.create_date '
+				+ ' 			or global_user_data.last_login_time != o.last_login_time '
+				+ ' 			or global_user_data.last_logout_time != o.last_logout_time '
+				+ ' 			or global_user_data.delete_date != o.delete_date '
+				+ ' 			or global_user_data.delete_completed_date != o.delete_complete_date '
+				+ ' 			or global_user_data.user_level != o.lev )	'
+				+ '	where global_user_data.server_id = ' + cast(@serverId as nvarchar) 
+
+	--print (@sql)
+	exec (@sql)
+
+	if @@error <> 0	
+	begin 
+		set @ret = -2	-- ?? ??!!!
+	end
+/*
+update global_user_data
+set create_date = o.create_date
+	, last_login_time = o.last_login_time
+	, last_logout_time = o.last_logout_time
+	, delete_date = o.delete_date
+	, delete_completed_date = o.delete_complete_date
+	, user_level = o.lev
+from global_user_data
+	join openrowset('SQLOLEDB', 'jungsuk-pc-i7';'sa';'dkdldhs2005!', 'select char_id, account_id, lev, create_date, last_login_time, last_logout_time, delete_date, delete_complete_date from aionworldjung.dbo.user_data' ) as o 
+		  on global_user_data.char_id = o.char_id 
+			and ( global_user_data.create_date != o.create_date 
+					or global_user_data.last_login_time != o.last_login_time
+					or global_user_data.last_logout_time != o.last_logout_time
+					or global_user_data.delete_date != o.delete_date 
+					or global_user_data.delete_completed_date != o.delete_complete_date
+					or global_user_data.user_level != o.lev )
+where global_user_data.server_id = @serverId
+
+
+
+insert global_user_data(char_id, account_id, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, user_level, server_id)
+select char_id, account_data, create_date, last_login_time, last_logout_time, delete_date, delete_completed_date, lev, @serverId
+from openrowset('SQLOLEDB', 'jungsuk-pc-i7';'sa';'dkdldhs2005!', 'select char_id, account_id, lev, create_date, last_login_time, last_logout_time, delete_date, delete_complete_date from aionworldjung.dbo.user_data' ) as o 
+		left join global_user_data on global_user_data.char_id = o.char_id and global_user_data.server_id = @serverId
+where global_user_data.char_id is null
+
+*/
+	
+END
+
+aion_UpdateBoardBMState=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_UpdateBoardBMState]
+	@account_id int,
+	@game_id int,
+	@current_pos int,
+	@visited_pos bigint,
+	@last_freecharge_time bigint,
+	@last_reset_teim bigint,
+	@free_dice_remain int,
+	@paid_dice_remain int,
+	@paid_reset_remain int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    IF EXISTS (SELECT account_id 
+				FROM user_board_bm
+				WHERE account_id=@account_id)
+    begin
+		UPDATE user_board_bm
+		SET game_id = @game_id, 
+			current_pos = @current_pos, 
+			visited_pos = @visited_pos, 
+			last_freecharge_time = @last_freecharge_time, 
+			last_reset_time = @last_reset_teim, 
+			free_dice_remain = @free_dice_remain, 
+			paid_dice_remain = @paid_dice_remain,
+			paid_reset_remain = @paid_reset_remain
+		WHERE account_id = @account_id
+	end
+	ELSE
+	begin
+		INSERT user_board_bm(account_id, game_id, current_pos, visited_pos, last_freecharge_time, last_reset_time, free_dice_remain, paid_dice_remain, paid_reset_remain)
+		VALUES (@account_id, @game_id, @current_pos, @visited_pos, @last_freecharge_time, @last_reset_teim, @free_dice_remain, @paid_dice_remain, @paid_reset_remain)
+	end
+	
+    RETURN @@rowcount
+END
+
+aion_UpdateBoardBMState_2017=====BODY=====CREATE PROCEDURE [dbo].[aion_UpdateBoardBMState_2017]
+	@account_id int,
+	@isSpecial int,
+	@game_id int,
+	@current_pos int,
+	@visited_pos bigint,
+	@last_freecharge_time bigint,
+	@last_reset_time bigint,
+	@free_dice_remain int,
+	@paid_dice_remain int,
+	@paid_reset_remain int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    IF EXISTS (SELECT account_id FROM user_board_bm_dice WHERE account_id=@account_id)
+    begin
+		UPDATE user_board_bm_dice
+		SET 
+			last_freecharge_time = @last_freecharge_time,
+			free_dice_remain = @free_dice_remain, 
+			paid_dice_remain = @paid_dice_remain,
+			paid_reset_remain = @paid_reset_remain
+		WHERE account_id = @account_id
+	end
+	ELSE
+	begin
+		INSERT user_board_bm_dice(account_id, last_freecharge_time, free_dice_remain, paid_dice_remain, paid_reset_remain)
+		VALUES (@account_id, @last_freecharge_time, @free_dice_remain, @paid_dice_remain, @paid_reset_remain)
+	end
+	
+	IF EXISTS (SELECT account_id FROM user_board_bm_game WHERE account_id=@account_id and is_special_server = @isSpecial)
+    begin
+		UPDATE user_board_bm_game
+		SET 
+			game_id = @game_id,
+			current_pos = @current_pos, 
+			visited_pos = @visited_pos,
+			last_reset_time = @last_reset_time
+		WHERE account_id = @account_id and is_special_server = @isSpecial
+	end
+	ELSE
+	begin
+		INSERT user_board_bm_game(account_id, is_special_server, game_id, current_pos, visited_pos, last_reset_time)
+		VALUES (@account_id, @isSpecial, @game_id, @current_pos, @visited_pos, @last_reset_time)
+	end
+	
+	
+    RETURN @@rowcount
+END
+
+aion_UpdateHiddenFatigueInfo=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_UpdateHiddenFatigueInfo]
+	@accountId int,
+	@hidden_fatigue_point int,
+	@hidden_fatigue_updatetime int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if EXISTS (SELECT account_id FROM account_data(UPDLOCK) WHERE account_id=@accountId) 
+	begin
+		UPDATE account_data
+		SET hidden_fatigue_point = @hidden_fatigue_point, hidden_fatigue_updatetime = @hidden_fatigue_updatetime
+		where account_id = @accountId
+	end
+	else
+	begin
+		INSERT account_data(account_id, hidden_fatigue_point, hidden_fatigue_updatetime) 
+		VALUES (@accountId, @hidden_fatigue_point, @hidden_fatigue_updatetime)	
+	end
+	
+	SET NOCOUNT OFF;
+END
+
+aion_UpdateHiddenFatigueInfo_20151002=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+create PROCEDURE [dbo].[aion_UpdateHiddenFatigueInfo_20151002]
+	@accountId int,
+	@hidden_fatigue_point int,
+	@hidden_fatigue_npcKill int,
+	@hidden_fatigue_updatetime int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if EXISTS (SELECT account_id FROM account_data(UPDLOCK) WHERE account_id=@accountId) 
+	begin
+		UPDATE account_data
+		SET hidden_fatigue_point = @hidden_fatigue_point,hidden_fatigue_npckill = @hidden_fatigue_npcKill,  hidden_fatigue_updatetime = @hidden_fatigue_updatetime
+		where account_id = @accountId
+	end
+	else
+	begin
+		INSERT account_data(account_id, hidden_fatigue_point, hidden_fatigue_npckill, hidden_fatigue_updatetime) 
+		VALUES (@accountId, @hidden_fatigue_point, @hidden_fatigue_npcKill, @hidden_fatigue_updatetime)	
+	end
+	
+	SET NOCOUNT OFF;
+END
+
+aion_UpdateHiddenFatigueInfo_20170428=====BODY=====CREATE PROCEDURE [dbo].[aion_UpdateHiddenFatigueInfo_20170428]
+	@accountId int,
+	@hidden_fatigue_point int,
+	@hidden_fatigue_npcKill int,
+	@hidden_fatigue_updatetime int,
+	@limit_reset_time int,
+	@limit_play_time int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+
+	if EXISTS (SELECT account_id FROM account_data(UPDLOCK) WHERE account_id=@accountId) 
+	begin
+		UPDATE account_data
+		SET hidden_fatigue_point = @hidden_fatigue_point,hidden_fatigue_npckill = @hidden_fatigue_npcKill,  hidden_fatigue_updatetime = @hidden_fatigue_updatetime,  limit_play_reset_time = @limit_reset_time,  limit_play_accum_time = @limit_play_time
+		where account_id = @accountId
+	end
+	else
+	begin
+		INSERT account_data(account_id, hidden_fatigue_point, hidden_fatigue_npckill, hidden_fatigue_updatetime, limit_play_reset_time, limit_play_accum_time) 
+		VALUES (@accountId, @hidden_fatigue_point, @hidden_fatigue_npcKill, @hidden_fatigue_updatetime, @limit_reset_time, @limit_play_time)	
+	end
+	
+	SET NOCOUNT OFF;
+END
+
+aion_UpdateLoginEventInfo=====BODY=====CREATE PROCEDURE [dbo].[aion_UpdateLoginEventInfo]
+	@account_id int,
+	@event_id int,
+	@stamp_count int,
+	@recent_count_update_date datetime,
+	@recent_anniversity_reward_time bigint
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    IF EXISTS (SELECT account_id 
+				FROM user_login_event_data 
+				WHERE account_id=@account_id)
+    begin
+		UPDATE user_login_event_data
+		SET event_id = @event_id, stamp_count = @stamp_count, recent_count_update_date = @recent_count_update_date, recent_anniversity_reward_time = @recent_anniversity_reward_time
+		WHERE account_id = @account_id
+	end
+	ELSE
+	begin
+		INSERT user_login_event_data(account_id, event_id, stamp_count, recent_count_update_date, recent_anniversity_reward_time)
+		VALUES (@account_id, @event_id, @stamp_count, @recent_count_update_date, @recent_anniversity_reward_time)
+	end
+	
+    RETURN @@rowcount			
+END
+
+aion_UpdateLoginEventInfo_daily=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_UpdateLoginEventInfo_daily]
+	@account_id int,
+	@event_id int,
+	@recent_count_update_date datetime,
+	@be_rewarded int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    IF EXISTS (SELECT account_id 
+				FROM user_login_event_data_daily 
+				WHERE account_id=@account_id AND event_id=@event_id AND recent_count_update_date = @recent_count_update_date)
+    begin
+		UPDATE user_login_event_data_daily
+		SET be_rewarded = @be_rewarded
+		WHERE account_id = @account_id AND event_id = @event_id AND recent_count_update_date = @recent_count_update_date
+	end
+	ELSE
+	begin
+		INSERT user_login_event_data_daily(account_id, event_id, valid_login_count, recent_count_update_date, be_rewarded)
+		VALUES (@account_id, @event_id, 0, @recent_count_update_date, @be_rewarded)
+	end
+	
+    RETURN @@rowcount			
+END
+
+aion_UpdateLoginEventInfo_other=====BODY=====-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[aion_UpdateLoginEventInfo_other]
+	@account_id int,
+	@event_id int,
+	@valid_login_count int,
+	@recent_count_update_date datetime,
+	@be_rewarded int
+AS
+BEGIN
+	-- SET NOCOUNT ON added to prevent extra result sets from
+	-- interfering with SELECT statements.
+	SET NOCOUNT ON;
+    -- Insert statements for procedure here
+    IF EXISTS (SELECT account_id FROM user_login_event_data_other WHERE account_id=@account_id AND event_id=@event_id)
+    begin
+		UPDATE user_login_event_data_other
+		SET valid_login_count = @valid_login_count, recent_count_update_date = @recent_count_update_date, be_rewarded = @be_rewarded
+		WHERE account_id = @account_id AND event_id = @event_id
+	end
+	ELSE
+	begin
+		INSERT user_login_event_data_other(account_id, event_id, valid_login_count, recent_count_update_date, be_rewarded)
+		VALUES (@account_id, @event_id, @valid_login_count, @recent_count_update_date, @be_rewarded)
+	end
+	
+    RETURN @@rowcount			
+END
+
+aion_UpdateLoginEventInfoRenewal=====BODY=====-- --------------------------------------------------------------------------------------------------------------------------------------------
+CREATE PROCEDURE [dbo].[aion_UpdateLoginEventInfoRenewal]
+(
+	@accountId INT,
+	@specialsvrType INT,
+	@eventId INT,
+	@stampCount INT,
+	@recentCountUpdateDate DATETIME
+)
+AS
+BEGIN	
+	SET NOCOUNT ON
+    
+    IF EXISTS (
+		SELECT 
+			accountId 
+		FROM 
+			user_login_event_data_renewal 
+		WHERE 
+			accountId = @accountId AND specialsvrType = @specialsvrType AND eventId = @eventId
+	)
+    BEGIN
+		UPDATE 
+			user_login_event_data_renewal
+		SET 
+			accountId = @accountId, 
+			specialsvrType = @specialsvrType, 
+			eventId = @eventId, 
+			stampCount = @stampCount,
+			recentCountUpdateDate = @recentCountUpdateDate
+		WHERE accountId = @accountId AND specialsvrType = @specialsvrType AND eventId = @eventId
+	END
+	ELSE BEGIN
+		INSERT user_login_event_data_renewal(accountId,	specialsvrType,	eventId, stampCount, recentCountUpdateDate)
+		VALUES (@accountId,	@specialsvrType, @eventId, @stampCount, @recentCountUpdateDate)
+	END
+	
+    RETURN @@rowcount			
+END
+
+aion_UpdateLuna=====BODY=====CREATE procedure [dbo].[aion_UpdateLuna]
+	@accId int, 
+	@deltaLuna bigint
+as
+begin
+	SET NOCOUNT ON;
+	begin tran
+	declare @currentLuna bigint
+	set @currentLuna = 0
+	select @currentLuna = isnull(luna,0) from account_luna where accountId = @accId
+	
+	if (@currentLuna + @deltaLuna) < 0 
+	begin
+		commit tran
+		SET NOCOUNT OFF;
+		return -2
+	end
+	else
+	begin
+		
+		update account_luna set luna = luna + @deltaLuna, updatedate = GETDATE() where accountId = @accId
+		if @@ROWCOUNT = 0
+		begin
+			insert into account_luna (accountId, luna) values (@accId, @deltaLuna)
+		end
+		
+	end
+	commit tran
+	SET NOCOUNT OFF;
+	return 0
+end
+
+aion_UpdateLunaPrice=====BODY=====CREATE procedure [dbo].[aion_UpdateLunaPrice]
+	@char_id int,
+	@luna_id int,
+	@use_count int,
+	@reset_type tinyint,
+	@reset_week_value tinyint,
+	@reset_time_value int,
+	@create_time bigint
+as
+begin	
+	begin tran
+	if @use_count = 0 and @create_time = 0	--??? ???.
+	begin
+		update user_luna_price set use_count = @use_count, create_time = @create_time where char_id = @char_id and luna_id = @luna_id
+	end
+	else	-- ?? ??????
+	begin
+		update user_luna_price set use_count = @use_count, update_time = GETDATE() where char_id = @char_id and luna_id = @luna_id and create_time != 0 -- ???? ??? ??? ?????
+		
+		if @@ROWCOUNT = 0 --???? ?? ??? ??? (create_time? 0? ???) ??? ???? ??.
+		begin
+			update user_luna_price set use_count = @use_count, update_time = GETDATE(), create_time = @create_time where char_id = @char_id and luna_id = @luna_id and create_time = 0
+			if @@ROWCOUNT = 0 -- ??? ??? ???.
+			begin
+				insert into user_luna_price (char_id, luna_id, use_count, reset_type, reset_week_value, reset_time_value, create_time)
+				values (@char_id, @luna_id, @use_count, @reset_type, @reset_week_value, @reset_time_value, @create_time)
+			end
+		end	
+	end
+	commit tran
+end
+
+aion_UpdateLunaReward=====BODY=====CREATE procedure [dbo].[aion_UpdateLunaReward] 
+	@accountId int,
+	@reward_point int
+as 
+begin
+	declare @currentReward int, @remainReward int
+	declare @updateTime datetime
+	set @currentReward = 0
+	set @remainReward = 0
+	
+	declare @curdate datetime
+	set @curdate = dateadd(hour, 9, convert(datetime, convert(date, GETDATE())))
+
+	if @reward_point < 0
+		return -1
+		
+	begin tran	
+			
+	select @currentReward = today_reward, @remainReward = remain_reward, @updateTime = updatedate from account_luna_reward where accountId = @accountId
+			
+	if @@ROWCOUNT = 0 
+		begin 			
+			set @currentReward = @reward_point
+			set @remainReward = @reward_point
+			insert into account_luna_reward (accountId, today_reward, remain_reward) values (@accountid, @currentReward, @remainReward)
+		end
+	else	
+		begin
+			if getdate() > @curdate and  @updateTime <= @curdate	--?? ???? ??? ?? ???? ???. ??? ??? ?? ??? ????.
+			begin 
+				set @currentReward = @reward_point
+				set @remainReward = @reward_point				
+			end
+			else
+			begin
+				set @currentReward = @currentReward + @reward_point
+				set @remainReward = @remainReward
+			end
+			update account_luna_reward set today_reward = @currentReward, remain_reward = @remainReward, updatedate = GETDATE() where accountId = @accountId 
+		end		
+	commit tran	
+	return 0
+end
+
+aion_UpdatePlayTimeForPoll=====BODY=====CREATE PROCEDURE [dbo].[aion_UpdatePlayTimeForPoll]
+	@poll_id		INT,
+	@account_id		INT,
+	@play_time		BIGINT
+	
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	DECLARE @current_playtime BIGINT
+	SET @current_playtime = 0
+
+	BEGIN TRAN
+
+	SELECT @current_playtime = previous_playtime
+	FROM account_playtime_polls (nolock)
+	WHERE poll_id = @poll_id AND account_id = @account_id
+
+	IF @@ROWCOUNT = 0
+		BEGIN
+			INSERT INTO account_playtime_polls (account_id, poll_id, previous_playtime)
+			VALUES (@account_id, @poll_id, @play_time)
+		END
+	ELSE
+		BEGIN
+			UPDATE account_playtime_polls
+			SET previous_playtime += @play_time
+			WHERE poll_id = @poll_id AND account_id = @account_id
+		END
+	COMMIT TRAN
+
+	SELECT ISNULL(previous_playtime, 0) as previous_playtime
+	FROM account_playtime_polls (nolock)
+	WHERE poll_id = @poll_id AND account_id = @account_id
+END
+
+aion_UpdatePlayTimesForPolls=====BODY=====CREATE procedure [dbo].[aion_UpdatePlayTimesForPolls]
+	@pollIds	NVARCHAR(MAX),
+	@playTimes	NVARCHAR(MAX),
+	@account_id	INT
+as
+BEGIN
+	SET NOCOUNT ON;
+	DECLARE @S_VAL NVARCHAR(MAX)
+    DECLARE @S_VAL_TIME NVARCHAR(MAX)
+    DECLARE @S_SPLIT_CHAR NVARCHAR(1)
+    DECLARE @oPos INT, @nPos INT, @oPos_t INT, @nPos_t INT, @i INT
+    DECLARE @tempVar NVARCHAR(4000), @tempVar_t NVARCHAR(4000)
+    DECLARE @tempPollId INT
+    DECLARE @tempPlayTime BIGINT
+
+    SET @S_VAL = @pollIds
+    SET @S_VAL_TIME = @playTimes
+    SET @S_SPLIT_CHAR = N','
+    SET @oPos = 1
+    SET @oPos_t = 1
+    SET @nPos = 1
+    SET @nPos_t = 1
+
+    DECLARE @PollIDTimeList TABLE
+    (
+            poll_id INT,
+            PlayTime BIGINT 
+    )
+
+    WHILE(@nPos > 0 AND @nPos_t > 0)
+		BEGIN
+			SET @nPos = CHARINDEX(@S_SPLIT_CHAR, @S_VAL, @oPos)
+			SET @nPos_t = CHARINDEX(@S_SPLIT_CHAR, @S_VAL_TIME, @oPos_t)
+               
+			IF @nPos = 0
+				BEGIN
+						SET @tempVar = RIGHT(@S_VAL, LEN(@S_VAL) - @oPos + 1)
+				END
+			ELSE
+				BEGIN
+						SET @tempVar = SUBSTRING(@S_VAL, @oPos, @nPos - @oPos)
+				END
+
+			IF @nPos_t = 0
+				BEGIN
+						SET @tempVar_t = RIGHT(@S_VAL_TIME, LEN(@S_VAL_TIME) - @oPos_t + 1)
+				END
+			ELSE
+				BEGIN
+						SET @tempVar_t = SUBSTRING(@S_VAL_TIME, @oPos_t, @nPos_t - @oPos_t)
+				END
+
+			IF LEN(@tempVar) > 0 AND LEN(@tempVar_t) > 0
+				BEGIN
+						SET @tempPollId = CONVERT(INT, @tempVar)
+						SET @tempPlayTime = CONVERT(INT, @tempVar_t)
+
+						INSERT INTO @PollIDTimeList VALUES (@tempPollId, @tempPlayTime)                 
+				END
+
+			SET @oPos = @nPos + 1
+			SET @oPos_t = @nPos_t + 1
+		END
+
+	IF @nPos = 0 AND @nPos_t = 0
+		BEGIN
+			MERGE account_playtime_polls AS app
+			USING @PollIDTimeList AS pitl
+					ON (app.account_id = @account_id AND app.poll_id = pitl.poll_id)
+			WHEN MATCHED THEN
+					UPDATE SET app.previous_playtime = app.previous_playtime + pitl.PlayTime
+			WHEN NOT MATCHED THEN
+					INSERT VALUES (@account_id, pitl.poll_id, pitl.PlayTime);
+			RETURN 0
+		END
+	ELSE
+		RETURN -1
+
+END
+
+ap_getservers=====BODY=====CREATE PROCEDURE [dbo].[ap_getservers]    
+   (    
+       @server_id INT=1
+       --@datasource INT 
+       --SELECT * FROM aion_serverlist
+    )    
+    AS    
+SELECT * FROM aion_myserver
+
+GM_AccountCacheDA_SrchHiddenFatigueList=====BODY=====CREATE PROC [dbo].[GM_AccountCacheDA_SrchHiddenFatigueList]
+	@world_id			int,
+	@last_login_date	varchar(24)
+AS
+	set nocount on
+	set transaction isolation level read uncommitted
+
+	SELECT	a.account_id, hidden_fatigue_point, hidden_fatigue_updatetime, hidden_fatigue_npckill, u.last_login_time, u.char_id, u.server_id
+	FROM	account_data a (nolock)
+	JOIN
+	(
+		SELECT	account_id, char_id, last_login_time, server_id, ROW_NUMBER() over (partition by account_id order by last_login_time desc) as LOGIN_TIME_ROWNUM
+		FROM	global_user_data (nolock)
+		WHERE	server_id = @world_id
+		AND		last_login_time >= CONVERT(datetime, @last_login_date)
+	) u ON a.account_id = u.account_id AND u.LOGIN_TIME_ROWNUM = 1
+	ORDER BY account_id DESC
+
+GM_AccountCacheDA_SrchHiddenFatigueListForExcel=====BODY=====CREATE PROC [dbo].[GM_AccountCacheDA_SrchHiddenFatigueListForExcel]
+	@world_id			int,
+	@last_login_date	varchar(24)
+AS
+	set nocount on
+	set transaction isolation level read uncommitted
+
+	SELECT	a.account_id, hidden_fatigue_point, hidden_fatigue_updatetime, hidden_fatigue_npckill, u.last_login_time, u.char_id, u.server_id
+	FROM	account_data a (nolock)
+	JOIN
+	(
+		SELECT	account_id, char_id, last_login_time, server_id, ROW_NUMBER() over (partition by account_id order by last_login_time desc) as LOGIN_TIME_ROWNUM
+		FROM	global_user_data (nolock)
+		WHERE	server_id = @world_id
+		AND		last_login_time >= CONVERT(datetime, @last_login_date)
+	) u ON a.account_id = u.account_id AND u.LOGIN_TIME_ROWNUM = 1
+	ORDER BY account_id DESC
+
+GM_AccountDataDA_UpdateHiddenFatiguePoint=====BODY=====CREATE proc [dbo].[GM_AccountDataDA_UpdateHiddenFatiguePoint]
+	@account_id				int
+	, @hidden_fatigue_point	int
+	, @hidden_fatigue_npckill	int
+	, @hidden_fatigue_updatetime	int
+AS
+
+	UPDATE	account_data
+	SET		hidden_fatigue_point = @hidden_fatigue_point
+			, hidden_fatigue_npckill = @hidden_fatigue_npckill
+			, hidden_fatigue_updatetime = @hidden_fatigue_updatetime
+	WHERE	account_id = @account_id
+
+GM_AccountPackDA_SrchBoardBM=====BODY=====CREATE proc [dbo].[GM_AccountPackDA_SrchBoardBM]
+			@account_id	int
+AS
+BEGIN
+			set nocount on
+			set transaction isolation level read uncommitted
+			
+			select game_id, current_pos, visited_pos, last_freecharge_time, last_reset_time, free_dice_remain, paid_dice_remain, paid_reset_remain
+			from user_board_bm (nolock)
+			where account_id=@account_id
+
+			set nocount off
+END
+
+GM_AccountPackDA_SrchHiddenFatigue=====BODY=====CREATE proc [dbo].[GM_AccountPackDA_SrchHiddenFatigue]
+			@account_id	int
+		as
+			set nocount on
+			set transaction isolation level read uncommitted
+			
+			select hidden_fatigue_point, hidden_fatigue_updatetime, hidden_fatigue_npckill
+			from account_data (nolock)
+			where account_id=@account_id
+
+			set nocount off
+
+GM_AccountPackDA_SrchPackType=====BODY=====create proc [dbo].[GM_AccountPackDA_SrchPackType]
+			@account_id	int	
+		as
+			set nocount on
+			set transaction isolation level read uncommitted			
+			
+			select pack_type, expire_date from account_pack where account_id=@account_id
+
+			set nocount off
+
+GM_AccountPackDA_SrchTrialAccount=====BODY=====create proc [dbo].[GM_AccountPackDA_SrchTrialAccount]
+			@account_id	int
+		as
+			set nocount on
+			set transaction isolation level read uncommitted			
+			
+			select update_time, reset_time, sell_gold_sum, trade_gold_sum, decompose_sum, gather_sum, extract_gather_sum
+			from trial_account_data 
+			where account_id=@account_id
+
+			set nocount off
+
+GM_GlobalUserDataDA_UpdateDeleteDate=====BODY=====CREATE PROC [dbo].[GM_GlobalUserDataDA_UpdateDeleteDate]
+	@delete_date			int,
+	@delete_complete_date	int,
+	@server_id	int,
+	@char_id	int
+AS
+	UPDATE	global_user_data
+	SET		delete_date = @delete_date
+			, delete_completed_date = @delete_complete_date
+	WHERE	server_id = @server_id
+	AND		char_id = @char_id
+
+GM_JumpingCharDA_ChangeAllSettingsToDeactivate=====BODY=====CREATE proc [dbo].[GM_JumpingCharDA_ChangeAllSettingsToDeactivate]
+	@is_special_server	tinyint
+AS
+BEGIN
+	UPDATE	jumping_character_config
+	SET		is_deleted = 1
+	WHERE	is_special_server = @is_special_server
+END
+
+GM_JumpingCharDA_Srch=====BODY=====CREATE PROC [dbo].[GM_JumpingCharDA_Srch]
+	@is_special_server	tinyint
+AS
+BEGIN
+	set nocount on
+	set transaction isolation level read uncommitted
+
+	SELECT	server_id, is_special_server, start_date, end_date, max_creation_count, required_char_level, is_deleted, login_id, login_nm, reg_date
+	FROM	jumping_character_config (nolock)
+	WHERE	is_special_server = @is_special_server
+	ORDER BY server_id, reg_date DESC
+END
+
+GM_JumpingCharDA_UpdateCheckedServerSetting=====BODY=====CREATE PROC [dbo].[GM_JumpingCharDA_UpdateCheckedServerSetting]
+		@server_id				int,
+		@is_special_server		tinyint,
+		@start_date				datetime,
+		@end_date				datetime,
+		@max_creation_count		int,
+		@required_char_level	int,
+		@is_deleted				tinyint,
+		@login_id				nvarchar(30),
+		@login_nm				nvarchar(30)
+AS
+BEGIN
+	UPDATE	jumping_character_config
+	SET		start_date = @start_date,
+			end_date = @end_date,
+			max_creation_count = @max_creation_count,
+			required_char_level = @required_char_level,
+			is_deleted = @is_deleted,
+			login_id = @login_id,
+			login_nm = @login_nm,
+			reg_date = GETDATE()
+	WHERE	server_id = @server_id
+	IF (@@ROWCOUNT < 1)
+	BEGIN
+		INSERT INTO jumping_character_config (server_id, is_special_server, start_date, end_date, max_creation_count, required_char_level, is_deleted, login_id, login_nm, reg_date)
+		VALUES (@server_id, @is_special_server, @start_date, @end_date, @max_creation_count, @required_char_level, @is_deleted, @login_id, @login_nm, GETDATE())
+	END
+END
+
+GM_LoginEventDA_Srch=====BODY=====CREATE proc [dbo].[GM_LoginEventDA_Srch]
+	@account_id	int
+as
+	SELECT	id, account_id, event_id, stamp_count, recent_count_update_date, recent_anniversity_reward_time
+	FROM	user_login_event_data (nolock)
+	WHERE	account_id = @account_id
+	ORDER BY event_id desc, id desc
+
+GM_LoginEventDA_SrchDaily=====BODY=====CREATE proc [dbo].[GM_LoginEventDA_SrchDaily]
+	@account_id	int
+as
+	set nocount on
+	set transaction isolation level read uncommitted
+	
+	SELECT	id, account_id, event_id, valid_login_count, recent_count_update_date, be_rewarded
+	FROM	user_login_event_data_daily (nolock)
+	WHERE	account_id = @account_id
+	ORDER BY event_id desc, id desc
+
+GM_LoginEventDA_SrchDailyAndOther=====BODY=====CREATE proc [dbo].[GM_LoginEventDA_SrchDailyAndOther]
+	@account_id	int
+as
+	set nocount on
+	set transaction isolation level read uncommitted
+	
+	SELECT	id, account_id, event_id, valid_login_count, recent_count_update_date, be_rewarded
+	FROM	user_login_event_data_daily (nolock)
+	WHERE	account_id = @account_id
+	UNION
+	SELECT	id, account_id, event_id, valid_login_count, recent_count_update_date, be_rewarded
+	FROM	user_login_event_data_other (nolock)
+	WHERE	account_id = @account_id
+	ORDER BY event_id desc, id desc
+
+GM_LoginEventDA_SrchOther=====BODY=====CREATE proc [dbo].[GM_LoginEventDA_SrchOther]
+	@account_id	int
+as
+	set nocount on
+	set transaction isolation level read uncommitted
+	
+	SELECT	id, account_id, event_id, valid_login_count, recent_count_update_date, be_rewarded
+	FROM	user_login_event_data_other (nolock)
+	WHERE	account_id = @account_id
+	ORDER BY event_id desc, id desc
+
+GM_LunaInfoListDA_DecreaseLunaAmount=====BODY=====CREATE PROC [dbo].[GM_LunaInfoListDA_DecreaseLunaAmount] 
+	@accountId int,
+	@decreaseLunaAmount bigint
+AS
+
+BEGIN
+	IF @decreaseLunaAmount > 0
+		BEGIN
+			UPDATE account_luna 
+			SET luna = luna - @decreaseLunaAmount, updatedate = GETDATE() 
+			WHERE accountId = @accountId AND luna >= @decreaseLunaAmount
+		END
+END
+
+GM_LunaInfoListDA_SrchLunaAmount=====BODY=====CREATE PROC [dbo].[GM_LunaInfoListDA_SrchLunaAmount]
+	@accountId	int
+AS
+BEGIN
+	set nocount on
+	set transaction isolation level read uncommitted
+
+	SELECT	luna, createdate, updatedate
+	FROM	account_luna (nolock)
+	WHERE	accountId = @accountId
+END
+
+GM_LunaInfoListDA_SrchLunaReward=====BODY=====CREATE PROC [dbo].[GM_LunaInfoListDA_SrchLunaReward]
+	@accountId	int
+AS
+BEGIN
+	set nocount on
+	set transaction isolation level read uncommitted
+
+	SELECT	today_reward, remain_reward, key_count, createdate, updatedate
+	FROM	account_luna_reward (nolock)
+	WHERE	accountId = @accountId
+END
+
+GM_MonsterCoreDA_DeleteMonsterCoreByAccountId=====BODY=====CREATE PROCEDURE [dbo].[GM_MonsterCoreDA_DeleteMonsterCoreByAccountId]
+	@account_id int,
+	@monster_core_id int
+AS
+BEGIN
+	SET NOCOUNT ON;
+	DELETE FROM [user_monster_core]
+      WHERE account_id = @account_id and core_id = @monster_core_id
+END
+
+GM_MonsterCoreDA_InsertMonsterCoreByAccountId=====BODY=====--6.2 ??? ??
+CREATE PROCEDURE [dbo].[GM_MonsterCoreDA_InsertMonsterCoreByAccountId]
+	@account_id int,
+	@monster_core_id int,
+	@grade int,
+	@count int,
+	@total_added int,
+	@total_used int
+AS
+BEGIN
+	INSERT INTO [dbo].[user_monster_core]
+           ([account_id],[core_id],[core_grade],[core_count],[total_added],[total_used])
+	VALUES (@account_id,@monster_core_id,@grade, @count, @total_added, @total_used)
+END
+
+GM_MonsterCoreDA_SrchMonsterCoreByAccountId=====BODY=====CREATE PROCEDURE [dbo].[GM_MonsterCoreDA_SrchMonsterCoreByAccountId]
+	@account_id int
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT id, account_id, core_id, core_grade, core_count 
+	FROM [user_monster_core] (nolock) where account_id = @account_id
+END
+
+GM_MonsterCoreDA_UpdateMonsterCoreByAccountId=====BODY=====--6.2 ??? ??
+CREATE PROCEDURE [dbo].[GM_MonsterCoreDA_UpdateMonsterCoreByAccountId]
+	@account_id int,
+	@monster_core_id int,
+	@grade int,
+	@count int
+AS
+BEGIN
+	update user_monster_core
+	set core_grade = @grade , core_count = @count
+	where account_id = @account_id and core_id = @monster_core_id
+END
+
+GM_TransformDA_DeleteTransformByAccountId=====BODY=====CREATE PROCEDURE [dbo].[GM_TransformDA_DeleteTransformByAccountId]
+	@account_id int,
+	@transform_id int
+AS
+BEGIN
+	delete from user_transform where account_id = @account_id and name_id = @transform_id
+END
+
+GM_TransformDA_InsertTransformByAccountId=====BODY=====CREATE PROCEDURE [dbo].[GM_TransformDA_InsertTransformByAccountId]
+	@account_id int,
+	@transform_id int,
+	@count int
+AS
+BEGIN
+	INSERT INTO [dbo].[user_transform]
+			([account_id],[name_id],[count],[update_time])
+	VALUES (@account_id,@transform_id,@count,GetDate())
+END
+
+GM_TransformDA_SrchTransformByAccountId=====BODY=====CREATE PROCEDURE [dbo].[GM_TransformDA_SrchTransformByAccountId]
+	@account_id int
+AS
+BEGIN
+	SET NOCOUNT ON;
+	SELECT name_id, count, update_time 
+	FROM [user_transform] (nolock) where account_id = @account_id
+END
+
+GM_TransformDA_UpdateTransformByAccountId=====BODY=====CREATE PROCEDURE [dbo].[GM_TransformDA_UpdateTransformByAccountId]
+	@account_id int,
+	@transform_id int,
+	@count int
+AS
+BEGIN
+	UPDATE [dbo].[user_transform]
+	SET [count] = @count, [update_time] = GetDate()
+	WHERE account_id=@account_id and name_id = @transform_id
+END
+
+GM_UserRankingDA_SrchUserListByRankId=====BODY=====CREATE PROC [dbo].[GM_UserRankingDA_SrchUserListByRankId]
+	@rank_id int, 
+	@is_special_server int
+AS
+BEGIN
+	SET NOCOUNT ON;
+
+	SELECT	TOP 1 SpecialServerType, RankId, SeasonNumber, convert(nvarchar,LastUpdateTime,20) LastUpdateTime, SeasonStatus,TableDump, TableVersion
+	FROM	aion_ranking_info (nolock) where RankId = @rank_id and SpecialServerType = @is_special_server order by Id Desc 
+END
+

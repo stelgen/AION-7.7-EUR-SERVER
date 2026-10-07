@@ -127,3 +127,32 @@ GMServer (GM_* procs, GQ/GP)
 wire-формат фрейма (закрывается R1) и тела procs (закрывается R0 sp_helptext).
 
 **Что НЕ трогаем**: прод-ACS живой, порт 2220 занят им, fork-proxy только по «го».
+
+## 9. R0-РАЗВЕДКА ВЫПОЛНЕНА (07.10.2026, read-only, SSH администратор@192.168.0.125 ключ dimini-agent)
+
+**ГЛАВНАЯ НАХОДКА: ПОЛНЫЙ PDB НА VM.** `D:\AION_LIVE_SERVER\AccountCacheServer\`:
+
+| Файл | MD5 | Примечание |
+|---|---|---|
+| AccountCacheServer.exe (20 587 520) | `33ada1f84d0bce0f86018924a2dc3f93` | 7.7-бинар, сборка 09.06.2020, НЕ равен 5.8 (`4f1dd275`) — другой билд |
+| **AccountCacheServer.pdb (92 467 200)** | `17481fc5c4445251e20c25ae94550299` | ПОЛНЫЕ СИМВОЛЫ! (= manifest-pdb-big) |
+| AccountCacheServer.map (4 835 616) | `1286ea3423735dfe14d3a8c84072b5ab` | секции + symbols, Timestamp 5ed4dff5 (01.06.2020) |
+| AIONErr.txt | — | deadlock-дамп 04.10.2026 21:20 (TimerQueue) |
+| dsn-набор | — | aion_accoutdb/aion_accountdb/L2Conn/aiongm (в AC папке — коннекты к ВСЕМ базам стека!) |
+| config.xml (77Б), common.xml (621Б) | — | сняты в ref |
+
+Артефакты локально (НЕ в гит): `aion_rev_2026-10-05/artifacts/pdb-big/AccountCacheServer/` (exe+pdb+map+**pdb-publics-8035.txt**).
+
+**Сеть (netstat 2220, живой прод):** единственный клиент = **Server64 (PID)**, ESTABLISHED 127.0.0.1→2220. Authd НЕ держит постоянный коннект (подключается лениво/по требованию — уточнить при capture). Аккаунт-мета (char login/logout/custom/luna) льётся из МИРА, не только из authd.
+
+**БД REF58_AionAccountCacheD (5.8-эталон) — ТЕЛА ПРОЦЕДУР СНЯТЫ** (`accountcache-ref/db-procs-77-ref58.rpt`, 101 proc + 21 таблица, 91КБ): account_data (hidden_fatigue_point/updatetime/npckill, limit_play_reset/accum), account_fatigue, account_luna(+_reward), account_pack, aion_ranking_info/season_status, aion_server_data, aion_serverlist, aion_user_ranking_*(season_history/servermove), cosmetic_data, global_user_data, jumping_character_config, server_operation, trial_account_data, user_board_bm(+dice/game), user_login_event_data(+daily/other/renewal), user_monster_core, user_promotion_cooltime, user_transform. Тела — тривиальные SELECT/INSERT/UPDATE, все параметры сняты (GetAccountData_20170428(accountId) → hidden_fatigue поля; GetAccountPackList → pack_type/expire_date...).
+
+**RPC 7.7 = 74 команды** (`rpc-opcodes-77.txt`), +3 vs 5.8: `ACQ_MONSTER_CORE_UPDATE_VALUE`, `ACQ_MONSTER_CORE_UPGRADE`, `ACQ_TRANSFORM_OPERATION`.
+
+**PDB publics (8035, pdbpub.py)** — RPC-кодеки с ПОЛНОЙ параметрикой: классы `ServerToAccountCached` (Decode*: запросы мира→ACS) и `AccountCachedToServer` (Encode*: ответы) — DecodeFirstLoadAccountInfo/Version/CharLogin(SpecialSvrTypeEnum,userId wchar)/CharDelete/RefreshUserInfo(AccGlobalCharInfo)/UpdateLoginEvent/UpdateHiddenFatigue/LoadLuna/ConfirmLunaReward(LunaParam)/DecreaseLunaKey(_J=qword)/CanMakeJumpingCharacterStatus/LoadPreviousPlayTime*/TransformOperation(TransformDBSubType,TransformDBData); `DBConn` = ODBC-слой (Init/AllocSQLPool/ExecuteInsert/Delete/AndAddLog/SetAutoCommit/Bind). Исходники-пути в exe: `d:\_build\src\shared\MemoryMan.h`, `IoCompletion.h`. Полный дизasm по именам — метод logd (objdump + .map).
+
+**ШАНСЫ ОБНОВЛЕНЫ: ~90%** (было 80-85) — PDB+map+procs+RPC-словарь сняты, осталось только wire-формат фрейма (capture R1) и opcode-нумерация (дизasm dispatch по PDB-именам).
+
+**Бонус authd-треку:** mmo-dev Auth.7z скачан (юзер выложил на 192.168.0.248:3923) — L2AuthD.exe x64 classic 162-287 (610 816Б, 2023) + config.txt (**BfKey=6B60CB5B82CE90B1CC2B6C556C6C6C6C — тот же static-key! ProtocolVersion=50721=0xC621, serverExPort=2106**, accountCachedPort нет) + **etc/SQLQuery3.sql = полная схема lin2db (userno/user_time/usn + 13 procs ap_GPwd/ap_GStat/ap_GStatEtc/ap_GUserTime/ap_SUserData/ap_SNewPwd/ap_LoginWithPoint/ap_LogoutWithPoint/ap_SetGameRestriction/ap_SetConcurrentUserStatistics/web_CreateAccount/l2p_TempCreateAccount/hauthd_login)** → `authd-ref/lin2db-classic-x64-schema.sql` (в гит). Бинарь → artifacts/mmODEV-auth (локально).
+
+Готчи R0: ssh дефолт-шелл = PowerShell (&& запрещён, одиночные команды; cmd-пайпы через `cmd /c "..."`); **System.Data.SqlClient в PS5 НЕ коннектится к SQL2022 (TLS)** — только `sqlcmd` (sa/123 работает); sqlcmd -o + -y 0/-Y 0 для длинных полей; OBJECT_DEFINITION вместо sp_helptext (курсор+INSERT в #tmp — один проход); tar-pipe 117МБ за ~40с.
