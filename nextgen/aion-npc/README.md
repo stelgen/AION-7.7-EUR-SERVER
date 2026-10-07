@@ -7,7 +7,7 @@
 
 | Фаза | Статус |
 |---|---|
-| R-сурсы: чужие киты (2.7 PTS распакован на VM `D:\SAION\downloads\rz\unpacked\2.7\` с NPCSvr64), PDB 129МБ (publics 23501), дизasm-заготовки | ✅ частично (см. Артефакты) |
+| R-сурсы: чужие киты (2.7 PTS распакован на VM `D:\SAION\downloads\rz\unpacked\2.7\` с NPCSvr64), PDB 129МБ (publics 23501), дизasm-заготовки, Java-эталоны собраны ([RESEARCH.md](RESEARCH.md): Mobius7.7/beyond-aion4.8/AL7.8/AG7.8 — 4 клона в `../../reference/`) | ✅ частично (эталоны есть, R0-словари не извлечены) |
 | R0: разведка (ScriptDLL64-скрипты, каналы: Server64 2002, CacheD npcDb-канал :2009, лог 2051, World::MoveNPC/abyss-цикл 60с) | ⬜ |
 | R1: wire capture (pktmon — рестарт дорогой!) + карта 2002-протокола NPC↔Server64 | ⬜ |
 | R2–R3: Go `nextgen/aion-npc` MVP: мир-цикл абстракция + NPC-спавны из XML/ScriptDLL + интеграция с aion-cache/aion-main | ⬜ |
@@ -39,6 +39,7 @@
 | Что | Где |
 |---|---|
 | Промпт | [PROMPT.md](PROMPT.md) |
+| Ресёрч Java-эталонов | [RESEARCH.md](RESEARCH.md) — карта мимикрии ai2/spawnengine→наш мир; клоны вне гита |
 | PDB 129МБ | локально `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/pdb-big/` (+ дизasm-заготовки npcs.asm в tmp) |
 | 2.7-кит (NPCSvr64 старой версии) | VM `D:\SAION\downloads\rz\unpacked\2.7\` |
 | Ориг | VM `D:\AION_LIVE_SERVER\` (задача AionNPC; пары с AionMain) |

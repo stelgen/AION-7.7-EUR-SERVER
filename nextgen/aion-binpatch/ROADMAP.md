@@ -26,4 +26,6 @@
 ## Правила
 
 - Стенд = MainServer_backup_20261002_212213 (копия); прод = только после стенд-теста и «го»; всегда Server64.exe.etalon для отката.
+
+📊 сосед узнал (08.10, от aion-npc RESEARCH): 4 Java-эталона склонированы в `../../reference/` (Mobius 7.7, beyond-aion 4.8, AL 7.8, aion-germany 7.8) — при дизasm dispatch Server64/NPCSvr64 сверяем имена функций с эталонной AI-машиной (`NpcAI2/AI2Actions/AggroEventHandler` в ai2/) и ищем их в PDB publics (129МБ).
 - ENIGMA-упакованные чужие сборки НЕ деплоить (риск бэкдоров) — только как референс для диффа.

@@ -48,3 +48,5 @@
 ## 📜 Логи
 
 Стандарт S3: raw-first io-дампы + fork C>/O>/N> ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)); ориг пишет `MainServer\log\{{date}}.err` (дата RunAsDate!) — тейлерит op; наша перепись = .err-совместимый или перенос тейлеров.
+
+📊 сосед узнал (08.10, от aion-npc RESEARCH): Abyss-логика у Java-эталонов (Mobius7.7/AL7.8, клоны в `../../reference/`) живёт в NPC-AI (`SimpleAbyssGuardHandler`), не в GS-ядре ⇒ поддерживает теорию «abyss-цикл 60с — NPCSvr»; мир Server64 в эталонах = один GameServer, мимикрия только подсистемная (world/creature/stats).
