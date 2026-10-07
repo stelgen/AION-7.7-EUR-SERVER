@@ -80,13 +80,14 @@
 | S2 | [TELEMETRY-SPEC.md](TELEMETRY-SPEC.md) — ship в сеть, не файлами |
 | S3 | [LOGGING-SPEC.md](LOGGING-SPEC.md) — raw-first, при падении писать ВСЁ |
 | S4 | [FORK-SPEC.md](FORK-SPEC.md) — внедрение через тень/копию, ориг работает |
-| S5 | [aion-op/README.md](aion-op/README.md) — OP-FIRST: управление только через op |
+| S5 | [aion-op/README.md](aion-op/README.md) — OP-FIRST: управление только через op-API (`POST /api/action` по Agent API) |
 | S6 | [CREDS.md](CREDS.md) — креды в `D:\SAION\creds\` на VM, не в гите/памяти |
 | S7 | Конфиги YAML (латиница-комменты), правки байтово + LEN-check + баннер-канарейка |
 | S8 | Деплой `D:\SAION\<svc>\` + задачи AionXxx/AionKickXxx; откат одной командой |
 | S9 | Тесты зелёные до пуша (golden-фреймы, e2e-фейки) |
 | S10 | Роадмап + PROMPT на каждый компонент; закрытые → АРХИВ |
 | S11 | ЭТОТ WORKFLOW: запуск по имени, пульс, теорий-журнал, «исправил = удалил» |
+| S12 | [AGENT-SPEC.md](AGENT-SPEC.md) — канал VM: Agent API `:10200/api/agent/*` + `agent-cli.sh` (БЕЗ ssh-PS-консоли); ssh = только деплой op |
 
 ## 7. ШАБЛОН ОТВЕТА-ПУЛЬСА И ПЕРВОГО СООБЩЕНИЯ
 

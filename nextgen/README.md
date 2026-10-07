@@ -2,7 +2,7 @@
 
 > **Дата актуализации: 08.10.2026.** Источник истины = этот репо + память `STELGEN/projects/aion_server_2026-10-02` (читать в начале каждого чата).
 > **Процесс работы агентов:** [WORKFLOW.md](WORKFLOW.md) — юзер пишет `WORKFLOW: <имя приложения стека>` → агент сам находит компонент, восстанавливает контекст, продолжает с последней фазы, двигает роадмап и актуализирует доки.
-> Постановка целиком: [PLAN.md](PLAN.md) · живой план: [ROADMAP.md](ROADMAP.md) · стандарты: [TELEMETRY-SPEC.md](TELEMETRY-SPEC.md), [LOGGING-SPEC.md](LOGGING-SPEC.md), [FORK-SPEC.md](FORK-SPEC.md), [README-TEMPLATE.md](README-TEMPLATE.md), [CREDS.md](CREDS.md).
+> Постановка целиком: [PLAN.md](PLAN.md) · живой план: [ROADMAP.md](ROADMAP.md) · стандарты: [TELEMETRY-SPEC.md](TELEMETRY-SPEC.md), [LOGGING-SPEC.md](LOGGING-SPEC.md), [FORK-SPEC.md](FORK-SPEC.md), [README-TEMPLATE.md](README-TEMPLATE.md), [CREDS.md](CREDS.md), [AGENT-SPEC.md](AGENT-SPEC.md).
 
 ## 1. Цель (манифест юзера)
 
@@ -10,7 +10,8 @@
 
 - **MVP-first**: каждый элемент стека сначала минимально-рабочий (логин и мир живы на каждом шаге); хардинг/допил — после. Никаких «идеальных» переписей до прод-свитча.
 - **Форк-атака (FORK-SPEC)**: наше приложение ВСЕГДА ставится сначала тенью/форком — мимикрирует, слушает копию трафика, а оригинал продолжает реально работать. Байт-в-байт паритет → свитч → откат одной командой.
-- **Управление ТОЛЬКО через `op`** (aion-op): старт/стоп/рестарт/статус — через op-API (helpers `C:\Temp\op-act.ps1`, `op-status.ps1`). PowerShell/schtasks напрямую = ТОЛЬКО если op не помог (и потом чиним op). `Start-Process` из ssh-сессии = запрещён (умирает с сессией).
+- **Канал VM = Agent API (S12)**: агент работает с VM из песочницы через `http://192.168.0.125:10200/api/agent/*` (run/file/ls/log, токен) — БЕЗ ssh-консоли и PS-кавычек; новый шаг на VM = скрипт через `aionput` + `aionrun "powershell -File"`. SSH (алиас `aion`) = только деплой самого op. Спека: [AGENT-SPEC.md](AGENT-SPEC.md).
+- **Управление ТОЛЬКО через `op`** (aion-op): старт/стоп/рестарт/статус — через op-API (`POST /api/action` по Agent API; helpers `C:\Temp\op-act.ps1`/`op-status.ps1` = фолбэк для человека). PowerShell/schtasks напрямую = ТОЛЬКО если op не помог (и потом чиним op). `Start-Process` из ssh-сессии = запрещён (умирает с сессией).
 - **Логи raw-first (LOGGING-SPEC)**: каждый бинарь при любой ошибке/падении пишет ВСЁ, что может, raw данные на проводе логируются ПЕРВЫМ ходом, потом логика — чтобы всегда было видно, на чём упало.
 - **Сейчас Windows, потом Linux**: оригинальные бинари виндовые → мир живёт на Windows VM. Наши бинари — один Go-исходник, сейчас деплоим exe на Windows, позже собираем Linux-бинари (zram/KSM на Proxmox-хосте).
 - **Прод всегда жив**: замены переключаемые, «го» юзера на любой прод-действие.
@@ -68,6 +69,7 @@
 | S9 | **Тесты** | `go vet ./... && go test ./...` зелёные ДО пуша; golden-фреймы по capture; silence-тесты перепрогоном; фейк-клиенты/эталоны в `cmd/probe`, `cmd/forkprobe` | per-проект README |
 | S10 | **Роадмап + промпт** | На каждый компонент: ROADMAP (фазы R0..R6 + журнал теорий) + PROMPT.md (копипаст нового чата); закрытые помечать ⚠ АРХИВ; новые компоненты — self-contained (всё в папке) | [README-TEMPLATE.md](README-TEMPLATE.md) |
 | S11 | **WORKFLOW (процесс)** | Запуск чата `WORKFLOW: <имя>`; пульс каждого сообщения; теорий-журнал; «исправил = удалил» из всех доков сразу; самоорганизация под цель | [WORKFLOW.md](WORKFLOW.md) |
+| S12 | **Agent API (канал VM)** | Взаимодействие с VM — HTTP/JSON `:10200/api/agent/*` (run/file/ls/log, токен `X-Agent-Token`, обёртка `agent-cli.sh`), НЕ ssh-консоль: без кавычек/кодировок, параллельно, с audit-логом. Новый шаг на VM = ps1 через `aionput`+`aionrun`. SSH = только деплой op | [AGENT-SPEC.md](AGENT-SPEC.md) |
 
 ## 5. ГДЕ ЧТО ЛЕЖИТ (карта артефактов)
 
@@ -106,6 +108,8 @@ nextgen/
 ├── FORK-SPEC.md         ← S4 fork A/B методология
 ├── README-TEMPLATE.md   ← S1 шаблон README подпроекта
 ├── CREDS.md             ← S6 политика кредов (значения — только на VM)
+├── AGENT-SPEC.md        ← S12 Agent API — канал VM для агентов (run/file/ls/log)
+├── agent-cli.sh         ← обёртка Agent API (aionrun/aionput/aionlog/...) — source of truth
 ├── aion-op/             ← оператор (Трек A) ✅ прод (README+ROADMAP+DEPLOY+docs/)
 ├── aion-logd/           ← замена LogServer64 ✅ прод (README+RESEARCH+SNAPSHOT+docs/)
 ├── aion-captcha/        ← замена CAPTCHAImageServer ✅ прод (README+SNAPSHOT+PROMPT-ARCHIVE+docs/)
@@ -138,3 +142,4 @@ README.md + ROADMAP.md (или SNAPSHOT.md/архитектура-док) + PROM
 3. Каждый значимый шаг = коммит + пуш + обновление: README компонента (статус/фаза/артефакты), ROADMAP.md, память.
 4. Сталкиваешься со «старым» фактом, противоречащим живым данным → исправляешь на месте, помечаешь в леджере/доке, не оставляешь ложь в доках.
 5. Статусы честные: ✅ в бою / 🟡 каркас / 🔬 ресёрч / ⬜ не тронут; проценты по фазам роадмапа.
+6. **Канал VM = Agent API (S12)**: `source nextgen/agent-cli.sh` → `aionrun`/`aionput`/`aionlog`; инлайн-PS через ssh НЕ использовать никогда (кавычки/кодировки = источник ошибок); ssh — только деплой самого op.

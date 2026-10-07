@@ -16,7 +16,7 @@
 | Authd (наш) | 🟡 MVP R1-R4 готов (probe-e2e OK), НЕ свитчнут; R6-блокеры: 2104 (Server64-канал — дизasm), procs AionAccounts (sp_helptext), mssql-стор (вместо mem), арбитраж fork-лога по (sid,type) — N-ONLY = гонка тени с оригом |
 | aion-accache | 🟡 R0 ✅ (PDB 92МБ+101 procs+21 табл), R0.5 ✅ (dispatch-таблица T1 0..39/T2 0..7, wire [len-2][cmd][0xEB][~cmd]), R2 ✅ (Go-каркас, тесты зелёные); R1 capture-стенд = следующий |
 | CacheD64 ресёрч | 🔬 R0 ✅ 08.10 (PDB 106МБ/14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, 781/789 procs, 356МБ готовых логов); кода нет; шанс ~85% |
-| aion-op (Трек A) | ✅ Phase 1 в бою: управляет стеком (start/stop/restart/restart_pair, группы fork: authdn/forkd), SQL/CCU-вкладки, алерты, kick-задачи (AionKickGate = /IM aion-gate.exe точно); expected_conns=8 (16 netstat-строк); Phase 1.5 НЕ начата |
+| aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12): управляет стеком (start/stop/restart/restart_pair, группы fork: authdn/forkd), SQL/CCU-вкладки, алерты, kick-задачи (AionKickGate = /IM aion-gate.exe точно); expected_conns=8 (16 netstat-строк); канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)); Phase 1.5 НЕ начата |
 | Батники | ✅ `AION-START-ALL-v6.bat` (десктоп, всё в session 1) = канон; `C:\Temp\auth.bat = call start-all.bat` — НЕ трогать как кнопку (это старт ВСЕГО стека); изолированный L2Authd = `auth-only.bat`/AionAuthOnly; откат v5 рядом |
 | Феномен «задачи сами Disabled» | ⚠ следить (смягчено pre-check в op + enable-all) |
 
@@ -58,9 +58,10 @@
 
 ## 4. ПРАВИЛА ЭКСПЛУАТАЦИИ (не забыть)
 
-- **op-first**: все старт/стоп/рестарт через op-API: ssh → `C:\Temp\op-act.ps1 -Action start|stop|restart|restart_pair -Id <svc> [-Confirm restart]` (helpers ТОЛЬКО через -File, не инлайн-PS с $); статус = `op-status.ps1`. op-старт = ТОЛЬКО `schtasks /run AionOp` (Start-Process из ssh УМИРАЕТ с сессией). PowerShell напрямую — только если op не помог, потом чиним op. Оригинальные батники (start-all/auth.bat) = только как канон карты, не кнопки.
-- Прод-доступ: `ssh 'Администратор@192.168.0.125'` (дефолт-шелл = PowerShell; `&&` запрещён — одиночные команды; cmd через `cmd /c "..."`; scp с кириллицей = push-only, pull через `cmd /c type`/PS b64)
-- Сессии: стек живёт в **session 1** (SYSTEM/session-0 = L2Authd умирает молча); песочница НЕ имеет TCP к VM кроме :22 — op-API дергать только через ssh на VM
+- **КАНАЛ VM = Agent API (S12, основной с 07.10)**: `bash -c 'source nextgen/agent-cli.sh'` → `aionrun`/`aionrun_ps`/`aionput`/`aiongetb64`/`aionls`/`aionlog`/`aionact` (curl `http://192.168.0.125:10200/api/agent/*`, токен `X-Agent-Token` из `~/.aion-agent-token`). БЕЗ ssh-кавычек и PS-кавычек; каждый вызов в audit-лог op. Правило: новый шаг на VM = ps1-скрипт через `aionput` + `aionrun "powershell -File ..."` — НЕ инлайн. Спека: [AGENT-SPEC.md](AGENT-SPEC.md)
+- **op-first**: старт/стоп/рестарт = `POST /api/action` через Agent API (или `aionact start <svc>`); helpers `C:\Temp\op-act.ps1`/`op-status.ps1` = фолбэк для человека (только `-File`); op-старт = ТОЛЬКО `schtasks /run AionOp` (Start-Process из ssh УМИРАЕТ с сессией). PowerShell напрямую — только если op не помог, потом чиним op. Оригинальные батники (start-all/auth.bat) = только как канон карты, не кнопки
+- **SSH (аварийный/деплой-op)**: `ssh aion` (алиас, ключ dimini-agent, юзер кириллицей `Администратор`); дефолт-шелл = PowerShell (`&&` запрещён — только `;` или файл); scp с кириллицей = push-only, pull через Agent API `aiongetb64`
+- Сессии: стек живёт в **session 1** (SYSTEM/session-0 = L2Authd умирает молча); API-команды op исполняются от SYSTEM (session 0) — юзер-сессионные действия только через /IT-задачи/act-слой op; TCP к VM: :22 (ssh) и :10200 (Agent API/UI, правило `aionop-agent-10200`), остальные порты закрыты
 - Креды: единая папка `D:\SAION\creds\` (ssh, SQL sa, форумы, op) — читать оттуда; в гит/память/логи НЕ класть ([CREDS.md](CREDS.md))
 - git: `--no-pager` ПЕРЕД подкомандой; sqlcmd глючит на больших XML — только SqlClient/`-y 0 -Y 0`; PS5 + SQL2022 через System.Data.SqlClient НЕ работает (только sqlcmd); TBL_GAME_* в схеме **aiongm_ur** (не dbo)
 - Рестарты: пара NPC+MAIN только вместе (смерть Server64 каскадно убивает NPCSvr — graceful, leak-дампы в .err норма); окно NPC 10-15 мин — не дёргать; exe залочен живым процессом → `taskkill /F` ДО scp; после kill первый /run может словить bind-fail — bat ретраит ~35с, проверять баннер
@@ -75,7 +76,7 @@
 | Мастер-инвентарь приложений | docs/app-architecture.md (обновлён 05.10) |
 | Хаб nextgen (стек-таблица + стандарты) | nextgen/README.md |
 | Код переписей | nextgen/<svc>/ + прод `D:\SAION\<svc>\` (dev-наборы `D:\SAION\<svc>-dev\`) |
-| Оператор | nextgen/aion-op/; прод `C:\aionop\` (UI 0.0.0.0:10200; из песочницы — только через ssh-туннель) |
+| Оператор | nextgen/aion-op/; прод `C:\aionop\` (Agent API + UI на 0.0.0.0:10200 — из песочницы напрямую; канал = [AGENT-SPEC.md](AGENT-SPEC.md)) |
 | Компонентные доки | nextgen/<comp>/ (README/RESEARCH/ROADMAP/PROMPT/SNAPSHOT/docs — self-contained); общие доки в docs/ |
 | Референс-сурсы | nextgen/{authd-ref,cached-ref,accountcache-ref}/README.md; эталоны: `STELGEN/projects/aion_server_2026-10-02/reference/` (Mobius 7.7, beyond-aion 4.8) |
 | PDB/бинари | VM `D:\AION_LIVE_SERVER\`; локально `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/`; манифесты nextgen/manifest-*.md |

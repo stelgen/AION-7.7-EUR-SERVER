@@ -1,5 +1,7 @@
 # Промпт для нового чата: L2Authd → свой authd (Трек B #4)
 
+> 📡 **Канал VM (S12):** Agent API — `curl http://192.168.0.125:10200/api/agent/*`, токен `X-Agent-Token` (на VM `D:\SAION\creds\CREDS.md`, в песочнице `~/.aion-agent-token`), обёртка `nextgen/agent-cli.sh`. Новый шаг на VM = ps1 через `aionput`+`aionrun "powershell -File"`. SSH (алиас `aion`) — ТОЛЬКО деплой самого op. Спека: ../AGENT-SPEC.md
+
 > **СТАТУС 08.10:** MVP R1–R4 ГОТОВ + fork-стенд ЖИВОЙ (см. README/ROADMAP) — промпт-основа устарела в части «начинаем каркас».
 > Следующий чат по authd = **R6-блокеры**: R0 (procs AionAccounts sp_helptext, роль 2104 Server64-канала дизasmом),
 > mssql-стор вместо mem, арбитраж fork-лога по (sid,type) → потом свитч живого пути по «го».

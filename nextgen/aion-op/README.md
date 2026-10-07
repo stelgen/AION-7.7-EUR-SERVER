@@ -6,13 +6,17 @@ read-only пробы + лог-парсер + метрики + SQLite + алер�
 
 ## 🧭 OP-FIRST — единая точка управления стеком (правило для ВСЕХ агентов/чатов)
 
-- Старт/стоп/рестарт/статус любого сервиса = **ТОЛЬКО через op**: ssh →
-  `C:\Temp\op-act.ps1 -Action start|stop|restart|restart_pair -Id <svc> [-Confirm restart]`
-  (helpers юзать ТОЛЬКО через `-File`, не инлайн-PS с $), статус = `C:\Temp\op-status.ps1`.
+- Старт/стоп/рестарт/статус любого сервиса = **ТОЛЬКО через op-API**:
+  `POST /api/action {action: start|stop|restart|restart_pair, id, confirm}` — агент ходит
+  **напрямую из песочницы через Agent API** (S12): `curl http://192.168.0.125:10200/...`
+  или обёрткой `agent-cli.sh` (в корне nextgen). Спека канала: [../AGENT-SPEC.md](../AGENT-SPEC.md).
+- Helpers `C:\Temp\op-act.ps1` / `op-status.ps1` = фолбэк для человека/ssh-случая
+  (только `-File`, не инлайн-PS с $).
 - PowerShell/schtasks напрямую = **последний рубеж** (op не помог) — и потом op чиним.
 - `Start-Process` из ssh-сессии = ЗАПРЕЩЁН (умирает с сессией). op сам стартует `schtasks /run AionOp`.
-- Песочница НЕ имеет TCP к VM кроме :22 — op-API дергать ТОЛЬКО через ssh на VM
-  (Invoke-RestMethod на VM; «op висит» = ложный вывод таймаута с песочницы).
+- Сеть: TCP 10200 из LAN ОТКРЫТ (firewall-правило `aionop-agent-10200`, 07.10) — Agent API
+  и UI доступны из песочницы напрямую; остальные порты VM снаружи закрыты
+  («op висит» в старых доках = устарело: раньше был только ssh-туннель).
 - Управляемые сервисы (config-vm.yaml): acc/logd/logsrv(locked)/ic/captcha/pa/authd(task=AionAuthOnly)/
   gate/gateorig(2109)/cache/npc/main/authdn(2117)/forkd(2116) + группа fork.
 - **PA обязателен** (кнопка pa разблокирована: без PA = SYSTEM_ERROR(20)); старт-порядок PA ДО authd.

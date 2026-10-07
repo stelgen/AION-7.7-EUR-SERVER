@@ -34,16 +34,21 @@ GET  /api/agent/log?name=<svc>&tail=  → {"path","lines"}   # svc = logs.files 
 - `shell:"cmd"` — cmd /c; `"ps"` — powershell -NoProfile -NonInteractive.
 - По таймауту дерево процессов добивается `taskkill /F /T`.
 
-## Готовая обёртка (в песочнице агента)
+## Готовая обёртка
+
+Source of truth = `nextgen/agent-cli.sh` (в гите); рабочая копия в песочнице:
+`~/STELGEN/tmp/aion-agent.sh` (если отсутствует — скопировать из гита, не писать заново).
 
 ```bash
-source ~/STELGEN/tmp/aion-agent.sh
+bash -c 'source ~/STELGEN/tmp/aion-agent.sh'
 aionrun "tasklist /fo csv /nh"
 aionrun_ps "Get-Process Server64"
 aionls "D:/SAION"
 aiongetb64 "D:/AION_LIVE_SERVER/MainServer/config.xml" > config.xml
 aionput ./file.txt "D:/SAION/tmp/file.txt"
-aionlog main 100
+aionlog main 100                     # хвост лога по svc из logs.files
+aionact restart captcha restart      # управление стеком через op (POST /api/action)
+aionstatus                           # GET /api/status
 ```
 
 ## Правила

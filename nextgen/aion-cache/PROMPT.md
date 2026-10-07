@@ -1,5 +1,7 @@
 # ПРОМПТ-ЧЕРНОВИК: CacheD64 → aion-cache (Трек B #6, MVP read-путь)
 
+> 📡 **Канал VM (S12):** Agent API — `curl http://192.168.0.125:10200/api/agent/*`, токен `X-Agent-Token` (на VM `D:\SAION\creds\CREDS.md`, в песочнице `~/.aion-agent-token`), обёртка `nextgen/agent-cli.sh`. Новый шаг на VM = ps1 через `aionput`+`aionrun "powershell -File"`. SSH (алиас `aion`) — ТОЛЬКО деплой самого op. Спека: ../AGENT-SPEC.md
+
 > Статус: ресёрч R0 закрыт 08.10 ([CACHE-RESEARCH.md](RESEARCH.md)); кода нет. Это черновик-скелет промпта для будущего чата — при запуске дополнить живыми данными R1/R2. Стандарты: [README.md §4](../README.md) S1–S10.
 > Копируй в новый чат как первое сообщение.
 
