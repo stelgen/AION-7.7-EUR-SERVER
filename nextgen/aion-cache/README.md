@@ -56,5 +56,10 @@
 
 Стандарт S3 ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)): raw-first — при реализации io-дампы + fork-лог C>/O>/N>; ориг-логи CacheD (log/*.log) = эталон материала R1, трогать только read-only.
 
+## 📊 Сосед узнал (08.10, чаты aion-main R1-R4/R3.7)
+- **Крипта-семейство NC подтверждена live** (0 invalid/~7500 пакетов 7777): XOR staticKey+rolling key8; our Go-каркас aion-main = рабочий референс парсинга Shared-каналов (tshark-follow метод).
+- **Каталог недостающих procs = op-алерты proc_missing** (уже 10 шт: aion_GetItemCollection*×5, aion_LoadFameInfo, aion_LoadReinventInfo, aion_getItemAttributeDelta_20190919, VendorLight_20190919, getItemAttributeDeltaListAll_20190919) — наш TD2-донор = кит 5.8 PTS DB; капай алерты при твоём R1.
+- Брокер-действия юзера дёргают **itemAttributeDelta-семейство** (register товар) — capture#3b это показал: твой R1 смотри обязательно брокер/дом/миньон-действия.
+
 ## 📊 Сосед узнал (08.10, чат aion-main R0/RES)
 - PDB Server64 (74164 publics): `ServerToDb`/`DbToServer`/`ServerToDb_Update` имена 1-в-1 с RPC-картами cached-ref — канал 2006 является симметричным с серверной стороны ядра (маппинг RQ/RP продолжается из обеих сторон).
