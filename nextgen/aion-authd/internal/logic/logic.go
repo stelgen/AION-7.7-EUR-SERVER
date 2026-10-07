@@ -291,15 +291,20 @@ func BuildType4(worldIP []byte, worldPort uint16) []byte {
 	return p
 }
 
-// BuildType7 — payload play-ok. КАНОН от ориг (fork 07.10 05:33, юзер-фрейм):
-// payload 9Б = [pk1=1 u32][pk2=accID u32][serverID байт] — БЕЗ хвоста.
-// (pk1=1 в единственном живом сэмпле; pk2 = accId юзера.)
-func BuildType7(accID uint32, serverID byte) []byte {
+// BuildType7 — payload play-ok. КАНОН от ориг (fork, юзер-фреймы):
+// payload 9Б = [pk1 u32][pk2=accID u32][serverID байт] — БЕЗ хвоста.
+// 09.10 КАНОН pk1: точное эхо dword из World-ack (W→A type=0 [uid][N]) — три логина
+// подряд 2→2/4→4/8→8. При отключённом мире pk1=1 (fallback).
+func BuildType7Pk1(pk1, accID uint32, serverID byte) []byte {
 	p := make([]byte, 0, 9)
-	p = binary.LittleEndian.AppendUint32(p, 1)
+	p = binary.LittleEndian.AppendUint32(p, pk1)
 	p = binary.LittleEndian.AppendUint32(p, accID)
 	p = append(p, serverID)
 	return p
+}
+
+func BuildType7(accID uint32, serverID byte) []byte {
+	return BuildType7Pk1(1, accID, serverID)
 }
 
 func rand32() uint32 {

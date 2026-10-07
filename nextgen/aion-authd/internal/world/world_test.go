@@ -4,14 +4,19 @@ import (
 	"bytes"
 	"encoding/binary"
 	"net"
+	"strings"
 	"testing"
 	"time"
 )
 
-// Голден из живого корпуса 09.10 (authd-ref/logs-2104/2026-10-07.09.packet.txt,
-// логин юзера 09:32:56, Auth->World(1260),0).
+// Голдены из живых логов L2Authd (authd-ref/logs-2104/ + 2026-10-04.04/05.packet):
+// greeting ориг 04.10 05:11:21; relay 04.10 04:04:51 (stelgen, клиент 127.0.0.1).
 
 const gsAuthVersion = 2017012601 // Server64: "Protocol Version authVersion:2017012601, protocolVersion:1"
+
+// orig0410Relay = точный 107Б payload ориг-лога 04.10 04:04:51 (uid=1010, "Stelgen", ip 127.0.0.1).
+// корпус 09.10 (клиент 184.160.77.85 -> 554da0b8 реверс); golden через strings.Replace.
+const orig0410Relay = "f20300005374656c67656e00000000000000000000000000d00700000000000000000000000000000030303030303030007f000001000000000000ffffffffffffffffffffffffffffffffffffffffffffffff0000000050c2366b50c2366b000000000000000000000000"
 
 func TestEncodeFraming(t *testing.T) {
 	fr := Encode(5, []byte{0, 0, 0xf4, 1})
@@ -25,11 +30,11 @@ func TestEncodeFraming(t *testing.T) {
 }
 
 func TestGreetingGolden(t *testing.T) {
-	// C1 OnCreate: Send("cdd", 3, build, 1) → [X][03][authVersion u32][1 u32]
+	// КАНОН ориг-лога 04.10 (Auth->World,3: 792b39780100000000 — 9Б payload!):
+	// [03][authVersion][1][0x00] — без 9-го байта Server64 молчит (корень R6-отказа 11:07).
 	g := Greeting(gsAuthVersion)
-	// 2017012601 = 0x78392b79 → LE = 79 2b 39 78
-	if !bytes.Equal(g, mustHex(t, "0a0003792b397801000000")) {
-		t.Fatalf("greeting = %x, want 0a0003792b397801000000", g)
+	if !bytes.Equal(g, mustHex(t, "0b0003792b39780100000000")) {
+		t.Fatalf("greeting = %x, want 0b0003792b39780100000000", g)
 	}
 }
 
@@ -40,28 +45,22 @@ func TestPingGolden(t *testing.T) {
 }
 
 func TestRelayLoginGolden(t *testing.T) {
-	// payload 107Б из корпуса (uid=1010, "Stelgen")
-	var payload []byte
-	payload = append(payload, 0xf2, 0x03, 0x00, 0x00)                     // uid=1010
-	payload = append(payload, []byte("Stelgen")...)                       // аккаунт
-	payload = append(payload, make([]byte, 9)...)                         // паддинг до 16
-	payload = append(payload, 0xd0, 0x07, 0x00, 0x00)                     // maxUsers=2000
-	payload = append(payload, make([]byte, 17)...)                        // нулевая зона
-	payload = append(payload, '0', '0', '0', '0', '0', '0', '0', 0)       // "0000000\0"
-	payload = append(payload, mustHex(t, DefaultRelayTail)...)            // tail 58Б
-
-	if len(payload) != 107 {
-		t.Fatalf("payload=%dБ, в корпусе 107", len(payload))
-	}
-	want := append([]byte{0x6d, 0x00, 0x00}, payload...) // X=109=total-1 (110Б total), type=0
-
 	cfg := Cfg{MaxUsers: 2000}
-	got, err := RelayLogin(cfg, 1010, "Stelgen")
+	// Корпус 09.10 (клиент 184.160.77.85 → IP-дворд 554da0b8 реверс-октеты)
+	got, err := RelayLogin(cfg, 1010, "Stelgen", "184.160.77.85")
 	if err != nil {
 		t.Fatal(err)
 	}
+	want := append([]byte{0x6d, 0x00, 0x00}, mustHex(t, strings.Replace(orig0410Relay, "7f000001", "554da0b8", 1))...) // X=109, type=0
 	if !bytes.Equal(got, want) {
 		t.Fatalf("relay mismatch:\n got %x\nwant %x", got, want)
+	}
+	// 04.10-противоречие: для 127.0.0.1 ориг писал 7f000001 (direct) — конвенция неоднозначна (T2);
+	// у нас принят реверс (09.10 корпус): 127.0.0.1 -> 0100007f
+	got2, _ := RelayLogin(cfg, 1010, "Stelgen", "127.0.0.1")
+	want2 := append([]byte{0x6d, 0x00, 0x00}, mustHex(t, strings.Replace(orig0410Relay, "7f000001", "0100007f", 1))...)
+	if !bytes.Equal(got2, want2) {
+		t.Fatalf("relay 127.0.0.1 mismatch")
 	}
 }
 
@@ -95,9 +94,9 @@ func TestServeE2E(t *testing.T) {
 	}
 	defer wc.Close()
 
-	// greeting
+	// greeting: [03][authVersion u32][1 u32][00] — 9Б payload
 	typ, payload, err := ReadFrame(wc)
-	if err != nil || typ != 3 || len(payload) != 8 {
+	if err != nil || typ != 3 || len(payload) != 9 {
 		t.Fatalf("greeting: typ=%d len=%v err=%v", typ, payload, err)
 	}
 	if av := binary.LittleEndian.Uint32(payload[0:4]); av != gsAuthVersion {
@@ -114,8 +113,10 @@ func TestServeE2E(t *testing.T) {
 		t.Fatalf("status users=%d limit=%d, want 1/500", users, limit)
 	}
 
-	// релей логина = голден корпуса: сырой фрейм [X u16][type][payload]
-	s.NotifyLogin(1010, "Stelgen")
+	// релей play = голден 04.10 (сырой фрейм [X u16][type][payload])
+	var acked bool
+	s.OnPlayAck = func(uid, pk1 uint32) { acked = true }
+	s.RelayPlay(1010, "Stelgen", "127.0.0.1")
 	var h [2]byte
 	if _, err := readFull(wc, h[:]); err != nil {
 		t.Fatal(err)
@@ -124,13 +125,23 @@ func TestServeE2E(t *testing.T) {
 	if x != 109 {
 		t.Fatalf("X=%d, want 109", x)
 	}
-	wantFrame, _ := RelayLogin(s.Cfg, 1010, "Stelgen")
+	wantFrame, _ := RelayLogin(s.Cfg, 1010, "Stelgen", "127.0.0.1")
 	body := make([]byte, int(x)-1)
 	if _, err := readFull(wc, body); err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(body, wantFrame[2:]) {
 		t.Fatalf("relay body mismatch: got %dБ want %dБ", len(body), len(wantFrame)-2)
+	}
+
+	// world ack → OnPlayAck (uid, pk1=N)
+	wc.Write(Encode(0, []byte{0xf2, 0x03, 0x00, 0x00, 0x09, 0x00, 0x00, 0x00}))
+	deadline := time.Now().Add(2 * time.Second)
+	for time.Now().Before(deadline) && !acked {
+		time.Sleep(20 * time.Millisecond)
+	}
+	if !acked {
+		t.Fatal("OnPlayAck не сработал на ack мира")
 	}
 
 	// heartbeat в течение ~2 тиков

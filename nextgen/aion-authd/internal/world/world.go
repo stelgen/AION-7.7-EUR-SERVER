@@ -1,8 +1,9 @@
 // Package world — листенер serverPort (2104): канал Server64 (мир).
 //
 // Фрейминг — из C1-сорцов WorldSrvSocket (L2Auth-chaospaladin, НЕ дизasm):
-//   m_packetSize = buf[0] + buf[1]<<8 + 1 - packetSizeType (packetSizeType=2),
-//   3-й байт = type; wire = [u16 X LE][type][payload], X = total-1.
+//
+//	m_packetSize = buf[0] + buf[1]<<8 + 1 - packetSizeType (packetSizeType=2),
+//	3-й байт = type; wire = [u16 X LE][type][payload], X = total-1.
 //
 // Живые факты (packet-лог L2Authd 09.10, authd-ref/logs-2104/, live-логин юзера):
 //   - greeting при accept: [03][authVersion u32][1 u32] — C1 OnCreate Send("cdd",3,build,1);
@@ -30,10 +31,10 @@ import (
 	"aion-authd/internal/ship"
 )
 
-// DefaultRelayTail — байты [49:107] type-0 релея из живого корпуса (09.10, логин юзера):
-// unk dword 554da0b8 + zeros6 + ff×24 + zeros4 + 2×dword 50c2366b + zeros12 (58Б).
-const DefaultRelayTail = "554da0b8" +
-	"000000000000" +
+// DefaultRelayTail — байты [53:107] type-0 релея (после IP-дворда!): 04.10/09.10 корпуса 1-в-1:
+// zeros2 + ff×24 + zeros4 + 2×константа 50c2366b + zeros16 (54Б).
+// IP-дворд [49:53] = u32 LE от inet_addr(клиента) (04.10: 7f000001=127.0.0.1; 09.10: 554da0b8).
+const DefaultRelayTail = "000000000000" +
 	"ffffffffffffffffffffffffffffffffffffffffffffffff" +
 	"00000000" + "50c2366b" + "50c2366b" +
 	"000000000000000000000000"
@@ -58,8 +59,11 @@ type S struct {
 	users   int // из type-5 (world status)
 	limit   int
 	online  bool
-	chPong  chan struct{} // сигналы чтения (для тестов/heartbeat)
-	OnLogin func(uid uint32, account string) // хук логина (сверсии сверху)
+	chPong  chan struct{}                    // сигналы чтения (для тестов/heartbeat)
+	OnLogin func(uid uint32, account string) // хук (резерв)
+	// OnPlayAck — мир подтвердил play (W→A type=0 ack [uid][N]): pk1=N для type=7
+	// (канон 09.10: три логина 2→2/4→4/8→8 — точное эхо ack-dword).
+	OnPlayAck func(uid, pk1 uint32)
 }
 
 // New — создать канал (не слушает до Serve).
@@ -98,8 +102,9 @@ func (s *S) Serve(ln net.Listener) {
 	}
 }
 
-// NotifyLogin — релей логина в мир (type 0): вызывается при успешном type=3 на 2110.
-func (s *S) NotifyLogin(uid uint32, account string) {
+// RelayPlay — релей ВХОДА В МИР (type 0, 107Б): вызывается на CM_PLAY (op=0x02),
+// НЕ на логин! (live 09.10: A→W type=0 идёт после Gate→Auth type=2/play; ack мира → type=7.)
+func (s *S) RelayPlay(uid uint32, account, clientIP string) {
 	s.mu.Lock()
 	conn := s.conn
 	s.mu.Unlock()
@@ -107,7 +112,7 @@ func (s *S) NotifyLogin(uid uint32, account string) {
 		log.Printf("world: relay uid=%d %q — мир не подключён (тишина)", uid, account)
 		return
 	}
-	fr, err := RelayLogin(s.Cfg, uid, account)
+	fr, err := RelayLogin(s.Cfg, uid, account, clientIP)
 	if err != nil {
 		log.Printf("world: relay uid=%d: %v", uid, err)
 		return
@@ -116,7 +121,7 @@ func (s *S) NotifyLogin(uid uint32, account string) {
 		log.Printf("world: relay write: %v", err)
 		return
 	}
-	log.Printf("world: relay type=0 uid=%d %q (%dБ)", uid, account, len(fr))
+	log.Printf("world: relay type=0 uid=%d %q ip=%s (%dБ)", uid, account, clientIP, len(fr))
 	s.ev("world.relay", strconv.Itoa(int(uid)), map[string]any{"user": account, "len": len(fr)})
 }
 
@@ -140,20 +145,24 @@ func Encode(typ byte, payload []byte) []byte {
 	return out
 }
 
-// Greeting — [03][authVersion u32 LE][1 u32 LE] (C1: Send("cdd", 3, build, 1)).
+// Greeting — канон ОРИГ-лога 04.10 (Auth->World,3: 792b39780100000000 — 9Б payload):
+// [03][authVersion u32 LE][1 u32 LE][0x00] — хвостовой ноль ОБЯЗАТЕЛЕН (без него Server64
+// молчит: его парсер ждёт 9-й байт — корень отказа R6-логина 11:07).
 func Greeting(authVersion uint32) []byte {
-	p := make([]byte, 8)
+	p := make([]byte, 9)
 	binary.LittleEndian.PutUint32(p[0:4], authVersion)
 	binary.LittleEndian.PutUint32(p[4:8], 1)
+	p[8] = 0x00
 	return Encode(3, p)
 }
 
 // Ping — heartbeat authd→мир: [02], payload пустой (live).
 func Ping() []byte { return Encode(2, nil) }
 
-// RelayLogin — type-0 релей логина (107Б payload): [uid][account 16Б][maxUsers][17×00]
-// ["0000000\0"][unk dword][6×00][ff×24][4×00][2×dword][12×00] — live-корпус 09.10.
-func RelayLogin(cfg Cfg, uid uint32, account string) ([]byte, error) {
+// RelayLogin — type-0 релей play (107Б payload, канон 04.10/09.10 корпус 1-в-1):
+// [uid][account 16Б][maxUsers=2000][17×00]["0000000\0"][IP-дворд = u32 LE от
+// inet_addr(клиента)][zeros2][ff×24][zeros4][2×конст 50c2366b][zeros12].
+func RelayLogin(cfg Cfg, uid uint32, account, clientIP string) ([]byte, error) {
 	tailHex := cfg.RelayTailHex
 	if tailHex == "" {
 		tailHex = DefaultRelayTail // live-корпус 09.10
@@ -165,20 +174,38 @@ func RelayLogin(cfg Cfg, uid uint32, account string) ([]byte, error) {
 	if len(account) > 16 {
 		account = account[:16]
 	}
-	p := make([]byte, 0, 4+16+4+16+8+len(tail))
+	p := make([]byte, 0, 107)
 	var u [4]byte
 	binary.LittleEndian.PutUint32(u[:], uid)
 	p = append(p, u[:]...)
-	name := make([]byte, 16)
+	name := make([]byte, 20)
 	copy(name, account)
 	p = append(p, name...)
 	var m [4]byte
 	binary.LittleEndian.PutUint32(m[:], cfg.MaxUsers)
 	p = append(p, m[:]...)
-	p = append(p, make([]byte, 17)...)
+	p = append(p, make([]byte, 13)...)
 	p = append(p, '0', '0', '0', '0', '0', '0', '0', 0)
+	// IP-дворд [49:53]: реверс-октеты клиента (09.10 корпус: клиент 184.160.77.85 → 554da0b8).
+	// ⚠ Противоречие с 04.10 (7f000001 «direct» для 127.0.0.1) — T2: сверить last_ip в БД на живом логине.
+	var ipb [4]byte
+	if a, bb, c, d := parseIP(clientIP); a >= 0 {
+		ipb = [4]byte{byte(d), byte(c), byte(bb), byte(a)}
+	} else {
+		ipb = [4]byte{0x01, 0x00, 0x00, 0x7f} // fallback 127.0.0.1 (реверс)
+	}
+	p = append(p, ipb[0], ipb[1], ipb[2], ipb[3])
 	p = append(p, tail...)
 	return Encode(0, p), nil
+}
+
+// parseIP — «a.b.c.d» → октеты; -1 если не распарсилось.
+func parseIP(s string) (int, int, int, int) {
+	var a, b, c, d int
+	if _, err := fmt.Sscanf(s, "%d.%d.%d.%d", &a, &b, &c, &d); err != nil {
+		return -1, -1, -1, -1
+	}
+	return a, b, c, d
 }
 
 func parseHex(s string) ([]byte, error) {
@@ -286,9 +313,15 @@ func (s *S) heartbeat(conn net.Conn) {
 // dispatch — события мира (таблица C1 0-21 + живые 7.7 27-44).
 func (s *S) dispatch(conn net.Conn, typ byte, payload []byte) {
 	switch typ {
-	case 0: // play-ok ack мира: [uid][02000000]
+	case 0: // play-ok ack мира: [uid][N u32] → type=7 клиенту с pk1=N (канон 09.10)
 		log.Printf("world: play-ok ack (%dБ)", len(payload))
 		s.ev("world.ack", "0", map[string]any{"len": len(payload)})
+		if len(payload) >= 8 && s.OnPlayAck != nil {
+			uid := binary.LittleEndian.Uint32(payload[0:4])
+			pk1 := binary.LittleEndian.Uint32(payload[4:8])
+			log.Printf("world: ack uid=%d pk1=%d → type=7", uid, pk1)
+			go s.OnPlayAck(uid, pk1)
+		}
 	case 5: // world status: [users u16][limit u16]
 		if len(payload) >= 4 {
 			s.mu.Lock()
@@ -297,7 +330,10 @@ func (s *S) dispatch(conn net.Conn, typ byte, payload []byte) {
 			s.mu.Unlock()
 			log.Printf("world: status users=%d limit=%d", s.users, s.limit)
 		}
-		select { case s.chPong <- struct{}{}: default: }
+		select {
+		case s.chPong <- struct{}{}:
+		default:
+		}
 	case 2: // userLoggedToGs: [uid]...
 		if len(payload) >= 4 {
 			uid := binary.LittleEndian.Uint32(payload[0:4])

@@ -19,10 +19,10 @@ type DBConfig struct {
 
 	// Переопределяемые SQL (дефолты = C1-схема ReleaseAuthDBSchema.sql;
 	// реальные имена таблиц/проц AionAccounts сверяются на R0 sp_helptext).
-	QAccount   string `yaml:"qAccount"`   // SELECT атрибутов акка по имени
-	QInsert    string `yaml:"qInsert"`    // INSERT + возврат uid
-	QBlocks    string `yaml:"qBlocks"`    // block_msg по uid
-	QLogLogin  string `yaml:"qLogLogin"`  // ap_SLog-аналог (last_login/last_ip)
+	QAccount  string `yaml:"qAccount"`  // SELECT атрибутов акка по имени
+	QInsert   string `yaml:"qInsert"`   // INSERT + возврат uid
+	QBlocks   string `yaml:"qBlocks"`   // block_msg по uid
+	QLogLogin string `yaml:"qLogLogin"` // ap_SLog-аналог (last_login/last_ip)
 }
 
 // Config — корень.

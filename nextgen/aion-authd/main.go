@@ -47,10 +47,11 @@ func main() {
 	srv := server.New(cfg, sh, st)
 	go srv.RunSweeper(ctx)
 
-	w := world.New(world.Cfg{
+	w := world.New(world.Cfg{ // noqa: OnPlayAck после New (цикла нет — замыкание на srv)
 		Port: cfg.GSPort, AuthVersion: cfg.GSAuthVersion, MaxUsers: cfg.MaxUsers,
 		HeartbeatSec: cfg.GSHeartbeatSec, Acks: cfg.GSAcks, RelayTailHex: cfg.GSRelayTailHex,
 	}, sh)
+	w.OnPlayAck = srv.SendPlayOK // мир подтвердил play → type=7 (pk1 = эхо ack, канон 09.10)
 	srv.W = w
 	if w.Enabled() {
 		lnW, err := net.Listen("tcp", ":"+strconv.Itoa(cfg.GSPort))

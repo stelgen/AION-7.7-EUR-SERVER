@@ -71,6 +71,9 @@ type pair struct {
 
 type fwd struct {
 	gate, orig, shadow net.Conn
+	shadowAddr         string
+	shadowMu           sync.Mutex // защита shadow + re-dial
+	lastShadowFail     time.Time
 
 	wmu sync.Mutex // запись в gate (только O>-горутина пишет)
 
@@ -179,14 +182,8 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 	defer orig.Close()
 	logger.Printf("orig connected %s (живой путь)", orig.RemoteAddr())
 
-	shadow, serr := net.DialTimeout("tcp", shadowAddr, 3*time.Second)
-	if serr != nil {
-		logger.Printf("shadow dial FAIL (копия отключена, живой путь работает): %v", serr)
-	} else {
-		fw.shadow = shadow
-		defer shadow.Close()
-		logger.Printf("shadow connected %s (наш authd)", shadow.RemoteAddr())
-	}
+	fw.shadowAddr = shadowAddr
+	fw.ensureShadow() // ленивое подключение копии (после рестарта тени переподключаемся сами)
 
 	done := make(chan struct{}, 2)
 
@@ -198,10 +195,18 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 			done <- struct{}{}
 			return
 		}
-		if fw.shadow != nil {
-			if _, err := fw.shadow.Write(raw); err != nil {
-				logger.Printf("shadow write (отключаю копию): %v", err)
+		fw.ensureShadow() // копия могла отвалиться (рестарт тени) — переподключаемся лениво
+		fw.shadowMu.Lock()
+		sd := fw.shadow
+		fw.shadowMu.Unlock()
+		if sd != nil {
+			if _, err := sd.Write(raw); err != nil {
+				logger.Printf("shadow write (копия отключена до следующего C>): %v", err)
+				fw.shadowMu.Lock()
 				fw.shadow = nil
+				fw.lastShadowFail = time.Now()
+				fw.shadowMu.Unlock()
+				_ = sd.Close()
 			}
 		}
 	})
@@ -214,7 +219,7 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 			logger.Printf("  O-full hex=%s", hex.EncodeToString(oRaw))
 			logger.Printf("  N-full hex=%s", hex.EncodeToString(nRaw))
 		}
-		logger.Printf("%s VERDICT=%s", dump("O>", "O>G", raw, f), verdictLine(verdict, pairDone))
+		logger.Printf("%s VERDICT=%s", dump("O>", "O>G", raw, f), verdict)
 		fw.wmu.Lock()
 		_, werr := fw.gate.Write(raw)
 		fw.wmu.Unlock()
@@ -224,29 +229,46 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 		}
 	})
 
-	// Shadow → только лог + вердикт при полной паре (юзеру НЕ идёт)
-	if fw.shadow != nil {
-		go fw.pump("shadow", fw.shadow, func(raw []byte, f wire.Frame) {
-			k := keyOf(f)
-			verdict, pairDone, oRaw, nRaw := fw.onSide(k, "n", raw)
-			logger.Printf("%s VERDICT=%s", dump("N>", "S>F", raw, f), verdictLine(verdict, pairDone))
-			if pairDone && verdict != "SAME" {
-				logger.Printf("  O-full hex=%s", hex.EncodeToString(oRaw))
-				logger.Printf("  N-full hex=%s", hex.EncodeToString(nRaw))
-			}
-		})
-	}
-
 	<-done
 	logger.Printf("=== gate session closed ===")
 }
 
-// verdictLine — человекочитаемая строка вердикта: для неполной пары вердикт не финален.
-func verdictLine(v string, done bool) string {
-	if done {
-		return v
+// ensureShadow — ленивое (пере)подключение копии к тени (кулдаун 5с): рестарт shadow-authd
+// больше не выключает копию до конца gate-сессии (баг 10.48 — fork держал мёртвый сокет).
+func (fw *fwd) ensureShadow() {
+	fw.shadowMu.Lock()
+	defer fw.shadowMu.Unlock()
+	if fw.shadow != nil || time.Since(fw.lastShadowFail) < 5*time.Second {
+		return
 	}
-	return v // WAIT/SINGLE уже помечены текстом
+	c, err := net.DialTimeout("tcp", fw.shadowAddr, 2*time.Second)
+	if err != nil {
+		fw.lastShadowFail = time.Now()
+		fw.log.Printf("shadow dial FAIL (копия отключена, живой путь работает): %v", err)
+		return
+	}
+	fw.shadow = c
+	fw.log.Printf("shadow connected %s (наш authd)", c.RemoteAddr())
+	go func() {
+		defer func() {
+			fw.shadowMu.Lock()
+			if fw.shadow == c {
+				fw.shadow = nil
+				fw.lastShadowFail = time.Now()
+			}
+			fw.shadowMu.Unlock()
+			_ = c.Close()
+		}()
+		fw.pump("shadow", c, func(raw []byte, f wire.Frame) {
+			k := keyOf(f)
+			verdict, pairDone, oRaw, nRaw := fw.onSide(k, "n", raw)
+			fw.log.Printf("%s VERDICT=%s", dump("N>", "S>F", raw, f), verdict)
+			if pairDone && verdict != "SAME" {
+				fw.log.Printf("  O-full hex=%s", hex.EncodeToString(oRaw))
+				fw.log.Printf("  N-full hex=%s", hex.EncodeToString(nRaw))
+			}
+		})
+	}()
 }
 
 func main() {

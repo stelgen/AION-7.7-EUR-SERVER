@@ -83,6 +83,27 @@ func (s *Server) Close() {
 	}
 }
 
+// SendPlayOK — колбэк от мира: ack (uid, pk1) → type=7 сессии с этим AccID (канон 09.10: pk1 = эхо ack).
+func (s *Server) SendPlayOK(uid, pk1 uint32) {
+	s.mu.Lock()
+	var target *gateConn
+	var ses *logic.GateSession
+	for _, g := range s.gates {
+		for _, ss := range g.ses {
+			if ss.AccID == uid {
+				target, ses = g, ss
+			}
+		}
+	}
+	s.mu.Unlock()
+	if target == nil {
+		log.Printf("play-ok: сессия uid=%d не найдена (гейт отвалился?)", uid)
+		return
+	}
+	target.reply(ses, &logic.Reply{Typ: 7, Payload: logic.BuildType7Pk1(pk1, ses.AccID, s.Cfg.ServerID)})
+}
+
+// dropGate — один коннект гейта отвалился.
 func (s *Server) dropGate(g *gateConn) {
 	s.mu.Lock()
 	if _, ok := s.gates[g.conn]; ok {
@@ -182,6 +203,11 @@ func (g *gateConn) dispatchBlob(ses *logic.GateSession, blob []byte) {
 	case 0x05: // CM_SERVER_LIST
 		rep = g.srv.L.ServerList(ses)
 	case 0x02: // CM_PLAY
+		if g.srv.W != nil && g.srv.W.Enabled() { // R6-путь: relay в мир (type0 107Б) → ack → type=7 pk1=ack (канон 09.10)
+			g.srv.W.RelayPlay(ses.AccID, ses.User, net.IP(ses.IP[:]).String())
+			g.srv.send(ship.Event{Ev: "world.play.relay", Svc: "authd", Data: map[string]any{"uid": ses.AccID}})
+			return // type=7 придёт через OnPlayAck
+		}
 		rep = g.srv.L.Play(ses)
 	case 0x08: // CM_UPDATE_SESSION — T3, контракт ответа не снят: лог+тишина
 		log.Printf("update-session: sid=%d len=%d — лог+тишина (T3)", ses.Sid, len(blob))
@@ -207,9 +233,6 @@ func (g *gateConn) reply(ses *logic.GateSession, rep *logic.Reply) {
 		return
 	}
 	g.write(fr)
-	if rep.Typ == 3 && g.srv.W != nil && g.srv.W.Enabled() { // логин ок → релей в мир (live: type0 uid+account)
-		go g.srv.W.NotifyLogin(ses.AccID, ses.User)
-	}
 	if rep.Close { // ориг после фейла шлёт [01][sid] (закрытие сессии) — R5-дифф 07.10
 		g.write(wire.UnknownSession(ses.Sid))
 		delete(g.ses, ses.Sid)

@@ -21,6 +21,7 @@ import (
 //   - qBlocks  = ap_GetRestriction (block_msg: reason, msg);
 //   - qLogLogin = прямой UPDATE last_login/last_ip (эффект «maddaemon fix 08» внутри ap_GStat);
 //     ap_SLog (полный last_login/logout/world/game/ip) — проца логаута, ключ qLogout (T2).
+//
 // Переопределяются в конфиге (qAccount/qInsert/qBlocks/qLogLogin).
 //
 // ConnStr — СЕКРЕТ: только config на VM / env AUTHD_CONNSTR.
