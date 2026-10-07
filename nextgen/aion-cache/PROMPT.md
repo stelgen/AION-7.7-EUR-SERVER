@@ -19,7 +19,7 @@
 - **Прод не трогать**: ориг CacheD64 жив; рестарт Server64 дорогой.
 
 ## План (MVP)
-1. **R1**: pktmon filter port 2006 на VM (capture мир-трафика) + разбор готовых log/*.log → wire-фрейм 2006 (гипотеза: [u16 self-len][op][payload][2Б csum], L2-эволюция; подтвердить).
+1. **R1**: wire 2006. ⚠ pktmon-loopback блокер (aion-npc R1: pktmon VirtIO-only, loopback не пишется) → каркас из логов (.profile нумерация + .err SQL-транзит + L2 C1 приор) + по «го» fork-стенд: копия каталога CacheD на :2016 + наш fork-proxy :2006→:2016 (рестарт Server64 = только явное «го»).
 2. **R2**: дизasm dispatch по словарю (метод accache: ctor-таблица + карты).
 3. **R3**: Go `aion-cache`: proto + RAM MapStore (user/item/guild/vendor) + DB-слой {call aion_*} + Admin-канал (GQ/GP) + Log-клиент + IC-клиент; MVP = read-путь логина чара + write-транзит SQL.
 4. **R4**: fork A/B (pktmon-сверка), байт-в-байт дифф.

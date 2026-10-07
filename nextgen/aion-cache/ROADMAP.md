@@ -8,7 +8,7 @@
 | Фаза | Что | Результат | Статус | Оценка |
 |---|---|---|---|---|
 | R0 | Ресёрч: PDB/словари/DB-контракт/логи/веб-передний край (НОЛЬ публичного) | CACHE-RESEARCH.md + cached-ref/ | ✅ 08.10 | — |
-| R1 | pktmon filter port 2006 на VM (без прокси — рестарт Server64 дорогой!) + разбор готовых log/*.log (RPC-строки с параметрами) | wire-фрейм 2006 подтверждён (гипотеза: [u16 self-len][op][payload][2Б csum], L2-эволюция) | ⬜ | 1–2 дня |
+| R1 | wire-фрейм 2006. ⚠ **10.10 БЛОКЕР pktmon-loopback доказан соседом (aion-npc R1, dd54a7d): pktmon comp = только VirtIO, loopback (127.0.0.1) НЕ пишется — а 2006 = чистый loopback**. Обходы: **A) fork-стенд** — копия каталога CacheD на :2016 + наш fork-proxy :2006→:2016, Server64 переподключить на копию (нужен рестарт Server64 — по «го»); **B) тест-мир LAN** (Server64 второго стенда через LAN-NIC); **C) Npcap-прод** (не рек.); **D) wire-каркас из логов** (метод npc: .err/профайлер + L2 C1 приор + длины из aion-main capture смежных каналов) | фрейм 2006 подтверждён (гипотеза: [u16 self-len][op][payload][2Б csum], L2-эволюция) | ⬜ D стартует сразу, A/B по «го» | 1–2 дня |
 | R2 | Сверка dispatch-таблиц + семантика payload'ов (метод accache: ctor-таблица + мангл-сигнатуры). **10.10: нумерация ВСЕХ 8 протоколов уже снята из log/*.profile** → [../cached-ref/profile-opcode-map.md](../cached-ref/profile-opcode-map.md) — R2 = раскладки параметров, не поиск таблиц | аннотированная dispatch-таблица → cached-ref/ | 🔶 нумерация ✅ / семантика ⬜ | 1–2 дня |
 | R3 | Go `nextgen/aion-cache`: proto + RAM MapStore (user/item/guild/vendor/…) + DB-слой {call aion_* 781} + Admin-канал (GQ/GP) + Log-клиент + IC-клиент; **MVP = read-путь (char login/item load) + write-транзит SQL** | каркас, тесты зелёные | ⬜ | 1–2 нед |
 | R4 | A/B: pktmon-сверка нашего vs ориг (байт-в-байт по наблюдаемым RPC) | VERDICT=SAME | ⬜ | 1–2 дня |
@@ -21,7 +21,8 @@
 
 | Дата | Теория | Проверка | Статус |
 |---|---|---|---|
-| 08.10 | Wire 2006 = эволюция L2 CacheD C1: `[u16 self-len LE][op][payload][2Б csum]` + rolling-XOR ключ | R1 pktmon + L2-референс | ⏳ |
+| 08.10 | Wire 2006 = эволюция L2 CacheD C1: `[u16 self-len LE][op][payload][2Б csum]` + rolling-XOR ключ | R1: ~~pktmon~~ → fork-стенд/тест-мир (pktmon-loopback блокер, см. R1-строку) + L2-референс | ⏳ |
+| 10.10 | pktmon на VM бесполезен для loopback-каналов (2006/2007/2009/2002/2220) — только LAN-NIC (7777) | доказал aion-npc R1 live (pktmon comp = VirtIO only, 0 пакетов на 2002) | ✅ канон |
 | 08.10 | 2009 = NPC-DB канал (NPCSvr64 клиент), аналог L2 npcDbHandlers | netstat live 08.10: NPCSvr ходит в CacheD по 2006 (общий пул с Server64), на 2009 клиентов НЕТ | ❌ → леджер |
 | 10.10 | 2009-канал не профилируется DBProfiler'ом (в .profile нет его секции) — служебный/спящий канал; клиент неизвестен | дизasm CreateListener-цепочки (R2) | ⏳ |
 | 10.10 | Словарь опкодов NC append-only (5.8 ⊂ 7.7, 0 удалений/переименований; +31 RQ/+19 RP/+1 GP) → dispatch = superset, нумерация стабильна между версиями | дифф strings 5.8 vs 7.7 → [../cached-ref/diff-dict-58-77.md](../cached-ref/diff-dict-58-77.md) | ✅ канон |

@@ -87,7 +87,7 @@ RPC-направления (глобальные функции, стилист�
 ## 8. План MVP (R0-R6)
 
 - **R0 ✅ (этот чат)**: артефакты сняты, словари вскрыты, DB-контракт посчитан.
-- **R1 capture**: wire 2006 НЕ трогая мир — `pktmon` на VM (filter port 2006 → pcapng → парс офлайн). Фрейминг ожидается `[u16 len][u16 opcode]` (как 2110/2220). Плюс анализ готовых логов `CacheServer/log/*.log` (171 файл, 356МБ — там RPC-строки с параметрами!).
+- **R1 capture**: wire 2006 НЕ трогая мир — ~~`pktmon` на VM~~ (**10.10: pktmon-loopback блокер доказан aion-npc — loopback не пишется, 2006 = loopback; обходы в ROADMAP R1: fork-стенд копия/тест-мир LAN/каркас из логов**). Фрейминг ожидается `[u16 self-len][op][payload][2Б csum]` (L2 C1 эволюция). Плюс анализ готовых логов `CacheServer/log/*` — **ВЫПОЛНЕН 10.10: нумерация всех 8 протоколов из .profile → cached-ref/profile-opcode-map.md; .err = SQL-транзит с параметрами**.
 - **R2 дизasm**: dispatch-таблица ServerToDb по opcode + фрейминг; objdump + map (метод AuthGateD).
 - **R3 `aion-cache` (Go)**: wire 2006 + MapStore RAM-моделей (User/Item/Guild/...) + DB-слой (тела 781 procs снять в гит) + Admin-канал + Log-клиент 2051 + IC-клиент 2305.
 - **R4 A/B**: второй инстанс на копии порта + pktmon-сверка трафика.
