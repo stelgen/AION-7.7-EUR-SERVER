@@ -59,12 +59,11 @@ services:
     order: 4
   - id: pa
     group: light
-    display: PA Server 7.7 (DISABLE forever)
+    display: PA Server 7.7 (OBYAZATELEN! UsePAServer=true; bez nego = SYSTEM_ERROR 20 na login)
     exe: 01-PAServer7.7.exe
     task: AionPA
     ports: [10057]
     order: 5
-    locked: true
 
   - id: authd
     group: auth
@@ -198,7 +197,7 @@ groups:
 
 world_pair:
   npc_port: 2002          # Server64 side of NPCSvr link
-  expected_conns: 16      # 16 ESTABLISHED = world assembled
+  expected_conns: 8       # 8 conns = 16 netstat-lines (start-all criterion); world assembled
 
 store:
   path: aionop.db

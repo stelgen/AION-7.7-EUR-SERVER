@@ -53,8 +53,12 @@ func TestLoginOkAutoCreate(t *testing.T) {
 	if tok := binary.LittleEndian.Uint32(rep.Payload[4:8]); tok != ses.Token || tok == 0 {
 		t.Fatalf("token: %d", tok)
 	}
-	if max := binary.LittleEndian.Uint32(rep.Payload[24:28]); max != 2000 {
+	// канон ориг 07.10 05:28: [accId][token][8×0][2000][unk1 Rnd][28×0]
+	if max := binary.LittleEndian.Uint32(rep.Payload[16:20]); max != 2000 {
 		t.Fatalf("maxUsers: %d", max)
+	}
+	for _, b := range rep.Payload[20:24] {
+		_ = b // unk1 = random dword (ориг-канон)
 	}
 	if e, on := d.IsOnline("stelgen"); !on || e.UID != 1 {
 		t.Fatalf("online-флаг не поставлен: %+v %v", e, on)

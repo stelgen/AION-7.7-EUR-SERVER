@@ -260,17 +260,18 @@ func (d *Deps) fail(s *GateSession, code uint32, why string) *Reply {
 
 // ---------- сборка payload'ов (арбитр = R5 fork-дифф O-vs-N) ----------
 
-// BuildType3 — payload login-ok/serverlist, live 52Б (probe 07.10):
-// [accId u32][token u32][16×0][maxUsers u32=2000][unk1 u32=0xa0c69f0b][20×0].
-// Точная семантика unk-полей/хвостовых dword — R5-дифф (клиент толерантен к паду).
+// BuildType3 — payload login-ok/serverlist, live 52Б.
+// КАНОН от ориг (probe 07.10 05:28, PA жив): [accId][token][8×0][2000][unk1 Rnd][28×0]
+// (первый живой ориг-payload: f7030000 ed58c651 00000000 00000000 d0070000 08cafb0b ...).
+// unk1 у ориг динамический (ранее наблюдали 0xa0c69f0b — считаем random dword).
 func BuildType3(accID, token uint32, cfg *config.Config) []byte {
 	p := make([]byte, 0, 52)
 	p = binary.LittleEndian.AppendUint32(p, accID)
 	p = binary.LittleEndian.AppendUint32(p, token)
-	p = append(p, make([]byte, 16)...)
+	p = append(p, make([]byte, 8)...)
 	p = binary.LittleEndian.AppendUint32(p, cfg.MaxUsers)
-	p = binary.LittleEndian.AppendUint32(p, cfg.Type3Unk1)
-	p = append(p, make([]byte, 20)...)
+	p = binary.LittleEndian.AppendUint32(p, rand32())
+	p = append(p, make([]byte, 28)...)
 	return p
 }
 
