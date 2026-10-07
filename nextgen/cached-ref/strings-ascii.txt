@@ -1,0 +1,6354 @@
+!This program cannot be run in DOS mode.
+`.rdata
+@.data
+.pdata
+WAVAWH
+ A_A^_
+|$ AVH
+|$ UAVAWH
+t$ AVH
+SVWAVAWH
+0A_A^_^[
+<ZuefD;A
+D85$>\
+D85Y=\
+WATAUAVAWH
+D9%)zU
+t$`u*H
+D9%a?U
+ A_A^A]A\_
+WAVAWH
+D955sU
+t$HfD93u
+fF94Cu
+UVWAVAWH
+u+9x s
+0A_A^_^]
+D$@L;D$Hu
+|$ ATAVAWH
+ A_A^A\
+USWATAWH
+D9%11U
+JfA;DM
+fF9$@u
+fD9d$0u
+fF9$@u
+A_A\_[]
+u(D9@ }
+L$0D;A }
+u&9P }
+L$@;Q }
+D$@L;D$Hu
+vb'vb'v
+ub'vb'v
+vb'vb'v
+vb'vb'v
+vb'vb'v
+vb'vb'v
+L$ SWH
+fF94@u
+l$ WAVAWH
+pA_A^_
+d$PfD9 u
+fF9$@u
+d$0fD9e
+pA_A^_
+\$ UWATH
+@SUVATAWH
+ A_A\^][
+L$ SVWH
+@SUVATAUAWH
+A_A]A\^][
+SVWAVH
+l$hD8t
+(A^_^[
+WAVAWH
+uG9p s H
+@8|$XuC
+uM9p s H
+@8|$PuC
+UVWAVAWH
+D8|(@t
+A_A^_^]
+UVWATAVH
+ A^A\_^]
+UVWATAVH
+ A^A\_^]
+SVWAWH
+C D8=Y
+D9|$`t
+t$ D8|)@H
+(A__^[
+UVWATAUAVAWH
+uG9h s
+0A_A^A]A\_^]
+UVATAVAWH
+`A_A^A\^]
+@8|$HuE
+D$@L;D$Hu
+D$@L;D$Hu
+UUUUUUU
+fffffff
+TUUUUUU
+ATAVAWH
+L$0E9y
+PA_A^A\
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+effffff
+fffffff
+fffffff
+fffffff
+fffffff
+UVATAVAWH
+D8%*K[
+D8%_J[
+A_A^A\^]
+@UAVAWH
+H9\$pu#
+D95YjT
+D95	hT
+tCfA9(t=H
+tCfA9(t=H
+C @8=H
+C @85"	[
+@SUWATAWH
+D9=YET
+fG9<Lu
+A_A\_][
+WAVAWH
+@USVWH
+fB9<Ku
+fB9<Ku
+L$ SVW
+L$ SVW
+L$ SVW
+F @8=0
+L$ SVW
+L$ SVW
+F @8=0
+L$ SVW
+L$ SVW
+WAVAWH
+C @8=w
+0A_A^_
+|$ AVH
+UWATAUAVH
+t$PfD9
+fF94@u
+fD9t$p
+fD9t$pt
+A^A]A\_]
+USVATAVAWH
+C D8%D
+CT$pH+
+A_A^A\^[]
+fA9	u.I
+D$@L;D$Hu
+fC94Hu
+WAVAWH
+fB9<Ku
+fB9<Ku
+C @8-G
+C @8-7
+@USVWAVH
+A^_^[]
+\$ UVWH
+@USVWAVH
+A^_^[]
+UWATAVAWH
+A_A^A\_]
+D95L|S
+WATAUAVAWH
+D9=yxS
+D8=+9Z
+D9=8>S
+D8|)@t
+`A_A^A]A\_
+@85Y6Z
+L$0t+H
+UVATAVAWH
+s*D9e,v
+A_A^A\^]
+UWATAVAWH
+D9=MeS
+s*D9},v
+A_A^A\_]
+WAVAWH
+D95p\S
+UATAUAVAWH
+A_A^A]A\]
+UWATAVAWH
+A_A^A\_]
+UVWATAWH
+A_A\_^]
+SVWATAUH
+G @85=	Z
+uG9X s H
+A]A\_^[
+VAVAWH
+D9=EDS
+VWATAVAWH
+A_A^A\_^
+u-9X s
+USAVAWH
+tI9uws.
+A_A^[]
+C @8-c
+UVATAVAWH
+D9%2'S
+A_A^A\^]
+UATAUAVAWH
+v/@8}0
+A_A^A]A\]
+SAUAVH
+SVATAVH
+xA^A\^[
+xA^A\^[
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+UUUUUUU
+fffffff
+VWATAVAWH
+@A_A^A\_^
+TUUUUUU
+effffff
+UUUUUUU
+fffffff
+UUUUUUU
+fffffff
+UUUUUUU
+fffffff
+UUUUUUU
+fffffff
+@UVATAUAWH
+ A_A]A\^]
+<Zu>fD;I
+<ZuTfD;A
+<ZukfD;I
+<Zu@fD;A
+USWATAUAVAWH
+D8%fRY
+ZuPfE;
+Zu6fE;
+ZuPfE;
+A_A^A]A\_[]
+USVWAUAVAWH
+ZuNfE;
+Zu5fE;
+ZuPfE;
+A_A^A]_^[]
+USVWAUAVAWH
+D8-i7Y
+ZuNfE;
+ZuEfE;
+ZuPfE;
+ZuPfD;
+Zu>fD;
+ZuPfD;
+A_A^A]_^[]
+USVWATAUAWH
+ZuLfA;
+ZuhfE;
+ZuNfE;
+A_A]A\_^[]
+USVATAUAVAWH
+pA_A^A]A\^[]
+C D85<
+UVAUAVAWH
+D9-2@R
+A_A^A]^]
+UVWATAUAVAWH
++D$xD;
+ZuQfE;
+Lct$tL
+ZuKfE;
+A_A^A]A\_^]
+USVWATAVAWH
+ZuLfA;
+ZuLfA;
+A_A^A\_^[]
+C @8=)
+UVATAUAVH
+A^A]A\^]
+D$@L;D$Hu
+D$@L;D$Hu
+|$ AVH
+\$kHcE
+|$ AVH
+(L$`Hc
+@VWAVH
+@8=+aX
+@8=b`X
+<muQfD;I
+|$ AVH
+@SVWAUH
+@SWAUAVH
+D9-U{Q
+D8-g:X
+xA^A]_[
+UVWAUAVH
+D8-S8X
+A^A]_^]
+SUVAUH
+USVWATAVAWH
+A_A^A\_^[]
+USVWATAWH
+D8=_+X
+A_A\_^[]
+A_A\_^[]
+UWATAUAWH
+A_A]A\_]
+SUVWAWH
+D9=m\Q
+G D8=)
+H+=]'f
+t$XD8|(@t
+ A__^][
+@SVWAUH
+8A]_^[
+UVWATAVH
+C D85a
+PA^A\_^]
+WATAUAVAWH
+D9%$PQ
+D3 D8%
+ A_A^A]A\_
+UWATAVAWH
+D9=_MQ
+t$PIcL
+D3 D8=
+ A_A^A\_]
+C @85N
+WAVAWH
+L$pE9q
+PA_A^_
+TUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+|$ AVH
+99T$Xt
+~3T$XHc
+Hc\$HH
+<ZuPfD;I
+WAVAWH
+ A_A^_
+|$ AVH
+|$ AVH
+<Zu=fD;I
+C @8=r
+C @85.
+@SWATAU
+C D8-.
+A]A\_[
+@USWAUAVH
+A^A]_[]
+@USWATAUH
+A]A\_[]
+USVWATH
+A\_^[]
+@SVWAUAWH
+A_A]_^[
+\$ UVWAVAW
+A_A^_^]
+@SUVWAUH
+A]_^][
+SUVWAVAW
+A_A^_^][
+@SWATAVAWH
+D8=;oW
+C D8=fnW
+ A_A^A\_[
+SVWATAUAVAWH
+w@D85:kW
+A_A^A]A\_^[
+SVWATAUAVAWH
+;Fxu/H
+A_A^A]A\_^[
+SVWATAUAVAW
+s@@850ZW
+A_A^A]A\_^[
+l$ WAVAWH
+C @8-+JW
+@SATAVAWH
+D8=YHW
+D9=,MP
+D8=`EW
+A_A^A\[
+C @8-GCW
+@8-tAW
+|$`IcL
+D; @8-
+@SWATAVAWH
+PA_A^A\_[
+@8-,;W
+C @8-W:W
+D95prP
+C D85"3W
+C @8-G/W
+USVWAUAWH
+G @85F'W
+A_A]_^[]
+USVWAVH
+@85 "W
+@85S!W
+A^_^[]
+@SWAWH
+D9=u[P
+C D8=2
+@USWAVAWH
+D$\ZfD
+ZuqfD;
+A_A^_[]
+\$ UWAUAVAWH
+D9=^SP
+D$\ZfD
+ZuRfD;
+A_A^A]_]
+@USWATAUAVAWH
+A_A^A]A\_[]
+@USVWAVH
+A^_^[]
+|$ UAVAWH
+D9=l@P
+SVWATAUH
+C @85b
+A]A\_^[
+USVWAUAVH
+D9-	4P
+A^A]_^[]
+SUVATAVH
+PA^A\^][
+SUVATAVH
+D9%/+P
+PA^A\^][
+SUVATAVH
+D9%O(P
+PA^A\^][
+SUVATAVH
+D9%o%P
+PA^A\^][
+t$ WAVAWH
+F @8-;
+ A_A^_
+@SVWATAUH
+A]A\_^[
+@SUWATAVH
+ A^A\_][
+@SWATAUAWH
+ A_A]A\_[
+@SWATAUAWH
+ A_A]A\_[
+@SWAUAVAWH
+ A_A^A]_[
+USVWATAVH
+A^A\_^[]
+@SVAVAW
+A_A^^[
+USVWAVH
+D9t$tH
+A^_^[]
+C @8-d
+USVWAVAWH
+Zu9fD;
+A_A^_^[]
+@SWATAUH
+8A]A\_[
+UVATAUAVH
+A^A]A\^]
+USVWAUAVH
+u.9H }
+;K }9H
+;K };H
+{ H+K(H
+D8={ZV
+D9=*aO
+A^A]_^[]
+C @8-CXV
+ @851VV
+UATAUAVAWH
+D8-8+V
+A_A^A]A\]
+VAVAWH
+@85%'V
+SUWAVAWH
+A_A^_][
+USVWATAWH
+A_A\_^[]
+USVWATAWH
+A_A\_^[]
+UWATAUAWH
+D8-[	V
+A_A]A\_]
+UWATAUAWH
+A_A]A\_]
+UVATAVAWH
+u-H9H s
+H;K s0H
+A_A^A\^]
+UVATAVAWH
+A_A^A\^]
+UVATAVAWH
+A_A^A\^]
+UATAUAVAWH
+A_A^A]A\]
+UVATAVAWH
+A_A^A\^]
+UVATAVAWH
+A_A^A\^]
+VATAUAVAWH
+t	H9l$0A
+A_A^A]A\^
+SATAUH
+SUVAVAWH
+A_A^^][
+USVWATAUH
+A]A\_^[]
+UWATAUAWH
+`A_A]A\_]
+UATAUAVAWH
+`A_A^A]A\]
+UVATAVAWH
+A_A^A\^]
+UATAUAVAWH
+A_A^A]A\]
+USWATAUAWH
+A_A]A\_[]
+USVWAVAWH
+hA_A^_^[]
+UWATAUAWH
+A_A]A\_]
+"""""""
+"""""""
+"""""""
+"""""""
+D$@L;D$Hu
+"""""""
+"""""""
+"""""""
+"""""""
+"""""""
+H9H s1
+H9H s1
+H9H s1
+H9H s1
+H9H s1
+"""""""
+ATAVAWH
+H;8u-H
+L$0M9y s=I
+M;y s:H
+PA_A^A\
+TUUUUUU
+TUUUUUU
+ATAVAWH
+L$0E9y }=I
+E;y }:H
+PA_A^A\
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+H9C s&H
+9C }&H
+UUUUUUU
+UUUUUUU
+WAVAWH
+D95H2N
+D85$:N
+0A_A^_
+WAVAWH
+0A_A^_
+L$ SVW
+t$0f9u
+fB94@u
+L$ SUVW
+C @8-)
+L$ SVW
+@UATAUAVAWH
+G @85}
+e0A_A^A]A\]
+@UAVAWH
+D85P}M
+L$ SUVWAV
+A^_^][
+L$ USVWAVAW
+A_A^_^[]
+WAVAWH
+0A_A^_
+SWAVAWH
+A_A^_[
+SUWAWH
+C @8=~
+USVATAVAWH
+D9|$pu
+fD9<xu
+fE9<vu
+fE9<\u
+A_A^A\^[]
+@USVWATAUH
+hA]A\_^[]
+@USATAUAVH
+fF9,Au
+A^A]A\[]
+@USWATAUH
+D8-G}T
+fF9,Au
+A]A\_[]
+@WATAWH
+@A_A\_
+L$ SVW
+@USAWH
+|$@fD92u
+fF94Bu
+CL$`M;
+|$@fD9
+fF9<@u
+WAVAWH
+@8=%RT
+@8|$Xu
+@8|$Xu
+|$ AVH
+WAVAWH
+0A_A^_H
+WATAUAVAWH
+A_A^A]A\_
+C @8512T
+\$ VAVAWH
+D95-jM
+l$@D8t$L
+D95O1M
+ A_A^^
+D$@L;D$Hu
+D$@L;D$Hu
+L$ VWAVH
+t$ AVH
+@USATAWH
+D9%+$M
+A_A\[]
+D+5X)M
+D+%O+M
+D+-L+M
+D+=*+M
+@SVWAUH
+8A]_^[
+WAVAWH
+0A_A^_
+C D8=)
+l$XD8|
+@SVWAVAWH
+u2H9x s H
+@A_A^_^[
+@SWAUAWH
+XA_A]_[
+D$@L;D$Hu
+H9H s1
+UUUUUUU
+TUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+D$`Hc\$P
+|$ AVH
+<Zu?fD;A
+|$ AVH
+|$ AVH
+|$ AVH
+|$ AVH
+|$ AVH
+<Zu8fD;A
+|$ AVH
+\$ WAVAWH
+@A_A^_
+@A_A^_
+|$ AVH
+\$ VWAWH
+|$ AVH
+<ZuifD;A
+<ZutfD;A
+|$ AVH
+Hc\$XD
+Hc\$XD
+|$ AVH
+LcL$PL
+Hc\$PH
+|$ AVH
+|$ AVH
+<Zu$fD;I
+|$ AVH
+|$ AVH
+|$ AVH
+Hc\$8H
+Hc\$PH
+<ZuQfD;A
+<Zu,fD;I
+|$ AVH
+LcL$@L
+Q8L$`f
+|$ AVH
+<Zu$fD;I
+|$ AVH
+<ZuzfD;I
+<Zu/fD;A
+|$ AVH
+<Zu8fD;A
+|$ AVH
+<Zu$fD;I
+|$ AVH
+<Zu?fD;A
+<Zu?fD;A
+<ZuIfD;A
+|$ AVH
+<ZuDfD;I
+|$ AVH
+<ZuefD;A
+|$ AVH
+|$ AVH
+|$ AVH
+<ZuPfD;I
+|$ AVH
+<Zu@fD;A
+|$ AVH
+<Zu@fD;A
+|$ AVH
+<Zu/fD;A
+|$ AVH
+<ZuMfD;A
+|$ AVH
+|$ AVH
+<ZuPfD;I
+<ZuPfD;I
+|$ AVH
+|$ AVH
+~3\$hHc
+<Zu@fD;A
+<ZubfD;A
+<ZuufD;A
+<ZuufD;A
+<Zu$fD;I
+|$ AVH
+<ZuffD;A
+|$ AVH
+Hc\$PD
+C9|$xt
+~3|$xHc
+<ZucfD;I
+|$ AVH
+|$ AVH
+|$ AVH
+|$ AVH
+Hc\$8H
+|$ AVH
+<ZuPfD;I
+|$ AVH
+<Zu.fD;A
+|$ AVH
+|$ AVH
+<ZugfD;A
+<Zu1fD;A
+|$ AVH
+|$ AVH
+<Zu<fD;A
+|$ AVH
+|$ AVH
+<ZulfD;A
+<ZuufD;A
+<ZuhfD;A
+<Zu/fD;A
+|$ AVH
+<Zu4fD;A
+|$ AVH
+|$ AVH
+|$ AVH
+<ZucfD;I
+|$ AVH
+|$ AVH
+|$ AVH
+<Zu9fD;I
+<ZuKfD;Q
+<Zu]fD;A
+|$ AVH
+<Zu9fD;I
+|$ AVH
+<Zu9fD;I
+<Zu9fD;I
+<Zu?fD;A
+<ZuOfD;A
+<Zu+fD;I
+<ZuCfD;I
+<Zu@fD;A
+<ZuNfD;A
+UVATAUAWH
+A_A]A\^]
+WAVAWH
+ A_A^_
+T$@A;Z }
+ApH+Ah
+T$PH+AhH
+u&9P s
+@USVATAUH
+A]A\^[]
+WATAUAVAWH
+D9%6?K
+A_A^A]A\_
+WATAUAVAWH
+C D8%J
+PxD8d$<
+A_A^A]A\_
+VWATAUAVH
+C D85,
+pA^A]A\_^
+UVWATAUAVAWH
+A_A^A]A\_^]
+C D85O
+@SWAWH
+D9=r)K
+C D8=/
+ZuJfD;
+D$xLcD$t
+USVWAWH
+ZuJfD;
+D$xLcD$t
+A__^[]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+USVWATAUAVAWH
+hA_A^A]A\_^[]
+UVWATAUAVAWH
+A_A^A]A\_^]
+USWATH
+C D8%'
+ZuXfD;
+ZuRfE;
+USVWATAUAVAWH
+l$LHcD$`
+ZuXfD;
+ZuVfE;
+A_A^A]A\_^[]
+USVWATAUAVAWH
+A_A^A]A\_^[]
+UVATAVAW
+A_A^A\^]
+UVWATAUAVAWH
+ZuSfD;
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+USVWATAUAVAWH
+A_A^A]A\_^[]
+USVWATAVAWH
+HcD$PHct$L
+ZuRfD;
+HcD$LA
+A_A^A\_^[]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+ZuRfE;
+A_A^A]A\_^]
+USVWATAVH
+A^A\_^[]
+USVWATAUAVAWH
+A_A^A]A\_^[]
+USVWATAUAVAWH
+ZuNfE;
+Zu5fE;
+ZuNfE;
+A_A^A]A\_^[]
+USVWATAUAVAWH
+ZuPfE;
+Zu8fE;
+ZuPfE;
+A_A^A]A\_^[]
+USWATAUAWH
+A_A]A\_[]
+SVWATAUH
+pA]A\_^[
+SVWATAUH
+pA]A\_^[
+USVWATAUAVAWH
+A_A^A]A\_^[]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+SUVWATAUAVAWH
+hA_A^A]A\_^][
+USVWATAUAVAWH
+xA_A^A]A\_^[]
+USVWATAUAVAWH
+A_A^A]A\_^[]
+@8=V8Q
+ZuPfE;
+USVWATH
+@8=+0Q
+A\_^[]
+USWATAVH
+D95OjJ
+A^A\_[]
+SUWATAWH
+@8-q(Q
+A_A\_][
+UATAUAVAWH
+D9%^cJ
+A_A^A]A\]
+USVWAUH
+D9-W`J
+A]_^[]
+USWAWH
+D9=wXJ
+WAVAWH
+C D8=V
+VWATAUAWH
+pA_A]A\_^
+UVATAVAWH
+D9=kKJ
+pA_A^A\^]
+WAVAWH
+D85I	Q
+USVATAVH
+A^A\^[]
+UATAUAVAWH
+ZuifD;
+A_A^A]A\]
+UVATAVAWH
+D9=k5J
+pA_A^A\^]
+|$ AVH
+UATAUAVAWH
+;{ }7H
+;{ }7H
+A_A^A]A\]
+UVWATAV
+A^A\_^]
+UVWATAWH
+D; D8%<
+98u19h
+A_A\_^]
+UVWAVAWH
+A_A^_^]
+l$(t%Hc
+@SUVWAUH
+`A]_^][
+@SVWATAUH
+A]A\_^[
+USWATAVAWH
+C D8=?
+ZuRfD;
+ZuIfD;
+ZuSfD;
+ZuNfD;
+A_A^A\_[]
+@SWATAVAWH
+C D8%D
+`A_A^A\_[
+UVAUAVAWH
+C D8=C
+T$`H9T$p
+A_A^A]^]
+@SWATAUAWH
+`A_A]A\_[
+D; @8-s
+UWATAVAWH
+C D8%:
+A_A^A\_]
+D953~I
+USVWATAVH
+A^A\_^[]
+USVWAVH
+HcD$lL
+\$dLcD$lH
+\$dLcD$lH
+A^_^[]
+USVWAVH
+@85EgP
+A^_^[]
+\$p9\$d
+D85I`P
+C D85r_P
+UATAUAVAWH
+D8%Q]P
+A_A^A]A\]
+UWATAUAWH
+fD9d$dt/
+A_A]A\_]
+UVWATAVH
+D85oJP
+D85bHP
+A^A\_^]
+@SUVWAVH
+D85%GP
+C D85RFP
+A^_^][
+USVWATAVAWH
+D856AP
+D85h@P
+A_A^A\_^[]
+@USVWAVH
+A^_^[]
+UVWATAUH
+@8-&2P
+@8-Y1P
+pA]A\_^]
+D85],P
+UVWATAUH
+D8%?)P
+C D8%l(P
+D9%a-I
+A]A\_^]
+@SWAUAWH
+D8=Z!P
+A_A]_[
+UWATAUAWH
+D9-d[I
+A_A]A\_]
+UWATAUAWH
+D9-YSI
+A_A]A\_]
+UWATAUAWH
+A_A]A\_]
+USWATH
+C D8%?
+USWAWH
+D9=t<I
+C D8=/
+@SVWATAUH
+ZuyfD;
+pA]A\_^[
+SVWAWH
+H9t$`|	H
+UVWATAUH
+A]A\_^]
+USVWAVH
+A^_^[]
+G @85C
+D95Y I
+SUVWATH
+A\_^][
+USVWATH
+ZukfD;
+A\_^[]
+USVWATH
+ZukfD;
+A\_^[]
+@SUATAVAWH
+C D8%d
+`A_A^A\][
+USVWAVAWH
+L9|$pu/L
+A_A^_^[]
+USVWAVH
+A^_^[]
+UVWATAUH
+A]A\_^]
+USVWAUH
+t$T;|$`r	E;
+A]_^[]
+UWATAVAWH
+A_A^A\_]
+@SWATAVAWH
+A_A^A\_[
+USVWAUH
+A]_^[]
+USVWATAUH
+A]A\_^[]
+C @85r
+UVATAUAWH
+A_A]A\^]
+D7 D8=
+fD9;t 
+UWAUAVAWH
+A_A^A]_]
+@SWATAVAWH
+C D8%$
+A_A^A\_[
+@SWATH
+C D8%)
+SUVWAVH
+@8-7{O
+D; @8-`zO
+A^_^][
+SUWAUH
+xA]_][
+@SWATAUAWH
+`A_A]A\_[
+@SVWATAWH
+C @85&pO
+A_A\_^[
+USVWAVH
+D; D85
+L$HLcL$TE
+D9=qkH
+A^_^[]
+USWATAUAWH
+D8-[_O
+A_A]A\_[]
+USVWAVH
+D854KO
+A^_^[]
+@85DDO
+C @85pCO
+D85mBO
+USVWATH
+D9%prH
+C D8%+3O
+gfffffffI
+fffffff
+H;S s8L
+fffffff
+gfffffffH;}Ht.L
+fffffff
+gfffffffL
+gfffffffH
+A\_^[]
+USVWAVH
+A^_^[]
+ZuofD;
+ZuSfA;
+@SWATAVAWH
+A_A^A\_[
+L$0u,H
+USVWAUAVH
+A^A]_^[]
+@SWATAUAWH
+C D8-_
+D;5\GH
+L$0u+H
+A_A]A\_[
+C @85*
+WATAUAVAWH
+A_A^A]A\_
+@SUWAVAWH
+A_A^_][
+UWATAUAVH
+PA^A]A\_]
+@SVATAVAWH
+C D8%R
+A_A^A\^[
+@SWATAVAWH
+L$Pu+H
+A_A^A\_[
+USVWAVH
+D95t)H
+ZuSfE;
+}xD	t$DD
+ZuNfE;
+A^_^[]
+USWATAWH
+ZuPfA;
+|$pD	t$@D
+ZuYfA;
+A_A\_[]
+SVWATH
+UVWAVAWH
+A_A^_^]
+SUVWATAUAVAWH
+A_A^A]A\_^][
+USWATAUAWH
+A_A]A\_[]
+USVWAUH
+A]_^[]
+USVWAUH
+A]_^[]
+UVWAUAVH
+A^A]_^]
+USVWAVAWH
+A_A^_^[]
+USVWAVH
+A^_^[]
+Hc|$LH
+ZuVfE;
+ZuWfE;
+USVWATAUAVAWH
+A_A^A]A\_^[]
+SUVWATAUAVAWH
+A_A^A]A\_^][
+USVWATAVH
+A^A\_^[]
+UVWAVAWH
+D$PfD;
+A_A^_^]
+USVWATAWH
+A_A\_^[]
+@SWATAVH
+D85+}N
+A^A\_[
+@SWATAVH
+A^A\_[
+@SWATAVH
+D85ZxN
+D85JuN
+A^A\_[
+@SWATAUH
+G D8%:sN
+D9%fyG
+hA]A\_[
+@SVWAVH
+UWATAUAWH
+A_A]A\_]
+UVWATAUAVAWH
+A_A^A]A\_^]
+@SVWAUAVH
+A^A]_^[
+@SVWATAUH
+@85;^N
+G @85f]N
+A]A\_^[
+USWAVH
+USVWAUH
+A]_^[]
+UWATAVAWH
+A_A^A\_]
+WAVAWH
+D95:JG
+@SVWAUH
+D9-.~G
+D9-KDG
+USVWATAWH
+A_A\_^[]
+@SWAUAWH
+D8=Z0N
+D8=)-N
+A_A]_[
+D85\!N
+D957&G
+l$pD8t
+UWATAVAWH
+A_A^A\_]
+@SVAVH
+C @850
+UVWAVAWH
+D95mKG
+A_A^_^]
+USVWAVH
+D85L	N
+ZuifD;
+ZuIfE;
+A^_^[]
+SVWAUH
+UWATAVAWH
+D95	<G
+A_A^A\_]
+UWAUAVAWH
+A_A^A]_]
+USVWAUAVH
+A^A]_^[]
+@USWATAWH
+D9={(G
+A_A\_[]
+VWAUAVAWH
+`A_A^A]_^
+USWATAUAWH
+A_A]A\_[]
+USVWAVH
+A^_^[]
+USWATAUAWH
+A_A]A\_[]
+UWATAVAWH
+A_A^A\_]
+WAVAWH
+UATAUAVAWH
+D7 D85>
+A_A^A]A\]
+D7 D85?
+USVWAVAWH
+A_A^_^[]
+WAVAWH
+@SWAVH
+@USWATAUH
+A]A\_[]
+C @85j
+UWATAVAWH
+A_A^A\_]
+UWATAVAWH
+A_A^A\_]
+UWATAVAWH
+C D8=l
+PA_A^A\_]
+@SWATAUAWH
+C @8=(
+A_A]A\_[
+@SVWAUAVH
+G @85Y
+A^A]_^[
+UWATAVAWH
+A_A^A\_]
+UWATAVAWH
+A_A^A\_]
+@SWATAUAWH
+G D8-T
+A_A]A\_[
+USVWAUAVAWH
+A_A^A]_^[]
+SVWAVH
+UVWAUAWH
+D8= xM
+C D8=JwM
+A_A]_^]
+USWATH
+USVWATAUAVAWH
+xA_A^A]A\_^[]
+@SVWATAWH
+C @85)dM
+A_A\_^[
+SUVWAUH
+@8-g\M
+A]_^][
+SVWAUAVH
+A^A]_^[
+USVWATAVH
+A^A\_^[]
+UATAUAVAWH
+D8%#HM
+A_A^A]A\]
+UATAUAVAWH
+A_A^A]A\]
+@USWAUH
+C D8-D:M
+USVWAWH
+A__^[]
+UAVAWH
+D85.-M
+C D85\,M
+D95[1F
+@85?lF
+@SWATAVAWH
+D8%X$M
+L$Pu+H
+A_A^A\_[
+USVWAUAVH
+A^A]_^[]
+UVWATAVH
+A^A\_^]
+@SUWAUH
+G D8-j
+@USWAUAWH
+D9=xLF
+G D8=2
+A_A]_[]
+@SWAWH
+UAVAWH
+D9=pDF
+C D8=&
+|$`D9}ht
+|$`D9|$Tt
+|$`D9|$Pt
+@SWATAUAVH
+G D8-t
+A^A]A\_[
+SUVWAVH
+A^_^][
+USVWAVH
+A^_^[]
+USVWAWH
+A__^[]
+@SWAVH
+UVWATAUAVAWH
+A_A^A]A\_^]
+USVWAUAVH
+A^A]_^[]
+C D85l
+@SWATAVAWH
+A_A^A\_[
+ZuUfD;
+@SWAUH
+G D8-|
+@SUAVH
+USVWAUAVH
+A^A]_^[]
+@SWATAUAWH
+A_A]A\_[
+UVATAVAWH
+pA_A^A\^]
+UWATAVAWH
+D$tZfD
+A_A^A\_]
+@SWATAWH
+|$`fff
+A_A\_[
+USVWAWH
+A__^[]
+USVWAUAWH
+A_A]_^[]
+USWAWH
+WAVAWH
+ A_A^_H
+@85=iL
+D9=|hE
+WAVAWH
+ A_A^_H
+USATAWH
+D8%g^L
+)]`D;e
+D9=P`E
+A_A\[]
+WAVAWH
+ A_A^_H
+@SUWAVAWH
+A_A^_][
+USVWAUAVAWH
+A_A^A]_^[]
+USATAUAWH
+A_A]A\[]
+USVWAUAWH
+D8-?DL
+C D8-fCL
+A_A]_^[]
+USWATAUAWH
+A_A]A\_[]
+@SWATAVAWH
+A_A^A\_[
+@SWATAVAWH
+A_A^A\_[
+USVWAUAVH
+xA^A]_^[]
+D859(L
+C D85g'L
+D85"&L
+VWATAVAWH
+D9=OcE
+pA_A^A\_^
+USVWAUAWH
+A_A]_^[]
+USVWAVH
+A^_^[]
+SVWAUH
+C @85:
+VWAUAVAWH
+D8|(@t
+ A_A^A]_^
+UWATAVAWH
+t$PIcL
+D3 D8=
+ A_A^A\_]
+G @8-@
+UVWATAUAVAWH
+ZuKfE;
+A_A^A]A\_^]
+C D85D
+@A^_^H
+|$ AVH
+VWATAUAVH
+A^A]A\_^
+H;Q sHH
+uCH9x s
+SVAUAVAWH
+ A_A^A]^[
+l$HD8t
+l$HD8t
+C D85i
+l$HD8t
+UVWAUAWH
+ A_A]_^]
+|$ AVH
+gfffffffH+
+gfffffffH
+WATAUAVAWH
+D$@slH
+A_A^A]A\_
+gfffffffH+
+fffffff
+fffffff
+gfffffffH
+gfffffffH
+fffffff
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+gfffffffH+Q
+gfffffffL+
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+WAVAWH
+ATAVAWH
+L$0E9y
+PA_A^A\
+effffff
+fffffff
+fffffff
+fffffff
+fffffff
+@8-WxC
+L$ SVWH
+t$ ATAVAWH
+D8%~mJ
+|$PIcL
+D; D8%
+0A_A^A\
+G @8-'iJ
+@USVWAUAVAWH
+D8-xgJ
+u-9P }
+fF9,@u
+fF9,@u
+A_A^A]_^[]
+UVATAVAWH
+@85HBJ
+pA_A^A\^]
+VAVAWH
+D95y~C
+D852?J
+VAVAWH
+D85Q=J
+G @8509J
+L$`;Y }
+WAVAWH
+@85t0J
+SUVWATAUAVAWH
+A_A^A]A\_^][
+SUVWATAUAVAWH
+A_A^A]A\_^][
+\$ UAVAWH
+D95}bC
+D85	$J
+D858#J
+`A_A^]
+C @8=U
+l$HD8t
+PA^^[H
+USVWAVAWH
+fB9<Fu
+HcF@HcN8
+A_A^_^[]
+uM9h s H
+@8|$Hu6
+|$`f9:t
+SUVWAVH
+|$ f9>u
+fB9<Fu
+CD$ I;
+@A^_^][
+SUVAVH
+|$@IcL
+@8l$8tGH
+HA^^][
+UATAUAVAWH
+D; D8-
+A_A^A]A\]
+uF9p s
+K(9yqu
+SUVWAVH
+9P s!H
+A^_^][
+WAVAWH
+9y s H
+9x s H
+L$p;Y s
+9x s H
+USWATAUH
+fF9$Gu
+A]A\_[]
+C @8=z
+VAVAWH
+D; @85
+K(D9yJt
+SVWAVH
+uL9p s H
+XA^_^[
+uG9x s H
+WAVAWH
+9x s H
+uG9x s
+u)9X s
+WAVAWH
+9x s H
+@USVATAUAVAWH
+D8%CsI
+A_A^A]A\^[]
+WAVAWH
+VAVAWH
+D8=chI
+@SUVATAVH
+D85yeI
+|$pH;^
+D95ejB
+@A^A\^][
+@SUATAUAVH
+A^A]A\][
+SVATAVAW
+A_A^A\^[
+@SVWAVAWH
+@85xYI
+u19x s H
+@8t$Pu
+S(9r$u!
+C(9p u H
+A_A^_^[
+D85TVI
+C D85|UI
+D$@L;D$Hu
+|$ ATAVAWH
+ A_A^A\
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+SVWATAUAVAWH
+@A_A^A]A\_^[
+AUAVAWH
+$L;0u7
+A_A^A]
+AUAVAWH
+@A_A^A]
+UUUUUUU
+UUUUUUU
+^0H9?t(H
+TUUUUUU
+effffff
+TUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UWAUAVAWH
+A_A^A]_]
+WAVAWH
+L$0A;Q
+Mg;Y }
+t"L9A(I
+LQ(L9A0L
+L$0;Q }
+L$0H;y }
+USAUAVAWH
+fB9<Cu
+tKfE; tEH
+A_A^A][]
+@USVWAWH
+@850xH
+@85bwH
+u3H9P s
+L;C }CH
+A__^[]
+@USATAUAVAWH
+D8-5bH
+H;K }2H
+A_A^A]A\[]
+USWATAUH
+@8=K^H
+C @8=r]H
+A]A\_[]
+USVWATAUAVH
+C0H+C(H
+u+9x s
+C0H+C(H
+C0H+C(H
+;{ s9H
+A^A]A\_^[]
+WATAUAVAWH
+D8-AJH
+A_A^A]A\_
+@SUVWAWH
+@8=<FH
+F @8=iEH
+`A__^][
+UATAUAVAWH
+A_A^A]A\]
+t$ WATAWH
+C D8%G?H
+SUVWATAUAVH
+D8%>=H
+F D8%g<H
+A^A]A\_^][
+x ATAVAWH
+D8=C7H
+C D8=p6H
+A_A^A\
+|$ AVH
+WAVAWH
+WAVAWH
+@8=#0H
+C @8=N/H
+@A_A^_
+uwfD9H s
+uHfD9H s
+fD9H s
+fD;I s
+uwfD9H s
+uHfD9H s
+fD9H s
+fD;I s
+uwfD9H s
+uHfD9H s
+fD9H s
+fD;I s
+uwfD9H s
+uHfD9H s
+fD9H s
+fD;I s
+USATAUAVH
+D95}hA
+C D856)H
+A^A]A\[]
+USATAUAVH
+A^A]A\[]
+USATAUAVH
+C D85v
+A^A]A\[]
+USATAUAVH
+D95]OA
+A^A]A\[]
+USWAVAWH
+A_A^_[]
+USVAWH
+uYfD;B
+|RfD;B
+USVWATAUAVH
+A^A]A\_^[]
+u3H9P s
+u3H9P s
+u3H9P s
+USVWAUAVAWH
+A_A^A]_^[]
+USVWAVAWH
+A_A^_^[]
+|$ AVH
+@USWATAUAVH
+A^A]A\_[]
+@USWATAUAWH
+A_A]A\_[]
+C @85W
+C @85G
+@USWATAUAWH
+gfffffff
+3333333
+3333333
+3333333
+A_A]A\_[]
+USWAUAWH
+C0H+C(H
+G0H+G(H
+fD9` s
+fD;a r
+fD9` s
+fD;a r
+fD9` s
+fD;a r
+fD9` s
+fD;a r
+A_A]_[]
+fD9@ s
+fD9H s
+fD9@ s
+fD9H s
+fD9@ s
+fD9H s
+fD9@ s
+fD9H s
+|$ AVH
+|$ AVH
+|$ AVH
+|$ AVH
+|$ AVH
+|$ AVH
+gfffffffH+
+gfffffffH
+D$@L;D$Hu
+D$@L;D$Hu
+gfffffffH
+3333333
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+gfffffffH+Q
+3333333
+gfffffffL+
+3333333
+3333333
+gfffffffH
+gfffffffH+
+3333333
+3333333
+3333333
+3333333
+3333333
+fB94Bu
+AUAVAWH
+$L;0u7
+A_A^A]
+H9H }1
+H9H }1
+H9H s1
+AUAVAWH
+$H;0u7
+A_A^A]
+AUAVAWH
+$H;0u7
+A_A^A]
+AUAVAWH
+$H;0u7
+A_A^A]
+AUAVAWH
+$H;0u7
+A_A^A]
+3333333
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+UUUUUUU
+UUUUUUU
+9C }*H
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+UVWATAUAVAWH
+0A_A^A]A\_^]
+WAVAWH
+L$pE9q
+PA_A^_
+effffff
+ATAVAWH
+L$0E9y s=I
+E;y s:H
+PA_A^A\
+WAVAWH
+L$pE9q
+PA_A^_
+ATAVAWH
+$fA9A 
+<$fE9y s=I
+fE;y s:H
+PA_A^A\
+ATAVAWH
+$fA9A 
+<$fE9y s=I
+fE;y s:H
+PA_A^A\
+ATAVAWH
+$fA9A 
+<$fE9y s=I
+fE;y s:H
+PA_A^A\
+ATAVAWH
+$fA9A 
+<$fE9y s=I
+fE;y s:H
+PA_A^A\
+ATAVAWH
+L$0E9y s=I
+E;y s:H
+PA_A^A\
+effffff
+TUUUUUU
+ATAVAWH
+H;8u-H
+L$0M9y }=I
+M;y }:H
+PA_A^A\
+TUUUUUU
+effffff
+effffff
+ATAVAWH
+@A_A^A\
+fffffff
+fffffff
+fffffff
+fffffff
+UUUUUUU
+UUUUUUU
+fffffff
+fffffff
+fffffff
+fffffff
+UUUUUUU
+UUUUUUU
+fffffff
+fffffff
+fffffff
+fffffff
+UUUUUUU
+UUUUUUU
+fffffff
+fffffff
+fffffff
+fffffff
+UUUUUUU
+UUUUUUU
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+WAVAWH
+0A_A^_
+effffff
+9C s&H
+effffff
+fA9B A
+f9C s&H
+fA9B A
+f9C s&H
+fA9B A
+f9C s&H
+fA9B A
+f9C s&H
+9C s&H
+TUUUUUU
+H9C }&H
+fffffff
+fffffff
+fffffff
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+D$@L;D$Hu
+fffffff
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+SVAVAWH
+8A_A^^[
+WAVAWH
+0A_A^_
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+UAUAVH
+D$`L9t$p
+@A^A]]
+L$ VWAVH
+L$ VWAVH
+L$ VWAVH
+L$ VWAVH
+L$ VWAVH
+L$ VWAVH
+L$ VWAVH
+L$ VWAVH
+t$ WATAUAVAWE3
+t$HA_A^A]A\_
+D2L$AD2D$B2T$CD
+t$@2D$;
+|$ AV3
+|$ AVAWL
+|$0A_A^
+|$ ATAVAWE3
+|$8A_A^A\
+|$ UAVAWH
+WATAUAVAWH
+A_A^A]A\_
+|$ AVH
+SVWATAVAWH
+A_A^A\_^[
+SVWATAUAVAWH
+tYHcO<
+A_A^A]A\_^[
+|$ AVH
+VWATAVAWH
+A_A^A\_^
+t$ AWH
+tKHcO<H+
+@USVWAVH
+A^_^[]
+A^_^[]
+																																																																																											
+CD$ H+
+CD$ H+
+CD$ H+
+@UATAUH
+SVWATAUAVAWH
+A_A^A]A\_^[
+WAVAWH
+ A_A^_
+WAVAWH
+ A_A^_
+H UWAUH
+UATAVAWH
+A_A^A\]
+D$pN/A
+A_A^A\]
+																																																																																											
+t#@8(t
+CXHc8H
+@UAVAWH
+ A_A^]
+ A_A^]
+ATAVAWH
+A_A^A\
+|$ AVH
+|$ AVH
+|$ AVH
+@VWAVH
+\$xH;y
+D$0u$H
+G D85/
+L$ SWH
+L$ SVW
+C @85N
+L$ SWH
+L$ SVW
+@UVAVAWH
+D$xu$H
+A_A^^]
+|$ ATAVAW
+C D8=:
+A_A^A\
+fD9t$0
+X USWH
+UATAUH
+D$@L;D$Hu
+LcT$(A
+|$ ATAVAWH
+0A_A^A\
+SWAUAVAWH
+pA_A^A]_[
+@UATAUAWH
+XA_A]A\]
+VATAVAWH
+8A_A^A\^H
+@SVWAVH
+D$Pu&H
+WAVAWH
+t$`HcT
+@A_A^_
+PHcAhH
+D$0HcFhH
+USVAUAVH
+D8|0@t
+A^A]^[]
+@SVWATAUAVAWH
+A_A^A]A\_^[
+|$ AVH
+l$ VWAVH
+VWATAUAWH
+t$pHcT
+@A_A]A\_^
+@SUWAVAWH
+`A_A^_][
+UAVAWH
+0A_A^]
+C @850
+t$PHcT
+tgH9_hta
+WATAUAVAWH
+A_A^A]A\_
+}8D9u@
+@SATAUAVH
+(A^A]A\[
+\$Pu"L
+@SVWATAUH
+0A]A\_^[
+0A]A\_^[
+@8-k]C
+|$ AVH
+D8-W(P
+UAVAWH
+@SUWAVAWH
+A_A^_][
+UVWAUAVH
+t$FuF;
+A^A]_^]
+9D$0u,
+l$ VWATAUAWH
+D8-P=C
+D; D8-~<C
+H+=6BQ
+D9-Y><
+A_A]A\_^
+|$ AVH
+USVWATAUAVAWH
+A_A^A]A\_^[]
+WAVAWH
+ A_A^_
+ A_A^_
+t$ ATAVAWH
+D9%H3<
+L9'tbH
+0A_A^A\
+VWATAVAWH
+A_A^A\_^
+USVWATAUAVAWH
+L+-r*Q
+u-H9Q }
+TUUUUUU
+A_A^A]A\_^[]
+TUUUUUU
+D$@L;D$Hu
+D$@L;D$Hu
+|$ UATAUAVAWH
+TUUUUUU
+H I9I ~YL
+TUUUUUU
+TUUUUUU
+H I9I ~WI
+A_A^A]A\]
+TUUUUUU
+UUUUUUU
+TUUUUUU
+TUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+H9C }*H
+WAVAWH
+G I9A ~$I
+0A_A^_
+@SWATAUAWH
+0A_A]A\_[
+@USVWAWH
+CT$xM;
+A__^[]
+@SVWATAVH
+G D8%[
+u.9X }
+D8d(@t
+0A^A\_^[
+SVWATH
+8A\_^[
+USVWATAUAWH
+A_A]A\_^[]
+@SVATAVAWH
+|$pH+F
+0A_A^A\^[
+USVATAUAVH
+A^A]A\^[]
+G(H+G 3
+CL$0M;
+@SWATAUAWH
+G(H+G H
+0A_A]A\_[
+SVWATAUAVAWH
+A_A^A]A\_^[
+t$ UAVAWH
+@SUWATAUH
+fD9d$0u"M
+fF9$@u
+A]A\_][
+@SVWATAWH
+C D8=J
+ A_A\_^[
+fB9<Cu
+l$ AVH
+D$@L;D$Hu
+@UVAVH
+fF94@u
+fF94@u
+CL$PM;
+CL$0M;
+;C }GH
+ATAVAWH
+L$0E9y }=I
+E;y }:H
+PA_A^A\
+9C }&H
+|$ AVH
+C<HcC4
+9Y4~*H
+<Zu2fD;A
+<Zu1fD;A
+<Zu0fD;A
+<Zu=fD;A
+<Zu fD;A
+<Zu fD;A
+|$ AVH
+<Zu=fD;I
+t$ AVH
+\$ VWATH
+USVWATAUAVAWH
+A_A^A]A\_^[]
+UVWATAUAVH
+(A^A]A\_^]
+SUVWATAUAVAWH
+ZuAfE;
+A_A^A]A\_^][
+USVAVAWH
+D9=)D;
+fD9<Hu
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+fD9<Au
+A_A^^[]
+t$ AWH
+Hh9Jhs
+Ah9Bhs
+AhA9Chs
+HhA9Khs
+AhA9Chs
+Ah9Chs
+Hh9Khs
+Ah9Chs
+AhA9@hs
+HhA9Hhs
+AhA9@hs
+Ah9Bhs
+Hh9Jhs
+Ah9Bhs
+@h9Bhs
+Kh9Jhs
+Oh;Hhs*I
+AhA9@hs
+HhA9Hhs
+AhA9@hs
+JhE9Khs
+QhA9Phs3L
+PhA9Qhs$N
+Ih9Jhs
+Kh9Jhs
+|$ AVH
+VWATAUAWH
+A_A]A\_^
+x ATAVAWH
+A_A^A\
+D$@L;D$Hu
+UUUUUUU
+f9D$ uGf
+@SVWAUAVH
+@A^A]_^[
+@A^A]_^[
+t$ AWH
+_u*fff
+t_M;&u\M
+f;L$ u
+SVWATAVH
+A^A\_^[
+@UAVAWH
+l$Xfff
+WAVAWH
+0A_A^_
+WAVAWH
+ A_A^_
+D$@L;D$Hu
+D$@L;D$Hu
+AUAVAWH
+$H;8u7
+A_A^A]
+UUUUUUU
+TUUUUUU
+TUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+t$@D86u
+WATAUAVAWH
+A_A^A]A\_
+<J u	f
+|$ AVH
+|$ AVH
+fB9<Bu
+|$`f9:u
+fB9<Bu
+@SUAVH
+l$PfD9/u
+fF9,Gu
+fF9,Gu
+l$ f9*u
+fB9,Bu
+H;>t/H
+D$8A;X s
+SWATAVAWH
+d$8fD9!u
+fF9$Au
+`A_A^A\_[
+u&9P s
+L$0;Q s
+l$ VWAVH
+u&9X s
+T$8;Z s
+|$0 u.
+|$0 fD
+D$8A;X s
+u&9X s
+T$8;Z s
+|$ AVH
+WAVAWH
+WAVAWH
+|$ UATAUAVAWH
+E9n(tJH
+t$fD9(u
+fF9,@u
+A_A^A]A\]
+WAVAWH
+0A_A^_
+0A_A^_
+<B w-H
+fD94Bw4H
+fD9$Ou
+X UVAVH
+fD9<Bw4H
+wAfD9x
+wYfD9x
+wYfD9x
+wRfD9x
+UATAUAWH
+A_A]A\]
+WAVAWH
+0A_A^_
+fD9,Bw(H
+fD9$Bw(H
+WAVAWH
+0A_A^_
+@UVAVH
+fD9$Bw(H
+|$ AVH
+@UVAVH
+@UVAVH
+|$ AVH
+@UVAVH
+@UVAVH
+@UVAVH
+@UVAVH
+|$`t2L
+t$ AVH
+@UVAVH
+|$`t2L
+@SUAVH
+|$ AVH
+WAVAWH
+PA_A^_
+t$ ATAVAWH
+PA_A^A\
+PA_A^A\
+|$ AVH
+WAVAWH
+ A_A^_
+|$ AVH
+|$ AVH
+|$ AVH
+t$ fD9t$@u
+fF94@u
+t$ fD92u
+fF94Bu
+t$ fD92u
+fF94Bu
+D$ f9LP
+D$8A;X s
+D$8A;X s
+UATAUH
+l$ VAVAWH
+0A_A^^
+0A_A^^
+t$ AVH
+|$0,u.
+|$0,fD
+WAVAWH
+0A_A^_
+t$0fD9t$Pu
+fF94@u
+t$ fD9t$@u
+fF94@u
+L$ UWH
+t$ fD9t$@u
+fF94@u
+D$ fD9
+|$ AVH
+u&9P s
+L$0;Q s
+gfffffffH
+|$ AVH
+gfffffffH
+gfffffffH+Q
+gfffffffH+
+gfffffffL+
+gfffffffH
+D$@L;D$Hu
+D$@L;D$Hu
+gfffffffH+
+AUAVAWH
+$L;0u7
+A_A^A]
+fffffff
+l$@fE;
+CXHc8H
+M9Hhv"I9Hhs
+\$ VATAWH
+0A_A\^
+0A_A\^
+@SUVATAWH
+ A_A\^][
+L$ VWAVH
+effffff
+VWATAVAWH
+@A_A^A\_^
+effffff
+fffffff
+fffffff
+gfffffffI
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+fffffff
+WAVAWH
+0A_A^_
+WATAUAVAWH
+@A_A^A]A\_
+fffffff
+@SUVWAWH
+@A__^][
+@SUVATAWH
+ A_A\^][
+@VWAVH
+\$xH;y
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+UUUUUUU
+H;\$8t5
+l$ VWAVH
+UVWAVAWH
+D8:u2H
+A_A^_^]
+D9>tXA
+UVWATAUAVAWH
+`A_A^A]A\_^]
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+UVWATAUAVAWH
+A_A^A]A\_^]
+toH91uj
+toH91uj
+toH91uj
+UVWATAUAVAWH
+G	:E	u
+:O	t	H
+@8w	u7E3
+:O	t	H
+:O	t	H
+G	:E	u
+:O	t	H
+A_A^A]A\_^]
+UVWATAUAVAWH
+:O	t	H
+@8w	u8E3
+:O	t	H
+:O	t	H
+:O	t	H
+l$$D8d$!u
+A_A^A]A\_^]
+UVWATAUAVAWH
+:K	t	H
+D8K	u7E3
+A_A^A]A\_^]
+WAVAWH
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+L95`[8
+L95gY8
+PA_A^A]A\_^]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+USVWAVAWH
+A_A^_^[]
+USVWAVAWH
+A_A^_^[]
+USVWAVAWH
+A_A^_^[]
+@SUVWAVAWH
+D$PH9D$8t
+A_A^_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@USVWATAUAVAWH
+H9D$@t
+A_A^A]A\_^[]
+L9L$(L
+SUVWATAVAWH
+A_A^A\_^][
+SUVWATAVAWH
+A_A^A\_^][
+@USVWATAVAWH
+A_A^A\_^[]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+@USVWAWH
+0A__^[]
+@USVWAWH
+@A__^[]
+x ATAVAWH
+ A_A^A\
+x ATAVAWH
+A_A^A\
+VWATAVAWH
+A_A^A\_^
+VWATAVAWH
+A_A^A\_^
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+H9=* 8
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+f9/t	H
+SVWAVAWH
+0A_A^_^[
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+toH91uj
+UVWATAUAVAWH
+l$4D8d$1u
+A_A^A]A\_^]
+UVWATAUAVAWH
+l$4D8d$1u
+A_A^A]A\_^]
+UVWATAUAVAWH
+l$$D8d$!u
+A_A^A]A\_^]
+UVWATAUAVAWH
+l$$D8d$!u
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+f;E	tYD8K
+A_A^A]A\_^]
+UVWATAUAVAWH
+f;E	tYD8K
+A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+|<@ u&@
+A_A^A]A\_^]
+UVWATAUAVAWH
+|<@ u&@
+A_A^A]A\_^]
+WATAUAVAWH
+VUD8oDu!
+A_A^A]A\_
+WATAUAVAWH
+VUD8oDu!
+A_A^A]A\_
+ATAVAWH
+D$0.fD
+D$0,fD
+A_A^A\
+ATAVAWH
+D$0.fD
+D$0,fD
+A_A^A\
+UVWATAUAVAWH
+<xt!E3
+A_A^A]A\_^]
+UVWATAUAVAWH
+<xt!E3
+A_A^A]A\_^]
+UATAUAVAWH
+L95?T7
+H955T7
+L95AS7
+L95HR7
+L95uQ7
+L95,N7
+L95DM7
+L95KL7
+A_A^A]A\]
+UATAUAVAWH
+L95?G7
+H951G7
+L95<E7
+L95iD7
+L95 A7
+L958@7
+L951<7
+A_A^A]A\]
+UVWATAUAVAWH
+)D$pH+_
+A_A^A]A\_^]
+UVWATAUAVAWH
+)D$pH+_
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+WAVAWH
+ A_A^_
+L;L$(t
+L;L$(A
+UVWAVAWH
+A_A^_^]
+@USVWATAVAWH
+A_A^A\_^[]
+UVWAVAWH
+A_A^_^]
+@USVWATAVAWH
+A_A^A\_^[]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+USVWAVAWH
+A_A^_^[]
+USVWAVAWH
+A_A^_^[]
+USVWAVAWH
+A_A^_^[]
+@SUVWAVAWH
+D$PH9D$8t
+A_A^_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@USVWATAUAVAWH
+H9D$@t
+A_A^A]A\_^[]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+USVWAVAWH
+A_A^_^[]
+USVWAVAWH
+A_A^_^[]
+USVWAVAWH
+A_A^_^[]
+@SUVWAVAWH
+D$PH9D$8t
+A_A^_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@SUVWATAVAWH
+D$PH9D$8t
+A_A^A\_^][
+@USVWATAUAVAWH
+H9D$@t
+A_A^A]A\_^[]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+VWATAVAWH
+Pp<:u3H
+Pp<:u/H
+A_A^A\_^
+VWATAVAWH
+Pp<:u3H
+Pp<:u/H
+A_A^A\_^
+WATAUAVAWH
+L96tfH
+0A_A^A]A\_
+WATAUAVAWH
+L96tfH
+0A_A^A]A\_
+t$ WAVAWH
+L9|$pv^H;
+fD9|$Xu
+H;D$pr
+0A_A^_
+t$ WAVAWH
+L9|$pv^H;
+fD9|$Xu
+H;D$pr
+0A_A^_
+l$ VWATAVAWH
+A_A^A\_^
+UVWATAUAVAWH
+@A_A^A]A\_^]
+UVWATAUAVAWH
+@A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+SUVWATAVAWH
+A_A^A\_^][
+SUVWATAVAWH
+A_A^A\_^][
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+SUVWATAVAWH
+A_A^A\_^][
+SUVWATAVAWH
+A_A^A\_^][
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@USVWATAVAWH
+A_A^A\_^[]
+@USVWATAVAWH
+A_A^A\_^[]
+UVWAVAWH
+0A_A^_^]
+UVWAVAWH
+0A_A^_^]
+UVWAVAWH
+@A_A^_^]
+WAVAWH
+ A_A^_
+WAVAWH
+ A_A^_
+t$ WATAUAVAWH
+ A_A^A]A\_
+WATAUAVAWH
+0A_A^A]A\_
+WAVAWH
+ A_A^_
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+@VWAVH
+toH91uj
+toH91uj
+toH91uj
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+`A_A^A]A\_^]
+UVWATAUAVAWH
+:O	t	I
+@8w	u7E3
+:O	t	H
+:O	t	I
+|<8 u!@
+A_A^A]A\_^]
+WATAUAVAWH
+VUD8oDu!
+A_A^A]A\_
+UATAUAVAWH
+L9-Nm6
+L9-yl6
+L9-%j6
+L9-.i6
+L9-Kh6
+L9-Rg6
+A_A^A]A\]
+UVWATAUAVAWH
+l$(L9k
+D9T$0u3H
+A_A^A]A\_^]
+UVWAVAWH
+A_A^_^]
+@USVWATAVAWH
+A_A^A\_^[]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+PP<:woH
+PP<:woH
+A_A^A]A\_^]
+VWATAVAWH
+PP<:u3H
+PP<:u/H
+A_A^A\_^
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWATAUAVAWH
+A_A^A]A\_^]
+UVWAVAWH
+A_A^_^]
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+@USVWATAVAWH
+A_A^A\_^[]
+@USVWATAVAWH
+A_A^A\_^[]
+p WAVAWH
+ A_A^_
+SUVWATAUAVAWH
+H+L$ x<H
+8A_A^A]A\_^][
+p WAVAWH
+ A_A^_
+UVWATAUAVAWH
+l$pH9\$ u
+H+L$(xBH
+0A_A^A]A\_^]
+WATAUAVAWH
+0A_A^A]A\_
+x ATAVAWH
+A_A^A\
+UVWATAUAVAWH
+pA_A^A]A\_^]
+UVWATAUAVAWH
+pA_A^A]A\_^]
+USVWATAUAVAWH
+)t$0Hc
+HA_A^A]A\_^[]
+x ATAVAWH
+@A_A^A\
+UVWATAUAVAWH
+`A_A^A]A\_^]
+WATAUAVAWH
+ A_A^A]A\_
+x ATAVAWH
+0A_A^A\
+WAVAWH
+ A_A^_
+USVWATAUAVAWH
+)t$0Hc
+HA_A^A]A\_^[]
+x ATAVAWH
+@A_A^A\
+UVWATAUAVAWH
+pA_A^A]A\_^]
+WATAUAVAWH
+ A_A^A]A\_
+x ATAVAWH
+0A_A^A\
+USVWATAUAVAWH
+)t$0Hc
+HA_A^A]A\_^[]
+x ATAVAWH
+@A_A^A\
+UVWATAUAVAWH
+pA_A^A]A\_^]
+WATAUAVAWH
+ A_A^A]A\_
+x ATAVAWH
+0A_A^A\
+uNfE9P
+ATAVAWH
+ A_A^A\
+WAVAWH
+ A_A^_
+WATAUAVAWH
+@A_A^A]A\_
+L$ USWH
+UVWATAUAVAWH
+<\t	<.u	H
+ A_A^A]A\_^]
+~`HcE H
+HcE Hc
+|$ AVH
+H SVWAVH
+(A^_^[
+L$ USWH
+@8l$8t
+A:8uiI
+t"A88t
+fA;8utI
+fA;0t)fA98t
+t$ WAVAWH
+0A_A^_
+L$ USVWH
+WAVAWH
+fD9>u"
+0A_A^_
+WATAUAVAWH
+ A_A^A]A\_
+AUAVAWH
+0A_A^A]
+UVWATAUAVAWH
+ A_A^A]A\_^]
+WAVAWH
+0A_A^_
+UAVAWH
+L$ USVWH
+UAVAWH
+t$ WAVAWH
+\$Xt/I
+0A_A^_
+WATAUAVAWH
+ A_A^A]A\_
+USVWATAUAVAWH
+8UXt$@
+XA_A^A]A\_^[]
+L$ UVWATAUAVAWH
+ A_A^A]A\_^]
+t$ WATAUAVAW
+A_A^A]A\_
+@UATAVH
+l$ VAVAWH
+ A_A^^
+@UAVAWH
+UVWATAUAVAWH
+ A_A^A]A\_^]
+D8t$8t
+VWATAVAWH
+ A_A^A\_^
+x ATAVAWH
+ A_A^A\
+x ATAUAWH
+@A_A]A\
+s WATAUAVAWH
+9t$P~.8\$vt(H
+9t$P~98\$vt3H
+A_A^A]A\_
+@UATAUAVAWH
+!t$(H!t$ I
+A_A^A]A\]
+WAVAWH
+ A_A^_
+VWATAVAWH
+A_A^A\_^
+UVWATAUAVAWH
+G0Hc	H
+A_A^A]A\_^]
+D8eoupH
+UVWATAUAVAWH
+pA_A^A]A\_^]
+WATAUAVAWH
+ A_A^A]A\_
+AUAVAWH
+0A_A^A]
+@SVWATAUAVAWH
+L!|$@L!
+D$HHcH
+A_A^A]A\_^[
+|$ ATAVAWH
+A_A^A\
+SVWATAUAVAWH
+0A_A^A]A\_^[
+WATAVH
+@A^A\_
+fffffff
+WATAUAVAWH
+D$@!\$(H!\$ 
+A_A^A]A\_
+x ATAVAWH
+@A_A^A\
+9\$(tlM
+@UVWATAUAVAWH
+e0A_A^A]A\_^]
+x ATAVAWH
+;D8|$Ht
+A_A^A\
+x ATAVAWH
+;D8|$Ht
+A_A^A\
+p WATAUAVAWH
+A_A^A]A\_
+UATAUAVAWH
+A_A^A]A\]
+@USVWATAUAVAWH
+eHA_A^A]A\_^[]
+HcD$hH
+WATAUAVAWH
+A_A^A]A\_
+t$ WAVAWH
+LcA<E3
+@SUVWATAVAWH
+zu|D!t$ E3
+A_A^A\_^][
+t$ WATAUAVAWH
+D!l$h3
+0A_A^A]A\_
+l$ VWATAVAWH
+T$&@8t$&t9@8r
+A81t@@8r
+A_A^A\_^
+UVWATAUAVAWH
+D$DD9T$X
+|$h+t$D+
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+p WAVAWH
+SVWATAUAVAWH
+PA_A^A]A\_^[
+uAiD$P
+|$ ;=BQ
+VWAUAVAWH
+0A_A^A]_^
+ATAVAWH
+ A_A^A\
+` AUAVAWH
+t$8Hc0I
+\$0D9=bH
+A_A^A]
+UVWATAUAVAWH
+9D$LupE
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+ATAVAWH
+@A_A^A\
+WAVAWH
+fE98t'
+0A_A^_
+@USVWATAUAVAWH
+A_A^A]A\_^[]
+;Cu1f9K
+f93t$M;
+L$ SUVWH
+|$ ATAVAWH
+0A_A^A\
+WATAUAVAWH
+0A_A^A]A\_
+\$ UVWATAUAVAWH
+^fD9+t
+A_A^A]A\_^]
+\$ UVWATAUAVAWH
+A_A^A]A\_^]
+fD9|$bu
+H9L$Ht8H
+UVWATAUAVAWH
+8$u$L9E
+|$HMcG
+D$@fA9	u
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+UVWATAUAVAWH
+8$u&L9T$pu
+D9T$xu
+D+t$TD+
+9D$htg
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+UVWATAUAVAWH
+D)\$4A;
+d$4t	fD
+t$\9D$`t
+D8|$0u
+D9|$pt
+t$PD8|$8t
+A_A^A]A\_^]
+UVWATAUAVAWH
+|$hD9L$H@
+D9L$Ht
+D9L$Ht
+D$<D9L$Ht
+)T$4A;
+d$4t	fD
+d$4D9L$t
+D9L$Ht
+t$dD9L$Ht
+t$dD8L$@t
+D8L$0u
+D9L$tt
+t$XD8L$8t
+A_A^A]A\_^]
+UVWATAUAVAWH
+@A_A^A]A\_^]
+t$ WATAUAVAWH
+0A_A^A]A\_
+VWATAVAWH
+ A_A^A\_^
+\$ UVWATAUAVAWH
+D9l$dtXH
+HcD$PH;
+HcD$PH;
+A_A^A]A\_^]
+UVWATAUAVAWH
+9D$XumE
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+USVWAVH
+A^_^[]
+USVWAVH
+A^_^[]
+|$ ATAVAWH
+ A_A^A\
+UVWATAUAVAWH
+D$DD9T$X
+|$h+t$D+
+A_A^A]A\_^]
+WAVAWH
+ A_A^_
+p WATAUAVAWH
+A_A^A]A\_
+VWATAVAWH
+A_A^A\_^
+t#HcL$@H
+t#HcL$@H
+UVWATAUAVAWH
+A_A^A]A\_^]
+utfD9K
+tmfD9C
+UVWATAUAVAWH
+D9d$tu
+D9d$xu
+G D9d$lu
+D9d$pu
+D9d$du
+D9d$hu
+D9d$|t
+A_A^A]A\_^]
+` AUAVAWH
+0A_A^A]
+VWATAVAWH
+ A_A^A\_^
+UVWATAUAVAWH
+T$`fE;"
+|$DfD;
+T$`fA;
+T$`fD;
+T$@uxE
+|$<9L$Pt
+8T$4u]E
+|$DfD;
+\$x9D$Pt
+D8\$Ht
+D8\$5t
+A_A^A]A\_^]
+UVWATAUAVAWH
+T$hfE;"
+t$HfD;
+T$hfA;
+T$hfD;
+T$Du}E
+|$@9L$Xt
+D9\$Xt
+D8\$4uiM
+t$HfD;
+\$`9D$Xt
+D8\$Lt
+D8l$5t
+fD9#u1
+\$pD9M
+A_A^A]A\_^]
+[ UVWH
+!\$0!\$(!\$ L
+|$ UATAUAVAWH
+0A_A^A]A\]
+|$ UATAUAVAWH
+fD9:r 
+A_A^A]A\]
+UVWATAUAVAWH
+A_A^A]A\_^]
+VWATAVAWH
+ A_A^A\_^
+Hct$@H
+sYHcL$HH
+x ATAVAWH
+< tD<	t@
+ A_A^A\
+H3E H3E
+WATAUAVAWH
+gfffffffH
+D8L$Ht
+A_A^A]A\_
+x AUAVAWH
+A_A^A]
+@SUVWH
+@SUVWH
+@SUVWAVH
+A^_^][
+x ATAVAWH
+D8&t4H
+D8d$Ht
+A_A^A\
+ATAVAWH
+D8d$8t
+@A_A^A\
+\$ UVWATAUAVAWH
+fD9 t	H
+A_A^A]A\_^]
+@UATAUAVAWH
+A_A^A]A\]
+D$H9D$ s"
+u1!D$0
+UVWATAUAVAWH
+0A_A^A]A\_^]
+@SUVWATAVAWH
+PA_A^A\_^][
+@UATAUAVAWH
+A_A^A]A\]
+D$(A9h
+@8l$8t
+r"fD;A
+@8l$8t
+l$ VWAVH
+9\$ ~>L
+D82u&H
+D8t$Ht
+t`H91u
+UVWATAUAVAWH
+L$0<`t
+$tPH9\$@t>
+A_A^A]A\_^]
+UAVAWH
+D88tTH
+UWATAVAWH
+t$ D80
+E8&tuH
+D8 tHH
+uMM9'tHH
+M9't/H
+D8d$ t
+uQM91tLH
+A_A^A\_]
+<1~-<3~ <4t5<5t
+UATAUAVAWH
+A_A^A]A\]
+UAVAWH
+@A_A^]
+L97taH
+D8t$HuD
+(D$@L9t$ t0H
+D$(D8t$(u\H
+x UAVAWH
+|$ UATAUAVAWH
+A_A^A]A\]
+!D$8!D$HM
+,0<	w!A
+UATAUAVAWH
+A_A^A]A\]
+WATAUAVAWH
+A_A^A]A\_
+f9.uVH
+f9.u"H
+tVf91tQH
+x ATAVAWH
+ A_A^A\
+@SUVWATAVAWH
+3fD9 t
+A_A^A\_^][
+|$ AVH
+tSf91tNH
+D;|$0t9
+x ATAVAWH
+ A_A^A\
+@USVWATAVAWH
+tyfD9 tsH
+tHfD9 tB
+@A_A^A\_^[]
+x AUAVAWH
+ A_A^A]
+WAVAWH
+ A_A^_
+WAVAWH
+ A_A^_
+t$ WATAUAVAWH
+G 9\$tu
+A_A^A]A\_
+@USVWATAUAVAWH
+xA_A^A]A\_^[]
+utfD9K
+tmfD9C
+UVWATAUAVAWH
+D9d$tu
+D9d$xu
+D9d$lu
+D9d$pu
+D9d$du
+D9d$hu
+D9d$|t
+A_A^A]A\_^]
+l$ VWAUAVAWH
+L$(fA;
+u$HcG$H;
+t5f9(t
+A_A^A]_^
+WAVAWH
+ A_A^_
+UVWATAUAVAWH
+pA_A^A]A\_^]
+|$ UATAUAVAWH
+A_A^A]A\]
+|$ UATAUAVAWH
+A_A^A]A\]
+WATAVH
+@USVWH
+UVWATAUAVAWH
+A_A^A]A\_^]
+[ UVWH
+!\$0!\$(!\$ L
+@SUVWAVH
+@A^_^][
+t$ WATAUAVAWH
+A_A^A]A\_
+@USVWATAUAVAWH
+xA_A^A]A\_^[]
+UVWATAUAVAWH
+A_A^A]A\_^]
+WATAUAVAWH
+H;51F2
+t=L95qE2
+0A_A^A]A\_
+D9t$htrH
+@8t$8t
+@UAVAWH
+fffffff
+ffffff
+fffffff
+fffffff
+.ffffff
+ffffff
+@ffffff
+H(H9J(u
+t"HcM@H
+t"HcM@H
+u"HcMHH
+xdigit
+bad function call
+regex_error(error_collate): The expression contained an invalid collating element name.
+regex_error(error_ctype): The expression contained an invalid character class name.
+regex_error(error_escape): The expression contained an invalid escaped character, or a trailing escape.
+regex_error(error_backref): The expression contained an invalid back reference.
+regex_error(error_brack): The expression contained mismatched [ and ].
+regex_error(error_paren): The expression contained mismatched ( and ).
+regex_error(error_brace): The expression contained mismatched { and }.
+regex_error(error_badbrace): The expression contained an invalid range in a { expression }.
+regex_error(error_range): The expression contained an invalid character range, such as [b-a] in most encodings.
+regex_error(error_space): There was insufficient memory to convert the expression into a finite state machine.
+regex_error(error_badrepeat): One of *?+{ was not preceded by a valid regular expression.
+regex_error(error_complexity): The complexity of an attempted match against a regular expression exceeded a pre-set level.
+regex_error(error_stack): There was insufficient memory to determine whether the regular expression could match the specified character sequence.
+regex_error(error_parse)
+regex_error(error_syntax)
+regex_error
+permission denied
+file exists
+no such device
+filename too long
+device or resource busy
+io error
+directory not empty
+invalid argument
+no space on device
+no such file or directory
+function not supported
+no lock available
+not enough memory
+resource unavailable try again
+cross device link
+operation canceled
+too many files open
+permission_denied
+address_in_use
+address_not_available
+address_family_not_supported
+connection_already_in_progress
+bad_file_descriptor
+connection_aborted
+connection_refused
+connection_reset
+destination_address_required
+bad_address
+host_unreachable
+operation_in_progress
+interrupted
+invalid_argument
+already_connected
+too_many_files_open
+message_size
+filename_too_long
+network_down
+network_reset
+network_unreachable
+no_buffer_space
+no_protocol_option
+not_connected
+not_a_socket
+operation_not_supported
+protocol_not_supported
+wrong_protocol_type
+timed_out
+operation_would_block
+address family not supported
+address in use
+address not available
+already connected
+argument list too long
+argument out of domain
+bad address
+bad file descriptor
+bad message
+broken pipe
+connection aborted
+connection already in progress
+connection refused
+connection reset
+destination address required
+executable format error
+file too large
+host unreachable
+identifier removed
+illegal byte sequence
+inappropriate io control operation
+invalid seek
+is a directory
+message size
+network down
+network reset
+network unreachable
+no buffer space
+no child process
+no link
+no message available
+no message
+no protocol option
+no stream resources
+no such device or address
+no such process
+not a directory
+not a socket
+not a stream
+not connected
+not supported
+operation in progress
+operation not permitted
+operation not supported
+operation would block
+owner dead
+protocol error
+protocol not supported
+read only file system
+resource deadlock would occur
+result out of range
+state not recoverable
+stream timeout
+text file busy
+timed out
+too many files open in system
+too many links
+too many symbolic link levels
+value too large
+wrong protocol type
+0123456789ABCDEFabcdef-+Xx
+0123456789-+Ee
+0123456789ABCDEFabcdef-+XxPp
+:Sun:Sunday:Mon:Monday:Tue:Tuesday:Wed:Wednesday:Thu:Thursday:Fri:Friday:Sat:Saturday
+:Jan:January:Feb:February:Mar:March:Apr:April:May:May:Jun:June:Jul:July:Aug:August:Sep:September:Oct:October:Nov:November:Dec:December
+0123456789-
+%b %d %H : %M : %S %Y
+%m / %d / %y
+:AM:am:PM:pm
+%I : %M : %S %p
+%H : %M
+%H : %M : S
+%d / %m / %y
+0123456789-
+0123456789ABCDEFabcdef-+Xx
+0123456789-+Ee
+0123456789-
+0123456789ABCDEFabcdef-+Xx
+0123456789-+Ee
+0123456789-
+0123456789ABCDEFabcdef-+XxPp
+0123456789ABCDEFabcdef-+XxPp
++v$x+v$xv$+xv+$xv$+x+$vx+$vx$v+x+$vx$+vx+v $+v $v $+v +$v $++$ v+$ v$ v++$ v$+ v+xv$+ v$v$ +v+ $v$ ++x$v+ $v$v ++ $v$ +v
+0123456789-
+0123456789-
+A0123456789abcdefghijklmnopqrstuvwxyz
+0123456789abcdefghijklmnopqrstuvwxyz
+0123456789abcdefABCDEF
+CorExitProcess
+RoInitialize
+RoUninitialize
+_hypot
+Unknown exception
+ !"#$%&'()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~
+bad exception
+FlsAlloc
+FlsFree
+FlsGetValue
+FlsSetValue
+InitializeCriticalSectionEx
+CreateEventExW
+CreateSemaphoreExW
+SetThreadStackGuarantee
+CreateThreadpoolTimer
+SetThreadpoolTimer
+WaitForThreadpoolTimerCallbacks
+CloseThreadpoolTimer
+CreateThreadpoolWait
+SetThreadpoolWait
+CloseThreadpoolWait
+FlushProcessWriteBuffers
+FreeLibraryWhenCallbackReturns
+GetCurrentProcessorNumber
+GetLogicalProcessorInformation
+CreateSymbolicLinkW
+SetDefaultDllDirectories
+EnumSystemLocalesEx
+CompareStringEx
+GetDateFormatEx
+GetLocaleInfoEx
+GetTimeFormatEx
+GetUserDefaultLocaleName
+IsValidLocaleName
+LCMapStringEx
+GetCurrentPackageId
+GetTickCount64
+GetFileInformationByHandleExW
+SetFileInformationByHandleW
+SystemFunction036
+(null)
+`h````
+xpxxxx
+SunMonTueWedThuFriSat
+JanFebMarAprMayJunJulAugSepOctNovDec
+UTF-16LE
+UNICODE
+Sunday
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+January
+February
+August
+September
+October
+November
+December
+MM/dd/yy
+dddd, MMMM dd, yyyy
+HH:mm:ss
+ !"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+`h`hhh
+xppwpp
+CreateFile2
+_nextafter
+MessageBoxW
+GetActiveWindow
+GetLastActivePopup
+GetUserObjectInformationW
+GetProcessWindowStation
+__based(
+__cdecl
+__pascal
+__stdcall
+__thiscall
+__fastcall
+__vectorcall
+__clrcall
+__eabi
+__ptr64
+__restrict
+__unaligned
+restrict(
+ delete
+operator
+`vftable'
+`vbtable'
+`vcall'
+`typeof'
+`local static guard'
+`string'
+`vbase destructor'
+`vector deleting destructor'
+`default constructor closure'
+`scalar deleting destructor'
+`vector constructor iterator'
+`vector destructor iterator'
+`vector vbase constructor iterator'
+`virtual displacement map'
+`eh vector constructor iterator'
+`eh vector destructor iterator'
+`eh vector vbase constructor iterator'
+`copy constructor closure'
+`udt returning'
+`local vftable'
+`local vftable constructor closure'
+ new[]
+ delete[]
+`omni callsig'
+`placement delete closure'
+`placement delete[] closure'
+`managed vector constructor iterator'
+`managed vector destructor iterator'
+`eh vector copy constructor iterator'
+`eh vector vbase copy constructor iterator'
+`dynamic initializer for '
+`dynamic atexit destructor for '
+`vector copy constructor iterator'
+`vector vbase copy constructor iterator'
+`managed vector copy constructor iterator'
+`local static thread guard'
+ Type Descriptor'
+ Base Class Descriptor at (
+ Base Class Array'
+ Class Hierarchy Descriptor'
+ Complete Object Locator'
+template-parameter-
+generic-type-
+`anonymous namespace'
+`non-type-template-parameter
+`template-parameter
+`vtordispex{
+`vtordisp{
+`adjustor{
+`local static destructor helper'
+`template static data member constructor helper'
+`template static data member destructor helper'
+static 
+virtual 
+private: 
+protected: 
+public: 
+[thunk]:
+extern "C" 
+short 
+unsigned 
+volatile
+std::nullptr_t
+<ellipsis>
+,<ellipsis>
+ throw(
+double
+__int8
+__int16
+__int32
+__int64
+__int128
+<unknown>
+wchar_t
+__w64 
+UNKNOWN
+signed 
+ volatile
+`unknown ecsu'
+union 
+struct 
+class 
+coclass 
+cointerface 
+volatile 
+const 
+cli::array<
+cli::pin_ptr<
+{flat}
+1#SNAN
+1#QNAN
+invalid string position
+string too long
+d:\_build\src\shared\MemoryMan.h
+DbToServer::MakePacketHeader: packet size overflow
+RP_LOAD_ACCOUNT_FOR_EVENTSVR
+..\..\Shared\EventServer.cpp
+CEventServerMgr::LoadEventUser
+CEventServerMgr::SendEventUser
+CEventServerMgr::InitializeLoadingOfEventUser
+CEventServerMgr::AddEventAccount
+CEventServerMgr::IsEventMember
+map/set<T> too long
+[%d] Too slow function, execution time = %d mili second, curTick(%u)
+[%d] ==> %s, line %d, %s, data(%d), entryTick(%u)
+RegisterThisThread() called more than one time, tid = %d
+AION OOO Server
+Guard Called By Not Registered Thread
+Packet Type error, Encode (%d:%d) but (%d:%d,%s)
+Packet ArgSize error, Encode (%d:%d, %s), %d*%d != %d
+PacketType error at Encode_AddArg %d:%d(%s) but %d:%d(%s)
+Default2Server Protocol
+Server2Default Protocol
+Client2Server Protocol
+Server2Client Protocol
+NPC2Server Protocol
+Server2NPC Protocol
+DB2Server Protocol
+Server2DB Protocol
+Auth2Server Protocol
+Server2Auth Protocol
+Pet2Server Protocol
+Server2Pet Protocol
+IB2Server Protocol
+Server2IB Protocol
+Log2Server Protocol
+Server2Log Protocol
+GIP2Server Protocol
+Server2GIP Protocol
+IC2Server Protocol
+Server2IC Protocol
+IC2DB Protocol
+DB2IC Protocol
+MG2Server Protocol
+Server2MG Protocol
+MG2Client Protocol
+Client2MG Protocol
+Channel2Server Protocol
+Server2Channel Protocol
+Relay2Server Protocol
+Server2Relay Protocol
+AC2Server Protocol
+Server2AC Protocol
+NPRelay2Server Protocol
+Server2NPRelay Protocol
+profile
+PacketProfiler::WriteToFile, interrupted request.
+%S\perf\%04d-%02d-%02d.%02d.%02d.%02d.profile
+%04d-%02d-%02d.%02d.%02d.%02d
+ id  |  %-40s |    count    |  traffic(kb)  |avg(kb)|| avgTime(usec) | maxTime(usec) | slowCount
+------------------------------------------------------------------------------------------------------------------------
+%3d  |  %-40.40S |  %10u | %13.2f | %5.3f || %13.1f | %13.1f |%10lld
+========================================================================================================================
+Profile report has been written to the file, %s
+PacketProfiler::WriteToFile, m_writing has been broken.
+d:\_build\src\shared\IoCompletion.h
+RegisterService
+UnregisterService
+ConsumeGameToken
+RequestToken
+LoginToken
+GetUserInfo
+SetAppData
+GetUserInfo
+Message
+UserInfo
+Logout
+FriendInfo
+Escrow
+RollBackEscrow
+Deliver
+ListGrades
+NotifyGradeChanged
+GetLevel
+Reward
+NotifyScoreChanged
+WebGeneral
+GetPoint
+SearchCategory
+SearchKeyword
+GetLevel
+GetGoodsCount
+NotifyGoodsInventoryChanged
+ListGoodsInfos
+NotifyGoodsInventoryChanged
+NotifyGoodsInfoChanged
+Purchase
+Deposit
+Withdraw
+GetBalance
+CancelWithdrawal
+NotifyBalanceChanged
+ValidateGroup
+GetChannelProperty
+GroupInfo
+DeleteGroupChannel
+SetPermissionGroup
+UnsetPermissionGroup
+AddGameProfileImagesForSystem
+RegisterService
+UnregisterService
+ConsumeGameToken
+RequestToken
+LoginToken
+GetUserInfo
+SetAppData
+GetUserInfo
+Message
+UserInfo
+Logout
+FriendInfo
+Escrow
+RollBackEscrow
+Deliver
+ListGrades
+NotifyGradeChanged
+GetLevel
+Reward
+NotifyScoreChanged
+WebGeneral
+GetPoint
+SearchCategory
+SearchKeyword
+GetLevel
+GetGoodsCount
+NotifyGoodsInventoryChanged
+ListGoodsInfos
+NotifyGoodsInventoryChanged
+NotifyGoodsInfoChanged
+Purchase
+Deposit
+Withdraw
+GetBalance
+CancelWithdrawal
+NotifyBalanceChanged
+ValidateGroup
+GetChannelProperty
+GroupInfo
+DeleteGroupChannel
+SetPermissionGroup
+UnsetPermissionGroup
+AddGameProfileImagesForSystem
+<4,$?7/'
+(3-!0,1'8"5.*2$
+!?+L+?
+n?yxs?
+Fw?yxs?
+5?+L+?
+T><0 >
+Fw?yxs?
+5?+L+?
+T><0 >
+!?+L+?
+n?yxs?
+?fff?fff?333?ff&?ff&?333?fff?
+L?fff?fff?ff
+ !"#$%&'()*+,-./0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\]^_`abcdefghijklmnopqrstuvwxyz{|}~
+serveridforlog.xml
+Error while loading serveridforlogs DB : %s
+Error while loading serveridforlogs : incorrect root node
+Error while loading serveridforlogs : invalid record. check tables
+..\..\SHARED\ServerIdManager.cpp
+ServerIdManager::ReloadGAbyssGroup
+ServerIdManager::ValidateGAbyssGroupIdForIC
+..\..\SHARED\ServerNameManager.cpp
+ServerNameManager::LoadXML
+Error while loading %s : %s
+Error while loading %s : incorrect root node, expecting <servernames> tag
+Error while loading %s : missing <servername> tag
+..\..\SHARED\ViewerBase.cpp
+ViewerBase::LineOut
+ViewerBase::Resize
+ViewerBase::Enable
+Account.cpp
+Account::Load
+AccountDb.cpp
+AccountDb::~AccountDb
+AccountDb::FindReadLock
+AccountDb::FindWriteLock
+AccountDb::GetCharInfo
+AccountDb::AddCharacter
+AccountDb::DeleteCharacter
+AccountDb::CanAddCharacter
+AccountDb::FindCharacterAndReload
+AccountDb::GetAccuseData
+AccountDb::GetNumAccuseRight, Cannot find account structure(acc:%d)
+AccountDb::SetAccuseData
+AccountDb::SetNumAccuseRight, Cannot find account structure(acc:%d)
+AccountDb::GetTrialAccountData
+AccountDb::SetTrialAccountData
+AccountDb::ReloadAccount
+alert.cpp
+AlertEvent::AddAlertEvent
+AddAlertEvent
+BookmarkDb.cpp
+BookmarkDb::Find
+vector<T> too long
+%s %d %d
+Jun  4 2020
+%.4d-%.2d-%.2d
+16:25:41
+\VarFileInfo\Translation
+\StringFileInfo\%04x%04x\FileDescription
+\StringFileInfo\%04x%04x\FileVersion
+%s %s (%s)
+Config.cpp
+Config::Load
+config path
+-configpath="
+Error while loading from Server Config : %s
+Error while loading %s : incorrect root node
+Special01
+unsent
+Config::Load, g_timeSlice is invalid value(%d). modify to default(30)
+Config::Load, g_timeSlice is not a divisor(%d) of 60. modify to default(30)
+TimerQueueCount(%d) is more than MAXCOUNT(%d)
+Configuration Complete %s
+Config::Get
+Config::GetBool
+Config::GetInt
+Config::GetInetAddr
+Config::ParseDir
+EditorMode, %s = %s
+LoadWinPosFromReg
+separator
+SaveWinPosToReg
+LoadConnStrFromReg
+SaveConnStrToReg
+DBConn.cpp
+DBConn::DBConn
+DBConn::~DBConn
+Connection Broken:%d
+Slow query => Diff: %d, Query: %S
+Slow query => Diff: %d, Query: %S <br />
+DBConn::Init
+DBConn::Destroy
+DBConn::AllocSQLPool
+DBConn::DumpQueryStrInfo() -- CurTick %d, connCnt %d Broken:%d
+DBConn::DumpQueryStrInfo() -- CurTick %d, connCnt %d  Broken:%d
+DBConn(%d),startTic(%d),endTic(%d),sql==>%S
+loginDlgProc
+DBConn::Login
+SQLDriverConnectW() Failed
+connect to db failed (retCode: %d)
+DBConn::Execute
+DBConn::ExecuteAndAddLog
+DBConn::ExecuteIndirect
+DBConn::ExecuteInsert
+DBConn::ExecuteInsertIndirect
+DBConn::ExecuteDelete
+DBConn::ExecuteNoError
+DBConn::FetchDbg
+Fetch error = %d, %s %d
+DBConn::FetchNoError
+DBConn::SetAutoCommit
+DBConn::EndTran
+DBConn::Error
+[CRITICAL] DBConn::Error, Severe DB Error Occured, Connection Broken state:%.10S,message:
+%.128s
+[CRITICAL] Sql:%S
+DBConn::ErrorExceptInsert
+DBConn::SetColumnNumber
+DBConn::ResetHtmt
+DBConn::GetTime
+DBConn::SetTime
+ProcessLogMessages
+ProcessLogMessages %S
+szSqlState = %s
+pfNativeError = %d
+szErrorMsg = %s
+pcbErrorMsg = %d
+ODBCRowNumber = %d
+SSrvrLine = %d
+SSrvrMsgState = %d
+SSrvrSeverity = %d
+SSrvrProcname = %s
+SSrvrSrvname = %s
+DBConnSMS.cpp
+DBConnSMS::DBConnSMS
+DBConnSMS::~DBConnSMS
+DBConnSMS::Init
+DBConnSMS::Destroy
+loginSMSDlgProc
+DBConnSMS::Login
+DBConnSMS::Execute
+DBConnSMS::ExecuteIndirect
+DBConnSMS::ExecuteInsert
+DBConnSMS::ExecuteInsertIndirect
+DBConnSMS::ExecuteDelete
+DBConnSMS::ExecuteNoError
+DBConnSMS::FetchDbg
+DBConnSMS::Error
+DBConnSMS::ErrorExceptInsert
+DBConnSMS::SetColumnNumber
+DBConnSMS::Bind
+DBConnSMS::ResetHtmt
+dbprofile
+dbstatics
+DB Log Detail
+DBLogDetail
+DB Log Summary
+DBLogSummary
+[Statistics DB START]=================================================================<br />
+[Statistics DB END]=================================================================<br />
+[Cache Deadlock DB Check START]=================================================================<br />
+[Cache Deadlock DB Check END]=================================================================<br />
+[InformationMail]  Cache Start: DB Info Log <br />
+DBProfiler.cpp
+ <br /> SQL Version: %S <br />
+ <br /> Cache Version: %S <br /><br />
+ <br /> Compatibility Level: %S <br /><br />
+<br /><b><FONT color='#0000ff'>Changed Table&SP List in 7 days: name, create, modify</FONT></b>
+<table> <tr> <td>name</td> <td width=250>create time</td> <td>modify time</td> <tr>
+<tr> <td>%S</td> <td  width=250>%S</td> <td>%S</td> <tr>
+<tr> <td>%S</td> <td width=250>%S</td> <td>%S</td> <tr>
+</table> <br />
+<br/><br/>====================================================<br/>
+Table List Info
+<FONT color='#0000ff'> [All Table List Info] </FONT>
+%S, %S, %S
+StoredProcedures List Info
+<br/><br/><FONT color='#0000ff'> [All StoredProcedures List Info] </FONT>
+[REPORT DB END]================================================================= <br /><br />
+[Profile Slow DB START]================================================================= <br />
+[Profile Slow DB END]================================================================= <br />
+session_id: %d, host_name: %S, client_interface_name: %S, login_name: %S, status: %S,	last_request_start_time: %S, start_time: %S, req_status: %S, command: %S, db_name: %S object_name: %S, last_wait_type: %S, wait_time: %64d, cpu_time: %d, total_elapsed_time: %64d reads: %d, writes: %d, logical_reads: %d, statement_query: %S, query_plan: %S, statement_end_offeset: %d
+[RunningQuery] session_id: %d, host_name: %S, login_name: %S, status: %S, last_request_start_time: %S, start_time: %S, command: %S, db_name: %S last_wait_type: %S, wait_time: %64d, cpu_time: %d, total_elapsed_time: %64d  logical_reads: %d, <FONT color='#0000ff'>object_name: %S</FONT><br /><br />
+[RunningQuery] session_id: %d, host_name: %S, client_interface_name: %S, login_name: %S, status: %S,	last_request_start_time: %S, start_time: %S, req_status: %S, command: %S, db_name: %S last_wait_type: %S, wait_time: %64d, cpu_time: %d, total_elapsed_time: %64d reads: %d, writes: %d, logical_reads: %d, statement_query: %S, query_plan: %S, object_name: %S, statement_end_offeset: %d<br />
+[BlockQuery]blocked_session_id: %d, blocking_sessing_id: %d, wait_duration_ms: %d, wait_type: %S , resource_type: %S, resource_db_name: %S, request_mode: %S, request_type: %S, request_status: %S , resource_desc: %S, blocked_db_name: %S, blocked_object_name: %S, blocked_query: %S , blocked_stmt: %S, blocking_db_name: %S, blocking_object_name: %S, blocking_query: %S
+[BlockQuery]blocked_session_id: %d, blocking_sessing_id: %d, wait_duration_ms: %d, wait_type: %S , resource_type: %S, resource_db_name: %S, request_mode: %S, request_type: %S, request_status: %S , resource_desc: %S, blocked_db_name: %S, <FONT color='#0000ff'>blocked_object_name: %S,</FONT> blocked_query: %S , blocked_stmt: %S, blocking_db_name: %S, <FONT color='#0000ff'>blocking_object_name: %S,</FONT> blocking_query: %S<br /><br />
+creation_time: %S, last_exec_time: %S, exec_count: %d, total_worker_time: %d, last_worker_time: %d, min_worker_time: %d, max_worker_time: %d, total_elapsed_time: %64d, last_elapsed_time: %64d, min_elapsed_time: %64d, max_elapsed_time: %64d, dbid: %d, query: %S
+[ExcutedQuery]last_exec_time: %S, last_worker_time: %d, min_worker_time: %d, max_worker_time: %d,last_elapsed_time: %d, min_elapsed_time: %d, max_elapsed_time: %d, <FONT color='#0000ff'>object_name: %S </FONT> <br /> <br />
+<br/><br/>[ExcutedQuery]creation_time: %S, last_exec_time: %S, exec_count: %d, total_worker_time: %d, last_worker_time: %d, min_worker_time: %d, max_worker_time: %d, total_elapsed_time: %d, last_elapsed_time: %d, min_elapsed_time: %d, max_elapsed_time: %d, dbid: %d, object_name: %S, query: %S <br />
+[Statics CPU Average START]==========================================<br />
+id: %d, average_cpu_used: %d, total_cpu_used: %d, last_cpu_used: %d, max_cpu_used: %d, execution_count: %d, creation_time: %S, last_execution_time: %S, object_name: %S, query: %S
+id: %d, average_cpu_used: %d, total_cpu_used: %d, last_cpu_used: %d, max_cpu_used: %d, execution_count: %d, creation_time: %S, last_execution_time: %S, <FONT color='#0000ff'> object_name: %S </FONT> <br />
+<br/>id: %d, query: <br/>
+%S<br/>
+[Statics CPU Average END]=============================================<br/><br />
+[Statics CPU Average END]=============================================<br/><br/><br />
+[Statics CPU Sum START]==========================================<br />
+id: %d, total_cpu_time_sum: %d, total_exec_count_sum: %d, statements: %d, dbid: %d, object_name: %S, query: %S
+id: %d, total_cpu_time_sum: %d, total_exec_count_sum: %d, statements: %d, dbid: %d, <FONT color='#0000ff'> object_name: %S  </FONT><br />
+<br/><br/>id: %d, query: 
+<br/>%S 
+[Statics CPU Sum END]============================================<br/><br />
+[Statics CPU Sum END]============================================<br/><br/><br />
+[Statics IO Wait Time START]==========================================<br />
+wait_type: %S, waiting_tasks_count: %d, wait_time_ms: %d, wait_time_ms_ave: %d
+wait_type: %S, waiting_tasks_count: %d, wait_time_ms: %d, wait_time_ms_ave: %d<br />
+[StaticsIO Wait Time END]=============================================<br/>
+<br /><br />
+[Statics IO Total START]==========================================<br />
+id: %d, avg_logical_reads: %d, avg_logical_writes: %d, avg_physical_reads: %d, Execution_count: %d, statement_start_offset: %d, object_name: %S, query: %S
+id: %d, avg_logical_reads: %d, avg_logical_writes: %d, avg_physical_reads: %d, Execution_count: %d, statement_start_offset: %d, <FONT color='#0000ff'>object_name: %S</FONT> <br />
+<br/>id: %d, query: 
+<br/>%S 
+[Statics IO Total END]============================================<br/><br />
+[Statics IO Total END]============================================<br/><br/><br />
+SetThreadHandle() called more than one time, tid = %d
+socket
+emblem
+itemload
+GMAdmin.cpp
+d:\_build\src\server\cacheserver\GuildDb.h
+GuildDb.cpp
+GuildDb::Create
+GuildDb::SaveNotices
+GuildDb::GetNotices
+GuildDb::Delete
+GuildDb::Find
+GuildDb::GetMembers
+GuildDb::GetGuild
+GuildDb::SaveGuild
+GuildDb::GetGuildItemList
+GuildDb::DepositGuildFund
+GuildDb::_GetGuildEmblem
+GuildDb::GetGuildEmblem
+GuildDb::_SetGuildEmblem
+GuildDb::SetGuildEmblem
+GuildDb::SetGuildDispers
+GuildDb::CleanUpDispersedGuild
+GuildDb::CleanUpInvalidGuild
+CleanUp Invalid Guild : %d Auto Delete Processed
+GuildDb::SetGuildMaster
+GuildDb::SetGuildNameByGM
+GuildDb::SetGuildLevelByGM
+GuildDb::SetGuildPointByGM
+GuildDb::AddGuildPointByGM
+GuildDb::SetGuildIntro
+GuildDb::SetGuildJoinProcessType
+GuildDb::SetGuildJoinRestrictLevel
+GuildDb::GetGuildJoinApplicants
+GuildDb::GetGuildJoinApplicantJoinInfo
+RP_LOAD_FIELDHOUSE
+RP_LOAD_FIELDHOUSE_OBJECT
+RP_LOAD_FIELDHOUSE_OBJECT_EXTDATA
+RP_LOAD_INSTANTHOUSE
+RP_LOAD_FIELDHOUSE_CHARGE
+RP_LOAD_HOUSE_SCRIPT
+RP_LOAD_TOWN
+housing
+HousingDb.cpp
+HousingDb::LoadFieldHouseData
+HousingDb::LoadFieldHouseCharge
+LoadFieldHouseCharge db execute fail
+HousingDb::LoadFieldHouseObjectData
+LoadFieldHouseObjectData db execute fail
+HousingDb::LoadFieldHouseScript
+HousingDb::LoadTownData
+HousingDb::PutFieldHouse
+HousingDb::SetFieldHouse
+HousingDb::RemoveFieldHouse
+HousingDb::SetFieldHouseCharge
+HousingDb::SetFieldHouseScript
+HousingDb::SetInstantHouseScript
+HousingDb::NewInstantHouse
+HousingDb::LoadInstantHouse
+HousingDb::LoadInstantHouseScript
+HousingDb::PutInstantHouse
+HousingDb::SetInstantHouse
+HousingDb::SetInstantHouseState
+HousingDb::PutHouseObject
+HousingDb::SetHouseObject
+HousingDb::SetHouseObjectExtData_UseCount
+HousingDb::SetHouseObjectExtData_ResourceId
+HousingDb::SetHouseObjectExtData_JukeBox
+HousingDb::CleanHouseObjectByMove
+HousingDb::GetPersonalInstantHousingUserRace
+HousingDb::MoveHouseScriptFieldToInstant
+HousingDb::MoveHouseScriptInstantToField
+d:\_build\src\shared\DBProtocol.inl
+PutBlock, blockSize < 0, %d
+ICClient.cpp
+ICClient::ICClient
+ICClient::~ICClient
+ICClient::Init
+ICClient::Connect
+interchange server at %s:%d
+Can't connect to %s
+Connecting to %s
+ICClient::Close
+ICClient::Free
+CI_TOURNAMENT_INFO
+CI_RANK_INFO
+RP_RANK_INFO
+ICSocket.cpp
+NoPacket
+VersionAckPacket
+ICSocket-VersionAckPacket, SpecialSvrType mismatch! (ic:%d) vs (cache:%d)
+ICSocket-VersionAckPacket, invalid g_icId(%d), icServerId(%d)
+ImportItemPacket
+ExportItemResultPacket
+RequestDeleteInstancePacket
+RequestICSocketWriteProfilePacket
+RequestGuildBasisInfoPacket
+ShutdownOtherServerPacket
+RequestTnmtInfoPacket
+SendGlobalRankPoint::<lambda_735ae66869b905acc2ef0f677d381a4e>::operator ()
+RequestRankInfoPacket
+ICSocket::ICSocket
+ICSocket::~ICSocket
+ICSocket::OnRead
+shop agent socket %d: bad packet size %d
+interchange socket : unknown protocol %d
+ICSocket::OnClose
+call DeleteInstanceDataByServer(%d)
+Interchange Close %x(%x)
+ICSocket::SendIOBuffer
+ICSocket::TimerExpired
+ICSocket::OnCreate
+ICSocket::_DebugReport
+Peer IP:%S
+Current Mode:%d
+ICSocket::_DebugReport Failed By Exception
+GetCmd_IC : packetType=%d, expected marker=%02x, got marker=%02x
+MakePacketHeader: packet size overflow
+GetCmd_GQ : packetType=%d, packetType2=%d, expected marker=%02x, got marker=%02x
+RP_SERVER_INFO
+RP_CHARACTER_NAME_CHANGE_BY_GM
+RP_HOUSING_AUCTION_LIST
+RP_GET_AION_TV_CONTENTS_LIST
+RP_TOURNAMENT_EVENT
+GP_EVENT_POLLING
+d:\_build\src\server\cacheserver\ICClient.h
+IntSocket.cpp
+GMJoinNotice
+GMJoinNoticeDel
+GMSendMail
+GMGuildOperation
+GMGuildOperation64
+GmAnnounce
+GmMakeBuilder
+GmChangePosition
+GmCheckUserOnline
+GmKickOffOnlineUser
+GmReloadUserInfo
+GmPollInfo
+IntSocket.cpp::GmPollInfo, Fail To Decode PollInfo Packet Content
+GmPollContents
+IntSocket.cpp::GmPollContents, Fail To Process PollInfo Packet Content
+GmPollProcess
+IntSocket.cpp::GmPollProcess, Fail To Process GmPollProcess Packet Content
+GmPollChangeDate
+GmReloadForbidden
+GmEventPolling
+CheckCharacterPacket
+SetCharLocationPacket
+SetBuilderCharPacket
+ChangeCharNamePacket
+KickCharacterPacket
+AddSkillPacket
+DelSkillPacket
+ModSkillPacket
+WriteCommentPacket
+DeleteCommentPacket
+GmNotifyMailReceivePacket
+GmUpdateInGameBlockInfo
+GMRestoreItemByMailPacket
+GMAttachItem
+GmBlockRace
+GmCreateCharOnly
+GMCaptcha
+GMCharacterNameChange
+GMAdminModifications
+GMForbiddenOperation
+GMBuildCommand
+GMHousingAuctionAdd
+GMHousingAuctionCancel
+GMHousingAuctionFilterDelete
+GMHousingAuctionFilterAdd
+GMHousingAuctionCashHouseDelete
+GMHousingAuctionCashHouseAdd
+GMHousingAuctionOperationPacket
+GMHousingOperationGiveHouse
+GMHousingOperationTakeHouse
+GMHousingOperationAttachObject
+GMHousingOperationDeattachObject
+GMHousingOperationOverdueExtend
+GMHousingOperationGiveHouseByMain
+GMHousingOperationPacket
+GMReloadAccessAllowAccount
+CanMakeStickerForMobile
+NotifyBingoLoginTime
+MobileBingoRewardMail
+GMReloadGloryPoint
+GMAionTVOperationPacket
+GMTournamentEventOperationPacket
+IntSocket::SendIOBuffer
+IntSocket::OnCreate
+IntSocket::OnClose
+IntSocket::OnRead
+compound
+ItemDb.cpp
+ItemDb::setMaxItemName
+ItemDb::Find
+ItemDb::FindAllItem
+ItemDb::Get
+ItemDb::GetNew
+ItemDb::Update
+ItemDb::UpdateRelative
+ItemDb::UpdateItemEquippedSlot
+ItemDb::UpdateItemExpireTime
+ItemDb::DeleteNow
+ItemDb::DeleteByDestroy
+ItemDb::DeleteBySellToNpc
+ItemDb::DeleteByExpired
+ItemDb::DeleteByRefund
+ItemDb::DeleteByExtract
+ItemDb::DeleteByMail
+ItemDb::DeleteByChangeSkin
+ItemDb::DeleteByAuthorizeFail
+ItemDb::DeleteByUpgrade
+ItemDb::DeleteByEquippedOdianRune
+ItemDb::DeleteByReinvent
+ItemDb::CleanUpDeletedItem
+ItemDb::CleanUpSellToNpcItem
+ItemDb::CleanUpExtractedItem
+ItemDb::CleanUpDeleteByDbOperator
+ItemDb::CleanUpDeleteByAuthorizeFail
+ItemDb::CleanUpDeleteByUpgrade
+ItemDb::GetWarehouseItemList
+ItemDb::FindEnslaveStone
+ItemDb::GetNewEnslaveStone
+ItemDb::UpdateEnslaveStone
+ItemDb::CleanUpDeletedEnslaveStone
+ItemDb::UpdateItemWarehouseOnly
+ItemDb::FindItem
+ItemDb::AddItem
+ItemDb::ImportItem
+ItemDb::UpdateWarehouse
+ItemDb::UpdateEnchant
+ItemDb::UpdateMatterOption
+ItemDb::UpdateSlotId
+ItemDb::GetCompoundedItemList
+ItemDb::UpdateCompoundedItem
+ItemDb::DeleteByDecompound
+ItemDb::CleanUpCompoundedItem
+ItemDb::GetSealedItemList
+ItemDb::SetSealInfo
+ItemDb::DeleteSealedInfo
+ItemDb::LoadChargeItem
+ItemDb::LoadPolishItem
+ItemDb::GetVendorItemPolishList
+ItemDb::LoadChargeItemList
+ItemDb::LoadPolishItemList
+ItemDb::CheckOwnership
+ItemDb::ExportItem
+ItemDb::UpdateRandomOption
+ItemDb::UpdateRealRandomOption
+ItemDb::UpdateRandomOptionAll
+ItemDb::UpdateItemReidentifyCount
+ItemDb::GetItemSA2Attr1List
+ItemDb::GetItemEnchantList
+ItemDb::GetItemEnchant
+ItemDb::GetItemPolish
+ItemDb::GetItemCharge
+ItemDb::GetItemFreeTradeList
+ItemDb::GetVendorItemFreeTradeList
+ItemDb::GetItemFreeTrade
+ItemDb::GetItemAttribteDeltaList
+ItemDb::GetItemAttributeDelta
+ItemDb::GetVendorItemAttributeDeltaList
+ItemExtraInfo::Init
+ItemExtraInfo::LoadItemEnchantMap
+ItemExtraInfo::LoadItemCompoundVector
+ItemExtraInfo::LoadItemSealMap
+ItemExtraInfo::LoadItemChargeMap
+ItemExtraInfo::LoadItemPolishMap
+ItemExtraInfo::LoadItemExtendMap
+ItemExtraInfo::LoadItemFreeTradeMap
+ItemExtraInfo::LoadItemAttributeDeltaMap
+ItemDb::CleanUpItemDeletedByBuyRecovery
+ItemDb::UpdateItemExtSlot
+ItemDb::UpdateItemCurseState
+d:\_build\src\server\cacheserver\Listener.h
+Listener<class IntSocket>::CreateSocket
+Listener<class RelaySocket>::CreateSocket
+Log.cpp
+Log::Log
+Log::NormalCallback
+Log::ErrorCallback
+AddLog
+Log::Add
+LogSystem.cpp
+LogFile::LogFile
+LogFile::~LogFile
+LogFile::SetDirectory
+LogFile::Add
+LogFile::Write
+LogFile::BadFormat
+LogFile::OpenDailyFile
+LogFile::OpenHourlyFile
+LogFile::OpenHourlyFilewithAlert
+%SDBReport_Alert.%S
+SQL Errors
+[DBREPORT]
+LogWindow::LogWindow
+LogWindow::~LogWindow
+LogWindow::Set
+LogWindow::Enable
+LogWindow::Resize
+LogWindow::Redraw
+LogWindow::Add
+LogWindow::Show
+Mail.cpp
+WriteMail
+WriteMailFromNpc
+WriteMail_NewItem
+WriteMailByIB
+CheckUserRaceAndPunish
+Mon Aug 26 17:52:24 2019
+*%s:%d(%s) exception
+Main.cpp
+CleanUp Dispersed Guild
+CleanUp Deleted Item
+CleanUp Invalid Guild
+CleanUp Extracted Item
+CleanUp SellToNpc Item
+CleanUp delte by Authoriz Fail
+CleanUp delete by DB_operator
+CleanUp items deleted by buy recovery
+CleanUp delete by used Item Upgrade
+CleanUp Expired OfflineBuddy Request
+CleanUp Deleted Enslave Stone
+Fix remote Buddy to Local Buddy
+CleanUp UserUsedItemOnTrading
+GetTableList
+CleanUp Old limitedSales history
+GetStoredProcList
+%s - %s - %s
+%S\check_proc_info.html
+CheckDatabase() failed. %d nums
+CheckDatabase() success.
+ExecDBSchemaChecker() success.
+ExecDBSchemaChecker() failed.
+%s\ranking_%s.xml
+ranking.xml
+Error while loading %s : incorrect root node, expecting <rankings> tag
+Error while loading %s : missing <ranking> tag
+ListenThread
+ [SpecialSvr(%d)]
+ [InterSvr(%d)]
+Loading Item Info
+server_name_%d.xml
+server_name.xml
+numDbThreads:%d numDBConn:%d
+Some Database Table, Index, SP not exist. Check the DBSchemaChecker.
+Some Database Table, Index, SP not exist. Check the Database.
+Preparing DBTable
+Initializing Poll
+Initializing Vendor DB
+Overseas Quest Event delete failed
+Creating IOThread
+Log Normal Not Suppressed
+Log Normal Suppressed
+Input Test Command
+Caution! Do you want to shut down #%d cache server?
+Shutdown process by user
+Warning
+Shutdown process by WM_CLOSE
+Caution! Do you want to Quit the CacheServer now?
+Shutdown process by AionShutdown
+Shutdown process by WM_ENDSESSION
+Log(Normal) disabled
+Log(Normal) enabled
+Log(Error) disabled
+Log(Error) enabled
+Server Mail Test
+Server sent mail for test...
+Dump Stack finished
+Stack dump requires several minutes. Continue?
+-remote
+Another CacheServer is already running
+AION CacheServer
+abcdefgh1234s
+Cache Server
+Shutdown
+ShutdownThread
+count down %d
+Cache Server shutdown started at %s
+LOG system :shutdowned
+SOCKET IO Threads : shutdowned
+SOCKET listener :shutdowned
+ListenThread : shutdowned
+Waiting For ListenThead
+shutdown completed
+timer stopped
+AionShutdown
+UpdateItemCacheLogUI
+UpdateItemCacheUI
+Listener<class IntSocket>::Run
+UpdateMultiLoginCheckUI
+Listener<class IntSocket>::Stop
+Listener<class RelaySocket>::Run
+listener shutdown started
+SetThisThreadAsMainThread() called more than one time
+MoveCharProc::ExecAddService
+MoveCharProc.cpp
+vendor_stat
+object
+ObjectCountViewer::Redraw
+ObjectCountViewer.cpp
+Account count 	= %d(Total:%u)
+============================================================================================================
+User count		= %d(Total:%u)
+AccountDB count	= %u
+DBConn Total = %u, activeCount = %d, brokenConnection = %u
+UserDB UserCacheCount = %u, CharCacheCount = %u, EmblemCount = %u
+CIOBuffer free count = %u(Total:%d)
+MainSocketCount	= %d(Total:%u)
+Vendor CategoryView(%d/%d) ItemNameView(%d/%d) MyListView(%d/%d) MyLogView(%d/%d)  MyHistoryView(%d/%d)
+CPacket free count =  %u(Total:%d)
+ObjectCountLogger::TimerExpired
+Vendor Commit(%d/%d) Buy(%d/%d) Cancel(%d/%d) Collect(%d/%d) Expired(%d/%d)
+CIOBuffer free count	= %u(Total:%d)
+RelaySocket.cpp
+RelaySocket::SendIOBuffer
+RelaySocket::OnClose
+RelaySocket::OnCreate
+RelaySocket::OnRead
+GetCmd_WRQ : packetType=%d, expected marker=%02x, got marker=%02x
+Server.cpp
+ReportError
+Server::Run
+michael
+/ServerReport/post.asp
+Server::CreateSocket
+Server::PendingWrite
+Server::Remove
+Server::Add
+Server::Shutdown
+Server::InShutdown
+shutdown started
+Server::Stop
+RP_GUILD_JOIN_APPLICANT_LIST
+RP_LOAD_CHAR_BM_PACK
+RP_GUILD_MEMBER_INFO
+RP_LOAD_ABNORMAL_STATUS
+RP_LOAD_BOOKMARK
+RP_LOAD_WORKINGQUEST
+RP_LOAD_FINISHEDQUEST
+RP_LOAD_GATHER_COOLTIME
+RP_LOAD_SKILL_COOLTIME
+RP_LOAD_BLOCK
+RP_LOAD_BUDDY
+RP_LIST_SPAWN_RANK
+RP_LIST_GOODS_INFO
+RP_VENDOR_ITEMLIST_CHAR
+RP_VENDOR_SALESHISTORY
+RP_VENDOR_SALESLOG
+RP_MAIL_BOXSIZELOAD
+RP_LOAD_WAREHOUSE
+RP_MAIL_DELETE
+RP_MAIL_LIST
+RP_LOAD_PVP_ENV
+RP_FACTION_LIST
+RP_LOAD_BLOCK_INFO
+RP_CHARACTER_LIST
+RP_LOAD_LEARNED_RECIPE
+RP_ALL_ABYSS_INFOS
+RP_GUILD_HISTORY
+RP_LOAD_COMBINE_COOLTIME
+RP_GET_TITLE
+RP_GUILD_ITEM_LIST
+RP_LOAD_SKILL
+RP_LOAD_INSTANCE_EXTRACOUNT
+RP_LOAD_MACRO
+RP_LOAD_ITEMS
+RP_ABYSS_GUILD_RANK
+RP_ABYSS_RANKER
+RP_IB_REFUND_CHECK
+RP_IB_CHARACTER_LIST
+RP_GET_INACTIVE_ASSET
+RP_IB_REFUND
+RP_SA_MAIL_WRITE_RESULT
+RP_DELETED_CHAR_LIST
+RP_LOAD_EMOTION_LIST
+RP_LOAD_ITEM_COOLTIME
+RP_REMOVE_BUDDY_BY_DB
+RP_GET_ABYSS_USER_OWNER_LIST
+RP_LOAD_PROMOTION_COOLTIME
+RP_REMOVE_BLOCK_BY_DB
+RP_LOAD_DROP_CTRL_LIST
+RP_LOAD_INSTANCE_DATA
+RP_ALL_INSTANCE_CONDITION
+RP_ALL_INSTANCE_DATA
+RP_LOAD_PETS
+RP_GET_WORLD_EXTCONDITION_LIST
+RP_LOAD_ABYSS_OP_POINT_ALL
+RP_FORBIDDEN_LIST
+RP_INSTANCE_ACHIEVEMENT
+RP_LOAD_ABYSS_OP_SPAWN
+RP_HOUSING_AUCTION_FILTER_LIST
+RP_CUSTOM_ANIMATION
+RP_HOUSING_AUCTION_BETTING_LIST
+RP_HOUSING_AUCTION_GRACE_LIST
+RP_POLL_ANSWER_OF_USER
+RP_BUDDYLIST_CMD
+RP_CHALLENGE_TASK
+RP_QUERY_OFFLINE_BUDDY
+RP_USER_RECORD_SYSTEM
+RP_LOAD_USER_RATE
+RP_LOAD_USER_SALES_LOG
+RP_LOAD_LIMITED_SALES
+RP_LEGION_DOMINION_RANKINGS
+RP_LEGION_DOMINION_OWNERS
+RP_LOAD_USE_CP
+RP_GUILD_LIST
+RP_TOURNAMENT_CMD
+RP_DISASSEMBLY_RETRY_LIST
+RP_LOAD_LUNA_ABYSS_BOOST
+RP_LOAD_WARDROBE
+RP_SKILL_SKIN
+RP_LOAD_LUNA_PRICE
+RP_LOAD_STATUE_INFO
+RP_FAMILIAR_OPERATION
+RP_LOAD_EQUIPMENT_CHANGE_LIST
+RP_CREATE_ACHIEVEMENT
+RP_LOAD_ACHIEVEMENT
+RP_PROGRESS_ACHIEVEMENT
+RP_UPDATE_ACHIEVEMENT
+RP_CREATE_ACHIEVEMENT_EVENT
+RP_LOAD_ACHIEVEMENT_EVENT
+RP_UPDATE_ACHIEVEMENT_EVENT
+RP_DELETE_ACHIEVEMENT_EVENT
+RP_LOAD_REINVENT_INFO
+RP_LOAD_FAME_INFO
+RP_ITEM_COLLECTION_COMPLETE_TIME_LIMIT_LIST
+RP_ITEM_COLLECTION_COMPLETE_LIST
+RP_ITEM_COLLECTION_EXPIRED_LIST
+RP_ITEM_COLLECTION_LIST
+d:\_build\src\shared\LogSvcFunc_Item.inl
+badpacket
+itemDel
+GuildItem
+webrelay
+Socket.cpp
+%d: unknown packet
+LoadAllLimitedSales
+CreateInitTitlesPacket
+CreateInitItems
+LoadPacket
+CreateInitQuestsPacket
+SaveCharBMPackPacket
+DeleteCharacterPacket
+Check compounded item: dbid(%64d), nameId(%d), main_item_dbId(%d)
+_LoadWarehouseItem
+_LoadItems
+SetPromotionCoolTimePacket
+DeleteAllPromotionCoolTimePacket
+DeletePromotionCoolTimePacket
+_LoadPet
+_LoadWardrobe
+_LoadMacro
+_LoadLunaAbyssBoost
+_LoadDisassemblyRetry
+_LoadLunaDiceGotcha
+_LoadTrialAccountData
+_LoadLunaPrice
+_LoadReform
+_LoadSkillSkin
+_LoadEquipmentChangeList
+_LoadVIPIcon
+_LoadInfinityFloor
+_LoadFamiliars
+LoadItemsPacket
+UpdateTrialAccountDataPacket
+LeaveWorldPacket
+SaveStatPacket
+SavePacket
+GetNewItemPacket
+GetItemPacket
+UpdateAmountPacket
+UpdateAmountRelativePacket
+UpdateEnslaveStonePacket
+UpdateItemEquippedSlotPacket
+UpdateEnchantPacket
+UpdateWarehousePacket
+DeleteItemPacket
+UpdateMatterOptionPacket
+CreateGuildPacket
+GuildInfoPacket
+DeleteGuildPacket
+BanishOfflineGuildMemberPacket
+GuildMemberChangePacket
+SaveGuildInfoPacket
+SaveGuildNoticesPacket
+GuildEmblemPacket
+GuildDispersRequestedPacket
+BanPacket
+DeleteBookmarkPacket
+AddBookmarkPacket
+AddPKPacket
+PetUpdatePacket
+ResetPKTimePacket
+DeletePKPacket
+SavePetitionWebNotify
+SavePetitionMsg
+AddQuestPacket
+ClearPetitionWebNotify
+UpdateQuestPacket
+QuestBuilderOperationPacket
+DeleteFinishedQuestPacket
+DeleteQuestPacket
+ResetFinishedRepeatQuestCountPacket
+UpdateFinishedQuestPacket
+GetWalletQina
+VendorBuyRelay
+GetCmd_RQ : packetType=%d, expected marker=%02x, got marker=%02x
+MailWriteRelay
+PingPacket
+HouseOwnerLegionInfoReqPacket
+SMSPacket
+LoginNotifyPacket
+221863300
+UpdateItemChargePointPacket
+SaveLevelPacket
+SaveUseCPPacket
+SaveCPPacket
+SaveUseCPResetCountDataPacket
+UpdateDisassemblyRetryPacket
+DeleteSkillPacket
+TournamentCmdPacket
+LoadInstanceExtraCountPacket
+SaveAbnormalStatusPacket
+SaveInstanceExtraCountPacket
+SaveClientSettingsPacket
+SaveSkillCoolTimePacket
+RQ_SAVE_SKILL_COOLTIME characterId:%d, skillCooltime Data Cnt:%d over than %d
+SaveUserItemSignaturePacket
+QinaManipulatePacket
+GetWorldExtConditionListPacket
+SetWorldExtConditionPacket
+DeleteGoodsInfoPacket
+SaveGoodsInfoPacket
+SaveSpawnRankPacket
+ListGoodsInfoPacket
+ListSpawnRankPacket
+DeleteSpawnRankPacket
+VendorItemListCategoryRqPacket
+VendorItemListComplexRqPacket
+VendorItemListNameRqPacket
+VendorBuyCheckRqPacket
+VendorItemListCharRqPacket
+QunaVendorBuyRqPacket
+VendorBuyRqPacket
+VendorCommitRqPacket
+VendorCommitCheckRqPacket
+VendorCancelCheckRqPacket
+VendorSalesLogRqPacket
+VendorCancelRqPacket
+VendorCollectRqPacket
+VendorSalesHistoryRqPacket
+SaveUserChatAccusedInfo
+VendorAvgSoldPricePacket
+MailCheckWritePacket
+SaveGatherCoolTime
+MailListPacket
+MailWritePacket
+MailReadPacket
+MailGetItemPacket
+MailSetReadPacket
+MailWriteNewItemPacket
+MailDeletePacket
+ChangePvPEnvPacket
+LoadPvPEnvPacket
+RequestPollContents
+RequestPollList
+PollControlPacket
+PollAnswer
+RequestCommentAdd
+RequestCommentList
+ChangeClassForTest
+PutCharChangeLog
+BuilderLog
+AlertMessage
+CreateCharacterPacket
+BuilderLogUpdate
+ClearCharacterDeleteDate
+SetCharacterDeleteDate
+CharacterListPacket
+EditCharacterPacket
+UpateSlotIdPacket
+SetInGameBlockInfoPacket
+UpdateAbyssInfo
+RequestAllAbyssInfo
+LearnedRecipePacket
+MailRestoreItemPacket
+UpdateWarehouseGrowthPacket
+RemoveRecipePacket
+RequestGuildHistoryPacket
+UpdateItemDye
+AddGuildHistory
+UpdateGuildMemberNickName
+AddGuildPoint
+SetGuildPoint
+UpdateTitle
+RequestGuildRankList
+SetAttrTitle
+SetTitle
+LoadGuildItemPacket
+DepositGuildFundPacket
+FactionPacket
+FactionQuestPacket
+MakeOfflineBuddyRequestList
+RemoveBuddyPacket
+AddBuddyPacket
+RemoveBlockPacket
+AddBlockPacket
+GetVirtualAuthAccountId
+TodayMessagePacket
+SaveMacroPacket
+JoinNoticePacket
+CheckExistPacket
+DeleteMacroPacket
+ChangeBlockMemoPacket
+UpdateBranchPacket
+GetAbyssRankerPacket
+_SendAbyssGuildRank
+OrderingAbyssRankerPacket
+SetAbyssRankPacket
+IBRefundCheckPacket
+MailWriteByIBPacket
+IBBuyCheckPacket
+IBRefundPacket
+GetInactiveAsset
+IBGiftCheckPacket
+SetServerRunInfo
+MailWriteBySAPacket
+RQ_SAVE_ITEM_COOLTIME characterId:%d, itemCoolTime Data Cnt:%d over than %d
+AddEmotionPacket
+GetAbyssUserOwnerListPacket
+DeleteEmotionPacket
+UpdateAbyssUserDefenderListPacket
+UpdateAbyssUserOwnerListPacket
+SetInstanceDungeonPacket
+PutInGameBlockInfoPacket
+SetCharacterPayStatPacket
+SetInstanceDataPacket
+ChangeEnhancedStigmaSlotCnt
+ShopGiftCheckPacket
+MoveToOtherServerPacket
+ChangeCosmeticPacket
+UpdateDropCtrlList
+LoadDropCtrlList
+RemoveItemFromDropCtrlList
+GetForbiddenList
+RequestCaptchaPacket
+UpdateRecipeRemainCount
+SaveCombineCoolTimePacket
+SaveInstancePacket
+RequestAllInstancePacket
+SaveInstanceConditionPacket
+RequestAllInstance, invalid phase value(ins:%d, phase:%d)
+RemoveCompoundTwoHandItem
+UpdateCompoundTwoHandItem
+UpdateSealInfo
+UpdateCompoundedItemEnchant
+SaveAbyssOPPointPacket
+DeleteSealInfo
+LoadAbyssOPInfoPacket
+SaveAbyssOPSpawnPacket
+DeleteGuildWarehouseHistoryByTimePacket
+CustomAnimationPacket
+RequestUpdateItemRandomAll
+UpdateRandomOptionPacket
+RequestUpdateAccumulatedGloryPoints
+RequestAddGloryPoint
+HousingAuctionList
+ExportItemPacket
+HousingAuctionDelete
+HousingAuctionAdd
+HousingAuctionEnd
+HousingAuctionBet
+HousingAuctionState
+HousingAuctionGraceList
+HousingAuctionFilterList
+HousingAuctionBettingList
+HousingAuctionGraceChange
+RandomBuddyHouse
+HousingAuctionBettingChange
+SaveTownPacket
+HousingCmdPacket
+HouseAddrListPacket
+WebNotifySave
+ReadyMoveCharPacket
+ProcessMoveCharPacket
+RequestMoveCharInputAddedService
+PostprocessMoveCharPacket
+RequestMoveCharProcessByService
+SetUserRatePacket
+InstanceAchievementPacket
+WebNotifyClear
+WebNotifyCheck
+EscrowAddItem
+EscrowAddQina
+EscrowCancel
+EscrowBuy
+VendorRelayAddItem
+SetItemSA2Attr1
+ChangeCosmeticByAccDPacket
+BuddyListCmd
+RequestAddOfflineBuddy
+RequestPollAnswerOfUser
+RequestAnswerOfflineBuddy
+RequestQueryOfflineBuddy
+AddChallengeTask
+RequestDeleteOfflineBuddy
+CompleteChallengeTask
+UpdateChallengeTask
+LoadChallengeTaskQuest
+DeleteChallengeTask
+UpdateChallengeTaskQuest
+AddChallengeTaskQuest
+UpdateChallengeTaskContributor
+LoadChallengeTaskContributor
+AccRequestUserInfo
+RequestChallengeTask
+LoadAccountForEventSvr
+AccRequestMoveSvrUserInfo
+ChangeOldCharacterName
+DeleteOldCharacterInfo
+UpdateItemReidentifyCount
+UpdateItemExpireTime
+UpdateItemPolishPointPacket
+RequestHighestLevelCharacterInfo
+UpdateItemPolishInfoPacket
+SaveBingoMissionData
+SaveUsedItemsAtStore
+ChangeBuddyMemoPacket
+RequestUserRecordSystem
+LoadNPCLimitedSales
+UpdateItemFreeTradePacket
+RequestLoadUserSalesLog
+RequestLoadLimitedSales
+ClearLimitedSales
+SaveLimitedSales
+SavePublishedCoin
+UpdateItemAttributeDelta
+UpdateProcBreakCount
+RegisterMoneyTradePhase1
+BindItemActionPacket
+RegisterMoneyTradePhase2
+RegisterMoneyTradePhase1 Arguments is wrong
+RollbackMoneyTrade
+RegisterMoneyTradePhase2 Arguments is wrong
+FinishMoneyTrade
+RollbackMoneyTrade Arguments is wrong
+RequestUpdateLegionDominionRanking
+Finish MoneyTrade Arguments is wrong
+RequestLoadLegionDominionInfo
+RequestProcessLegionDominionTakeOver
+GuildListPacket
+UpdateGuildIntro
+UpdateGuildJoinRestrictLevel
+UpdateGuildJoinProcessType
+ChangeOfflineGuildJoinApplicantInfoPacket
+SetGuildJoinApplicantInfoPacket
+GetGuildJoinApplicantJoinInfoPacket
+SetGuildOfflineChangeFlagPacket
+RequestLoadAionTVContentsListPacket
+SetEXPFeverInfoPacket
+UpdateLunaPricePacket
+SaveWardrobePacket
+UpdateLunaDiceGotchaPacket
+SaveLunaAbyssBoostPacket
+AddBotChannelInfo
+SkillSkinPacket
+DelBotChannelInfo
+RankInfoPacket
+GloryPointBuilderOperationPacket
+SetVIPIconPacket
+SaveReformCountPacket
+UpdateMonsterAchievementRewardPacket
+SaveMonsterAchievementPacket
+AbyssRewardTimePacket
+LoadStatueInfoPacket
+LoadStatueItemInfoPacket
+FamiliarOperationPacket
+SaveEquipmentChangePacket
+UpdateInfinityFloor
+FamiliarOperationPacket(), Invalid DBsubType (subtype : %u)
+LoadAchievementPacket
+UpdateTransform
+CreateAchievementPacket
+ProgressAchievementPacket
+UpdateAchievementPacket
+RequestRewardAchievementPacket
+DeleteAchievementPacket
+CreateAchievementEventPacket
+LoadAchievementEventPacket
+UpdateAchievementEventPacket
+DeleteAchievementEventPacket
+RequestRewardAchievementEventParentPacket
+RequestRewardAchievementEventPacket
+UpdateItemExtSlotPacket
+SaveWorldPlayTimePacket
+LoadFameInfoPacket
+UpdateItemCurseStatePacket
+UpdateFameInfoPacket
+UpdateFameReduceTimePacket
+LoadFameReduceTimePacket
+LoadReinventInfoPacket
+LoadItemCollectionPacket
+UpdateReinventInfoPacket
+UpdateItemCollectionLevelPacket
+UpdateItemCollectionPacket
+ItemCollectionDeletePacket
+ItemCollectionResetPacket
+ItemCollectionClearPacket
+Socket::Socket
+Socket::~Socket
+Socket::SendIOBuffer
+Socket::Allocate
+Socket::OnRead
+Socket::OnCreate
+Socket::OnClose
+Socket::TimerExpired
+Socket::OnMainPacketHandler
+Socket::_DebugReport Failed By Exception
+Socket::_DebugReport
+MainServerList::GetSocket
+MainServerList::Add
+MainServerList::Broadcast
+MainServerList::Remove
+MainServerList::BroadcastPollProcess
+MainServerList::BroadcastPollInfo
+MainServerList::SendPacketToServer
+MainServerList::BroadcastPollEndTimeChange
+invalid vector<T> subscript
+MakeToClientPacketHeader: packet size overflow
+Status::Set
+Status.cpp
+Status::Resize
+Status::Enable
+Status::Redraw
+Status::LineOut
+User.cpp
+User::Load
+User::Set
+User::LoadPlayBlockPunishmentInfo
+User::LoadEquipmentItems
+User::ClearGuild
+User::LoadMailListInfo
+User::ClearPetitionMsg
+User::SetPetitionMsg
+User::LoadGuildJoinApplyInfo
+User::ClearParty
+list<T> too long
+"cid":%d,
+"mp":%d,
+"hp":%d,
+"str":%d,
+"dp":%d,
+"agi":%d,
+"vit":%d,
+"kno":%d,
+"dex":%d,
+"physicalRight":%d,
+"will":%d,
+"criticalRight":%d,
+"accuracyRight":%d,
+"accuracyLeft":%d,
+"physicalLeft":%d,
+"attackSpeed":%d,
+"criticalLeft":%d,
+"magicalBoost":%d,
+"moveSpeed":%d,
+"magicalAccuracy":%d,
+"magicalSkillBoostResist":%d,
+"magicalDefend":%d,
+"physicalDefend":%d,
+"block":%d,
+"dodge":%d,
+"magicResist":%d,
+"parry":%d,
+"airResist":%d,
+"fireResist":%d,
+"earthResist":%d,
+"waterResist":%d,
+"magicalLeft":%d,
+"magicalRight":%d,
+"magicalCriticalLeft":%d,
+"magicalCriticalRight":%d,
+"phyCriticalReduceRate":%d,
+"castingTimeRatio":%f,
+"magCriticalDamageReduce":%d,
+"magCriticalReduceRate":%d,
+"healSkillBoost":%d,
+"phyCriticalDamageReduce":%d,
+"baseHP":%d,
+"mpHealSkillBoost":%d,
+"baseDP":%d,
+"baseMP":%d,
+"baseVIT":%d,
+"baseSTR":%d,
+"baseDEX":%d,
+"baseAGI":%d,
+"baseWILL":%d,
+"baseKNO":%d,
+"baseAccuracyRight":%d,
+"basePhysicalRight":%d,
+"basePhysicalLeft":%d,
+"baseCriticalRight":%d,
+"baseCriticalLeft":%d,
+"baseAccuracyLeft":%d,
+"baseMoveSpeed":%d,
+"baseAttackSpeed":%d,
+"baseMagicalSkillBoostResist":%d,
+"baseMagicalBoost":%d,
+"basePhysicalDefend":%d,
+"baseMagicalAccuracy":%d,
+"baseDodge":%d,
+"baseMagicalDefend":%d,
+"baseParry":%d,
+"baseBlock":%d,
+"baseFireResist":%d,
+"baseMagicResist":%d,
+"baseWaterResist":%d,
+"baseAirResist":%d,
+"baseMagicalRight":%d,
+"baseEarthResist":%d,
+"baseMagicalCriticalRight":%d,
+"baseMagicalLeft":%d,
+"basePhyCriticalReduceRate":%d,
+"baseMagicalCriticalLeft":%d,
+"basePhyCriticalDamageReduce":%d,
+"baseMagCriticalReduceRate":%d,
+"baseHealSkillBoost":%d,
+"baseMagCriticalDamageReduce":%d,
+"phyPowerBoostFinal":%d,
+"baseMpHealSkillBoost":%d,
+"magPowerBoost":%d,
+"phyPowerBoostResist":%d,
+"basePhyPowerBoostFinal":%d,
+"magPowerBoostResist":%d,
+"baseMagPowerBoost":%d,
+"basePhyPowerBoostResist":%d,
+"pvpPowerBoost":%d,
+"baseMagPowerBoostResist":%d,
+"pvePowerBoost":%d,
+"pvpPowerBoostResist":%d,
+"phyCriticalDamageBoost":%d,
+"pvePowerBoostResist":%d,
+"basePhyCriticalDamageBoost":%d,
+"magCriticalDamageBoost":%d,
+"arOpenAreial":%d,
+"baseMagCriticalDamageBoost":%d,
+"arStun":%d,
+"arFear":%d,
+"arParalyze":%d,
+"arStumble":%d,
+"arBind":%d,
+"arStagger":%d,
+"arSleep":%d,
+"arRoot":%d,
+"arSnare":%d,
+"arBlind":%d,
+"OpenAerial_Arp":%d,
+"arSilence":%d,
+"Stun_Arp":%d,
+"Fear_Arp":%d,
+"Paralyze_Arp":%d,
+"Stumble_Arp":%d,
+"Bind_Arp":%d,
+"Stagger_Arp":%d,
+"Sleep_Arp":%d,
+"Root_Arp":%d,
+"Snare_Arp":%d,
+"Blind_Arp":%d,
+"Silence_Arp":%d
+UserDb.cpp
+UserDb::~UserDb
+UserDb::UserDb
+UserDb::Load
+UserDb::CreateNewCharacter
+UserDb::_BackupVolatileCharData
+UserDb::Find
+UserDb::_RestoreVolatileCharData
+UserDb::Delete
+UserDb::DeleteCaching
+UserDb::Save
+UserDb::DisperseGuild
+UserDb::SaveLevel
+UserDb::SaveUseCPResetCountData
+UserDb::SaveCP
+UserDb::SaveFamiliarFuncAutoCharge
+UserDb::SaveFamiliarFuncExpireTime
+UserDb::SaveWorldPlayTime
+UserDb::SaveLastTransformId
+UserDb::GetId
+UserDb::SaveStat
+UserDb::ChangeEmblem
+UserDb::Ban
+UserDb::SetPetitionMsg
+UserDb::ChangeLocation
+UserDb::SetPetitionWebNotify
+UserDb::ResetPetitionMsg
+UserDb::SetBuilderLevExtern
+UserDb::ClearPetitionWebNotify
+UserDb::ReloadUserInfo
+UserDb::ClearParty
+UserDb::UpdateCharWarehouseGrowth
+UserDb::UpdateInventoryGrowth
+UserDb::UpdateCashItemWarehouseGrowth
+UserDb::UpdateCashItemInventoryGrowth
+UserDb::SetGuildMemberNickname
+UserDb::SetGuildMemberRank
+UserDb::SetGuildOfflineChangeFlag
+UserDb::SetRecreateGuildTime
+UserDb::SetGuildJoinApplicantInfo
+UserDb::GetCachedDataCount
+_LoadGloryPointInfo
+UserDb::SetEXPSInfo
+_SaveGloryPointInfo
+FATAL Error, _SaveGloryPointInfo(), query execute failed for characterId %d
+_SaveGloryPointInfoWithCompareTime
+UserGloryPointDB::AddGloryPoint
+UserGloryPointDB::LoadGloryPoint
+FATAL Error, UserGloryPointDB::UpdateAccumulatedGloryPoints(), characterId %d, flag is empty, updateFlags(%d)
+UserGloryPointDB::UpdateAccumulatedGloryPoints
+[SAVE] AbyssId:%d OwnerRace:%d OwnerServerId:%d OwnerGuildId:%d DefTurnCount:%d reward:%I64d occupyBonus:%I64d userRewardSum:%I64d PvP:%d NextPVP:%d DoorUpd:%d ShieldUpd:%d OwnerId:%u PrevOwnerCharId:%u OwnerShipBonus:%d LastPvPOnTime:%d, OccupyPoint:%d, OccupyCount:%d, OccupyRewardCountLight:%d, OccupyRewardCountDark:%d
+UserGloryPointDB::NotifyUpdateToUsers
+UserGloryPointDB::GmReloadGloryPoint
+UserGloryPointDB::UpdateAbyssData(), _LoadGloryPointInfo() failed for %sowner user(%u)
+UserGloryPointDB::_GetLockedDBGloryPointInfo
+UserGloryPointDB::_NotifyUpdated
+UserGloryPointDB::ProcessGloryPointBuilderOperation
+unknown error
+generic
+iostream stream error
+iostream
+system
+skill_base
+Loading %s.XML...
+Error while loading %s DB : %s
+%s.XML
+%s.XML(%d) Loading Complete ...
+RP_VENDOR_ITEMLIST
+_RemovePriceInfo(), failed to find from m_mapPriceRangeInfoTbl ItemNameId(%u), price(%I64d)
+_RemovePriceInfo(), failed to erase price(%I64d) from priceSet, ItemNameId(%u)
+vendor
+LoadItemInfo
+VendorDb.cpp
+Strings
+Strings.XML
+Error while loading %s DB : incorrect root node
+combine_recipe.XML
+combine_recipe
+recipes
+VendorDb::CreateIndex
+VendorDb::Initialize
+VendorDb::Commit
+VendorDb::CreateAveragePriceData
+VendorDb::AddItem
+VendorDb::AddItem, cannot find category number for odian item %d
+VendorDb::GetCollectibleGoldData
+VendorDb::CountCharVendorItems
+VendorDb::Cancel
+VendorDb::AttachVendorItem
+VendorDb::Buy
+VendorDb::GetVendorItem
+VendorDb::AddSalesLog
+VendorDb::AddAveragePriceData
+VendorDb::DeleteSalesLog
+VendorDb::SendNameSortedList
+VendorDb::Collect
+VendorDb::SendLevelSortedList
+VendorDb::SendPriceSortedList
+VendorDb::SendUnitPriceSortedList
+VendorDb::SendSortedSearchList
+VendorDb::SendComplexSearchList
+SendComplexSearchList Search Type Error!!!
+VendorDb::EncodeCharSalesLogList
+VendorDb::EncodeCharCommitList
+VendorDb::DeleteItemByChar
+VendorDb::EncodeCharSalesHistoryList
+VendorDb::CleanDeletedUserData
+VendorDb::CleanExpiredItems
+VendorDb::CleanMissingVendorItems
+VendorDb::CheckExpiredItem
+VendorDb::CleanMissingUserItems
+VendorDb::CleanExpiredItemOne
+VendorDb::TimerExpired
+VendorDb::CleanExpiredItemOne(), DeleteItem Fail, Race:%d vendorItemId:%u
+VendorDb::DeleteItem
+VendorDb::IncreaseCharItemCount
+invalid parameter %s, %s, %s, %d : Maybe STL Call Parameter Or Index of Vector is invalid
+lack of memory
+pure virtual function is called
+\AIONErr.dmp
+\AIONErr.txt
+%S\AIONErr_%04d-%02d-%02d-%d.txt
+Exception Processed by RecordExceptionInfo
+Unknown
+%S\AIONErr_%04d-%02d-%02d-%d.dmp
+exception handler called in the AION Server.
+%s in module %s at %04x:%p.
+Write to
+start at %d/%d/%d %02d:%02d:%02d
+%s location %p caused an access violation.
+Read from
+    ???? exception encountered during Stack Walk for Crashed Thread
+======================= Crashed Thread(%x) Call Stack Information ==================
+Msg: %s Error creating exception report file
+    ???? exception encountered during DumpStack_WithoutSuspend
+Start: (%d/%02d/%02d) %02d:%02d  Uptime: (%dDay %02dHour %02dMin)
+Guard Information(Call Stack) : 
+======================= [(%d) %04d/%02d/%02d %02d:%02d:%02d]: =======================
+    ???? exception encountered during GenerateExceptionReport
+Error occurred at %s.
+%d processor(s), type %d.
+%s, run by %s.
+Registers:
+%d MBytes physical memory.
+RBX=%p SS=%04x RSP=%p RBP=%p
+RAX=%p CS=%04x RIP=%p EFLGS=%08I64x
+RDX=%p ES=%04x RDI=%p GS=%04x
+RCX=%p DS=%04x RSI=%p FS=%04x
+R12=%p R13=%p R14=%p R15=%p
+R8 =%p R9 =%p R10=%p R11=%p
+Bytes at CS:RIP:
+Stack dump:
+RSP:%p	StackBase:%p
+    ???? exception encountered during stack dump.
+%p  %p  
+Call Stack Information
+(file : %s, line %d)
+%s+%x (Flag:%u)
+Params: %p %p %p %p
+%04x:%p %s
+[%s] Bytes at CS:RIP: 
+	Module list: names, addresses, sizes, time stamps and file times:
+%s, loaded at 0x%08x - %d bytes - %08x%s.
+ - file date is 
+DBGHELP_PATH:%s
+DBGHELP.DLL
+%d/%d/%d %02d:%02d:%02d
+MiniDumpWriteDump
+a Control-Break
+a Control-C
+a Breakpoint
+a Datatype Misalignment
+an In Page Error
+an Access Violation
+an Illegal Instruction
+a No Memory
+an Invalid Disposition
+a Noncontinuable exception
+a Float Denormal Operand
+a Array Bounds Exceeded
+a Float Inexact Result
+a Float Divide by Zero
+a Float Overflow
+a Float Invalid Operation
+a Float Underflow
+a Float Stack Check
+an Integer Overflow
+an Integer Divide by Zero
+a Stack Overflow
+a Privileged Instruction
+a Microsoft C++ exception
+a DLL Initialization Failed
+MAIL From: <%s>
+Unknown exception type
+RCPT To: <%s>
+EUROPE
+RUSSIA
+TAIWAN
+Subject: [%s] CacheD [%d] Host:%s(%d.%d.%d.%d) crashed at %s
+..\..\Shared\Exception.cpp
+Minidump File Not Exists
+LoadWinDbgStrFromReg
+Reg Value: %s <br />
+Debugger
+WinDbg Path: <b><FONT color='#ff0000'>Error</FONT></b> <br/>
+WinDbg Path: <b><FONT color='#0000ff'>Pass</FONT></b> <br/>
+WinDbg Path => %s <br />
+WinDbg Reg Args Result: <b><FONT color='#0000ff'>Pass</FONT></b> <br/>
+<br/><b><FONT color='#ff0000'>Error: Not exists windbg info in Reg</FONT></b>
+WinDbg Reg Args Result: <b><FONT color='#ff0000'>Error</FONT></b> <br/>
+=================  Dump Stack [%04d/%02d/%02d %02d:%02d:%02d] =======================
+======================= %s(%x)(%s) Call Stack Information ==================
+crashed
+======================= %s(%s) Call Stack Information ==================
+???? exception encounted during Stak Walk for %dth thread
+Exception Processed by exception_filter
+???? exception encounted during Stak Walk for (i) thread
+aionserver@ncsoft.com
+NCSoft_ServiceManagement1TeamD@ncsoft.com
+aionclient@ncsoft.com
+mon@ncsoft.com
+NCSoft_InfraTechnologyTeamD@ncsoft.com
+All Deallocated CIOObject List
+[SVR_START]
+aioncached@ncsoft.com
+Server Start
+Server started ... <br />
+[(%d) %04d/%02d/%02d %02d:%02d:%02d]: 
+Intentional exception
+AIONElog.txt
+ ELOG _vsnprintf fail 
+Elog Default Information
+AIONElogNotify.txt
+\AIONElogDefault.txt
+[ELOG]
+Elog Information
+Subject: %s[%s] %s %s [%d] Host:%s(%d.%d.%d.%d) at %s
+CacheD
+-----------------------------------------------------------------------------------------
+Subject: %s[%s] %s [%d] Host:%s(%d.%d.%d.%d) report %s at %s
+Thread[%d, %s] CompletionPort:%d (%s) 
+-> %s %d line  %s(), id=%x(%d), entrytick=%u 
+bad locale name
+bad cast
+ios_base::badbit set
+ios_base::failbit set
+ios_base::eofbit set
+..\..\SHARED\FileLog.cpp
+%S\perf
+FileLog::~FileLog
+FileLog::FileLog
+%S\%04d-%02d-%02d.%s
+FileLog::Init(%s), make file handle. LOG_NONBLOCK opt cannot be activated(no init iocp)
+FileLog::AddNoTime
+FileLog::Add
+[WriteFile error(%d)] %s
+%04d.%02d.%02d %02d:%02d.%02d: %s
+FileLog::Add(%s), write file. pending overflow!!!
+[PENDING:%s] %s
+FileLog::AddByBuffer
+FileLog::Add(%s), write file. cannot get logbuffer
+TickDiff(%08d) [U%05d P%03d S%04d] 
+FileLog::AddPacketLog
+FileLog::ReplaceFileHandle
+FileLog::ReplaceFileHandle(%s), m_logFile is not INVALID_HANDLE_VALUE!!!
+FileLog::ReplaceFileHandle(%s), make replace file
+lwrite
+pending
+_flame
+_spray
+_earth
+_noweapon
+_2weapon
+_1hand
+_2hand
+_dagger
+_staff
+_polearm
+_cannon
+_keyblade
+nKO/WctQ0AVLbpzfBkS6NevDYT8ourG5CRlmdjyJ72aswx4EPq1UgZhFMXH?3iI9
+unregistered callstack. retaddr(%p)
+..\..\Shared\IoCompletion.cpp
+NetworkThread
+IOThread
+Deadlock Detected by CheckIOThreadDeadlock(), ThreadID: %d(%s), passedTick(%u)
+UnknownThread
+ReleasedIOObjectVFunc Called
+ReleasedIOObjectVFunc Called CIOObjectPtr:0x%p AllocateFile:%.256s AllocateLine:%d DestroyFile:%.256s, DestroyLine;%d
+AION .... Server
+This computer's uptime is longer than 4 weeks.
+Uptime: %d days %d hours %d minutes
+For good server operation, reboot this computer, please.
+CreatIOThread : too many io thread %d, must be < %d
+CreateIOThread
+IOThread CreateIoCompletionPort Init:%d
+CreatIOThread : too few io thread %d
+SetThreadIdealProcessor() failed for thread %d, errCode = %d
+RegisterWait error for timer
+CIOObject::RegisterWait
+CloseIOThread
+AddTimerDelta : delay(%d) may be negative, timer id(%d)
+Release(RefUseMarker%d):File:%s Line:%d Can't Find Matching AddRef refHistoryCountForMatchSearch:%u
+CIOObject::AddRefHistory ElapsedTime:%I64d Exceed %d MSec~~ File:%s Line:%d Type:%d (lock number %d)
+CIOObject::AddRefHistory ElapsedTime:%I64d Exceed %d MSec~~ File:%s Line:%d Type:%d (lock number %d)
+LogOnly  CIOObject::AddRefHistory, TurnOffRefHistoryAndClearRefHistory, GIVEUP_REF_HISTORY_PROCESSING_TIME_LIMIT %d MSec Type:%d
+LogOnly CIOObject::AddRefHistory, TurnOffRefHistoryAndClearRefHistory, GIVEUP_REF_HISTORY_PROCESSING_TIME_LIMIT %d MSec Type:%d
+  Add File :%s Line:%d RefCount:%d->%d
+RefCount History
+CIOObject::_ReportRefHistory
+  Rel File :%s Line:%d RefCount:%d->%d
+	RefCountHitory(%S) Called DestoryFile:%s Line:%d Ref:%d Timer:%d
+NoDestroyed
+		Rel RefCountHitory %s(%d) Marker:0x%x RefCount:%d->%d Hint:%d
+		Add RefCountHitory %s(%d) Marker:0x%x RefCount:%d->%d Hint:%d
+CIOObject::_ReportRefHistory ElapsedTime:%I64d Exceed %d msec NameId:%u
+CIOObject::_ReportRefHistory ElapsedTime:%I64d Exceed %d msec NameId:%u
+Failed to Object::Destory~~
+RefCount Add 0->1 File:%s Line:%d CIOObjectPtr:0x%p AllocateFile:%.256s AllocateLine:%d DestroyFile:%.256s, DestroyLine;%d
+CIOObject::_DebugReport
+RefCountBelow 0 Exception File:%s Line:%d CIOObjectPtr:0x%p AllocateFile:%.256s AllocateLine:%d DestroyFile:%.256s, DestroyLine;%d
+WaitThread
+CIOObject::OnIOCallback
+Deadlock or severe lag detected !
+DeadLock or Super-Lag detected !
+TimerQueue(%u): size(%u)
+LockCheker:%d lastTick:%u currentTick:%u g_dwTopTime(%u)
+timer(%d) - %u(%64d ticks left)
+DeadLockChekerTimer timer(%d) - %u(%64d ticks left)
+IOThread !!! GetQueuedCompletionStatus return false. MultiPort(%s), Error(%d), Obj(0x%I64X), Transferred(%d), CompletionHandle(%d), lpOverlapped(0x%I64X), internal(0x%I64X)
+unknown
+Tue Mar 17 14:37:55 2020
+IOThread !!! GetQueuedCompletionStatus return (%s). MultiPort(%s), Error(%d), Obj(0x%I64X), Transferred(%d), CompletionHandle(%d), lpOverlapped(0x%I64X)
+CIOSocket::~CIOSocket
+CIOSocket::CIOSocket
+CIOSocket::Close
+CIOSocket::OnClose
+CIOSocket::OnIOCallback
+CIOSocket::GracefulClose
+CIOSocket::OnCreate
+sock %d :OnIOCallback fail but not Read or Write
+CIOSocket::Read %x(%x)(Type:%d) err = %d
+CIOSocket::Read
+CIOSocket::WriteCallback %x(%x) err=%d
+different write count %x(%x) %d != %d
+CIOSocket::Initialize
+CIOSocket::Write %x(%x) err=%d
+CreateIoCompletionPort: %d(Socket:%d, Type: %d)
+CreateIoCompletionPort: %d e%x %x
+CIOServer::CIOServer
+CIOSocket::SetAddress
+CIOServer::Close
+CIOServer::~CIOServer
+socket error %d
+CIOServer::Create
+listen error %d
+bind error %d
+CIOServer::OnWaitCallback
+RegisterWait error happened on the port %d
+CIOServer::OnIOCallback
+CIOServer::Stop
+CPacket::OnIOCallback
+accept error: %d
+CIOObjectPtr:0x%p AllocateFile:%s AllocateLine:%d DestroyFile:%.256s, DestroyLine;%d
+CPacket::OnIOCallback, invalid packet(%d), closing connection
+LogCollectThread:== fileHandle has been changed. (%d) vs (%d)
+FileLog suspended!. Handle(%d), (%s)
+..\..\Shared\LogClient.cpp
+VersionAndTimePacket
+VersionPacket: incorrect version builderNumber:%d, Recv:%d, Require:%d
+..\..\Shared\LogClientSocket.cpp
+Time difference with the Log-Server is %.2f seconds
+Recv LQ_PING_RESPONSE ping:%d
+Error : Time difference with the Log-Server is too big, timeDiff = %.2f seconds
+Please adjust system time & restart server
+LogClientSocket Close %x(%x)
+LogClientSocket::TimerExpired
+GetCmd_LP : packetType=%d, expected marker=%02x, got marker=%02x
+%s\%S\%04d-%02d-%02d-%02d-%02d-%S-%S-%02d.log
+..\..\Shared\LogSvc.cpp
+ConnectThread
+Fri Jan 15 10:45:05 2016
+MaterialDB::Load
+..\..\Shared\MaterialDB.cpp
+Error while loading %s : expecting <material> tag
+Error while loading %s : invalid id(%d)
+Error while loading %s : missing <ID> tag
+Error while loading %s : missing <ID> tag value
+Error while loading %s : missing <material_name> tag
+Error while loading %s : missing <material_name> tag value
+memory
+memory_report
+cachedsharedmem
+memory_crt
+memory_summary
+memory_specsize
+memory_pool
+%S\%04d-%02d-%02d.leak
+size_use_track
+memory_waste_fragment
+%s(%d)leaked
+%p : broken
+==============================================
+%04d-%02d-%02d %02d:%02d:%02d %s
+MemoryMan.h
+Memory::_free(), invalid pointer : %p
+Memory::_free(), invalid alloced header type(%p) pointer(must be normal) : %p
+%d leaked(%d on MemoryMan.h), %d broken
+Memory::_malloc() Memory Can not allocate, request Size : %lld
+Memory::_free(), alloced by(filename = %.255s, lineno = %d)
+Memory::_free(), tail marker : %x
+Memory::_free(), invalid pointer : ptr=%p, size=%d, freed by(filename = %.255s, lineno = %d)
+Memory::_free(), head marker : %x. next=%p
+Memory::_small_header_free(), invalid alloced header type(%p) pointer(must be small alloced) : %p
+%S\%04d-%02d-%02d.%02d.%02d.%02d.memory
+Memory::_small_header_malloc(), invalid headerType(%p) (must be type_free) : %p
+Memory::_small_header_malloc() Memory Can not allocate, request Size : %lld
+ %5lldbytes    %10lld    %10lld    %10lld |    %10lld    %10lld    %10lld |    %10lld |    %10lld
+=============================================================================================================================================================================================
+==========================================================================================================================
+MemoryBlock       SlotCnt =   UsingCnt + StandbyCnt | AllocReqCnt = RealAllocCnt +   ReuseCnt | RealAllocSize | AllocReqSize
+==========================================================================================================================
+ %5lldbytes    %10lld    %10lld    %10lld |    %10lld    %10lld    %10lld |    %10lld |   %10lld
+Total CRT  Alloc : %10lldKb    Current CRT Alloc : %10lldKb
+Total Pool Alloc : %10lldKb   
+Memory::RegisterNew(), invalid alloced header type(%p) pointer(must be normal) : %p file:%s line:%d
+Memory::RegisterHistoryReportFunc(), invalid alloced header type(%p) pointer(must be normal) : %p
+============================================================================================================================================================================================
+Total CRT Alloc : %10lldKb    Current CRT Alloc : %10lldKb
+======================================================================================
+%S\%04d-%02d-%02d.%02d.%02d.%02d.memory_pool
+MEMORY BLOCK REPORT
+CounterStop : TOTAL MEMORY SIZE :    MemSize    :   AllocSize   :  Count  :  FreeMemSize  : FreeAllocSize : FreeCount Filename (LineNumber)
+-------------------------------------------------------------------------------------------------
+ TOP 50  Memory eater list
+%11s %19I64d ; %13I64d ; %13I64d ; %7I64d ; %13I64d ; %13I64d ; %9I64d ; %s(%lld) %s
+%S\%04d-%02d-%02d.%02d.%02d.%02d.memory_summary
+ TOP 50  Memory eater list
+percent ;    total size    ;	count ;  avg size  ; type ; place 
+percent ;    total size    ;	count ;  avg size  ; type ; place 
+-------------------------------------------------------------------------------------------------
+ %04.01f%%  ; %16I64d ; %8I64d ; %10lld ; %s ; %s(%lld) %s
+ %04.01f%%  ; %16I64d ; %8I64d ; %10d ; %s ; %s(%lld) %s
+detailed informations are saved in log directory. check  *.memory_crt , *.memory_pool , *.memory_summary
+TOTAL MEMORY SIZE     : %16I64d 
+TOTAL MEMORY SIZE     : %16I64d 
+TOP 50 MEMORY PERCENT := %3.1f%% 
+TOP 50 MEMORY PERCENT := %3.1f%% 
+detailed informations are stored in log directory
+bad allocation
+d:\_build\src\shared\OverseasEventSystem.h
+..\..\SHARED\OverseasEventSystem.cpp
+OverseasEvent::ReleaseEvent
+OverseasEvent::LoadEvent
+OverseasEventSystem::GetQuestEventTrigger
+OverseasEventSystem::GetQuestEventIDList
+GlobalEvent::ReleaseEvent
+OverseasEventSystem::Reload
+OverseasEventSystem::LoadEventList
+OverseasEventSystem::ReleaseSystem
+OverseasEventSystem::LoadDate
+OverseasEventSystem::ShowDetailEventsInfo
+OverseasEventSystem::LoadGlobalEvent
+OverseasEventSystem::ShowEventList
+overseas_event
+d:\_build\src\shared\LogSvcFunc_Perf.inl
+perfmon.ini
+CheckPerfMon
+Interval
+Memusage
+PerfMon
+..\..\Shared\Perfmon.cpp
+CPerfMon::Init() fail. new HCOUNTER error
+CPerfMon::Init() fail. m_nCheckPerfMon == 0
+CPerfMon::Init() skip. m_nPerfCount < 1
+Perf%dObjectName
+POQ failed %08x
+Perf%dTitle
+Perf%dCounterName
+Processor
+Perf%dInstanceName
+PAC failed %08x
+PdhMakeCounterPath %s
+% Processor Time
+PCQD failed %08x
+RP_POLL_INFO WorldRestrictinos
+RP_POLL_INFO Rewards
+RP_POLL_INFO LevelRestrictinos
+RP_POLL_INFO QuestRestrictinos
+RP_POLL_INFO RegionRestrictinos
+RP_POLL_INFO AbyssPointRestrictinos
+RP_POLL_INFO ItemRestrictinos
+RP_POLL_INFO bmAccountTypeRestrictinos
+RP_POLL_INFO bmPackTypeRestrictinos
+RP_POLL_INFO vipGradeRestrictinos
+RP_POLL_INFO bmAccountTypeRestrictions
+RP_POLL_ANSWER_USER_LIST
+PollList::InitializePollList
+..\..\SHARED\Poll.cpp
+RWLock::ReadLock(), Trying ReadLock() after WriteLock() success, file=%s, line=%d, active=%d, watingWrites=%d
+RWLock::WriteLock(), Trying WriteLock() after WriteLock() success, file=%s, line=%d, active=%d, watingWrites=%d, _writerThread=%x
+RWLock::WriteTryLock(), Trying WriteTryLock() after WriteLock() success, file=%s, line=%d, active=%d, watingWrites=%d
+RWLock::WriteUnlock(), Trying WriteUnlock() without WriteLock
+RWLock::ReadUnLock(), Trying ReadUnLock() without ReadLock
+RCULock::SlowReadLock(), Trying ReadLock() after WriteLock() success, file=%s, line=%d, active=%d, watingWrites=%d
+RCULock::WriteLock(), Trying WriteLock() after WriteLock() success, file=%s, line=%d, active=%d, watingWrites=%d, _writerThread=%x
+RCULock::WriteTryLock(), Trying WriteTryLock() after WriteLock() success, file=%s, line=%d, active=%d, watingWrites=%d
+RCULock::WriteUnlock(), Trying WriteUnlock() without WriteLock
+RCULock::SlowReadUnlock(), Trying SlowReadUnlock() without ReadLock
+..\..\SHARED\ServerReport.cpp
+error: fail to initialize iopen(%d)
+content
+error: fail to connect to server %s
+error:error while request(%d)
+Content-Type: application/x-www-form-urlencoded
+subject
+CACHED
+..\..\SHARED\SyncPacket.cpp
+CSyncPacket::OnIOCallback
+Title data(%s) is already loaded
+Failed to parse title data file(%s)
+..\..\Shared\Title.cpp
+titles.xml
+%d-%d-%d %d:%d
+Can not open %s
+..\..\Shared\Utils.cpp
+Can not load %s
+can not open file %s
+Document is empty
+%s Line:%d, Col:%d %s
+Error parsing empty tag
+garbage after root element
+Error reading attributes name
+Error reading attributes, expecting '='
+Error reading attributes value, expecting quotation
+Line:%d, Col:%d %s
+canceled
+'<' expected
+Error reading element name
+Error reading attributes
+Error reading element value, both cdata and child element exist
+Error reading element value
+Could not find ] while skipping doctype
+Could not find > while skipping doctype
+Could not find > while skipping data
+Error reading element value, CDATA close-tag is not found
+%s.tmp
+can not open %s for write
+invalid stoi argument
+stoi argument out of range
+npcs_abyss_std_monsters.xml
+npcs_test.xml
+npcs_housing.xml
+item_armors.xml
+item_accessories.xml
+item_etc.xml
+item_quest.xml
+item_weapons.xml
+npcs_npcs.xml
+npcs_monsters.xml
+npcs_std_monsters.xml
+npcs_abyss_monsters.xml
+Russia\
+%s%s%s
+%s\XML\%s%s
+%s\XML\%s
+_special
+Europe\
+Asian\
+Japan\
+China\
+Taiwan\
+Error while loading %s : invalid id(%d), must be less than %d
+Error while loading %s : ID Table Invalid State !!!
+Error while loading %s
+skill_base.xml
+OpenDividedMapXmlFiles(), Failed to load L10N %s data file, '%s', %s
+OpenDividedMapXmlFiles(), Failed to load %s data file, '%s', %s
+Error while loading %s : expecting <data> tag
+Error while loading %s : missing id attribute
+Error while loading %s : invalid id(%d), must be >= 0
+ItemID
+XML_ParseItemId
+XML_ParseSkillId
+XML_ParseGatherSkillId
+XML_ParseCombineSkillId
+XML_ParseAllSkillId
+Objects.xml
+XML_ParseGatherSourceId
+CommonDropItems.xml
+XML_ParseCommonDropId
+XML_ParseItemIdAndCount
+instance_creation.xml
+XML_ParseInsCreationId
+instance_restrict.xml
+XML_ParseInsRestrictId
+XML_ParseNPCNameId
+XML_ParseNpcIds
+ID\WorldId.xml
+XML_ParseWorldNameId
+instance_bonusattr.xml
+XML_ParseInsBonusAttrId
+XML_ParseString
+XML_ParseMultiString
+XML_ParsePCClass
+XML_ParseGameLangType
+XML_ParseWeaponType
+XML_ParseArmorType
+XML_ParseItemItemType
+XML_ParseWeaponAttackType
+XML_ParseBlessType
+XML_ParseElementalType
+XML_ParseWeatherElemenalType
+XML_ParseItemQuality
+XML_ParseItemCategory
+XML_ParseEffect
+XML_ParseItemType
+XML_ParseActionEvent
+Strings.xml
+XML_ParseBuySellType
+HyperLinks.xml
+XML_ParseStringIndexWithParam
+XML_ParseStringIndex
+..\..\Shared\XMLUtil.cpp
+HtmlPages.xml
+XML_ParseQuestId
+XML_ParseQuestCondition
+XML_ParseEnchantAssistantType
+XML_ParseStigmaType
+XML_ParseWeekday2
+npcfactions.xml
+XML_ParseCustomAnimType
+XML_ParseNPGradeNotifyReason
+XML_ParseHousingCustomizeTagList
+XML_ParseChallengeTaskType
+XML_ParseChallengeTaskUnionRewardType
+XML_ParseFameGroupId
+conditional_bonus_attr.xml
+XML_ParseWorldLootAuthType
+?333333
+?333333
+<acosf
+UUUUUU
+floorf
+?UUUUUU
+?UUUUUU
+nAsqrtf
+8Csinf
+UUUUUU
+UUUUUU
+RSDS b
+D:\_build\out\server\CacheD64.pdb
+(t('(4''(
+SymInitialize
+SymSetOptions
+SymCleanup
+StackWalk64
+SymGetModuleBase64
+SymFunctionTableAccess64
+SymFromAddr
+SymGetLineFromAddr64
+dbghelp.dll
+ODBC32.dll
+WSAResetEvent
+WSACreateEvent
+WSAEventSelect
+WSASend
+WSARecv
+WSACloseEvent
+WS2_32.dll
+VerQueryValueA
+GetFileVersionInfoSizeA
+GetFileVersionInfoA
+VERSION.dll
+InternetOpenW
+InternetOpenUrlW
+InternetReadFile
+InternetCloseHandle
+InternetOpenA
+InternetConnectA
+HttpOpenRequestA
+HttpSendRequestA
+HttpQueryInfoA
+WININET.dll
+GetTickCount64
+QueryPerformanceFrequency
+GetModuleFileNameA
+InitializeCriticalSection
+DeleteCriticalSection
+EnterCriticalSection
+LeaveCriticalSection
+CloseHandle
+OpenEventW
+GetLastError
+SetEvent
+CreateFileMappingW
+MapViewOfFile
+UnmapViewOfFile
+OpenFileMappingW
+MultiByteToWideChar
+WideCharToMultiByte
+SuspendThread
+ResumeThread
+GetLocalTime
+PostQueuedCompletionStatus
+WriteFile
+CreateFileW
+SetFilePointer
+InitializeCriticalSectionAndSpinCount
+GetFileAttributesW
+CreateFileA
+GetSystemInfo
+GetModuleFileNameW
+GetCurrentDirectoryW
+SetCurrentDirectoryW
+GetCurrentProcess
+GetCurrentThread
+DuplicateHandle
+SetProcessPriorityBoost
+WaitForSingleObject
+GetCurrentDirectoryA
+SetUnhandledExceptionFilter
+ExitProcess
+MoveFileA
+DeleteFileA
+VirtualQuery
+GetCurrentThreadId
+GetThreadId
+GetSystemTimeAsFileTime
+lstrcpyA
+GlobalMemoryStatus
+GetFileSize
+GetFileTime
+lstrlenA
+LoadLibraryA
+GetProcAddress
+GetCurrentProcessId
+FileTimeToLocalFileTime
+FileTimeToDosDateTime
+ReadFile
+GetThreadContext
+RtlCaptureContext
+CreateEventA
+CreateIoCompletionPort
+GetQueuedCompletionStatus
+QueryPerformanceCounter
+FlushFileBuffers
+SetThreadIdealProcessor
+WaitForMultipleObjects
+SwitchToThread
+SystemTimeToFileTime
+CreateDirectoryA
+CreateMutexW
+VirtualAlloc
+ReleaseMutex
+FindFirstFileW
+FindNextFileW
+OutputDebugStringW
+GetPrivateProfileIntA
+GetPrivateProfileStringA
+GlobalMemoryStatusEx
+OpenProcess
+CreateSemaphoreA
+ReleaseSemaphore
+CreateFileMappingA
+GetTimeZoneInformation
+KERNEL32.dll
+MessageBoxA
+BeginPaint
+GetWindowRect
+EndPaint
+FillRect
+InvalidateRect
+GetScrollInfo
+SetScrollInfo
+GetClientRect
+SetWindowTextW
+SendDlgItemMessageW
+EndDialog
+DialogBoxParamA
+ReleaseDC
+SetWindowTextA
+GetDlgItemTextW
+CreateWindowExW
+SendMessageA
+ShowWindow
+SetTimer
+MoveWindow
+GetKeyState
+DestroyWindow
+KillTimer
+PostQuitMessage
+IsIconic
+PostMessageA
+DefWindowProcA
+GetParent
+ScreenToClient
+SetWindowLongPtrA
+GetWindowLongPtrA
+SetCursor
+LoadCursorA
+GetCursorPos
+SetCapture
+ReleaseCapture
+MessageBoxW
+RegisterClassExA
+CreateWindowExA
+UpdateWindow
+GetMessageA
+TranslateMessage
+DispatchMessageA
+FindWindowA
+GetMenu
+CheckMenuItem
+EnableMenuItem
+USER32.dll
+GetStockObject
+SelectObject
+GetTextExtentPoint32A
+TextOutA
+GetTextExtentPoint32W
+SetTextColor
+TextOutW
+SetROP2
+CreatePen
+Rectangle
+DeleteObject
+GDI32.dll
+RegCreateKeyExW
+RegQueryValueExA
+RegCloseKey
+RegSetValueExA
+RegOpenKeyExW
+RegQueryValueExW
+RegSetValueExW
+GetUserNameA
+ADVAPI32.dll
+COMCTL32.dll
+PdhOpenQueryA
+PdhMakeCounterPathA
+PdhAddCounterA
+PdhRemoveCounter
+PdhCloseQuery
+PdhCollectQueryData
+PdhGetFormattedCounterValue
+pdh.dll
+GetProcessMemoryInfo
+GetPerformanceInfo
+PSAPI.DLL
+GetStringTypeW
+EncodePointer
+DecodePointer
+GetModuleHandleExW
+AreFileApisANSI
+CreateThread
+ExitThread
+LoadLibraryExW
+CreateDirectoryW
+IsDebuggerPresent
+IsProcessorFeaturePresent
+HeapFree
+HeapAlloc
+GetConsoleMode
+ReadConsoleW
+GetCommandLineA
+RtlPcToFileHeader
+RaiseException
+RtlLookupFunctionEntry
+RtlUnwindEx
+FatalAppExitA
+GetCPInfo
+RtlVirtualUnwind
+UnhandledExceptionFilter
+SetLastError
+CreateEventW
+TerminateProcess
+TlsAlloc
+TlsGetValue
+TlsSetValue
+TlsFree
+GetStartupInfoW
+GetTickCount
+GetModuleHandleW
+CreateSemaphoreW
+GetDateFormatW
+GetTimeFormatW
+CompareStringW
+LCMapStringW
+GetLocaleInfoW
+IsValidLocale
+GetUserDefaultLCID
+EnumSystemLocalesW
+HeapSize
+GetStdHandle
+SetConsoleCtrlHandler
+FreeLibrary
+IsValidCodePage
+GetACP
+GetOEMCP
+GetFileType
+GetConsoleCP
+GetProcessHeap
+FindClose
+FindFirstFileExW
+GetDriveTypeW
+SystemTimeToTzSpecificLocalTime
+FileTimeToSystemTime
+SetStdHandle
+SetFilePointerEx
+GetEnvironmentStringsW
+FreeEnvironmentStringsW
+HeapReAlloc
+WriteConsoleW
+SetEndOfFile
+GetFileInformationByHandle
+PeekNamedPipe
+GetFullPathNameW
+SetEnvironmentVariableA
+GetFullPathNameA
+DeleteFileW
+Copyright (c) 1992-2004 by P.J. Plauger, licensed by Dinkumware, Ltd. ALL RIGHTS RESERVED.
+                          
+abcdefghijklmnopqrstuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+                          
+abcdefghijklmnopqrstuvwxyz
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+Presence
+Friend
+GameAuction
+Game.aion.Relay
+Warehouse.aion
+GameWarehouse
+Purchase
+VirtualCurrency
+GameGroup
+Channel
+ProfileImageSrv
+kC-*.g
+------=_NextPart_000_0010_01C2ED66.1B4D8EF0--
+Content-Type: text/plain;
+	charset="ks_c_5601-1987"
+Content-Type: text/html;
+	charset="ks_c_5601-1987"
+Content-Type: application/octet-stream;
+	name="AIONErr.dmp"
+Content-Transfer-Encoding: binary
+Content-Disposition: attachment;
+	filename="AIONErr.dmp"
+RCPT To: <aionserver@ncsoft.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+	boundary="----=_NextPart_000_0010_01C2ED66.1B4D8EF0"
+This is a multi-part message in MIME format.
+------=_NextPart_000_0010_01C2ED66.1B4D8EF0
+HELO aion.ncsoft.com
+MAIL From: <AIONserver@ncsoft.com>
+.?AVinvalid_argument@std@@
+.?AVlogic_error@std@@
+.?AVlength_error@std@@
+.?AVout_of_range@std@@
+.?AVoverflow_error@std@@
+.?AVbad_function_call@std@@
+.?AVregex_error@std@@
+.?AV_Locimp@locale@std@@
+.?AVcodecvt_base@std@@
+.?AV?$num_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@
+.?AV?$num_put@DV?$ostreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@
+.?AV?$numpunct@D@std@@
+.?AV?$codecvt@DDH@std@@
+.?AV?$codecvt@_WDH@std@@
+.?AV?$codecvt@GDH@std@@
+.?AV?$ctype@G@std@@
+.?AV?$num_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@
+.?AV?$num_get@GV?$istreambuf_iterator@GU?$char_traits@G@std@@@std@@@std@@
+.?AV?$numpunct@_W@std@@
+.?AUmessages_base@std@@
+.?AUmoney_base@std@@
+.?AUtime_base@std@@
+.?AV?$num_put@_WV?$ostreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@
+.?AV?$collate@_W@std@@
+.?AV?$messages@_W@std@@
+.?AV?$money_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@
+.?AV?$money_put@_WV?$ostreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@
+.?AV?$moneypunct@_W$0A@@std@@
+.?AV?$_Mpunct@_W@std@@
+.?AV?$moneypunct@_W$00@std@@
+.?AV?$time_get@_WV?$istreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@
+.?AV?$time_put@_WV?$ostreambuf_iterator@_WU?$char_traits@_W@std@@@std@@@std@@
+.?AV?$num_put@GV?$ostreambuf_iterator@GU?$char_traits@G@std@@@std@@@std@@
+.?AV?$numpunct@G@std@@
+.?AV?$collate@G@std@@
+.?AV?$messages@G@std@@
+.?AV?$money_get@GV?$istreambuf_iterator@GU?$char_traits@G@std@@@std@@@std@@
+.?AV?$money_put@GV?$ostreambuf_iterator@GU?$char_traits@G@std@@@std@@@std@@
+.?AV?$moneypunct@G$0A@@std@@
+.?AV?$_Mpunct@G@std@@
+.?AV?$moneypunct@G$00@std@@
+.?AV?$time_get@GV?$istreambuf_iterator@GU?$char_traits@G@std@@@std@@@std@@
+.?AV?$time_put@GV?$ostreambuf_iterator@GU?$char_traits@G@std@@@std@@@std@@
+.?AV?$collate@D@std@@
+.?AV?$messages@D@std@@
+.?AV?$money_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@
+.?AV?$money_put@DV?$ostreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@
+.?AV?$moneypunct@D$0A@@std@@
+.?AV?$_Mpunct@D@std@@
+.?AV?$moneypunct@D$00@std@@
+.?AV?$time_get@DV?$istreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@
+.?AV?$time_put@DV?$ostreambuf_iterator@DU?$char_traits@D@std@@@std@@@std@@
+.?AVtype_info@@
+.?AVbad_typeid@std@@
+.?AV__non_rtti_object@std@@
+.?AVbad_exception@std@@
+.?AVDNameNode@@
+.?AVcharNode@@
+.?AVpcharNode@@
+.?AVpDNameNode@@
+.?AVDNameStatusNode@@
+.?AVpairNode@@
+.?AVPacketProfileLogger@@
+.?AVCIOObject@@
+.?AVMemoryObject@@
+.?AVViewerBase@@
+.?AV?$_Func_impl@U?$_Callable_obj@V<lambda_73780d1fefaf8f2da5eacb5702e8fd92>@@$0A@@std@@V?$allocator@V?$_Func_class@_NAEAVDBConn@@@std@@@2@_NAEAVDBConn@@@std@@
+.?AV?$_Func_impl@U?$_Callable_obj@V<lambda_c17d6e3065885c71c2feb5c613d457b4>@@$0A@@std@@V?$allocator@V?$_Func_class@_NAEAVDBConn@@@std@@@2@_NAEAVDBConn@@@std@@
+.?AV?$_Func_impl@U?$_Callable_obj@V<lambda_4239247b5a175aafed68b7eaf3fb8031>@@$0A@@std@@V?$allocator@V?$_Func_class@_NPEAVUser@@@std@@@2@_NPEAVUser@@@std@@
+.?AV?$_Func_base@_NAEAVDBConn@@@std@@
+.?AV?$_Func_base@_NPEAVUser@@@std@@
+.?AVSocket@@
+.?AVCIOSocket@@
+.?AVICSocket@@
+.?AV<lambda_73780d1fefaf8f2da5eacb5702e8fd92>@@
+.?AV<lambda_c17d6e3065885c71c2feb5c613d457b4>@@
+.?AV<lambda_4239247b5a175aafed68b7eaf3fb8031>@@
+.?AVIntSocket@@
+.?AV?$Listener@VRelaySocket@@@@
+.?AVCIOServer@@
+.?AV?$Listener@VIntSocket@@@@
+.?AVLogFile@@
+.?AVLog@@
+.?AVLogWindow@@
+.?AVMoveCharProc@@
+.?AVObjectCountLogger@@
+.?AVObjectCountViewer@@
+.?AVRelaySocket@@
+.?AVServer@@
+.?AVCSyncPacket@@
+.?AVerror_category@std@@
+.?AV_Generic_error_category@std@@
+.?AV_Iostream_error_category@std@@
+.?AV_System_error_category@std@@
+.?AVVendorDb@@
+.?AV?$basic_stringstream@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@
+.?AV?$basic_stringbuf@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@
+.?AV?$basic_streambuf@DU?$char_traits@D@std@@@std@@
+.?AV?$ctype@D@std@@
+.?AUctype_base@std@@
+.?AVfacet@locale@std@@
+.?AVbad_cast@std@@
+.?AV_Facet_base@std@@
+.?AVfailure@ios_base@std@@
+.?AVsystem_error@std@@
+.?AV_System_error@std@@
+.?AVruntime_error@std@@
+.?AVexception@std@@
+.?AV?$basic_iostream@DU?$char_traits@D@std@@@std@@
+.?AV?$basic_istream@DU?$char_traits@D@std@@@std@@
+.?AV?$basic_ostream@DU?$char_traits@D@std@@@std@@
+.?AV?$basic_ios@DU?$char_traits@D@std@@@std@@
+.?AVios_base@std@@
+.?AV?$_Iosb@H@std@@
+.?AVReplaceFileMaker@@
+.?AVFileLogAsync@@
+.?AVFileLog@@
+.?AVTryRepeatHelper@@
+.?AVGameClock@@
+.?AVCPacket@@
+.?AVCIOBuffer@@
+.?AVCPerfChecker@@
+.?AVCDeadlockChecker@@
+.?AVCIOObjectRefManager@@
+.?AVCIOTimerInstance@@
+.?AVLogClientSocket@@
+.?AVbad_alloc@std@@
+.?AVOverseasEventSystem@@
+.?AVOverseasEvent@@
+.?AVGlobalEvent@@
+.?AVOverseasEventTrigger@@
+.?AVEventNotice@@
+.?AVOverseasQuestEvent@@
+.?AVIEventTimer@@
+.?AVPollInfo@@
+.?AV?$basic_stringbuf@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@
+.?AV?$basic_istringstream@_WU?$char_traits@_W@std@@V?$allocator@_W@2@@std@@
+.?AV?$ctype@_W@std@@
+.?AV?$basic_streambuf@_WU?$char_traits@_W@std@@@std@@
+.?AV?$basic_istream@_WU?$char_traits@_W@std@@@std@@
+.?AV?$basic_ios@_WU?$char_traits@_W@std@@@std@@
+wwwwwwwwx
+wwwwwwwwwwwwp
+wpwwpwwwwwwwwp
+wpwwww
+wwpwwpwwww
+wpwwwwwpwwww
+wpwwww
+wwwpwwww
+pwwpwp
+wwwwwwwwwww
+wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<assembly xmlns='urn:schemas-microsoft-com:asm.v1' manifestVersion='1.0'>
+  <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+    <security>
+      <requestedPrivileges>
+        <requestedExecutionLevel level='asInvoker' uiAccess='false' />
+      </requestedPrivileges>
+    </security>
+  </trustInfo>
+</assembly>

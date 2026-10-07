@@ -14,6 +14,10 @@
   **MVP-код готов 07.10** (R1-R4: wire 2110 + логика live-фактов + DB-слой, тесты зелёные, probe-e2e OK) —
   [aion-authd/](aion-authd/README.md): НЕ деплоен, прод не тронут; перед свитчем нужны R0-верификация
   (procs AionAccounts, роль 2104 Server64) и R5 fork-дифф.
+  Ресёрч **AccountCacheServer** закрыт 07.10 (~90%): [ACCOUNTCACHE-RESEARCH.md](ACCOUNTCACHE-RESEARCH.md) + [accountcache-ref/](accountcache-ref/).
+  Ресёрч **CacheD64 (мир-кэш, 2006)** закрыт 08.10 (~85%, R0 готов): [CACHE-RESEARCH.md](CACHE-RESEARCH.md) + [cached-ref/](cached-ref/) —
+  PDB 106МБ+map сняты, словари RQ 382/RP 255/GQ 55/GP 53, класс-карта (DbToServer 303/ServerToDb 192/Admin 33+17/IC),
+  DB-контракт 781/789 procs в нашей БД; публичный передний край = НОЛЬ; следующий шаг R1 = pktmon capture 2006.
 
 **Джекпот проекта:** на VM лежат родные PDB-символы NC ко всем ключевым нативным бинарям (~1.1 ГБ; локально скачаны малые, MD5-манифест гигантов: [manifest-pdb-big.md](manifest-pdb-big.md), бинарей: [manifest-bin.md](manifest-bin.md)).
 

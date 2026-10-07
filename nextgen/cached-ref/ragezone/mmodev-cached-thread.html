@@ -1,0 +1,2888 @@
+<!DOCTYPE html>
+<html id="XF" lang="ru-RU" dir="LTR"
+	data-xf="2.3"
+	data-app="public"
+	
+	
+	data-template="xfrm_thread_view_type_resource"
+	data-container-key="node-22"
+	data-content-key="thread-2191"
+	data-logged-in="false"
+	data-cookie-prefix="xf_"
+	data-csrf="1791338863,73dd8580a7b069061ac5a3ac2b614a21"
+	class="has-no-js template-xfrm_thread_view_type_resource"
+	>
+<head>
+	
+		<link rel="amphtml" href="https://mmo-dev.info/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/?amp=1">
+	
+
+	
+	
+	
+
+	<meta charset="utf-8" />
+	<title>Мануал - Сбрасываем настройки CacheD и L2AuthD | Администраторы и разработчики игровых серверов</title>
+	<link rel="manifest" href="/webmanifest.php">
+
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+	
+
+	
+		
+			
+				
+		
+			<meta name="theme-color" media="(prefers-color-scheme: light)" content="#1f415d" />
+		
+	
+				
+		
+			<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#1f415d" />
+		
+	
+			
+		
+	
+
+	<meta name="apple-mobile-web-app-title" content="MMO-DEV">
+	
+		<link rel="apple-touch-icon" href="/styles/mmo-develop/pwa/192.png">
+		
+
+	
+		
+		<meta name="description" content="Пуск -&gt; Выполнить -&gt; Открыть: regedt32 -&gt; ОК
+Нас будут интересовать разделы
+
+[-private-data-62-0-]Находим в них PROJECT_L2 и NCSoft если есть.
+Ищем записи..." />
+		<meta property="og:description" content="Пуск -&gt; Выполнить -&gt; Открыть: regedt32 -&gt; ОК
+Нас будут интересовать разделы
+
+[-private-data-62-0-]Находим в них PROJECT_L2 и NCSoft если есть.
+Ищем записи где упоминается conn и удаляем их." />
+		<meta property="twitter:description" content="Пуск -&gt; Выполнить -&gt; Открыть: regedt32 -&gt; ОК
+Нас будут интересовать разделы
+
+[-private-data-62-0-]Находим в них PROJECT_L2 и NCSoft если есть.
+Ищем записи где упоминается conn и удаляем их." />
+	
+	
+		<meta property="og:url" content="https://mmo-dev.info/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/" />
+	
+		<link rel="canonical" href="https://mmo-dev.info/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/" />
+	
+
+	
+		
+	
+	
+	<meta property="og:site_name" content="Администраторы и разработчики игровых серверов" />
+
+
+	
+	
+		
+	
+	
+	<meta property="og:type" content="website" />
+
+
+	
+	
+		
+	
+	
+	
+		<meta property="og:title" content="Мануал - Сбрасываем настройки CacheD и L2AuthD" />
+		<meta property="twitter:title" content="Мануал - Сбрасываем настройки CacheD и L2AuthD" />
+	
+
+
+	
+	
+	
+	
+		
+	
+	
+	
+		<meta property="og:image" content="https://mmo-dev.info/styles/mmo-develop/logo.og.png" />
+		<meta property="twitter:image" content="https://mmo-dev.info/styles/mmo-develop/logo.og.png" />
+		<meta property="twitter:card" content="summary" />
+	
+
+
+	
+
+	
+
+
+
+	
+	
+		
+	
+	
+
+	<link rel="stylesheet" href="/css.php?css=public%3Anormalize.css%2Cpublic%3Afa.css%2Cpublic%3Avariations.less%2Cpublic%3Acore.less%2Cpublic%3Aapp.less&amp;s=2&amp;l=2&amp;d=1791026792&amp;k=b67a1451bcd608001d3c70269b33565e94fd5c9b" />
+
+	<link rel="stylesheet" href="/css.php?css=public%3Ames_share_controls.less%2Cpublic%3Amessage.less%2Cpublic%3Ammo_medals.less%2Cpublic%3Ammo_telegramemoji.less%2Cpublic%3Amre_reaction_ess.less%2Cpublic%3Amrs_message.less%2Cpublic%3Amsi_steam_user_banner.less%2Cpublic%3Anf_giftupgrades.less%2Cpublic%3Anotices.less%2Cpublic%3Ashare_controls.less%2Cpublic%3Astructured_list.less%2Cpublic%3Aextra.less&amp;s=2&amp;l=2&amp;d=1791026792&amp;k=3c4ffc591f7f27a6f5608dc53ebb2af45eb39b24" />
+
+
+	
+		<script src="/js/xf/preamble.min.js?_v=69562360"></script>
+	
+
+	
+	<script src="/js/vendor/vendor-compiled.js?_v=69562360" defer></script>
+	<script src="/js/xf/core-compiled.js?_v=69562360" defer></script>
+
+	<script>
+		XF.ready(() =>
+		{
+			XF.extendObject(true, XF.config, {
+				// 
+centrifugo: {
+   host: '',
+   path: '',
+   token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIwIiwiZXhwIjoxNzkxMzgyMDYzfQ.fzziEQ9s0As47Mh6Om1KIcwvL3Jc0ZONC_JMa2q4MeI',
+   instance: '',
+},
+
+				userId: 0,
+				enablePush: true,
+				pushAppServerKey: 'BMSbngBiYaEVM35/cwdZetnMZ9fg9HEyo8vpj/oHEttMDYSs0MpD7YuxZhHlNmsbOxMsLiAkY8YtLdLcj0YiHg4=',
+				url: {
+					fullBase: 'https://mmo-dev.info/',
+					basePath: '/',
+					css: '/css.php?css=__SENTINEL__&s=2&l=2&d=1791026792',
+					js: '/js/__SENTINEL__?_v=69562360',
+					icon: '/data/local/icons/__VARIANT__.svg?v=1791026792#__NAME__',
+					iconInline: '/styles/fa/__VARIANT__/__NAME__.svg?v=5.15.3',
+					keepAlive: '/login/keep-alive'
+				},
+				cookie: {
+					path: '/',
+					domain: '',
+					prefix: 'xf_',
+					secure: true,
+					consentMode: 'simple',
+					consented: ["optional","_third_party"]
+				},
+				cacheKey: 'f3ed7234243583f554e27d349fe769c5',
+				csrf: '1791338863,73dd8580a7b069061ac5a3ac2b614a21',
+				js: {"\/js\/MMO\/ReactionEss\/reaction-motion.min.js?_v=69562360":true,"\/js\/sv\/lib\/link-post.min.js?_v=69562360":true,"\/js\/TC\/ComponentLibrary\/pluralization.min.js?_v=69562360":true,"\/js\/TC\/ComponentLibrary\/time.min.js?_v=69562360":true,"\/js\/MMO\/TelegramEmoji\/vendor\/lottie_light_canvas.min.js?_v=69562360":true,"\/js\/MMO\/TelegramEmoji\/animated-emoji.min.js?_v=69562360":true},
+				fullJs: false,
+				css: {"public:mes_share_controls.less":true,"public:message.less":true,"public:mmo_medals.less":true,"public:mmo_telegramemoji.less":true,"public:mre_reaction_ess.less":true,"public:mrs_message.less":true,"public:msi_steam_user_banner.less":true,"public:nf_giftupgrades.less":true,"public:notices.less":true,"public:share_controls.less":true,"public:structured_list.less":true,"public:extra.less":true},
+				time: {
+					now: 1791338863,
+					today: 1791320400,
+					todayDow: 3,
+					tomorrow: 1791406800,
+					yesterday: 1791234000,
+					week: 1790802000,
+					month: 1790802000,
+					year: 1767214800
+				},
+				style: {
+					light: 'default',
+					dark: 'alternate',
+					defaultColorScheme: 'light'
+				},
+				borderSizeFeature: '3px',
+				fontAwesomeWeight: 'r',
+				enableRtnProtect: true,
+				
+				enableFormSubmitSticky: true,
+				imageOptimization: 'optimize',
+				imageOptimizationQuality: 0.85,
+				uploadMaxFilesize: 131072000,
+				uploadMaxWidth: 0,
+				uploadMaxHeight: 0,
+				allowedVideoExtensions: ["m4v","mov","mp4","mp4v","mpeg","mpg","ogv","webm"],
+				allowedAudioExtensions: ["mp3","opus","ogg","wav"],
+				shortcodeToEmoji: true,
+				visitorCounts: {
+					conversations_unread: '0',
+					alerts_unviewed: '0',
+					total_unread: '0',
+					title_count: true,
+					icon_indicator: true
+				},
+				jsMt: {"xf\/action.js":"cd918c38","xf\/embed.js":"50cc3d3e","xf\/form.js":"a1ebc378","xf\/structure.js":"ffb39af3","xf\/tooltip.js":"a1ebc378"},
+				jsState: {},
+				publicMetadataLogoUrl: 'https://mmo-dev.info/styles/mmo-develop/logo.og.png',
+				publicPushBadgeUrl: 'https://mmo-dev.info/styles/default/xenforo/bell.png'
+			})
+
+			XF.extendObject(XF.phrases, {
+				// 
+mc_chat_x_writing_message: "{username} печатает...",
+mc_chat_x_and_y_writing_message: "{username1} и {username2} печатают...",
+mc_chat_x_y_and_z_more_writing_message: "{username1}, {username2} и ещё {count} печатают...",
+mc_chat_status_connected: "Подключен",
+mc_chat_status_connecting: "Подключение...",
+mc_chat_status_hint: "Введите /l, чтобы увидеть доступные команды",
+mc_chat_status_error: "Error: {error}",
+"time.day": "{count} day",
+"time.days": "{count} дней",
+"time.hour": "{count} hour",
+"time.hours": "{count} часов",
+"time.minute": "{count} minute",
+"time.minutes": "{count} минут",
+"time.month": "{count} month",
+"time.months": "{count} месяцев",
+"time.second": "{count} second",
+"time.seconds": "{count} секунд",
+"time.week": "time.week",
+"time.weeks": "{count} недель",
+"time.year": "{count} year",
+"time.years": "{count} лет",
+			tc_clib_time_x_years: "{plural\n    number=\"{years}\"\n    one=\"#n year\"\n    other=\"#n years\"\n}",
+			tc_clib_time_x_years_fallback: "{years} years",
+			tc_clib_time_x_months: "{plural\n    number=\"{months}\"\n    one=\"#n month\"\n    other=\"#n months\"\n}",
+			tc_clib_time_x_months_fallback: "{months} months",
+			tc_clib_time_x_days: "{plural\n    number=\"{days}\"\n    one=\"#n day\"\n    other=\"#n days\"\n}",
+			tc_clib_time_x_days_fallback: "{days} days",
+			tc_clib_time_x_hours: "{plural\n    number=\"{hours}\"\n    one=\"#n hour\"\n    other=\"#n hours\"\n}",
+			tc_clib_time_x_hours_fallback: "{hours} hours",
+			tc_clib_time_x_minutes: "{plural\n    number=\"{minutes}\"\n    one=\"#n minute\"\n    other=\"#n minutes\"\n}",
+			tc_clib_time_x_minutes_fallback: "{minutes} minutes",
+			tc_clib_time_x_seconds: "{plural\n    number=\"{seconds}\"\n    one=\"#n second\"\n    other=\"#n seconds\"\n}",
+			tc_clib_time_x_seconds_fallback: "{seconds} seconds",
+			tc_clib_x_ago: "{time} ago",
+			dbtech_donate_hour: 	"час",
+			dbtech_donate_hours: 	"часов",
+			dbtech_donate_minute: 	"минут",
+			dbtech_donate_minutes: 	"минут",
+			dbtech_donate_second:  	"секунд",
+			dbtech_donate_seconds: 	"секунд",
+			dbtech_donate_day:  	"день",
+			dbtech_donate_days: 	"дня",
+			dbtech_donate_week:  	"неделю",
+			dbtech_donate_weeks: 	"недели",
+			dbtech_donate_month:  	"month",
+			dbtech_donate_months: 	"months",
+
+				date_x_at_time_y:     "{date} в {time}",
+				day_x_at_time_y:      "{day} в {time}",
+				yesterday_at_x:       "Вчера в {time}",
+				x_minutes_ago:        "{minutes} мин. назад",
+				one_minute_ago:       "1 минуту назад",
+				a_moment_ago:         "Только что",
+				today_at_x:           "Сегодня в {time}",
+				in_a_moment:          "В настоящее время",
+				in_a_minute:          "Менее минуты назад",
+				in_x_minutes:         "Через {minutes} мин.",
+				later_today_at_x:     "Сегодня в {time}",
+				tomorrow_at_x:        "Завтра в {time}",
+				short_date_x_minutes: "{minutes}м",
+				short_date_x_hours:   "{hours}ч",
+				short_date_x_days:    "{days}д",
+
+				day0: "Воскресенье",
+				day1: "Понедельник",
+				day2: "Вторник",
+				day3: "Среда",
+				day4: "Четверг",
+				day5: "Пятница",
+				day6: "Суббота",
+
+				dayShort0: "Вс",
+				dayShort1: "Пн",
+				dayShort2: "Вт",
+				dayShort3: "Ср",
+				dayShort4: "Чт",
+				dayShort5: "Пт",
+				dayShort6: "Сб",
+
+				month0: "Январь",
+				month1: "Февраль",
+				month2: "Март",
+				month3: "Апрель",
+				month4: "Май",
+				month5: "Июнь",
+				month6: "Июль",
+				month7: "Август",
+				month8: "Сентябрь",
+				month9: "Октябрь",
+				month10: "Ноябрь",
+				month11: "Декабрь",
+
+				active_user_changed_reload_page: "Ваша сессия истекла. Перезагрузите страницу.",
+				server_did_not_respond_in_time_try_again: "Сервер не ответил вовремя. Пожалуйста, попробуйте снова.",
+				oops_we_ran_into_some_problems: "Упс! Мы столкнулись с некоторыми проблемами.",
+				oops_we_ran_into_some_problems_more_details_console: "Упс! Мы столкнулись с некоторыми проблемами. Пожалуйста, попробуйте позже. Более детальную информацию об ошибке Вы можете посмотреть в консоли браузера.",
+				file_too_large_to_upload: "Файл слишком большой для загрузки.",
+				uploaded_file_is_too_large_for_server_to_process: "Загруженный файл слишком большой для обработки сервером.",
+				files_being_uploaded_are_you_sure: "Файлы все ещё загружаются. Вы действительно хотите отправить эту форму?",
+				attach: "Прикрепить файлы",
+				rich_text_box: "Текстовое поле с поддержкой форматирования",
+				close: "Закрыть",
+				link_copied_to_clipboard: "Ссылка скопирована в буфер обмена.",
+				text_copied_to_clipboard: "Скопировано в буфер обмена",
+				loading: "Загрузка…",
+				you_have_exceeded_maximum_number_of_selectable_items: "Вы превысили максимальное количество выбираемых элементов.",
+
+				processing: "Обработка",
+				'processing...': "Обработка…",
+
+				showing_x_of_y_items: "Показано {count} из {total} элемент(ов)",
+				showing_all_items: "Показаны все элементы",
+				no_items_to_display: "Нет элементов для отображения",
+
+				number_button_up: "Увеличить",
+				number_button_down: "Уменьшить",
+
+				push_enable_notification_title: "Push-уведомления для сайта Администраторы и разработчики игровых серверов успешно активированы",
+				push_enable_notification_body: "Спасибо за активацию push-уведомлений!",
+
+				pull_down_to_refresh: "Потяните вниз, чтобы обновить",
+				release_to_refresh: "Отпустите для обновления",
+				refreshing: "Обновление…"
+			})
+		})
+	</script>
+
+	<script src="/js/MMO/ReactionEss/reaction-motion.min.js?_v=69562360" defer></script>
+<script src="/js/sv/lib/link-post.min.js?_v=69562360" defer></script>
+<script src="/js/TC/ComponentLibrary/pluralization.min.js?_v=69562360" defer></script>
+<script src="/js/TC/ComponentLibrary/time.min.js?_v=69562360" defer></script>
+<script src="/js/MMO/TelegramEmoji/vendor/lottie_light_canvas.min.js?_v=69562360" defer></script>
+<script src="/js/MMO/TelegramEmoji/animated-emoji.min.js?_v=69562360" defer></script>
+<script>
+XF.ready(() =>
+{
+window.MMO = window.MMO || {};MMO.ReactionEss = MMO.ReactionEss || {};MMO.ReactionEss.reactionAnimations = MMO.ReactionEss.reactionAnimations || {};XF.extendObject(MMO.ReactionEss.reactionAnimations, {"1":{"preview":{"file":"U+1F44D_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F44D_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F44D_1.128.webp","thumbnail_version":"0cd9b9b4"},"activate":{"file":"U+1F44D_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F44D_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F44D_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F44D_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F44D_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F44D_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"7":{"preview":{"file":"U+1F44E_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F44E_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F44E_1.128.webp","thumbnail_version":"0cd9b9b4"},"activate":{"file":"U+1F44E_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F44E_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F44E_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F44E_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F44E_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F44E_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"2":{"preview":{"file":"U+1F60D_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F60D_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F60D_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F60D_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F60D_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F60D_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F60D_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F60D_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F60D_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"18":{"preview":{"file":"U+2764_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+2764_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+2764_1.128.webp","thumbnail_version":"9e5bcc9b"},"activate":{"file":"U+2764_2.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+2764_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+2764_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+2764_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+2764_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+2764_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"3":{"preview":{"file":"U+1F923_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F923_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F923_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F923_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F923_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F923_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F923_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F923_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F923_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"9":{"preview":{"file":"U+1F921_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F921_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F921_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F921_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F921_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F921_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F921_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F921_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F921_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"4":{"preview":{"file":"U+1F632_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F632_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F632_1.128.webp","thumbnail_version":"63237bde"},"effect":{"files":["U+1F4A5_1.tgs","U+1F4A5_2.tgs","U+1F4A5_3.tgs","U+1F4A5_4.tgs","U+1F4A5_5.tgs","U+1F4A5_6.tgs"],"url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","versions":{"U+1F4A5_1.tgs":"ebed514d","U+1F4A5_2.tgs":"ebed514d","U+1F4A5_3.tgs":"ebed514d","U+1F4A5_4.tgs":"ebed514d","U+1F4A5_5.tgs":"ebed514d","U+1F4A5_6.tgs":"ebed514d"}}},"10":{"preview":{"file":"U+1F37F_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F37F_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F37F_1.128.webp","thumbnail_version":"0cd9b9b4"},"effect":{"files":["U+1F4A5_1.tgs","U+1F4A5_2.tgs","U+1F4A5_3.tgs","U+1F4A5_4.tgs","U+1F4A5_5.tgs","U+1F4A5_6.tgs"],"url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","versions":{"U+1F4A5_1.tgs":"ebed514d","U+1F4A5_2.tgs":"ebed514d","U+1F4A5_3.tgs":"ebed514d","U+1F4A5_4.tgs":"ebed514d","U+1F4A5_5.tgs":"ebed514d","U+1F4A5_6.tgs":"ebed514d"}}},"5":{"preview":{"file":"U+1F641_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F641_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F641_1.128.webp","thumbnail_version":"63237bde"},"effect":{"files":["U+1F4A5_1.tgs","U+1F4A5_2.tgs","U+1F4A5_3.tgs","U+1F4A5_4.tgs","U+1F4A5_5.tgs","U+1F4A5_6.tgs"],"url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","versions":{"U+1F4A5_1.tgs":"ebed514d","U+1F4A5_2.tgs":"ebed514d","U+1F4A5_3.tgs":"ebed514d","U+1F4A5_4.tgs":"ebed514d","U+1F4A5_5.tgs":"ebed514d","U+1F4A5_6.tgs":"ebed514d"}}},"11":{"preview":{"file":"U+1F62D_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F62D_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F62D_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F62D_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F62D_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F62D_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F62D_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F62D_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F62D_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"6":{"preview":{"file":"U+1F621_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F621_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F621_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F621_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F621_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F621_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F621_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F621_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F621_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"8":{"preview":{"file":"U+1F926_U+200D_U+2642_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F926_U+200D_U+2642_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F926_U+200D_U+2642_1.128.webp","thumbnail_version":"63237bde"},"effect":{"files":["U+1F4A5_1.tgs","U+1F4A5_2.tgs","U+1F4A5_3.tgs","U+1F4A5_4.tgs","U+1F4A5_5.tgs","U+1F4A5_6.tgs"],"url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","versions":{"U+1F4A5_1.tgs":"ebed514d","U+1F4A5_2.tgs":"ebed514d","U+1F4A5_3.tgs":"ebed514d","U+1F4A5_4.tgs":"ebed514d","U+1F4A5_5.tgs":"ebed514d","U+1F4A5_6.tgs":"ebed514d"}}},"12":{"preview":{"file":"U+1F48A_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F48A_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F48A_1.128.webp","thumbnail_version":"0cd9b9b4"},"activate":{"file":"U+1F48A_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F48A_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F48A_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F48A_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F48A_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F48A_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"19":{"preview":{"file":"U+1F691_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F691_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F691_1.128.webp","thumbnail_version":"63237bde"},"effect":{"files":["U+1F4A5_1.tgs","U+1F4A5_2.tgs","U+1F4A5_3.tgs","U+1F4A5_4.tgs","U+1F4A5_5.tgs","U+1F4A5_6.tgs"],"url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","versions":{"U+1F4A5_1.tgs":"ebed514d","U+1F4A5_2.tgs":"ebed514d","U+1F4A5_3.tgs":"ebed514d","U+1F4A5_4.tgs":"ebed514d","U+1F4A5_5.tgs":"ebed514d","U+1F4A5_6.tgs":"ebed514d"}}},"13":{"preview":{"file":"U+1F525_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F525_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F525_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F525_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F525_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F525_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F525_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F525_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F525_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"14":{"preview":{"file":"U+1F5FF_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F5FF_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F5FF_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F5FF_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F5FF_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F5FF_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F5FF_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F5FF_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F5FF_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"15":{"preview":{"file":"U+1F4A9_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F4A9_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F4A9_1.128.webp","thumbnail_version":"0cd9b9b4"},"activate":{"file":"U+1F4A9_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F4A9_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F4A9_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F4A9_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F4A9_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F4A9_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}},"16":{"preview":{"file":"U+1F62E_U+200D_U+1F4A8_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F62E_U+200D_U+1F4A8_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F62E_U+200D_U+1F4A8_1.128.webp","thumbnail_version":"63237bde"},"effect":{"files":["U+1F4A5_1.tgs","U+1F4A5_2.tgs","U+1F4A5_3.tgs","U+1F4A5_4.tgs","U+1F4A5_5.tgs","U+1F4A5_6.tgs"],"url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","versions":{"U+1F4A5_1.tgs":"ebed514d","U+1F4A5_2.tgs":"ebed514d","U+1F4A5_3.tgs":"ebed514d","U+1F4A5_4.tgs":"ebed514d","U+1F4A5_5.tgs":"ebed514d","U+1F4A5_6.tgs":"ebed514d"}}},"17":{"preview":{"file":"U+1F92E_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d","fitz":"","poster_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F92E_1.webp","poster_version":"90fd390b","thumbnail_url":"/styles/default/MMO/TelegramEmoji/animated-posters/U+1F92E_1.128.webp","thumbnail_version":"63237bde"},"activate":{"file":"U+1F92E_1.tgs","url":"/styles/default/MMO/TelegramEmoji/animated/","version":"ebed514d"},"appear":{"file":"U+1F92E_appear.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"select":{"file":"U+1F92E_select.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"effect":{"file":"U+1F92E_effect.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"around":{"file":"U+1F92E_around.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"},"center":{"file":"U+1F92E_center.tgs","url":"/styles/default/MMO/TelegramEmoji/reaction-effects/","version":"ebed514d"}}});XF.trigger(document, "mre:reaction-animations-ready");
+})
+</script>
+<script>
+XF.ready(() =>
+{
+
+			XF.LazyHandlerLoader.register('TC/ComponentLibrary/form.js', 'tc-asset-upload');
+			XF.LazyHandlerLoader.register('TC/ComponentLibrary/form.js', 'tc-reset-input');
+		
+})
+</script>
+
+	
+	
+
+	
+		
+	
+
+
+
+	
+		<link rel="icon" type="image/png" href="https://mmo-dev.info/favicon.ico" sizes="32x32" />
+	
+
+	
+
+</head>
+<body data-template="xfrm_thread_view_type_resource">
+
+<div class="p-pageWrapper" id="top">
+
+	
+
+	<header class="p-header" id="header">
+		<div class="p-header-inner">
+			<div class="p-header-content">
+				<div class="p-header-logo p-header-logo--image">
+					<a href="/">
+						
+
+	
+
+	
+		
+		
+
+		
+	
+		
+		
+
+		
+	
+
+	
+
+	<picture data-variations="{&quot;default&quot;:{&quot;1&quot;:&quot;\/styles\/mmo-develop\/logo.png&quot;,&quot;2&quot;:null},&quot;alternate&quot;:{&quot;1&quot;:&quot;\/styles\/mmo-develop\/logo.png&quot;,&quot;2&quot;:null}}">
+		
+		
+		
+
+		
+			
+			
+			
+
+			
+		
+
+		<img src="/styles/mmo-develop/logo.png"  width="" height="" alt="Администраторы и разработчики игровых серверов"  />
+	</picture>
+
+
+					</a>
+				</div>
+
+				
+			</div>
+		</div>
+	</header>
+
+	
+	
+
+	
+		<div class="p-navSticky p-navSticky--all" data-xf-init="sticky-header">
+			
+		<nav class="p-nav">
+			<div class="p-nav-inner">
+				<button type="button" class="button button--plain p-nav-menuTrigger" data-xf-click="off-canvas" data-menu=".js-headerOffCanvasMenu" tabindex="0" aria-label="Меню"><span class="button-text">
+					<i aria-hidden="true"></i>
+				</span></button>
+
+				<div class="p-nav-smallLogo">
+					<a href="/">
+						
+
+	
+
+	
+		
+		
+
+		
+	
+		
+		
+
+		
+	
+
+	
+
+	<picture data-variations="{&quot;default&quot;:{&quot;1&quot;:&quot;\/styles\/mmo-develop\/logo.png&quot;,&quot;2&quot;:null},&quot;alternate&quot;:{&quot;1&quot;:&quot;\/styles\/mmo-develop\/logo.png&quot;,&quot;2&quot;:null}}">
+		
+		
+		
+
+		
+			
+			
+			
+
+			
+		
+
+		<img src="/styles/mmo-develop/logo.png"  width="" height="" alt="Администраторы и разработчики игровых серверов"  />
+	</picture>
+
+
+					</a>
+				</div>
+
+				<div class="p-nav-scroller hScroller" data-xf-init="h-scroller" data-auto-scroll=".p-navEl.is-selected">
+					<div class="hScroller-scroll">
+						<ul class="p-nav-list js-offCanvasNavSource">
+							
+								<li>
+									
+
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/rules/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="mprRules">Правила</a>
+
+
+		<a data-xf-key="1"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/rules/guarantor/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="mr_guarantor">Гарант</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/verification/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="mr_verification">Верификация</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl is-selected" data-has-children="true">
+	
+
+		
+	
+	<a href="/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="forums">Форумы</a>
+
+
+		<a data-xf-key="2"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="newPosts">Новые сообщения</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="whatsNew">Что нового?</a>
+
+	
+		
+			
+	
+	
+	<a href="/featured/"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	
+	
+	data-nav-id="featured">Рекомендованное содержимое</a>
+
+	
+
+		
+			
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="whatsNewPosts">Новые сообщения</a>
+
+	
+
+		
+			
+	
+	
+	<a href="/whats-new/media/"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfmgWhatsNewNewMedia">Новые медиа</a>
+
+	
+
+		
+			
+	
+	
+	<a href="/whats-new/media-comments/"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfmgWhatsNewMediaComments">Новые комментарии к медиа</a>
+
+	
+
+		
+			
+	
+	
+	<a href="/whats-new/resources/"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfrmNewResources">Новые ресурсы</a>
+
+	
+
+		
+			
+	
+	
+	<a href="/whats-new/profile-posts/"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="whatsNewProfilePosts">Новые сообщения профилей</a>
+
+	
+
+		
+			
+	
+	
+	<a href="/whats-new/latest-activity"
+	class="menu-linkRow u-indentDepth1 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="latestActivity">Последняя активность</a>
+
+	
+
+		
+		
+			<hr class="menu-separator" />
+		
+	
+
+				
+					
+	
+	
+	<a href="/search/?type=post"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="searchForums">Поиск сообщений</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/arbitration/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="mabs">Арбитраж</a>
+
+
+		<a data-xf-key="3"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/blacklist/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="mabsBlackList">Чёрный список</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/resources/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="xfrm">Ресурсы</a>
+
+
+		<a data-xf-key="4"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/resources/latest-reviews"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="xfrmLatestReviews">Последние рецензии</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/search/?type=resource"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="xfrmSearchResources">Поиск ресурсов</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/media/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="xfmg">Медиа</a>
+
+
+		<a data-xf-key="5"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/whats-new/media/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfmgNewMedia">Новые медиа</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/media-comments/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfmgNewComments">Новые комментарии</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/search/?type=xfmg_media"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="xfmgSearchMedia">Поиск медиа</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/members/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="members">Пользователи</a>
+
+
+		<a data-xf-key="6"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/members/list/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="registeredMembers">Зарегистрированные пользователи</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/online/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="currentVisitors">Текущие посетители</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/profile-posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="newProfilePosts">Новые сообщения профилей</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/search/?type=profile_post"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="searchProfilePosts">Поиск сообщений профилей</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+						</ul>
+					</div>
+				</div>
+
+				<div class="p-nav-opposite">
+					<div class="p-navgroup p-account p-navgroup--guest">
+						
+							<a href="/login/" class="p-navgroup-link p-navgroup-link--textual p-navgroup-link--logIn"
+								data-xf-click="overlay" data-follow-redirects="on">
+								<span class="p-navgroup-linkText">Вход</span>
+							</a>
+							
+								<a href="/login/register" class="p-navgroup-link p-navgroup-link--textual p-navgroup-link--register"
+									data-xf-click="overlay" data-follow-redirects="on">
+									<span class="p-navgroup-linkText">Регистрация</span>
+								</a>
+							
+						
+					</div>
+
+					<div class="p-navgroup p-discovery">
+						<a href="/whats-new/"
+							class="p-navgroup-link p-navgroup-link--iconic p-navgroup-link--whatsnew"
+							aria-label="Что нового?"
+							title="Что нового?">
+							<i aria-hidden="true"></i>
+							<span class="p-navgroup-linkText">Что нового?</span>
+						</a>
+
+						
+							<a href="/search/"
+								class="p-navgroup-link p-navgroup-link--iconic p-navgroup-link--search"
+								data-xf-click="menu"
+								data-xf-key="/"
+								aria-label="Поиск"
+								aria-expanded="false"
+								aria-haspopup="true"
+								title="Поиск">
+								<i aria-hidden="true"></i>
+								<span class="p-navgroup-linkText">Поиск</span>
+							</a>
+							<div class="menu menu--structural menu--wide" data-menu="menu" aria-hidden="true">
+								<form action="/search/search" method="post"
+									class="menu-content"
+									data-xf-init="quick-search">
+
+									<h3 class="menu-header">Поиск</h3>
+									
+									<div class="menu-row">
+										
+											<div class="inputGroup inputGroup--joined">
+												<input type="text" class="input" data-xf-init="search-auto-complete" name="keywords" data-acurl="/search/auto-complete" data-autocomplete-filter="[]" placeholder="Поиск…" aria-label="Поиск" data-menu-autofocus="true" />
+												
+
+
+
+
+			<select name="constraints" class="js-quickSearch-constraint input" aria-label="Искать в">
+				<option value="">Везде</option>
+<option value="{&quot;search_type&quot;:&quot;post&quot;}">Темы</option>
+<option value="{&quot;search_type&quot;:&quot;post&quot;,&quot;c&quot;:{&quot;nodes&quot;:[22],&quot;child_nodes&quot;:1}}">Этот форум</option>
+<option value="{&quot;search_type&quot;:&quot;post&quot;,&quot;c&quot;:{&quot;thread&quot;:2191}}" data-suggest-optout="1">Эта тема</option>
+
+			</select>
+		
+											</div>
+										
+									</div>
+
+
+	
+		<div class="menu-row">
+			
+				
+	
+		
+		
+
+		
+			<label class="iconic"><input type="checkbox"  name="c[container_only]" value="1" /><i aria-hidden="true"></i><span class="iconic-label">Искать только в контейнерах</span></label>
+
+		
+	
+
+			
+		</div>
+	
+
+									
+									<div class="menu-row">
+										<label class="iconic"><input type="checkbox"  name="c[title_only]" value="1" /><i aria-hidden="true"></i><span class="iconic-label">Искать только в заголовках
+
+													
+													<span tabindex="0" role="button"
+														data-xf-init="tooltip" data-trigger="hover focus click" title="Теги также будут учитываться">
+
+														<i class="fa--xf far fa-question-circle  u-muted u-smaller"><svg xmlns="http://www.w3.org/2000/svg" role="img" ><title>Примечание</title><use href="/data/local/icons/regular.svg?v=1791026792#question-circle"></use></svg></i>
+													</span></span></label>
+
+									</div>
+									
+									<div class="menu-row">
+										<div class="inputGroup">
+											<span class="inputGroup-text" id="ctrl_search_menu_by_member">От:</span>
+											<input type="text" class="input" name="c[users]" data-xf-init="auto-complete" placeholder="Пользователь" aria-labelledby="ctrl_search_menu_by_member" />
+										</div>
+									</div>
+									
+	
+	
+
+<div class="menu-footer">
+									<span class="menu-footer-controls">
+										<button type="submit" class="button button--icon button--icon--search button--primary"><i class="fa--xf far fa-search "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#search"></use></svg></i><span class="button-text">Поиск</span></button>
+										<button type="submit" class="button " name="from_search_menu"><span class="button-text">Расширенный поиск…</span></button>
+									</span>
+									</div>
+
+									<input type="hidden" name="_xfToken" value="1791338863,73dd8580a7b069061ac5a3ac2b614a21" />
+								</form>
+							</div>
+						
+					</div>
+				</div>
+			</div>
+		</nav>
+	
+			
+		
+			<div class="p-sectionLinks">
+				<div class="p-sectionLinks-inner hScroller" data-xf-init="h-scroller">
+					<div class="hScroller-scroll">
+						<ul class="p-sectionLinks-list">
+							
+								<li>
+									
+
+	<div class="p-navEl " >
+	
+
+		
+	
+	<a href="/whats-new/posts/"
+	class="p-navEl-link "
+	
+	data-xf-key="alt+1"
+	data-nav-id="newPosts">Новые сообщения</a>
+
+
+		
+
+		
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl " data-has-children="true">
+	
+
+		
+	
+	<a href="/whats-new/"
+	class="p-navEl-link p-navEl-link--splitMenu "
+	
+	
+	data-nav-id="whatsNew">Что нового?</a>
+
+
+		<a data-xf-key="alt+2"
+			data-xf-click="menu"
+			data-menu-pos-ref="< .p-navEl"
+			class="p-navEl-splitTrigger"
+			role="button"
+			tabindex="0"
+			aria-label="Включает или выключает расширенный режим"
+			aria-expanded="false"
+			aria-haspopup="true"></a>
+
+		
+	
+		<div class="menu menu--structural" data-menu="menu" aria-hidden="true">
+			<div class="menu-content">
+				
+					
+	
+	
+	<a href="/featured/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	
+	
+	data-nav-id="featured">Рекомендованное содержимое</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="whatsNewPosts">Новые сообщения</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/media/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfmgWhatsNewNewMedia">Новые медиа</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/media-comments/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfmgWhatsNewMediaComments">Новые комментарии к медиа</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/resources/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="xfrmNewResources">Новые ресурсы</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/profile-posts/"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="whatsNewProfilePosts">Новые сообщения профилей</a>
+
+	
+
+				
+					
+	
+	
+	<a href="/whats-new/latest-activity"
+	class="menu-linkRow u-indentDepth0 js-offCanvasCopy "
+	 rel="nofollow"
+	
+	data-nav-id="latestActivity">Последняя активность</a>
+
+	
+
+				
+			</div>
+		</div>
+	
+	</div>
+
+
+								</li>
+							
+								<li>
+									
+
+	<div class="p-navEl " >
+	
+
+		
+	
+	<a href="/search/?type=post"
+	class="p-navEl-link "
+	
+	data-xf-key="alt+3"
+	data-nav-id="searchForums">Поиск сообщений</a>
+
+
+		
+
+		
+	
+	</div>
+
+
+								</li>
+							
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+	
+		</div>
+		
+
+	<div class="offCanvasMenu offCanvasMenu--nav js-headerOffCanvasMenu" data-menu="menu" aria-hidden="true" data-ocm-builder="navigation">
+		<div class="offCanvasMenu-backdrop" data-menu-close="true"></div>
+		<div class="offCanvasMenu-content">
+			<div class="offCanvasMenu-header">
+				Меню
+				<a class="offCanvasMenu-closer" data-menu-close="true" role="button" tabindex="0" aria-label="Закрыть"></a>
+			</div>
+			
+				<div class="p-offCanvasRegisterLink">
+					<div class="offCanvasMenu-linkHolder">
+						<a href="/login/" class="offCanvasMenu-link" data-xf-click="overlay" data-menu-close="true">
+							Вход
+						</a>
+					</div>
+					<hr class="offCanvasMenu-separator" />
+					
+						<div class="offCanvasMenu-linkHolder">
+							<a href="/login/register" class="offCanvasMenu-link" data-xf-click="overlay" data-menu-close="true">
+								Регистрация
+							</a>
+						</div>
+						<hr class="offCanvasMenu-separator" />
+					
+				</div>
+			
+			<div class="js-offCanvasNavTarget"></div>
+			<div class="offCanvasMenu-installBanner js-installPromptContainer" style="display: none;" data-xf-init="install-prompt">
+				<div class="offCanvasMenu-installBanner-header">Установить приложение</div>
+				<button type="button" class="button js-installPromptButton"><span class="button-text">Установить</span></button>
+				<template class="js-installTemplateIOS">
+					<div class="js-installTemplateContent">
+						<div class="overlay-title">Как установить приложение на iOS</div>
+						<div class="block-body">
+							<div class="block-row">
+								<p>
+									Посмотрите видео ниже, чтобы узнать, как установить наш сайт в виде веб-приложения на главном экране.
+								</p>
+								<p style="text-align: center">
+									<video src="/styles/default/xenforo/add_to_home.mp4"
+										width="280" height="480" autoplay loop muted playsinline></video>
+								</p>
+								<p>
+									<small><strong>Примечание:</strong> Эта функция может быть недоступна в некоторых браузерах.</small>
+								</p>
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+		</div>
+	</div>
+
+	<div class="p-body">
+		<div class="p-body-inner">
+			<!--XF:EXTRA_OUTPUT-->
+
+			
+				
+	
+		
+		
+
+		<ul class="notices notices--block  js-notices"
+			data-xf-init="notices"
+			data-type="block"
+			data-scroll-interval="6">
+
+			
+				
+	<li class="notice js-notice notice--primary notice--hasImage"
+		data-notice-id="11"
+		data-delay-duration="0"
+		data-display-duration="0"
+		data-auto-dismiss=""
+		data-visibility="">
+
+		
+			<div class="notice-image"><span class="avatar avatar--s avatar--default avatar--default--text" data-user-id="0">
+			<span class="avatar-u0-s"></span> 
+		</span></div>
+		
+		<div class="notice-content">
+			
+			<div align="center"><span style="font-size: large">Новые темы в этом разделе публикуются автоматически при добавлении файла в <a href="https://mmo-dev.info/resources/">менеджер ресурсов</a>.<br> Ручное создание новых тем невозможно.</span></div>
+		</div>
+	</li>
+
+			
+		</ul>
+	
+
+			
+
+			
+
+			
+			
+	
+		<ul class="p-breadcrumbs "
+			itemscope itemtype="https://schema.org/BreadcrumbList">
+			
+				
+
+				
+				
+
+				
+
+				
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/categories/lineage-2.3/" itemprop="item">
+			<span itemprop="name">Lineage 2</span>
+		</a>
+		<meta itemprop="position" content="1" />
+	</li>
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/forums/pts-%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80.17/" itemprop="item">
+			<span itemprop="name">PTS Сервер</span>
+		</a>
+		<meta itemprop="position" content="2" />
+	</li>
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/forums/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D0%B8-%D0%B8-%D0%BC%D0%B0%D0%BD%D1%83%D0%B0%D0%BB%D1%8B.22/" itemprop="item">
+			<span itemprop="name">Инструкции и мануалы</span>
+		</a>
+		<meta itemprop="position" content="3" />
+	</li>
+
+				
+			
+		</ul>
+	
+
+			
+
+			
+	<noscript class="js-jsWarning"><div class="blockMessage blockMessage--important blockMessage--iconic u-noJsOnly">JavaScript отключён. Чтобы полноценно использовать наш сайт, включите JavaScript в своём браузере.</div></noscript>
+
+			
+	<div class="blockMessage blockMessage--important blockMessage--iconic js-browserWarning" style="display: none">Вы используете устаревший браузер. Этот и другие сайты могут отображаться в нём некорректно.<br />Вам необходимо обновить браузер или попробовать использовать <a href="https://www.google.com/chrome/browser/" target="_blank">другой</a>.</div>
+
+
+			
+				<div class="p-body-header">
+					
+		<div class="contentRow contentRow--hideFigureNarrow">
+			<span class="contentRow-figure">
+				
+					<span  class="avatar avatar--s avatar--resourceIconDefault"><span></span><span class="u-srOnly">Иконка ресурса</span></span>
+				
+			</span>
+			<div class="contentRow-main">
+				<div class="p-title">
+					<h1 class="p-title-value">
+						
+							<span class="label label--lightGreen" dir="auto">Мануал</span><span class="label-append">&nbsp;</span>Сбрасываем настройки CacheD и L2AuthD
+						
+						
+					</h1>
+					
+				</div>
+				
+					<div class="p-description">
+						
+							
+	<ul class="listInline listInline--bullet">
+		<li>
+			<i class="fa--xf far fa-user "><svg xmlns="http://www.w3.org/2000/svg" role="img" ><title>Автор темы</title><use href="/data/local/icons/regular.svg?v=1791026792#user"></use></svg></i>
+			<span class="u-srOnly">Автор темы</span>
+
+			<i class="fa--xf fad fa-tools fa-fw "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-hidden="true"  style="color: red"><path d="M193.8 227.7L18.74 402.76a64 64 0 0 0 90.5 90.5l148.88-148.88a75.36 75.36 0 0 1 6.58-45.78zM64 472a24 24 0 1 1 24-24 24 24 0 0 1-24 24zm443.73-362.9a12 12 0 0 0-20.12-5.51L413.25 178l-67.88-11.31-11.31-67.93 74.36-74.36a12 12 0 0 0-5.66-20.16 143.92 143.92 0 0 0-136.58 37.93c-39.64 39.64-50.55 97.1-34.05 147.2l-4.43 4.43 70.9 70.9a74.25 74.25 0 0 1 85.4 13.9l7.21 7.21a141.74 141.74 0 0 0 78.61-40 143.94 143.94 0 0 0 37.91-136.71z" class="fa-secondary"/><path d="M501.1 395.7a37.36 37.36 0 0 1 0 52.7l-52.7 52.7a37.18 37.18 0 0 1-52.58.12l-.12-.12L278.6 384c-23.1-23.1-27.5-57.6-13.9-85.4L158.1 192H96L0 64 64 0l128 96v62.1l106.6 106.6a74.25 74.25 0 0 1 85.4 13.9z" class="fa-primary"/></svg></i><a href="/members/kick.1/" class="username  u-concealed" dir="auto" data-user-id="1" data-xf-init="member-tooltip"><span class="username--staff username--moderator username--admin">kick</span></a>
+		</li>
+		<li>
+			<i class="fa--xf far fa-clock "><svg xmlns="http://www.w3.org/2000/svg" role="img" ><title>Дата начала</title><use href="/data/local/icons/regular.svg?v=1791026792#clock"></use></svg></i>
+			<span class="u-srOnly">Дата начала</span>
+
+			<a href="/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/" class="u-concealed"><time  class="u-dt" dir="auto" datetime="2016-02-01T19:23:02+0300" data-timestamp="1454343782" data-date="1 Фев 2016" data-time="19:23" data-short="Фев &#039;16" title="1 Фев 2016 в 19:23">1 Фев 2016</time></a>
+		</li>
+		
+		
+			<li>
+				
+
+	
+
+	<dl class="tagList tagList--thread-2191 ">
+		<dt>
+			
+				
+		<i class="fa--xf far fa-tags "><svg xmlns="http://www.w3.org/2000/svg" role="img" ><title>Теги</title><use href="/data/local/icons/regular.svg?v=1791026792#tags"></use></svg></i>
+		<span class="u-srOnly">Теги</span>
+	
+			
+		</dt>
+		<dd>
+			<span class="js-tagList">
+				
+					
+						<a href="/tags/l2-pts/" class="tagItem tagItem--tag_l2-pts" dir="auto">
+							l2 pts
+						</a>
+					
+						<a href="/tags/lineage-2-pts/" class="tagItem tagItem--tag_lineage-2-pts" dir="auto">
+							lineage 2 pts
+						</a>
+					
+						<a href="/tags/pts/" class="tagItem tagItem--tag_pts" dir="auto">
+							pts
+						</a>
+					
+						<a href="/tags/pts-l2/" class="tagItem tagItem--tag_pts-l2" dir="auto">
+							pts l2
+						</a>
+					
+						<a href="/tags/pts-lineage-2/" class="tagItem tagItem--tag_pts-lineage-2" dir="auto">
+							pts lineage 2
+						</a>
+					
+						<a href="/tags/pts-server/" class="tagItem tagItem--tag_pts-server" dir="auto">
+							pts server
+						</a>
+					
+				
+			</span>
+		</dd>
+	</dl>
+
+
+			</li>
+		
+	</ul>
+
+						
+					</div>
+				
+			</div>
+		</div>
+	
+				</div>
+				
+
+			<div class="p-body-main  ">
+				
+				<div class="p-body-contentCol"></div>
+				
+
+				
+
+				<div class="p-body-content">
+					
+					<div class="p-body-pageContent">
+
+
+
+
+
+
+
+
+
+
+	
+	
+	
+		
+	
+	
+	
+
+
+	
+	
+	
+		
+	
+	
+	
+
+
+	
+	
+		
+	
+	
+	
+
+
+	
+	
+
+
+
+	
+		<link rel="alternate" type="application/json+oembed" href="https://mmo-dev.info/api/oembed/?url=https%3A%2F%2Fmmo-dev.info%2Fthreads%2F%25D0%25A1%25D0%25B1%25D1%2580%25D0%25B0%25D1%2581%25D1%258B%25D0%25B2%25D0%25B0%25D0%25B5%25D0%25BC-%25D0%25BD%25D0%25B0%25D1%2581%25D1%2582%25D1%2580%25D0%25BE%25D0%25B9%25D0%25BA%25D0%25B8-cached-%25D0%25B8-l2authd.2191%2F" title="Тема &#039;Сбрасываем настройки CacheD и L2AuthD&#039;" />
+	
+
+
+
+
+
+	
+		
+		
+
+		
+		
+
+		
+
+	
+
+
+		
+	
+		<div class="tabs tabs--standalone">
+			<div class="hScroller" data-xf-init="h-scroller">
+				<span class="hScroller-scroll">
+					<a class="tabs-tab " href="/resources/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.1098/">Обзор</a>
+					
+						
+						
+						
+						
+						
+						
+							<a class="tabs-tab is-active" href="/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/">Обсуждение</a>
+						
+
+					
+				</span>
+			</div>
+		</div>
+	
+
+	
+
+
+	
+	
+
+
+
+
+
+
+
+
+	
+
+
+
+	
+
+	
+
+		
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="block block--messages" data-xf-init="" data-type="post" data-href="/inline-mod/" data-search-target="*">
+
+	<span class="u-anchorTarget" id="posts"></span>
+
+	
+		
+	
+
+	
+
+	<div class="block-outer"><div class="block-outer-opposite">
+				<div class="buttonGroup">
+				
+					
+						
+						
+						
+						
+						
+
+						
+							<div class="buttonGroup-buttonWrapper">
+								<button type="button" class="button button--link menuTrigger" data-xf-click="menu" aria-expanded="false" aria-haspopup="true" title="Дополнительные настройки"><span class="button-text">&#8226;&#8226;&#8226;</span></button>
+								<div class="menu" data-menu="menu" aria-hidden="true">
+									<div class="menu-content">
+										<h4 class="menu-header">Дополнительные настройки</h4>
+										
+											
+											
+											
+											
+											
+											
+											
+											
+											
+
+
+
+											
+
+
+											
+											
+
+	<a href="/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/who-replied/" data-xf-click="overlay" class="menu-linkRow">Кто ответил?</a>
+
+
+	
+
+
+
+	
+	
+
+
+
+
+
+	
+
+											
+											
+										
+									</div>
+								</div>
+							</div>
+						
+					
+				
+				</div>
+			</div></div>
+
+	
+
+	
+		
+	<div class="block-outer js-threadStatusField"></div>
+
+	
+
+	<div class="block-container lbContainer"
+		data-xf-init="lightbox select-to-quote"
+		data-message-selector=".js-post"
+		data-lb-id="thread-2191"
+		data-lb-universal="1">
+
+		<div class="block-body js-replyNewMessageContainer">
+			
+				
+
+
+					
+
+					
+						
+
+	
+	
+
+
+	
+
+	
+	<article class="message message--post js-post js-inlineModContainer   "
+		data-author="kick"
+		data-content="post-26285"
+		id="js-post-26285"
+		>
+
+		
+
+		<span class="u-anchorTarget" id="post-26285"></span>
+
+		
+			<div class="message-inner">
+				
+					<div class="message-cell message-cell--user">
+						
+
+	<section class="message-user"
+		
+		
+		>
+
+		
+
+		<div class="message-avatar ">
+			<div class="message-avatar-wrapper">
+				<div class="tc-fb-badges message-tc-fb-badges"><span class="tc-fb-badge tc-db-userGroupBadge--staff" data-xf-init="tooltip" title="Команда форума" data-trigger="hover focus click"><i class="fa--xf far fa-shield "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#shield"></use></svg></i></span></div>
+
+
+				<a href="/members/kick.1/" class="avatar avatar--m" data-user-id="1" data-xf-init="member-tooltip">
+			<img src="/data/avatars/m/0/1.jpg?1576828562"  alt="kick" class="avatar-u1-m" width="96" height="96" /> 
+		</a>
+				
+
+
+			</div>
+		</div>
+		<div class="message-userDetails">
+			<h4 class="message-name"><i class="fa--xf fad fa-tools fa-fw "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-hidden="true"  style="color: red"><path d="M193.8 227.7L18.74 402.76a64 64 0 0 0 90.5 90.5l148.88-148.88a75.36 75.36 0 0 1 6.58-45.78zM64 472a24 24 0 1 1 24-24 24 24 0 0 1-24 24zm443.73-362.9a12 12 0 0 0-20.12-5.51L413.25 178l-67.88-11.31-11.31-67.93 74.36-74.36a12 12 0 0 0-5.66-20.16 143.92 143.92 0 0 0-136.58 37.93c-39.64 39.64-50.55 97.1-34.05 147.2l-4.43 4.43 70.9 70.9a74.25 74.25 0 0 1 85.4 13.9l7.21 7.21a141.74 141.74 0 0 0 78.61-40 143.94 143.94 0 0 0 37.91-136.71z" class="fa-secondary"/><path d="M501.1 395.7a37.36 37.36 0 0 1 0 52.7l-52.7 52.7a37.18 37.18 0 0 1-52.58.12l-.12-.12L278.6 384c-23.1-23.1-27.5-57.6-13.9-85.4L158.1 192H96L0 64 64 0l128 96v62.1l106.6 106.6a74.25 74.25 0 0 1 85.4 13.9z" class="fa-primary"/></svg></i><a href="/members/kick.1/" class="username " dir="auto" data-user-id="1" data-xf-init="member-tooltip"><span class="username--style3 username--staff username--moderator username--admin">kick</span></a></h4>
+			<h5 class="userTitle message-userTitle" dir="auto">Магистр Йода</h5>
+			<div class="userBanner userBanner userBanner--red message-userBanner"><span class="userBanner-before"></span><strong>Administrator</strong><span class="userBanner-after"></span></div>
+
+	
+
+<div class="steam-user-banner visibility-0">
+    <a href="https://steamcommunity.com/id/kickt/" target="_blank" rel="noopener">
+        <div class="image-container">
+            <img src="https://avatars.steamstatic.com/554afa7c4e9f33db2307a56a7153578c73234613.jpg" alt="kick" loading="lazy">
+        </div>
+        <div class="info-container">
+            <div class="name">kick</div>
+            <div class="visibility">Offline</div>
+        </div>
+    </a>
+</div>
+
+
+		</div>
+		
+			
+			
+				<div class="message-userExtras">
+				
+
+
+
+
+	
+    
+		<div class="message--userMedals">
+			
+				
+					
+						<div class="medal-1 i1">
+							
+								<a href="/members/kick.1/medals"  data-xf-click="overlay" data-xf-init="tooltip" title="За веру и верность форуму"><img src="/data/mmo/medals/s/0/1.jpg?1734191682" alt="За веру и верность форуму" loading="lazy" /></a>
+							
+						</div>
+					
+						<div class="medal-2 i2">
+							
+								<a href="/members/kick.1/medals"  data-xf-click="overlay" data-xf-init="tooltip" title="Отец-основатель"><img src="/data/mmo/medals/s/0/2.jpg?1734191682" alt="Отец-основатель" loading="lazy" /></a>
+							
+						</div>
+					
+				
+			
+		</div>
+    
+
+
+
+
+					
+					
+						<dl class="pairs pairs--justified">
+							<dt>Сообщения</dt>
+							<dd>7 243</dd>
+						</dl>
+					
+
+	<dl class="pairs pairs--justified">
+		<dt>Розыгрыши</dt>
+		<dd>28</dd>
+	</dl>
+
+					
+						<dl class="pairs pairs--justified">
+							<dt>Решения</dt>
+							<dd>2</dd>
+						</dl>
+					
+					
+
+	<dl class="pairs pairs--justified">
+		<dt>Репутация
+			
+		</dt>
+		<dd>
+			
+				<a href="/reputation/authors/kick.1" class="fauxBlockLink-linkRow u-concealed">6 234</a>
+			
+		</dd>
+	</dl>
+
+
+
+						<dl class="pairs pairs--justified">
+							<dt>Реакции</dt>
+							<dd>
+	<a href="/members/kick.1/reactions-info" data-xf-click="overlay" class="link">7 571</a>
+</dd>
+						</dl>
+					
+					
+						<dl class="pairs pairs--justified">
+							<dt>Баллы</dt>
+							<dd>2 718</dd>
+						</dl>
+					
+					
+					
+					
+					
+								
+				</div>
+			
+		
+		
+		<span class="message-userArrow"></span>
+	</section>
+
+					</div>
+				
+
+				
+					<div class="message-cell message-cell--main">
+					
+						<div class="message-main js-quickEditTarget">
+
+							
+								
+
+	
+
+	<header class="message-attribution message-attribution--split">
+		<ul class="message-attribution-main listInline ">
+			
+			
+			<li class="u-concealed">
+				<a href="/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/post-26285" rel="nofollow" >
+					<time  class="u-dt" dir="auto" datetime="2016-02-01T19:23:02+0300" data-timestamp="1454343782" data-date="1 Фев 2016" data-time="19:23" data-short="Фев &#039;16" title="1 Фев 2016 в 19:23">1 Фев 2016</time>
+				</a>
+			</li>
+			
+		</ul>
+
+		<ul class="message-attribution-opposite message-attribution-opposite--list ">
+			
+			<li>
+				<a href="/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/post-26285"
+					class="message-attribution-gadget"
+					data-xf-init="share-tooltip"
+					data-href="/posts/26285/share"
+					aria-label="Поделиться"
+					rel="nofollow">
+					<i class="fa--xf far fa-share-alt "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#share-alt"></use></svg></i>
+				</a>
+			</li>
+			
+				<li class="u-hidden js-embedCopy">
+					
+	<a href="javascript:"
+		data-xf-init="copy-to-clipboard"
+		data-copy-text="&lt;div class=&quot;js-xf-embed&quot; data-url=&quot;https://mmo-dev.info&quot; data-content=&quot;post-26285&quot;&gt;&lt;/div&gt;&lt;script defer src=&quot;https://mmo-dev.info/js/xf/external_embed.js?_v=69562360&quot;&gt;&lt;/script&gt;"
+		data-success="HTML-код для встраивания скопирован в буфер обмена."
+		class="">
+		<i class="fa--xf far fa-code "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#code"></use></svg></i>
+	</a>
+
+				</li>
+			
+			
+			
+				<li>
+					<a href="/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/post-26285" rel="nofollow">
+						#1
+					</a>
+				</li>
+			
+		</ul>
+	</header>
+
+							
+
+							<div class="message-content js-messageContent">
+							
+
+								
+									
+	
+
+
+
+
+
+	
+	
+
+								
+
+								
+									
+	
+
+	
+<div class="message-userContent lbContainer js-lbContainer "
+		data-lb-id="post-26285"
+		data-lb-caption-desc="kick &middot; 1 Фев 2016 в 19:23">
+
+		
+			
+
+	
+		
+	
+
+		
+
+		<article class="message-body js-selectToQuote">
+			
+				
+			
+
+			<div >
+				
+					<div class="bbWrapper"><ol>
+<li data-xf-list-type="ol">Пуск -&gt; Выполнить -&gt; Открыть: regedt32 -&gt; ОК</li>
+<li data-xf-list-type="ol">Нас будут интересовать разделы</li>
+</ol>[-private-data-62-0-]Находим в них PROJECT_L2 и NCSoft если есть.<br />
+Ищем записи где упоминается conn и удаляем их.</div>
+				
+			</div>
+
+			<div class="js-selectToQuoteEnd">&nbsp;</div>
+			
+				
+			
+		</article>
+
+		
+			
+
+	
+		
+	
+
+		
+
+		
+	</div>
+
+								
+
+								
+									
+	
+
+	
+
+								
+
+								
+									
+	
+		
+			<aside class="message-signature">
+			
+				<div class="bbWrapper"><div style="text-align: right">TU1PLURFVi5JTkZPIEZBTUlMWQ<br />
+- Я ничего в этом не понимаю. Вы специалист. Вот вам деньги, расскажите, как правильно.<br />
+- Вот так правильно.<br />
+- Я не согласен&#8203;</div></div>
+			
+			</aside>
+		
+	
+
+								
+
+							
+							</div>
+
+							
+								
+	
+
+	<footer class="message-footer">
+		
+
+		
+
+		<div class="reactionsBar js-reactionsList is-active">
+			
+
+<div class="mreReactionList-container">
+	<ul class="mreReactionList" aria-label="Реакции">
+		
+			<li class="mreReactionList-item">
+				<a class="reactionsBar-link mreReactionList-reaction js-mreReactionChip"
+					href="/posts/26285/reactions?reaction_id=1"
+					data-xf-click="overlay"
+					data-cache="false"
+					data-reaction-id="1"
+					rel="nofollow"
+					aria-label="Мне нравится: 1"
+					title="Мне нравится: 1">
+					<span class="mreReactionList-icon" aria-hidden="true">
+						<span class="reaction reaction--medium reaction--1" data-reaction-id="1"><i aria-hidden="true"></i><img src="/styles/default/MMO/TelegramEmoji/animated-posters/U+1F44D_1.128.webp?_v=0cd9b9b4" loading="lazy" width="40" height="40" class="reaction-image reaction-image--emoji js-reaction" alt="Мне нравится" title="Мне нравится" /></span>
+					</span>
+					<span class="mreReactionList-count" aria-hidden="true">1</span>
+				</a>
+			</li>
+		
+	</ul>
+</div>
+
+		</div>
+
+		<div class="js-historyTarget message-historyTarget toggleTarget" data-href="trigger-href"></div>
+
+	
+
+
+	</footer>
+
+							
+						</div>
+
+					
+					</div>
+				
+			</div>
+		
+	</article>
+
+	
+	
+
+					
+
+					
+
+
+
+
+				
+
+	
+
+
+			
+		</div>
+	</div>
+
+	
+		<div class="block-outer block-outer--after">
+			
+				
+
+				
+				
+					<div class="block-outer-opposite">
+						
+							<a href="/login/" class="button button--link button--wrap" data-xf-click="overlay"><span class="button-text">
+								Войдите или зарегистрируйтесь для ответа.
+							</span></a>
+						
+					</div>
+				
+			
+		</div>
+	
+
+	
+	
+
+</div>
+
+
+
+	
+
+
+
+
+
+
+
+
+
+	<div class="block"  data-widget-id="50" data-widget-key="xfes_thread_view_below_quick_reply_similar_threads" data-widget-definition="xfes_similar_threads">
+		<div class="block-container">
+			
+				<h3 class="block-header">Похожие темы</h3>
+
+				<div class="block-body">
+					<div class="structItemContainer">
+						
+							
+	
+		
+
+	
+
+	<div class="structItem structItem--thread is-prefix2 js-inlineModContainer js-threadListItem-1616" data-author="Romualdo">
+
+	
+		<div class="structItem-cell structItem-cell--icon">
+			<div class="structItem-iconContainer">
+				<a href="/members/romualdo.904/" class="avatar avatar--s" data-user-id="904" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/0/904.jpg?1734118751" srcset="/data/avatars/m/0/904.jpg?1734118751 2x" alt="Romualdo" class="avatar-u904-s" width="48" height="48" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--main" data-xf-init="touch-proxy">
+			
+
+			<div class="structItem-title">
+				
+				
+					
+						<span class="label label--lightGreen" dir="auto">Мануал</span>
+					
+				
+				<a href="/threads/%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-pts-%D0%BF%D0%BE%D0%B4-windows-server-2003-64bit-%D0%B8-mssql-2005-x64.1616/" class="" data-tp-primary="on" data-xf-init="preview-tooltip" data-preview-url="/threads/%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-pts-%D0%BF%D0%BE%D0%B4-windows-server-2003-64bit-%D0%B8-mssql-2005-x64.1616/preview"
+					>
+					Установка сервера PTS под Windows Server 2003 64bit и MSSQL 2005 x64
+				</a>
+			</div>
+
+			<div class="structItem-minor">
+				
+
+				
+					<ul class="structItem-parts">
+						<li><a href="/members/romualdo.904/" class="username " dir="auto" data-user-id="904" data-xf-init="member-tooltip">Romualdo</a></li>
+						<li class="structItem-startDate"><a href="/threads/%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-pts-%D0%BF%D0%BE%D0%B4-windows-server-2003-64bit-%D0%B8-mssql-2005-x64.1616/" rel="nofollow"><time  class="u-dt" dir="auto" datetime="2015-11-06T09:38:19+0300" data-timestamp="1446791899" data-date="6 Ноя 2015" data-time="09:38" data-short="Ноя &#039;15" title="6 Ноя 2015 в 09:38">6 Ноя 2015</time></a></li>
+						
+							<li><a href="/forums/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D0%B8-%D0%B8-%D0%BC%D0%B0%D0%BD%D1%83%D0%B0%D0%BB%D1%8B.22/">Инструкции и мануалы</a></li>
+						
+					</ul>
+
+					
+						<span class="structItem-pageJump">
+						
+							<a href="/threads/%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-pts-%D0%BF%D0%BE%D0%B4-windows-server-2003-64bit-%D0%B8-mssql-2005-x64.1616/page-2">2</a>
+						
+						</span>
+					
+				
+			</div>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--meta" title="Количество реакций к первому сообщению: 4">
+			<dl class="pairs pairs--justified">
+				<dt>Ответы</dt>
+				<dd>
+
+
+	<a href="/threads/%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-pts-%D0%BF%D0%BE%D0%B4-windows-server-2003-64bit-%D0%B8-mssql-2005-x64.1616/who-replied/"
+	   title="Кто ответил?"
+	   data-xf-click="overlay" data-xf-init="tooltip"
+	   >38</a>
+
+</dd>
+			</dl>
+			<dl class="pairs pairs--justified structItem-minor">
+				<dt>Просмотры</dt>
+				<dd>12К</dd>
+			</dl>
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--latest">
+			
+				<a href="/threads/%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B5%D1%80%D0%B2%D0%B5%D1%80%D0%B0-pts-%D0%BF%D0%BE%D0%B4-windows-server-2003-64bit-%D0%B8-mssql-2005-x64.1616/latest" rel="nofollow"><time  class="structItem-latestDate u-dt" dir="auto" datetime="2026-02-16T22:19:03+0300" data-timestamp="1771269543" data-date="16 Фев 2026" data-time="22:19" data-short="Фев 16" title="16 Фев 2026 в 22:19">16 Фев 2026</time></a>
+				<div class="structItem-minor">
+					
+						<a href="/members/loveforyou.26296/" class="username " dir="auto" data-user-id="26296" data-xf-init="member-tooltip">Loveforyou</a>
+					
+				</div>
+			
+		</div>
+	
+
+	
+		<div class="structItem-cell structItem-cell--icon structItem-cell--iconEnd">
+			<div class="structItem-iconContainer">
+				
+					<a href="/members/loveforyou.26296/" class="avatar avatar--xxs" data-user-id="26296" data-xf-init="member-tooltip">
+			<img src="/data/avatars/s/26/26296.jpg?1734119072"  alt="Loveforyou" class="avatar-u26296-s" width="48" height="48" /> 
+		</a>
+				
+			</div>
+		</div>
+	
+
+	</div>
+	
+
+
+						
+					</div>
+				</div>
+			
+		</div>
+	</div>
+
+
+
+
+
+<div class="blockMessage blockMessage--none">
+	
+
+	
+
+	
+		
+
+
+		<div class="shareButtons shareButtons--iconic" data-xf-init="share-buttons" data-page-url="" data-page-title="" data-page-desc="" data-page-image="">
+			<span class="u-anchorTarget" id="_xfUid-1-1791338863"></span>
+
+			
+				<span class="shareButtons-label">Поделиться:</span>
+			
+
+			<div class="shareButtons-buttons">
+				
+					
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--vk" href="#" data-href="https://vk.com/share.php?url={url}&title={title}">
+			<i class="fa--xf fab fa-vk "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#vk"></use></svg></i>
+			<span>Vk</span>
+		</a>
+		
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--ok" href="#" data-href="https://connect.ok.ru/dk?st.cmd=WidgetSharePreview&st.shareUrl={url}">
+			<i class="fa--xf fab fa-odnoklassniki "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#odnoklassniki"></use></svg></i>
+			<span>Ok</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--blogger" href="#" data-href="https://www.blogger.com/blog-this.g?u={url}&n={title}">
+			<i class="fa--xf fab fa-blogger "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#blogger"></use></svg></i>
+			<span>Blogger</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--diaspora" href="#" data-href="https://share.diasporafoundation.org/?title={title}&url={url}">
+			<i class="fa--xf fab fa-diaspora "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#diaspora"></use></svg></i>
+			<span>Diaspora</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--weibo" href="#" data-href="http://service.weibo.com/share/share.php?url={url}&appkey=&title={title}&pic=&ralateUid=">
+			<i class="fa--xf fab fa-weibo "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#weibo"></use></svg></i>
+			<span>Weibo</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--mastodon" href="#" data-href="https://mastodonshare.com/?text={title}&url={url}">
+			<i class="fa--xf fab fa-mastodon "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#mastodon"></use></svg></i>
+			<span>Mastodon</span>
+		</a>
+	
+
+
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--facebook" href="#_xfUid-1-1791338863" data-href="https://www.facebook.com/sharer.php?u={url}">
+							<i class="fa--xf fab fa-facebook-f "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#facebook-f"></use></svg></i>
+							<span>Facebook</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--twitter" href="#_xfUid-1-1791338863" data-href="https://x.com/intent/tweet?url={url}&amp;text={title}">
+							<i class="fa--xf fab fa-x "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-hidden="true" ><path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8L200.7 275.5 26.8 48H172.4L272.9 180.9 389.2 48zM364.4 421.8h39.1L151.1 88h-42L364.4 421.8z"/></svg></i>
+							<span>X (Twitter)</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--bluesky" href="#_xfUid-1-1791338863" data-href="https://bsky.app/intent/compose?text={url}">
+							<i class="fa--xf fab fa-bluesky "><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" role="img" aria-hidden="true" ><path d="M407.8 294.7c-3.3-.4-6.7-.8-10-1.3c3.4 .4 6.7 .9 10 1.3zM288 227.1C261.9 176.4 190.9 81.9 124.9 35.3C61.6-9.4 37.5-1.7 21.6 5.5C3.3 13.8 0 41.9 0 58.4S9.1 194 15 213.9c19.5 65.7 89.1 87.9 153.2 80.7c3.3-.5 6.6-.9 10-1.4c-3.3 .5-6.6 1-10 1.4C74.3 308.6-9.1 342.8 100.3 464.5C220.6 589.1 265.1 437.8 288 361.1c22.9 76.7 49.2 222.5 185.6 103.4c102.4-103.4 28.1-156-65.8-169.9c-3.3-.4-6.7-.8-10-1.3c3.4 .4 6.7 .9 10 1.3c64.1 7.1 133.6-15.1 153.2-80.7C566.9 194 576 75 576 58.4s-3.3-44.7-21.6-52.9c-15.8-7.1-40-14.9-103.2 29.8C385.1 81.9 314.1 176.4 288 227.1z"/></svg></i>
+							<span>Bluesky</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--linkedin" href="#_xfUid-1-1791338863" data-href="https://www.linkedin.com/sharing/share-offsite/?url={url}">
+							<i class="fa--xf fab fa-linkedin "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#linkedin"></use></svg></i>
+							<span>LinkedIn</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--reddit" href="#_xfUid-1-1791338863" data-href="https://reddit.com/submit?url={url}&amp;title={title}">
+							<i class="fa--xf fab fa-reddit-alien "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#reddit-alien"></use></svg></i>
+							<span>Reddit</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--pinterest" href="#_xfUid-1-1791338863" data-href="https://pinterest.com/pin/create/bookmarklet/?url={url}&amp;description={title}&amp;media={image}">
+							<i class="fa--xf fab fa-pinterest-p "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#pinterest-p"></use></svg></i>
+							<span>Pinterest</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--tumblr" href="#_xfUid-1-1791338863" data-href="https://www.tumblr.com/widgets/share/tool?canonicalUrl={url}&amp;title={title}">
+							<i class="fa--xf fab fa-tumblr "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#tumblr"></use></svg></i>
+							<span>Tumblr</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--brand shareButtons-button--whatsApp" href="#_xfUid-1-1791338863" data-href="https://api.whatsapp.com/send?text={title}&nbsp;{url}">
+							<i class="fa--xf fab fa-whatsapp "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#whatsapp"></use></svg></i>
+							<span>WhatsApp</span>
+						</a>
+					
+
+					
+
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--telegram" href="#" data-href="https://t.me/share/url?url={url}">
+			<i class="fa--xf fab fa-telegram "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#telegram"></use></svg></i>
+			<span>Telegram</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--viber" href="#" id="viber_share" data-href="https://3p3x.adj.st/?adjust_t=u783g1_kw9yml&adjust_fallback=https%3A%2F%2Fwww.viber.com%2F%3Futm_source%3DPartner%26utm_medium%3DSharebutton%26utm_campaign%3DDefault&adjust_campaign=Sharebutton&adjust_deeplink=viber://forward?text={title}%20{url}">
+			<i class="fa--xf fab fa-viber "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#viber"></use></svg></i>
+			<span>Viber</span>
+		</a>
+	
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--skype" href="#" data-href="https://web.skype.com/share?url={url}&text={title}">
+			<i class="fa--xf fab fa-skype "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#skype"></use></svg></i>
+			<span>Skype</span>
+		</a>
+	
+
+
+						<a class="shareButtons-button shareButtons-button--email" href="#_xfUid-1-1791338863" data-href="mailto:?subject={title}&amp;body={url}">
+							<i class="fa--xf far fa-envelope "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#envelope"></use></svg></i>
+							<span>Электронная почта</span>
+						</a>
+					
+
+					
+						<a class="shareButtons-button shareButtons-button--share is-hidden" href="#_xfUid-1-1791338863"
+							data-xf-init="web-share"
+							data-title="" data-text="" data-url=""
+							data-hide=".shareButtons-button:not(.shareButtons-button--share)">
+
+							<i class="fa--xf far fa-share-alt "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#share-alt"></use></svg></i>
+							<span>Поделиться</span>
+						</a>
+					
+
+					
+
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--gmail" href="#" data-href="https://mail.google.com/mail/?view=cm&su={title}&body={url}">
+			<i class="fa--xf fab fa-google "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#google"></use></svg></i>
+			<span>Google</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--yahoomail" href="#" data-href="http://compose.mail.yahoo.com/?to={url}&subject={title}&body={url}">
+			<i class="fa--xf fab fa-yahoo "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#yahoo"></use></svg></i>
+			<span>Yahoo</span>
+		</a>
+	
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--evernote" href="#" data-href="http://www.evernote.com/clip.action?url={url}&title={title}">
+			<i class="fa--xf fab fa-evernote "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#evernote"></use></svg></i>
+			<span>Evernote</span>
+		</a>
+	
+
+	
+		<a class="shareButtons-button shareButtons-button--brand shareButtons-button--xing" href="#" data-href="https://www.xing.com/spi/shares/new?url={url}">
+			<i class="fa--xf fab fa-xing "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/brands.svg?v=1791026792#xing"></use></svg></i>
+			<span>Xing</span>
+		</a>
+	
+
+
+						<a class="shareButtons-button shareButtons-button--link is-hidden" href="#_xfUid-1-1791338863" data-clipboard="{url}">
+							<i class="fa--xf far fa-link "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#link"></use></svg></i>
+							<span>Ссылка</span>
+						</a>
+					
+				
+			</div>
+		</div>
+	
+
+</div>
+
+
+
+
+
+
+
+
+
+
+</div>
+					
+				</div>
+
+				
+			</div>
+
+			
+			
+	
+		<ul class="p-breadcrumbs p-breadcrumbs--bottom"
+			itemscope itemtype="https://schema.org/BreadcrumbList">
+			
+				
+
+				
+				
+
+				
+
+				
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/categories/lineage-2.3/" itemprop="item">
+			<span itemprop="name">Lineage 2</span>
+		</a>
+		<meta itemprop="position" content="1" />
+	</li>
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/forums/pts-%D0%A1%D0%B5%D1%80%D0%B2%D0%B5%D1%80.17/" itemprop="item">
+			<span itemprop="name">PTS Сервер</span>
+		</a>
+		<meta itemprop="position" content="2" />
+	</li>
+
+				
+					
+					
+	<li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+		<a href="/forums/%D0%98%D0%BD%D1%81%D1%82%D1%80%D1%83%D0%BA%D1%86%D0%B8%D0%B8-%D0%B8-%D0%BC%D0%B0%D0%BD%D1%83%D0%B0%D0%BB%D1%8B.22/" itemprop="item">
+			<span itemprop="name">Инструкции и мануалы</span>
+		</a>
+		<meta itemprop="position" content="3" />
+	</li>
+
+				
+			
+		</ul>
+	
+
+			
+		</div>
+	</div>
+
+	<footer class="p-footer" id="footer">
+		<div class="p-footer-inner">
+
+			<div class="p-footer-row">
+				
+					<div class="p-footer-row-main">
+						<ul class="p-footer-linkList">
+							
+								
+								
+									<li>
+										
+											
+												<a href="/misc/style" data-xf-click="overlay"
+													data-xf-init="tooltip" title="Выбор стиля" rel="nofollow">
+													<i class="fa--xf far fa-paint-brush "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#paint-brush"></use></svg></i> MMO-DEVELOP
+												</a>
+											
+											
+												<a href="/misc/style-variation" rel="nofollow"
+													class="js-styleVariationsLink"
+													data-xf-init="tooltip" title="Вариация стиля"
+													data-xf-click="menu" data-z-index-ref=".u-bottomFixer" role="button" aria-expanded="false" aria-haspopup="true">
+
+													<i class="fa--xf far fa-adjust "><svg xmlns="http://www.w3.org/2000/svg" role="img" ><title>Вариация стиля</title><use href="/data/local/icons/regular.svg?v=1791026792#adjust"></use></svg></i>
+												</a>
+
+												<div class="menu" data-menu="menu" aria-hidden="true">
+													<div class="menu-content js-styleVariationsMenu">
+														
+
+	
+		
+
+	<a href="/misc/style-variation?reset=1"
+		class="menu-linkRow is-selected"
+		rel="nofollow"
+		data-xf-click="style-variation" data-variation="">
+
+		<i class="fa--xf far fa-adjust "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#adjust"></use></svg></i>
+
+		
+			Системный
+		
+	</a>
+
+
+		
+
+	<a href="/misc/style-variation?variation=default"
+		class="menu-linkRow "
+		rel="nofollow"
+		data-xf-click="style-variation" data-variation="default">
+
+		<i class="fa--xf far fa-sun "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#sun"></use></svg></i>
+
+		
+			Светлый
+		
+	</a>
+
+
+		
+
+	<a href="/misc/style-variation?variation=alternate"
+		class="menu-linkRow "
+		rel="nofollow"
+		data-xf-click="style-variation" data-variation="alternate">
+
+		<i class="fa--xf far fa-moon "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#moon"></use></svg></i>
+
+		
+			Тёмный
+		
+	</a>
+
+	
+
+	
+		
+	
+
+													</div>
+												</div>
+											
+										
+									</li>
+								
+								
+									<li><a href="/misc/language" data-xf-click="overlay"
+										data-xf-init="tooltip" title="Выбор языка" rel="nofollow">
+										<i class="fa--xf far fa-globe "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#globe"></use></svg></i> Russian (RU)</a></li>
+								
+							
+						</ul>
+					</div>
+				
+				<div class="p-footer-row-opposite">
+					<ul class="p-footer-linkList">
+						
+							
+								<li><a href="/misc/contact" data-xf-click="overlay">Обратная связь</a></li>
+							
+						
+
+						
+							<li><a href="/rules">Условия и правила</a></li>
+						
+
+						
+							<li><a href="/help/privacy-policy/">Политика конфиденциальности</a></li>
+						
+
+						
+							<li><a href="/help/">Справка</a></li>
+						
+
+						
+
+						<li><a href="/forums/-/index.rss" target="_blank" class="p-footer-rssLink" title="RSS"><span aria-hidden="true"><i class="fa--xf far fa-rss "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#rss"></use></svg></i><span class="u-srOnly">RSS</span></span></a></li>
+					</ul>
+				</div>
+			</div>
+
+			
+				<div class="p-footer-copyright">
+					
+						<a href="https://xenforo.com" class="u-concealed" dir="ltr" target="_blank" rel="sponsored noopener">Community platform by XenForo<sup>&reg;</sup> <span class="copyright">&copy; 2010-2026 XenForo Ltd.</span></a>
+						
+					
+				</div>
+			
+
+			
+		</div>
+	</footer>
+</div> <!-- closing p-pageWrapper -->
+
+<div class="u-bottomFixer js-bottomFixTarget">
+	
+	
+		
+	
+		
+		
+
+		<ul class="notices notices--bottom_fixer  js-notices"
+			data-xf-init="notices"
+			data-type="bottom_fixer"
+			data-scroll-interval="6">
+
+			
+				
+	<li class="notice js-notice notice--primary notice--cookie"
+		data-notice-id="-1"
+		data-delay-duration="0"
+		data-display-duration="0"
+		data-auto-dismiss="0"
+		data-visibility="">
+
+		
+		<div class="notice-content">
+			
+			
+	<div class="u-alignCenter">
+		На данном сайте используются файлы cookie, чтобы персонализировать содержимое и сохранить Ваш вход в систему, если Вы зарегистрируетесь.<br />
+Продолжая использовать этот сайт, Вы соглашаетесь на использование наших файлов cookie.
+	</div>
+
+	<div class="u-inputSpacer u-alignCenter">
+		<a href="/account/dismiss-notice" class="button button--icon button--icon--confirm js-noticeDismiss button--notice"><i class="fa--xf far fa-check "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#check"></use></svg></i><span class="button-text">Принять</span></a>
+		<a href="/help/cookies" class="button button--notice"><span class="button-text">Узнать больше…</span></a>
+	</div>
+
+		</div>
+	</li>
+
+			
+		</ul>
+	
+
+	
+</div>
+
+<div class="u-navButtons js-navButtons">
+	<a href="javascript:" class="button button--scroll"><span class="button-text"><i class="fa--xf far fa-arrow-left "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#arrow-left"></use></svg></i><span class="u-srOnly">Назад</span></span></a>
+</div>
+
+
+	<div class="u-scrollButtons js-scrollButtons" data-trigger-type="both">
+		<a href="#top" class="button button--scroll" data-xf-click="scroll-to"><span class="button-text"><i class="fa--xf far fa-arrow-up "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#arrow-up"></use></svg></i><span class="u-srOnly">Сверху</span></span></a>
+		
+			<a href="#footer" class="button button--scroll" data-xf-click="scroll-to"><span class="button-text"><i class="fa--xf far fa-arrow-down "><svg xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true" ><use href="/data/local/icons/regular.svg?v=1791026792#arrow-down"></use></svg></i><span class="u-srOnly">Снизу</span></span></a>
+		
+	</div>
+
+
+
+
+	<form style="display:none" hidden="hidden">
+		<input type="text" name="_xfClientLoadTime" value="" id="_xfClientLoadTime" title="_xfClientLoadTime" tabindex="-1" />
+	</form>
+
+	
+
+
+
+
+
+	
+	
+		
+		
+			<script type="application/ld+json">
+				{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "url": "https://mmo-dev.info/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/",
+    "mainEntity": {
+        "@type": "DiscussionForumPosting",
+        "@id": "https://mmo-dev.info/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/",
+        "headline": "\u0421\u0431\u0440\u0430\u0441\u044b\u0432\u0430\u0435\u043c \u043d\u0430\u0441\u0442\u0440\u043e\u0439\u043a\u0438 CacheD \u0438 L2AuthD",
+        "datePublished": "2016-02-01T16:23:02+00:00",
+        "keywords": "l2 pts, lineage 2 pts, pts, pts l2, pts lineage 2, pts server",
+        "url": "https://mmo-dev.info/threads/%D0%A1%D0%B1%D1%80%D0%B0%D1%81%D1%8B%D0%B2%D0%B0%D0%B5%D0%BC-%D0%BD%D0%B0%D1%81%D1%82%D1%80%D0%BE%D0%B9%D0%BA%D0%B8-cached-%D0%B8-l2authd.2191/",
+        "articleSection": "\u0418\u043d\u0441\u0442\u0440\u0443\u043a\u0446\u0438\u0438 \u0438 \u043c\u0430\u043d\u0443\u0430\u043b\u044b",
+        "author": {
+            "@type": "Person",
+            "@id": "https://mmo-dev.info/members/kick.1/",
+            "name": "kick",
+            "url": "https://mmo-dev.info/members/kick.1/"
+        },
+        "interactionStatistic": [
+            {
+                "@type": "InteractionCounter",
+                "interactionType": "https://schema.org/ViewAction",
+                "userInteractionCount": 1367
+            },
+            {
+                "@type": "InteractionCounter",
+                "interactionType": "https://schema.org/CommentAction",
+                "userInteractionCount": 0
+            },
+            {
+                "@type": "InteractionCounter",
+                "interactionType": "https://schema.org/LikeAction",
+                "userInteractionCount": 1
+            }
+        ],
+        "text": "\u041f\u0443\u0441\u043a -> \u0412\u044b\u043f\u043e\u043b\u043d\u0438\u0442\u044c -> \u041e\u0442\u043a\u0440\u044b\u0442\u044c: regedt32 -> \u041e\u041a\n\u041d\u0430\u0441 \u0431\u0443\u0434\u0443\u0442 \u0438\u043d\u0442\u0435\u0440\u0435\u0441\u043e\u0432\u0430\u0442\u044c \u0440\u0430\u0437\u0434\u0435\u043b\u044b\n\n[-private-data-62-0-]\u041d\u0430\u0445\u043e\u0434\u0438\u043c \u0432 \u043d\u0438\u0445 PROJECT_L2 \u0438 NCSoft \u0435\u0441\u043b\u0438 \u0435\u0441\u0442\u044c.\n\u0418\u0449\u0435\u043c \u0437\u0430\u043f\u0438\u0441\u0438 \u0433\u0434\u0435 \u0443\u043f\u043e\u043c\u0438\u043d\u0430\u0435\u0442\u0441\u044f conn \u0438 \u0443\u0434\u0430\u043b\u044f\u0435\u043c \u0438\u0445."
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u044b \u0438 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u0438 \u0438\u0433\u0440\u043e\u0432\u044b\u0445 \u0441\u0435\u0440\u0432\u0435\u0440\u043e\u0432",
+        "alternateName": "MMO-DEV",
+        "description": "\u0410\u0434\u043c\u0438\u043d\u0438\u0441\u0442\u0440\u0430\u0442\u043e\u0440\u044b \u0438 \u0440\u0430\u0437\u0440\u0430\u0431\u043e\u0442\u0447\u0438\u043a\u0438 \u0438\u0433\u0440\u043e\u0432\u044b\u0445 \u0441\u0435\u0440\u0432\u0435\u0440\u043e\u0432",
+        "url": "https://mmo-dev.info",
+        "logo": "https://mmo-dev.info/styles/mmo-develop/logo.og.png"
+    }
+}
+			</script>
+		
+	
+
+
+
+
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
