@@ -71,7 +71,7 @@ flowchart LR
 |---|---|---|---|
 | Логгер | LogServer64 `:2051` | `nextgen/aion-logd` (Go) | ✅ ~95% в бою 05.10 (Л1–Л4), откат = `schtasks /run AionLog` |
 | Капча | CAPTCHAImageServer `:22206` | `nextgen/aion-captcha` (Go) | ✅ ~95% в бою 05.10 (буфер 10000 за ~4с против 6.4 мин) |
-| Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ **100% РЕЛИЗ** (`b363dda`, exe `f146a415` 10.10): полный юзер-флоу; хвосты T2-а/T4/T6 (T3 ✅, T5 ✅) |
+| Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ **100% РЕЛИЗ** (`b363dda`, exe `f146a415` 10.10): авт-хвосты закрыты live (T3/T4/T5 ✅), остался опц. T2-а; ⚠ мир-хвост 2-го параллельного клиента (GS-вход) → aion-main |
 | Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | ✅ **R6 В БОЮ ~90% (09.10)**: живой путь 2110+2104; полный цикл юзера + мгновенный перелогин; наблюдение 24ч |
 | Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟡 ~45%: R2 каркас готов; **R1 capture = следующий чат** |
 | Кэш мира | CacheD64 `:2006/2007/2009` | `nextgen/aion-cache` (план) | 🔬 ~20%: R0+R1-prep ✅ 10.10 (опкоды всех 8 протоколов); кода нет |
