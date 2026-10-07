@@ -42,7 +42,7 @@
 | ✅ 1 | LogServer64 → aion-logd | ✅ | готово | 100% | в бою 05.10; метод capture→PDB→Go→свитч отработан |
 | ✅ 2 | CAPTCHAImageServer → aion-captcha | ✅ | готово | 100% | в бою 05.10 |
 | ✅ 3 | AuthGateD → aion-gate | ✅ | готово (тяжёлая: RSA/asm) | 100% | в бою 06.10; хвост = решающий живой логин (forkprobe) |
-| 4 | L2Authd → свой authd | ✅ НУЖЕН | 2–4 нед | ~70% | ЛУЧШИЙ следующий кандидат: wire 2110 уже раскрыт aion-gate (authdclient 1-в-1), DB-процы ap_*/web_* инвентаризованы; убирает хрупкость L2Authd |
+| **4** | **L2Authd → свой authd** | ✅ НУЖЕН | 2–4 нед | **~85%** | **СЛЕДУЮЩИЙ (ресёрч закрыт 07.10)**: полный декомпил C1 + схема БД в `authd-ref/`, L2Authd.pdb локально, wire-эталон в gate-prod.log; план [AUTHD-ROADMAP.md] (R0-R6, fork-proxy 2110 для A/B), промпт [PROMPT-AUTHD.md]; убирает хрупкость L2Authd |
 | 5 | AccountCacheServer → свой кэш | ✅ НУЖЕН (2220: authd/Server64 ходят) | 2–3 нед | ~60% | PDB 92МБ на VM; ориг стабилен — низкий приоритет |
 | 6 | ICServer → свой | ✅ НУЖЕН для старта (без него лупер «Can't connect to Interchange» у Server64+CacheD) | 1–2 мес | ~50% | PDB 104МБ; транзакционный хаб 3 сторон; пока не трогать |
 | 7 | CacheD64 → свой RAM-кэш | ✅ НУЖЕН | 1–3 мес | ~40% | RPC 2006/2007 через PDB+MITM; кэш всего мира+Strings DB |
