@@ -1,22 +1,25 @@
-# aion-op: топология стека AION 7.7 EUR (канон из эксплуатации 02–05.10.2026)
-# Phase 0 = observe: НИЧЕГО не исполняется на проде, только read-only пробы.
-# Единственный источник истины о топологии. Секреты (SSH-ключи/пароли) здесь НЕ хранятся.
+# aion-op: operator stack AION 7.7 EUR (ASCII-only config, per user rule 07.10)
+# WHO STARTS WHAT (order):
+#   SQL 1433 -> acc 2220 -> logd 2051 -> ic 2005 -> captcha 22206 -> [PA skip]
+#   -> authd 2104/2110 (orig, session 1 /IT) -> gate 2106 (nash aion-gate, /IT)
+#   -> cache 2006 -> npc 2002 (load 10-15 min) -> main 7777 (wait 16 NPC conns)
+# RULE: ALL orig NC binaries start in session 1 via /IT tasks; ours (Go) — session 0 ok.
+# NEVER start whole stack via AionAuth (auth.bat = start-all) unless full reboot.
 
 vm:
-  mode: mock              # mock | ssh
+  mode: local
   ssh_host: 192.168.0.125
   ssh_port: 22
-  ssh_user: Администратор
-  ssh_key: ""             # пусто = дефолтный ключ/агент
+  ssh_user: Administrator
+  ssh_key: ""
 
 operator:
   ui_port: 10200
-  bind: "0.0.0.0"         # вся локалка юзера; наружу не торчит (NAT закрыт) — по решению юзера
+  bind: "0.0.0.0"
   refresh_sec: 10
-  mode: observe           # observe | operate (operate требует явного dry_run: false)
-  dry_run: true           # действия только планируются (audit без исполнения). Фаза 1.5
+  mode: operate
+  dry_run: false
 
-# Порядок старта = поле order; стоп в обратном. Канон: LOG→CACHE→NPC(10–15 мин)→MAIN.
 services:
   - id: acc
     group: light
@@ -25,13 +28,21 @@ services:
     task: AionAcc
     ports: [2220]
     order: 1
+  - id: logd
+    group: light
+    display: aion-logd (nash)
+    exe: aion-logd.exe
+    task: AionLogCap
+    ports: [2051]
+    order: 2
   - id: logsrv
     group: light
-    display: LogServer64
+    display: LogServer64 (zamenen nashim logd)
     exe: LogServer64.exe
     task: AionLog
     ports: [2051]
-    order: 2
+    order: 12
+    locked: true
   - id: ic
     group: light
     display: ICServer
@@ -41,36 +52,45 @@ services:
     order: 3
   - id: captcha
     group: light
-    display: aion-captcha
+    display: aion-captcha (nash)
     exe: aion-captcha.exe
     task: AionCAPTCHA
     ports: [22206]
     order: 4
   - id: pa
     group: light
-    display: PA Server 7.7
+    display: PA Server 7.7 (DISABLE forever)
     exe: 01-PAServer7.7.exe
     task: AionPA
     ports: [10057]
     order: 5
+    locked: true
 
   - id: authd
     group: auth
-    display: L2Authd
+    display: L2Authd (orig 2104/2110)
     exe: L2Authd.exe
-    task: AionAuth
-    kill_task: AionKickAuth   # создать при переходе в operate (DEPLOY.md)
-    ports: [2104]
+    task: AionAuthOnly
+    kill_task: AionKickAuth
+    ports: [2104, 2110]
     order: 6
     interactive: true
   - id: gate
     group: auth
-    display: AuthGateD
-    exe: AuthGateD.exe
+    display: aion-gate (nash 2106)
+    exe: aion-gate.exe
     task: AionGate
-    kill_task: AionKickGate   # создать при переходе в operate (DEPLOY.md)
+    kill_task: AionKickGate
     ports: [2106]
     order: 7
+    interactive: true
+  - id: gateorig
+    group: auth
+    display: AuthGateD (orig-2109, A/B)
+    exe: AuthGateD.exe
+    task: AionGateOrig
+    ports: [2109]
+    order: 11
     interactive: true
 
   - id: cache
@@ -86,33 +106,47 @@ services:
     display: NPCSvr64
     exe: NPCSvr64.exe
     task: AionNPCit
-    kill_task: AionKickNPC2   # задача-киллер юзер-сессии (есть на VM)
+    kill_task: AionKickNPC2
     ports: []
     order: 9
     heavy: true
     pair: world_pair
   - id: main
     group: heavy
-    display: Server64 (мир)
+    display: Server64 (main)
     exe: Server64.exe
     task: AionMainit
-    kill_task: AionKickMain   # задача-киллер юзер-сессии (есть на VM)
+    kill_task: AionKickMain
     ports: [2002, 7777]
     order: 10
     heavy: true
     pair: world_pair
     pair_master: true
 
+  - id: authdn
+    group: fork
+    display: aion-authd (shadow 2117)
+    exe: aion-authd.exe
+    task: AionAuthdShadow
+    ports: [2117]
+    order: 1
+  - id: forkd
+    group: fork
+    display: forkauthd (front 2116)
+    exe: forkauthd.exe
+    task: AionForkAuthd
+    ports: [2116]
+    order: 2
+
   - id: sql
     group: sql
-    display: MSSQL (наблюдение)
+    display: MSSQL (monitoring)
     exe: sqlservr.exe
     task: ""
     ports: [1433]
     order: 0
     observe_only: true
 
-  # Мёртвые в 7.7-ките (см. nextgen/PLAN.md §4): замки, кнопок нет.
   - id: chat
     group: svc
     display: ChannelChat
@@ -155,38 +189,28 @@ services:
     locked: true
 
 groups:
-  light: { title: "Лёгкие (SYSTEM, session-0)", icon: "🟦" }
-  auth:  { title: "Auth (/IT, интерактивная сессия)", icon: "🟨" }
-  heavy: { title: "Тяжёлые: CacheD + пара NPC+MAIN", icon: "🟥" }
-  sql:   { title: "SQL (только наблюдение)", icon: "⬛" }
-  svc:   { title: "Не работает в 7.7-ките (замок)", icon: "🔒" }
+  light: { title: "Lekkie (SYSTEM/session-0; orig NC = /IT)", icon: "L" }
+  auth:  { title: "Auth (/IT, session-1)", icon: "A" }
+  heavy: { title: "Tyazhelye: CacheD + para NPC+MAIN", icon: "H" }
+  fork:  { title: "R5 fork-stend: 2116 front -> orig 2110 + shadow aion-authd 2117", icon: "F" }
+  sql:   { title: "SQL (monitoring)", icon: "S" }
+  svc:   { title: "Mertvye servisy 7.7-kita (locked)", icon: "X" }
 
 world_pair:
-  npc_port: 2002          # листенер Server64, к которому цепляется NPCSvr
-  expected_conns: 16      # 16 ESTABLISHED = мир собран
-
-# --- Phase 0.5: глаза (логи/метрики/алерты) — всё по-прежнему read-only ---
+  npc_port: 2002          # Server64 side of NPCSvr link
+  expected_conns: 16      # 16 ESTABLISHED = world assembled
 
 store:
-  path: aionop.db         # SQLite WAL (в .gitignore)
+  path: aionop.db
   retention_days: 30
 
 pprof:
-  enabled: true           # только на loopback
+  enabled: true
   addr: "127.0.0.1:10201"
 
 metrics:
-  poll_sec: 15            # срез RAM/handles/FreeCommit (read-only powershell)
+  poll_sec: 15
 
-# SQL-наблюдение: логин aionop_ro = db_datareader + VIEW SERVER STATE (read-only).
-# В репо конн НЕ хранится — он только в build/config-vm.yaml на VM (gitignored).
-sql:
-  enabled: false
-  poll_sec: 30
-  conn: ""
-
-# Хвосты логов: NC пишет .err по дням ({{date}} = YYYY-MM-DD).
-# Файл может отсутствовать — тейлер молча пропускает (новый день/не запускался).
 logs:
   poll_sec: 20
   tail_lines: 200
@@ -196,4 +220,12 @@ logs:
     - { svc: npc,    path: "D:/AION_LIVE_SERVER/NPCServer/log/{{date}}.err" }
     - { svc: logsrv, path: "D:/AION_LIVE_SERVER/LogServer/log/{{date}}.err" }
     - { svc: authd,  path: "D:/AION_LIVE_SERVER/AuthD/etc/log/{{date}}.err" }
-    - { svc: gate,   path: "D:/AION_LIVE_SERVER/AuthGateD/log/{{date}}.err" }
+    - { svc: gate,   path: "D:/SAION/aion-gate/gate-prod.log" }
+    - { svc: logd,   path: "D:/SAION/aion-logd/logd.log" }
+    - { svc: authdn, path: "D:/SAION/aion-authd/shadow.log" }
+    - { svc: forkd,  path: "D:/SAION/aion-authd/fork-authd.log" }
+
+sql:
+  enabled: true
+  poll_sec: 30
+  conn: "sqlserver://aionop_ro:СЕКРЕТ-НА-VM@127.0.0.1:1433?database=master&encrypt=disable"

@@ -22,11 +22,12 @@ import (
 	"io"
 )
 
-// inbound-типы (от гейта).
+// inbound-типы (gate→authd) и outbound ([03] greeting/assign; [01] в обе стороны).
 const (
 	FConnect    = 0x00
-	FDisconnect = 0x01
+	FDisconnect = 0x01 // [01][sid]: gate→authd — disconnect; authd→gate — unknown-session
 	FPacket     = 0x02
+	FAssigned   = 0x03 // [03][u32]: greeting/assign (authd→gate)
 )
 
 // MaxBody — лимит тела [02] (гейт: body ≤ 0x1ffb, иначе ErrTooBig + close).
@@ -48,48 +49,57 @@ type Frame struct {
 
 // ReadFrame — читает один фрейм из потока (блокирующе).
 func ReadFrame(r io.Reader) (Frame, error) {
+	_, f, err := ReadFrameRaw(r)
+	return f, err
+}
+
+// ReadFrameRaw — читает фрейм ЦЕЛИКОМ: возвращает сырые байты (для 1-в-1 релея
+// в fork-прокси) + разобранный Frame.
+func ReadFrameRaw(r io.Reader) ([]byte, Frame, error) {
 	var ft [1]byte
 	if _, err := io.ReadFull(r, ft[:]); err != nil {
-		return Frame{}, err
+		return nil, Frame{}, err
 	}
+	raw := []byte{ft[0]}
 	f := Frame{Type: ft[0]}
+	var rest []byte
 	switch ft[0] {
 	case FConnect:
-		var b [8]byte
-		if _, err := io.ReadFull(r, b[:]); err != nil {
-			return Frame{}, err
-		}
-		f.Sid = binary.LittleEndian.Uint32(b[0:4])
-		f.IP = ipFromLE(binary.LittleEndian.Uint32(b[4:8]))
-		return f, nil
-	case FDisconnect:
-		var b [4]byte
-		if _, err := io.ReadFull(r, b[:]); err != nil {
-			return Frame{}, err
-		}
-		f.Sid = binary.LittleEndian.Uint32(b[:])
-		return f, nil
+		rest = make([]byte, 8)
+	case FDisconnect, FAssigned:
+		rest = make([]byte, 4)
 	case FPacket:
 		var hdr [6]byte
 		if _, err := io.ReadFull(r, hdr[:]); err != nil {
-			return Frame{}, err
+			return nil, Frame{}, err
 		}
+		raw = append(raw, hdr[:]...)
 		f.Sid = binary.LittleEndian.Uint32(hdr[0:4])
 		body := int(binary.LittleEndian.Uint16(hdr[4:6])) - 2 // самоинклюзивный
 		if body < 1 {
-			return Frame{}, ErrShort
+			return nil, Frame{}, ErrShort
 		}
 		if body > MaxBody {
-			return Frame{}, ErrTooBig
+			return nil, Frame{}, ErrTooBig
 		}
-		f.Blob = make([]byte, body)
-		if _, err := io.ReadFull(r, f.Blob); err != nil {
-			return Frame{}, err
-		}
-		return f, nil
+		rest = make([]byte, body)
 	default:
-		return Frame{}, ErrBadFrame
+		return nil, Frame{}, ErrBadFrame
 	}
+	if _, err := io.ReadFull(r, rest); err != nil {
+		return nil, Frame{}, err
+	}
+	raw = append(raw, rest...)
+	switch ft[0] {
+	case FConnect:
+		f.Sid = binary.LittleEndian.Uint32(raw[1:5])
+		f.IP = ipFromLE(binary.LittleEndian.Uint32(raw[5:9]))
+	case FDisconnect, FAssigned:
+		f.Sid = binary.LittleEndian.Uint32(raw[1:5])
+	case FPacket:
+		f.Blob = rest
+	}
+	return raw, f, nil
 }
 
 // ipFromLE — IP из u32, прочитанного LE: октеты в BE-порядке значения.

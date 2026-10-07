@@ -55,6 +55,11 @@ messageId = реестр Mobius AionAuthResponse (уже в aion-gate `authfail.
 2 = INVALID_PASSWORD, 7 = ALREADY_LOGGED_IN, 8 = SERVER_DOWN, 22 = BAN_IP и т.д.
 Наши дефолты: badUser=2, blocked=22, db=1.
 
+**R5-дифф 07.10 (live, probe через fork):** ориг-фейл = `[02][sid][len=4][01][code u8]` —
+payload **1 БАЙТ** кода (probe: 0x14=20 SYSTEM_ERROR при неготовом мире 8/16); после фейла
+ориг шлёт `[01][sid]` (закрытие сессии authd-стороны). Наш fail теперь 1Б + Close → [01][sid].
+Клиент-совместимость: EncryptSecondary pad'ит до 8 — клиент читает [01][D mid] одинаково.
+
 ⚠ unk1 (`0xa0c69f0b`) и хвостовые dword'ы 74b-расшифровки (в форк-дампе мелькал
 `1a6bc068` на pt[56:60]) — семантика НЕ вскрыта; клиент толерантен к нулевому паду
 (доказано эмуляцией 26b/42b). Байт-паритет — арбитр R5 fork-дифф O-vs-N.

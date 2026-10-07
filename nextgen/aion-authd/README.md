@@ -55,6 +55,15 @@ go build -o aion-authd-linux . && ./aion-authd-linux -config config.yaml        
 - `store`: map-стор (seed live-uid), ErrNotFound, blocks.
 - `ship`: копия из aion-logd (App-имя = aion-authd 2110).
 
+## R5 fork-стенд (07.10, ЖИВОЙ на VM)
+
+Топология: `aion-gate (2106) → forkauthd (:2116) → ориг L2Authd (:2110, живой путь юзера)
++ копия всех фреймов → aion-authd shadow (:2117)`. Ответы shadow НЕ идут юзеру; лог
+`D:\SAION\aion-authd\fork-authd.log`: `C>/O>/N>` + VERDICT=SAME/DIFF по ключу (frame,sid,type).
+Управление — через aion-op (группа fork: authdn/forkd, кнопки start/stop/restart).
+Первые дифф-факты: greeting SAME; ориг-фейл = payload 1Б кода + [01][sid] после; ориг
+отвечает SYSTEM_ERROR(20) на login пока мир не собран (8/16 conns).
+
 ## ⚠ Перед R6 (свитч) — блокеры
 
 1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: его канал нужно

@@ -205,6 +205,10 @@ func (g *gateConn) reply(ses *logic.GateSession, rep *logic.Reply) {
 		return
 	}
 	g.write(fr)
+	if rep.Close { // ориг после фейла шлёт [01][sid] (закрытие сессии) — R5-дифф 07.10
+		g.write(wire.UnknownSession(ses.Sid))
+		delete(g.ses, ses.Sid)
+	}
 	g.srv.send(ship.Event{Ev: "authd.reply", Svc: "gate",
 		Data: map[string]any{"sid": ses.Sid, "type": rep.Typ, "len": len(rep.Payload)}})
 }

@@ -27,6 +27,7 @@ import (
 type Reply struct {
 	Typ     byte // тип [02]-пакета (клиентский опкод = тип по relay-контракту гейта)
 	Payload []byte
+	Close   bool // после ответа слать [01][sid] (ориг так закрывает сессию после фейла — R5-дифф)
 }
 
 // GateSession — сессия на коннекте гейта ([00] CltConnect).
@@ -249,12 +250,12 @@ func (d *Deps) Play(s *GateSession) *Reply {
 	return &Reply{Typ: 7, Payload: BuildType7(d.Cfg.ServerID)}
 }
 
-// fail — LOGIN_FAIL: type=1, payload = [messageId u32 LE] → гейт соберёт pt
-// [01]+4 = 5Б → EncryptSecondary → wire 18Б (live-форма 06.10 11:08).
+// fail — LOGIN_FAIL: type=1, payload = [code u8] (1 БАЙТ — R5-дифф 07.10: ориг шлёт
+// [02][sid][len=4][01][0x14]; после EncryptSecondary pt = [01][code,0,0,0,0...] —
+// клиент читает [01][D mid] одинаково для 1Б и 4Б форм, но байт-паритет = 1Б).
+// Признак Close: после фейла ориг шлёт [01][sid] (закрытие сессии — live-дифф 07.10).
 func (d *Deps) fail(s *GateSession, code uint32, why string) *Reply {
-	p := make([]byte, 4)
-	binary.LittleEndian.PutUint32(p, code)
-	return &Reply{Typ: 1, Payload: p}
+	return &Reply{Typ: 1, Payload: []byte{byte(code)}, Close: true}
 }
 
 // ---------- сборка payload'ов (арбитр = R5 fork-дифф O-vs-N) ----------

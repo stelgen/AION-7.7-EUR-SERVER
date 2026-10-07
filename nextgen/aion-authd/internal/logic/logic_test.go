@@ -68,11 +68,11 @@ func TestLoginNonASCIIFail(t *testing.T) {
 	if rep == nil || rep.Typ != 1 {
 		t.Fatalf("want fail, got %+v", rep)
 	}
-	if code := binary.LittleEndian.Uint32(rep.Payload); code != 2 {
-		t.Fatalf("code: %d want 2", code)
+	if len(rep.Payload) != 1 || rep.Payload[0] != 2 { // [code u8] — R5-дифф 07.10 (ориг = 1Б)
+		t.Fatalf("payload: %x want [02]", rep.Payload)
 	}
-	if len(rep.Payload) != 4 { // [mid u32] → гейт pt [01]+4 = 5Б → wire 18
-		t.Fatalf("payload len: %d", len(rep.Payload))
+	if !rep.Close {
+		t.Fatal("фейл должен помечать Close ([01][sid] как ориг)")
 	}
 }
 
@@ -109,7 +109,7 @@ func TestLoginReloginFail7Option(t *testing.T) {
 	d.Login(ses1, asmBlob("1", "1", 0, 0), "127.0.0.1")
 	ses2 := &GateSession{Sid: 2}
 	rep := d.Login(ses2, asmBlob("1", "1", 0, 0), "127.0.0.1")
-	if rep == nil || rep.Typ != 1 || binary.LittleEndian.Uint32(rep.Payload) != 7 {
+	if rep == nil || rep.Typ != 1 || len(rep.Payload) != 1 || rep.Payload[0] != 7 {
 		t.Fatalf("fail7: %+v", rep)
 	}
 }
@@ -119,7 +119,7 @@ func TestLoginBlockedFlag(t *testing.T) {
 	_, _, _ = st.GetOrCreate("bad", true) // создать, потом флагнуть
 	_ = st.SetFlag("bad", func(a *store.Account) { a.BlockFlag = 1 })
 	rep := d.Login(&GateSession{Sid: 1}, asmBlob("bad", "", 0, 0), "127.0.0.1")
-	if rep == nil || rep.Typ != 1 || binary.LittleEndian.Uint32(rep.Payload) != 22 {
+	if rep == nil || rep.Typ != 1 || len(rep.Payload) != 1 || rep.Payload[0] != 22 {
 		t.Fatalf("blocked: %+v", rep)
 	}
 }
@@ -129,7 +129,7 @@ func TestLoginBlockMsg(t *testing.T) {
 	acc, _, _ := st.GetOrCreate("bmsg", true)
 	st.AddBlock(acc.UID, 5, "причина")
 	rep := d.Login(&GateSession{Sid: 1}, asmBlob("bmsg", "", 0, 0), "127.0.0.1")
-	if rep == nil || rep.Typ != 1 || binary.LittleEndian.Uint32(rep.Payload) != 22 {
+	if rep == nil || rep.Typ != 1 || len(rep.Payload) != 1 || rep.Payload[0] != 22 {
 		t.Fatalf("block_msg: %+v", rep)
 	}
 }
