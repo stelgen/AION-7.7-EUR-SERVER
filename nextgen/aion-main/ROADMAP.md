@@ -28,11 +28,11 @@
 
 | Дата | Теория | Проверка | Статус |
 |---|---|---|---|
-| 08.10 | Мир-пакеты клиентов 7.7 EU = superset Java-эталонов (Mobius 7.7) — маппится опкод-в-опкод | R0 сравнение | ⏳ |
-| 08.10 | InterSvrType=2 (matchmaker) можно реализовать позже как «второй мир» на нашей базе (арены без патча #108) | R2+ | ⏳ |
-| 08.10 | 2002-протокол NPC↔Server64 совпадает по хидерам с 2006 CacheD-RPC семейством (Shared-код NC) | R1 сравнение | ⏳ |
+| 08.10 | Мир-пакеты клиентов 7.7 EU = superset Java-эталонов — маппится опкод-в-опкод | live: 637 пакетов, ~60 имён, 0 invalid на 3 capture → канон README | ✅ канон |
+| 08.10 | InterSvrType=2 (matchmaker) реализуем позже как «второй мир» на нашей базе | PDB: MatchingMgr/World_BattleGround/IDArena* в бинаре → канон README | ✅ канон |
+| 08.10 | 2002-протокол NPC↔Server64 совпадает по хидерам с 2006 CacheD-RPC семейством (Shared-код NC) | PDB publics: ServerToDb/ServerToNPCServer один паттерн; wire 2002 точечно = R4.1 | ✅ частично (PDB) |
 | 08.10 | ✅ РЕСЁРЧ СУРСОВ ЗАКРЫТ: reference/ = 5 эталонов (web+git); aion-germany 7.8 EU Gameforge = наш регион+близкая версия, CM 481/SM 666 = максимальный реестр (с AL-Game-5.8); опкоды встроены в Java-классы | done 08.10 | ✅ |
-| 08.10 | Реестр наших 7.7 EU клиентов маппится лучше всего на aion-germany AL-Game 7.8 + Mobius 7.7 (версия/регион), AionLightning 7.8 = третий верификатор | R0 маппинг | ⏳ |
+| 08.10 | Реестр 7.7 EU маппится лучше всего на aion-germany 7.8 + Mobius 7.7, AionLightning 7.8 = третий верификатор | R0+live: FULL 318, C2S 100% в реестре → канон README | ✅ канон |
 | 08.10 | ✅ PDB Server64 скачан (MD5 ok), 74164 publics: RPC-семейства совпадают с cached-ref/npc/ic именами; Matchmaker-миры в бинаре = InterSvrType-канон; SM_/CM_ имён в publics нет (семантика в CPacket-хендлерах) | done (RESEARCH §2) | ✅ |
 | 08.10 | ✅ Encom leak 7.5–7.7 скачан с MEGA (RZ #1196933): CM264/SM347, ServerPacketsOpcodes (база 7.0 KR), Packet Samurai Game_7.5.x.xml = 938 пакетов; крипта 7777 в бинаре = GG+Blowfish+AES ↔ crypt="AionGame7_5_0_0" | done (RESEARCH §4) | ✅ |
 | 08.10 | ✅ Единая таблица опкодов собрана (688 имён, 5 реестров): базовый слой = 7.5 EU (323 тега Java) + 15×«7.7 EU TODO» + 95 новых 7.7/7.8; реестр 7.7 EU закрывается из эталонов ~90%; XML-словарь частично неточен (21 расхождение vs согласованной Java) — арбитраж = Java | [OPCODES.md](OPCODES.md) | ✅ |
