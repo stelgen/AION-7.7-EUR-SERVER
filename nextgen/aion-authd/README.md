@@ -100,3 +100,13 @@ accache R1 capture (`../aion-accache/PROMPT.md`), gate T2-T6 (`../aion-gate/`), 
 - **Статус live**: op-метрики 12:57 VM 10.10 — оба процесса aion-authd.exe живы (prod 2110+2104 +
   тень 2117); алерты `down:authd` (ориг AionAuthOnly) = EXPECTED.
 - README приведён к [README-TEMPLATE.md](../README-TEMPLATE.md) (S1) — этот коммит.
+
+## ⬅ Кросс-пульс из accache-чата (10.10, свип сурсов)
+
+- **beyond-aion loginserver** (Java): единственное во всём публичном коде знание об ACS =
+  `AionAuthResponse.STR_L2AUTH_S_ACCOUNTCACHESERVER_DOWN(62)` (Sourcegraph global, исчерпывающе).
+  Для нашего T3 (authd-клиент ACS 2220): при недоступности ACS наш authd может отвечать клиенту
+  кодом 62 — совпадает с L2-наследием, не изобретаем.
+- **mmo-dev 18390 (4.6 Иннова)**: AuthServer-бинпатч single-instance — проверка через `FindWindowA`
+  (окно-тайтл `AuthServer-<билд>`; открытая ПАПКА с именем AuthServer блокирует старт!), патч
+  je→jmp @4412BD. Готча для [../aion-binpatch/]: наш authd один-instance-контроль делать НЕ так.

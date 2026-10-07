@@ -100,6 +100,27 @@ GMServer (GM_* procs, GQ/GP)
   — архитектурный референс семейства, НЕ протокольный паритет.
 - AION-эмуляторы (beyond-aion, Mobius, AionLightning) — Java/GS-стек, ACS не реализуют.
 
+### 6.1 Повторный свип (10.10.2026, приоткрыт R1) — ВЕРДИКТ НЕ ИЗМЕНИЛСЯ: публично путь до нас НЕ пройден
+
+- **GitHub repo-search**: `AccountCacheServer` = 0, `aion accountcache` = 0, `aion cache server` = 0 репо.
+- **Sourcegraph global (исчерпывающий code-search)**: 2 совпадения во ВСЁМ публичном коде, оба = enum
+  `STR_L2AUTH_S_ACCOUNTCACHESERVER_DOWN(62)` в Java loginserver beyond-aion — т.е. эмуляторы знают ACS
+  только как код ошибки логина, реализации ноль. (Кросс-пульс authd: наш authd-ответник может
+  переиспользовать код 62 для «ACS недоступен» — совпадает с L2-наследием.)
+- **Ловушки-символы** (`ACQ_VERSION_PACKET`, `ACP_VERSION_RESPONE`, `PutCmd_ACP`,
+  `ACQ_FIRST_LOAD_ACCOUNT_INFO`, `ServerToAccountCached`, `AccountCacheServer.pdb`) — 0 хитов веб/код.
+  PDB/декомп ACS публично НЕ существуют — наша добыча (pdb-big 92МБ) уникальна.
+- **mmo-dev 18390 «Aion 4.6 PTS»** (RU, слив Инновы): ACS в гайдах запуска = старт **№3**
+  (1AuthServer→2AuthGateServer→**3AccountCacheServer**→4CaptCharServer→5ChannelChatting→6ICServer→
+  7CacheServer→8NPCServer→9MainServer), ODBC-набор = aion_accoutdb/aiongm/aionlog/aionworld_110/L2Conn
+  DSN-набор сходится с нашим §2. ⚠ РАСХОЖДЕНИЕ ИСТОЧНИКОВ по порядку старта: 4.6-гайд mmo-dev
+  ставит ACS **№3 (после AuthServer/AuthGate)**, тогда как наш §2 (RZ-гайды) = ACS №1 ДО authd —
+  при R1-стенде не критично (fork-proxy), при R5-свитче задачи стартовать как ориг-задача AionAcc.
+  Бонус: AuthServer-бинпатч single-instance (`FindWindowA`-проверка, je→jmp @4412BD) — кросс-пульс authd. Реверса ACS — нет.
+- **RZ 7.7 PTS EU (1211744) / mmo-dev 28786**: комьюнити считает 7.7-паки «too broken», уходят на 4.6
+  или Java-эмуляторы → мотивации реверсить ACS у рынка нет (гонки за нами нет).
+- grep.app — за Vercel-чекпоинтом, недоступен без браузера (покрыто Sourcegraph).
+
 ## 7. Артефакты (в гит: ../accountcache-ref/)
 
 - `config.xml` — полный конфиг 5.8 (serverPort 2220, mailServer, DSN-примеры, numberOfDBThreads=10)
