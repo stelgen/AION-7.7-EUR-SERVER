@@ -73,3 +73,16 @@ csum@64, pad@68 (EncryptSecondary-обёртка)
 4. Сверка живым клиентом.
 
 Не блокер R6 (косметика клиентского UI), но полезный паритетный бонус нашему authd.
+
+## 5. ЭКСПЕРИМЕНТ №2 РАЗВЁРНУТ (09.10, ждём перелогин)
+
+- Вердикт №1: байт [63] 74Б клиент ИГНОРИРУЕТ (колонка пустая) — 74Б = **SM_LOGIN_OK**
+  (Packet Samurai Login_4.0: accountId/loginOk/?/?/1002/126282164/garbage47), не serverlist.
+- Настоящий **SM_SERVER_LIST = наш type=4 (42Б wire)**; 26Б payload от authd разложился по XML:
+  `[listSize=01][lastServer=01][id=01][ip][port d][age][pvp][cur h][max h][online=01][bits d]
+  [brackets=02][countsSize h=01 00][autoConnect=01]` — и ОБРЫВ: **самих count-байтов НЕТ**
+  (и у ориг!) → клиент ждёт 1 байт, не получает → колонка ПУСТАЯ.
+- Правка: `serverListCharCount>0` → +1 байт в хвост type=4 (pt 28Б; **wire 42Б НЕ меняется**:
+  roundup8(26)=roundup8(27)=32). Коммит `eaf52c9`, на VM MD5 `d5b9c708`, gate PID 1132.
+- ОЖИДАНИЕ: перелогин юзера → колонка «Персонажи» = 7.
+- При успехе: статику → реальный счётчик (user_data / ap_GetAccountGameSlot / 2104-события type 35/3).
