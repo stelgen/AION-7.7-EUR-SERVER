@@ -51,6 +51,15 @@ aionact restart captcha restart      # управление стеком чер�
 aionstatus                           # GET /api/status
 ```
 
+⚠️ **aionput и большие файлы** (инцидент 10.10, деплой gate exe 5.95МБ): обёртка кладёт
+base64 в АРГУМЕНТ curl → `Argument list too long` (лимит ядра на один argv-элемент).
+Тот же Agent API через JSON-файл + `--data-binary`:
+```bash
+python3 -c 'import json,base64; json.dump({"path":"D:/SAION/x/x.exe","content_b64":base64.b64encode(open("x.exe","rb").read()).decode()}, open("put.json","w"))'
+curl -s -m 300 -X POST "$AION/api/agent/file" -H "$(aionhdr)" -H 'Content-Type: application/json' --data-binary @put.json
+# проверить: ответ {"bytes":N} == размер локального файла
+```
+
 ## Мульти-вантадж и диагностика канала (08.10, инцидент «VM недоступна»)
 
 - **Firewall: RemoteAddress = Any (0.0.0.0)** — решение юзера 08.10: VM за NAT, наружу

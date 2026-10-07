@@ -2,13 +2,14 @@
 
 > 📡 **Канал VM (S12):** Agent API — `curl http://192.168.0.125:10200/api/agent/*`, токен `X-Agent-Token` (на VM `D:\SAION\creds\CREDS.md`, в песочнице `~/.aion-agent-token`), обёртка `nextgen/agent-cli.sh`. Новый шаг на VM = ps1 через `aionput`+`aionrun "powershell -File"`. SSH (алиас `aion`) — ТОЛЬКО деплой самого op. Спека: ../AGENT-SPEC.md
 
-✅ **РЕЛИЗ · 100% · 08.10.2026** (T1-фейлы + таймауты + live-тексты ошибок + тест-крутилка); хвосты T2-а/T3/T4/T6 = хардинг (см. TD-6). Прод: `192.168.0.125:2106`,
+✅ **РЕЛИЗ · 100% · 08.10.2026** (T1-фейлы + таймауты + live-тексты ошибок + тест-крутилка); **10.10: +T5-паритет фолбэка (b363dda) — exe на проде с 13:29**; хвосты T2-а/T3/T4/T6 = хардинг (см. TD-6). Прод: `192.168.0.125:2106`,
 `mode: authgate`, полный живой флоу доказан (`1/1` → accId 7; `stelgen` → accId 1010):
 `welcome 194B → AUTH_GG 42b → CM_LOGIN → blob cbdb 191Б → authd type=3 → [03]74Б →
 [05] relay → [04]42Б → [02] relay → [07]26Б → мир 7777`.
 
-Версия релиза: коммит **f8912a9** (exe sha256 `7c4dcab…`). Откаты exe: `aion-gate.exe.bak-63f6a47`,
-`.bak-9c85c12`, `.bak-9f2da98`, `.bak-e1dd475` (последовательность дня 08.10).
+Версия на проде (10.10 13:29, деплой ок, smoke SAME): коммит **b363dda** (exe sha256 `f146a415…`,
+T5-фолбэк). Пред. релиз: **f8912a9** (`7c4dcab…`). Откаты exe: `aion-gate.exe.bak-f8912a9` (10.10),
+`.bak-63f6a47`, `.bak-9c85c12`, `.bak-9f2da98`, `.bak-e1dd475` (последовательность дня 08.10).
 Архитектура/выжимка решений: `docs/architecture-aion-gate-20261007.md` (артефакты/креды/логи — §Эксплуатация ниже; реестр доступов: VM `D:\SAION\creds\` CREDS.md).
 
 Текущая прод-топология (R6-свитч 09.10, актуально): наш гейт 2106 (`authPort: 2110`) →
@@ -142,7 +143,9 @@ ssh Администратор@192.168.0.125 "cmd /c 'schtasks /run /tn AionGate
 
 ⚠️ Готчи: exe залочен живым процессом (kill до scp); после kill первый `/run` может
 словить bind-fail — bat ретраит ~35с, проверять баннер; кириллический scp — только push
-(pull через `ssh … powershell Get-Content`); L2Authd живёт ТОЛЬКО в session 1 (десктоп).
+(pull через `ssh … powershell Get-Content`); L2Authd живёт ТОЛЬКО в session 1 (десктоп);
+**aionput на файлах >~100КБ падает (Argument list too long)** — тот же Agent API,
+но `curl --data-binary @put.json` с `content_b64` в JSON-файле (проверить LEN ответа = размер локального).
 
 Верификация после деплоя: баннер `mode=authgate rsa_exponent=65537` + `RAW AUTHD A>G [03] 21c60000`
 в `D:\SAION\aion-gate\gate-prod.log`; клиентский smoke — `cmd/forkprobe` (welcome-разбор +
