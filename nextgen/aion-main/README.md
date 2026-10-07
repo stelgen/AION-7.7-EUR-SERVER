@@ -50,6 +50,10 @@
 | Ориг | VM `D:\AION_LIVE_SERVER\MainServer\` (задача AionMain; пара с AionNPC) |
 | Креды/доступы | VM `D:\SAION\creds\` |
 
+## 🗺 Карта портирования с эмуляторов (анализ 08.10)
+
+Mobius 7.7 gameserver = **2783 java-файла**: serverpackets 314 / clientpackets 219 (= наш реестр 637 ✅), **skillengine 250** (самое мясо), **dataholders 129** (стат-данные), dao 74 (БД-паттерны → наши cached-RPC), model 46 пакетов, **services 93 файла** (ag78=94): приоритет портирования по live-пойманным сессиям: Account/Dialog/Exchange/Broker/Housing/CubeExpand/AutoGroup/GameTime/FindGroup → остальное. Портируем СЕМАНТИКУ (не код): Go-структуры = минимум (User/Item/Skill/Group ~15 структур), стат-данные = из клиентских 2.7/5.8 китов позже.
+
 ## 📜 Логи
 
 Стандарт S3: raw-first io-дампы + fork C>/O>/N> ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)); ориг пишет `MainServer\log\{{date}}.err` (дата RunAsDate!) — тейлерит op; наша перепись = .err-совместимый или перенос тейлеров.
