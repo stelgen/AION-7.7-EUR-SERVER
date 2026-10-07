@@ -169,7 +169,7 @@ func TestAckEcho(t *testing.T) {
 	if err != nil || typ != 19 {
 		t.Fatalf("ack: typ=%d err=%v", typ, err)
 	}
-	if !bytes.Equal(payload, []byte{0xf2, 0x03, 0x00, 0x00}) {
+	if !bytes.Equal(payload, []byte{0xf2, 0x03, 0x00, 0x00, 0x00, 0x00}) { // uid+0000 (корпус)
 		t.Fatalf("ack payload=%x", payload)
 	}
 }

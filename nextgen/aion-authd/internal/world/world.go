@@ -371,18 +371,37 @@ func (s *S) dispatch(conn net.Conn, typ byte, payload []byte) {
 			log.Printf("world: user logged to GS uid=%d", uid)
 			s.ev("world.user.logged", strconv.Itoa(int(uid)), nil)
 		}
-	default: // 3/9/13-44/… — события/квитанции: лог; ответ по флагу Acks (T2)
-		log.Printf("world: event type=%d len=%d — лог%s", typ, len(payload), ackSuffix(s.Cfg.Acks))
+	default: // 3/9/13-44/… — события мира: квитанция ТОЧНЫМ пайлоадом из корпуса (без неё мир
+		// ретранслирует type=35 каждые 1-3с — live 05.10/наш 12:26)
+		log.Printf("world: event type=%d len=%d", typ, len(payload))
 		if s.Cfg.Acks && len(payload) >= 4 {
-			uid := payload[0:4]
-			frame := Encode(ackType(typ), append([]byte{}, uid...))
+			uid := append([]byte{}, payload[0:4]...)
+			tail, _ := parseHex(ackTail(typ))
+			frame := Encode(ackType(typ), append(uid, tail...))
 			_, _ = conn.Write(frame)
 		}
 		s.ev("world.event", strconv.Itoa(int(typ)), map[string]any{"len": len(payload)})
 	}
 }
 
-// ackType — тип квитанции authd по живому корпусу (W→A → A→W): 35→31, 3→14, 27→19, 25→16, 24→13, 38/39/40→44.
+// ackTail — хвост квитанции authd по живому корпусу 09:33 (uid + хвост):
+// 38/39/40→44: uid+63000000+00000000; 27→19: uid+0000; 35→31: uid+11×00;
+// 24→13: uid+01010001; 25→16: uid+0000; 3→14: uid+01.
+func ackTail(w byte) string {
+	switch w {
+	case 38, 39, 40:
+		return "6300000000000000"
+	case 24:
+		return "01010001"
+	case 3:
+		return "01"
+	case 35:
+		return "0000000000000000000000"
+	default: // 25/27 → 16/19
+		return "0000"
+	}
+}
+
 func ackType(w byte) byte {
 	switch w {
 	case 35:
