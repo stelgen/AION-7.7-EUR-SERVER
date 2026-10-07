@@ -32,6 +32,20 @@
 > Shadow: mem-store + gsPort=0 (мир-канал выкл до R6). ОСТАТОК ДО R6: fork-сверка 2104/квитанций/tail
 > на живых логинах юзера (новый арбитраж даёт чистые пары) + mssql-стор на shadow (переключение
 > driver: mssql) — потом «го» на свитч.
+> **FORK-ВЕРИФИКАЦИЯ НА ЖИВОМ ЛОГИНЕ ЮЗЕРА 09:58 ✅** (sid=4, stelgen, юзер в игре): greeting SAME;
+> type=4 server-info **SAME байт-в-байт**; type=3 DIFF только в динамике: **uid** (ориг 1010 из БД vs
+> наш mem-seed 1) и token/unk1 (Rnd) — структура 52Б паритетна; type=7 DIFF: pk1 у ориг ДИНАМИЧ
+> (09:33→2, 09:58→4; наш статич 1) + наш pk2 = наш uid. ВЫВОД: R6-стенд требует mssql-стор на shadow
+> (реальный uid) — код готов, включить driver: mssql. pk1-динамика = T2-канон.
+>
+> **🧪 ТЕХ-ДОЛГ (юзер, 09.10): клиент RU 7.7 всегда видит 0 персонажей на сервере.**
+> Java-эталон EU-линии (aion-germany AL-Login SM_SERVER_LIST op=0x04): счётчик чаров акка = В ХВОСТЕ
+> пакета: [servers.size][lastServer][per-server: id/ip/port(D)/age/pvp/cur(H)/max(H)/status/bits(D)/brackets]
+> + [maxId+1 (H)][01][49 нулей][writeC charCount per server]; источник = GS-репорты (CM_GS_CHARACTER).
+> Наш/ориг-2110 type=4 = 26Б — зоны счётчиков НЕТ (клиент читает 0). «74Б serverlist» из логов 06.10
+> = похоже полный вариант с зоной счётчиков. ПЛАН: (1) снять клиентский G>C из gate-prod.log — есть ли
+> 74Б-вариант и где зона; (2) реализовать сборку полного serverlist с counts из БД (user_data по аккаунту /
+> ap_GetAccountGameSlot) в нашем authd/gate; (3) сверка живым клиентом. Не блокер R6 (косметика клиента).
 
 ## 🧪 Журнал теорий (2104)
 
