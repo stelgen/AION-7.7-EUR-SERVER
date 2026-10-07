@@ -49,6 +49,15 @@
 - **Новые кейсы**: C2S **0x00D4×1 — нет ни в одном реестре** (кандидат-сосед CM_TELEPORT-семейства; payload-анализ — следующий шаг).
 - Итог: 1668 known / 152 unknown(=только 0x0182+0x00D4) / 0 invalid. Реестр OPCODES.md подтверждён live на ~92%.
 
-## 7. Следующий шаг
+## 7. ✅ R1 LIVE-АРБИТРАЖ #2 (08.10, capture 3200 tcp-фреймов, сессия юзера с действиями)
 
-R1 продолжение: накопить capture при разных действиях (кубик/брокер/легион/скиллы) → закрыть 0x00D4 и 0x3FD-семейство; payload-разбор SM_STRONGHOLDS 0x0182.
+- 4426 игровых пакетов (S2C 3856 + C2S 570), **0 invalid** (крипта подтверждена повторно). Файл `tmp/cap7777/cap7777-0810b.pcapng`.
+- **+20 новых live-подтверждений**: S2C: 0x0005 SM_ATTACK_STATUS×152, 0x0025 SM_EMOTION×76, 0x0003 SM_STATUPDATE_HP×57, **0x00F6 SM_FLY_TIME×56** (xml75 ошибочно SM_ALLIANCE_INFO), **0x00BB SM_PET_EMOTE×50**; C2S: **0x0107 CM_MOVE_IN_AIR×61** (ag58 ошибочно CM_ABYSS_LANDING), **0x00DB CM_PET_EMOTE×50** (ag58 ошибочно CM_VERSION_CHECK), 0x00E1 CM_TARGET_SELECT×13, **0x0108 CM_WINDSTREAM×13**, **0x02F8 CM_DIALOG_SELECT×4, 0x02FB CM_CLOSE_DIALOG×6, 0x02FA CM_SHOW_DIALOG×8** (ag58 ошибочно CM_HOUSE_DECORATE — диалог-NPC канал), 0x00E8 CM_EQUIP_ITEM×4, 0x02FE CM_PLAYER_LISTENER×2, 0x015B CM_TELEPORT_SELECT×2, **0x019F CM_AUTO_GROUP×2**, **0x02F3 CM_LEGION×1 (легион-окно!)**, 0x013F CM_GAMEGUARD×1, 0x0105 CM_BUY_ITEM×1, 0x01B3 CM_SELECT_ITEM×1.
+- **Легион ✅ live (0x02F3); арен-интерфейс ✅ (0x019F + SM_AUTO_GROUP 0x007A×155); питомец-канал ✅ (0x00BB/0x00DB по 50); полёт/windstream ✅ (0x0107/0x0108/0x00F6)**.
+- **Брокер НЕ триггерился** (CM_REGISTER_BROKER_ITEM нет в сессии — юзер не вносил предметы). **Дома НЕ триггерились явно** (целевой тест = capture#3). **Миньон-специфика (CM_MINION_*) не триггерилась** — юзер ткнул PET-канал; нужен целевой тест миньона (призовь/корми).
+- proc_missing за сессию: НОВЫХ НЕТ (все те же 8: коллекции×5 + fame + reinvent + itemAttributeDelta) — PET-канал работает на живых таблицах; коллекции/фама остаются доб. (TD2).
+- Unknown остаются: S2C 0x0182×151 (SM_STRONGHOLDS, encom75-only), C2S 0x00D4×1.
+
+## 8. Следующий шаг
+
+R1 продолжение: capture#3 = целевые действия (миньон: призов/корм; дом: войти/декор; брокер: зарегистрировать предмет) → CM_MINION_*/домашнее семейство; payload-разбор 0x0182 (SM_STRONGHOLDS) и 0x00D4.
