@@ -105,7 +105,36 @@ RPC-направления (глобальные функции, стилист�
 - ⚠ Неизвестно: wire-фрейминг 2006 (закрывается R1 pktmon), семантика RAM-мутаций и порядок записи, роль 2009, IC-подпротокол
 - ⚠ Самый объёмный компонент — риск не в сложности, а в количестве команд
 
-## 10. Артефакты
+## 10. Охота за сурсами CacheD (итог 08.10, вторая волна)
+
+**Публичный вердикт подтверждён ещё раз:** сурсов/эмуляторов Aion CacheD НЕ существует (GitHub repo-search `l2cached` = 0 репо; все Aion-эмуляторы пишут в БД DAO-слоем напрямую — Aion-Core 4.7.5 = AC-Game/AC-Login/AC-Chat, MySQL, БЕЗ кеш-компонента; L2J без CacheD-слоя). Единственный публичный reversed CacheD во всём NCsoft-наследии = **L2 CacheD C1 (MasterToma)** — он уже был в гите (authd-ref/l2-c1-mastertoma), теперь **скопирован самодостаточно в `cached-ref/l2-c1-cached/`** (7.7МБ, src+reversed+generated).
+
+### 10.1 L2 CacheD C1 = живой шаблон нашей архитектуры (1-в-1 соответствие каналов)
+
+| L2 CacheD C1 (MasterToma) | Aion CacheD64 (наш) |
+|---|---|
+| `serverHandlers/` (GameServer↔CacheD): packet000_CacheVersion, 001_LoadCharacter, 002_CreateCharacter, 003_CreateItem, 005_LoadItems, 009_SaveCharacter, 010_SaveItems, 018-022 Warehouse, 029/030 CharacterLogin/Logout, Pledge/Castle/Agit... | **2006**: ServerToDb/DbToServer (RQ_/RP_ 382/255) |
+| `adminHandlers/` (GMServer): 01_CheckCharacter, 02_SetCharacterLocation, **03_SetBuilderCharacter**, 04_ChangeCharacterName, 06/07/08 Add/Del/ModSkill, 12_AddItem... | **2007 interactive**: AdminToCache/CacheToAdmin (**GQ_/GP_ 55/53** — GQ_MAKEBUILDER/GQ_ITEMADD/GQ_SET_BUILDER_CHAR 1-в-1 аналоги!) |
+| `npcDbHandlers/` (L2NPC): 01_NpcDbVersion, 02_LoadNpcRequest, 03_SaveNpcInfo, 04_UpdateBossNpcValue | **2009 (гипотеза закрепилась!)**: третий листенер = NPC-DB канал NPCSvr64 |
+
+### 10.2 Wire L2 C1 (приор для нашего R1) — из CServerSocket.cpp
+
+```cpp
+m_packetSize = (buf[off+1] << 8) + buf[off] - 2;  // [u16 LE] ДЛИНА САМОИНКЛЮЗИВНАЯ (как наш 2110!)
+DummyCrypt::Decrypt(payload, m_key, m_packetSize); // XOR-стрим с rolling-ключом
+m_key += m_packetSize;                             // ключ двигается на длину пакета
+// хвост: [lastByte][preLastByte] == checksum == m_packetSize
+```
+Фрейм: `[u16 LE self-len][opcode][payload][2Б checksum]`, XOR-крипта с прокруткой. Наш 2006 вероятно эволюция той же схемы (крипта/чексум могут отличаться — pktmon закроет за минуты).
+
+### 10.3 Что скачать юзеру (бусты, которые мне не дотянуться)
+
+1. **RZ-аттачменты PTS-паков Aion** (нужен твой логин): 5.8 PTS VM (Mantios), 7.7 C++ pack (1205286/fyyre), свежий 2.7 PTS (июль 2026) — в каждом родной CacheServer64 своей версии → кросс-версионный дифф строк (эволюция словарей ACQ/RQ) для верификации dispatch. Выложить на шару 192.168.0.248:3923 — заберу.
+2. **L2 PTS паки новых хроник** (HighFive/Gracia) с L2CacheD.exe — если в строках новых L2 CacheD появятся RQ_/RP_, маппинг L2↔Aion станет прямым по именам.
+3. НЕ нужно качать: Aion-Core 4.7.5 (семантика слабее наших Mobius 7.7/beyond-aion 4.8), любые «aion cached» — их нет.
+4. Главный буст вообще не скачивается: **R1 pktmon capture 2006**.
+
+## 11. Артефакты
 
 - `nextgen/cached-ref/` — publics, rpc-map, словари, procs-списки, strings, ragezone/mmo-dev HTML
 - `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/pdb-big/CacheD64/` — exe+pdb+map+конфиги+log (вне гита, 140МБ)
