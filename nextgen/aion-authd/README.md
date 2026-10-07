@@ -10,11 +10,11 @@
 
 | Фаза | Статус |
 |---|---|
-| R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | ⬜ частично: config/dsn/порты известны; procs/2104 = блокеры R6 |
+| R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | 🟡 procs ✅ 09.10: 31 proc + тела сняты → authd-ref/procs-aionaccounts-77.rpt (логин = ap_GPwdWithFlag→ap_AutoReg, serverlist = ap_GetServers); 2104 = блокер R6 |
 | R1 wire-фундамент | ✅ `docs/authd-wire-20261007.md` + golden-тесты |
 | R2 каркас (framing/listener/config/ship) | ✅ |
 | R3 логика (логин/автосоздание/online-TTL/фейлы) | ✅ live-факты 06-07.10 + каноны fork (type=3/4/7/fail) |
-| R4 DB-слой | ✅ mem + mssql (C1-схема; реальные procs — сверка на R0) |
+| R4 DB-слой | ✅ mem + mssql (C1-схема); 09.10 реальные procs AionAccounts сняты — SQLStore переводится на вызов ap_* procs |
 | R5 fork-стенд на проде | 🟡 **ЖИВОЙ с 07.10 и ОСТАВЛЕН юзером** (forkauthd 2116 → ориг 2110 + копия → shadow 2117): каноны сняты, shadow структурно паритетен; осталась очередь арбитража O-vs-N по (sid,type) — N-ONLY = гонка тени |
 | R6 свитч живого пути на наш + наблюдение 24ч | ⬜ после R0 (2104/procs/mssql) по «го» |
 

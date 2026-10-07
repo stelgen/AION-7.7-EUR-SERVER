@@ -9,6 +9,12 @@
 > **PA обязателен** (без него SYSTEM_ERROR 20). Прод-топология ОСТАВЛЕНА КАК ЕСТЬ (fork-shadow постоянно,
 > по решению юзера) = R6-свитч свёл­ся к: наш authd в shadow до R0 (procs AionAccounts, роль 2104) →
 > затем переключение живого пути на наш (fork: orig→shadow режим).
+> **R0-PROCS ✅ 09.10**: инвентарь AionAccounts снят (31 proc + тела → `../authd-ref/procs-aionaccounts-77.rpt`):
+> логин = `ap_GPwdWithFlag` (автосоздание ВНУТРИ SQL: нет акка + ASCII `[a-zA-Z0-9]+` → `ap_AutoReg`, flag=3, pwd=0x00×16);
+> `ap_GStat` = uid/payStat/loginFlag/warnFlag/blockFlag/blockFlag2/subFlag/lastworld/block_end_date/forbidden_servers + UPDATE last_login (maddaemon fix 08);
+> serverlist = `ap_GetServers` (таблица `server`: id/name/ip/inner_ip/ageLimit/pk_flag/kind/port/region);
+> блок = `ap_GetRestriction` (block_msg: reason,msg по uid); `ap_SLog`/`ap_GUserTime` канон C1; `ap_SUserData` = стаб (SELECT 9).
+> → SQLStore (mssql-стор) переводится на ВЫЗОВ ЭТИХ procs по имени вместо inline-C1 SQL.
 > Сессия-док: [docs/session-20261007-authd-mvp.md](docs/session-20261007-authd-mvp.md).
 > Метод-референс: треки aion-logd → aion-captcha → aion-gate (метод отработан 3 раза).
 > Приложение-цель: `L2Authd.exe` (1,198,592 Б) — **2104** (serverPort), **2110** (serverExPort → AuthGateD),
@@ -32,11 +38,11 @@
 
 | Фаза | Что | Результат | Оценка |
 |---|---|---|---|
-| **R0 Разведка** (read-only) | Инвентарь VM: `D:\AION_LIVE_SERVER\L2Authd\etc\config.txt` (полный), L2Conn.dsn, логи winlog/packet/dual; кто держит 2104/2108/10062/2220; PDB L2Authd → `pdbpub.py` publics; сверка procs AionAccounts vs S3 | Карта зависимостей + перечень DB-вызовов оригинала | 1 день |
+| **R0 Разведка** (read-only) | Инвентарь VM: `D:\AION_LIVE_SERVER\L2Authd\etc\config.txt` (полный), L2Conn.dsn, логи winlog/packet/dual; кто держит 2104/2108/10062/2220; PDB L2Authd → `pdbpub.py` publics; сверка procs AionAccounts vs S3 — ✅ 09.10 (`procs-aionaccounts-77.rpt`); осталась роль 2104 | Карта зависимостей + перечень DB-вызовов оригинала | 1 день |
 | **R1 Протокол-фундамент** | Разбор wire 2110 по gate-prod.log (S1) — фрейминг/типы/HEX-эталоны; дизasm S4 для 2104/2220/QMAS если встречаются | Док `docs/authd-wire-20261007.md` + golden-фреймы в тестах | 1-2 дня |
 | **R2 Каркас** `nextgen/aion-authd/` | Go: main/config/ship (копия из logd), ODBC-слой (L2Conn.dsn-строка), state-машина сессий, листенер 2110 | Эхо-сервер 2110: принимает [00]/[01]/[02], отвечает по логам (replay-режим) | 2-3 дня |
 | **R3 Логика authd** | Порт логики S2: логин-проц (blob 191Б → user/pwd/otp) → автосоздание (пароль НЕ проверяется — live-факт) → block_msg → online-флаг (TTL 2-6 мин!) → [03] V=0xc621, [02][type]3/4/7 (serverlist/74Б, 42b, 26b) | Паритет ответов с ориг по golden-фреймам | 3-5 дней |
-| **R4 DB-слой** | Реализация procs-вызовов (или прямых SQL) поверх AionAccounts: uid+payStat, SLog-запись, OneTimeLogOut | Тесты с локальным MSSQL-контуром/фейком | 2-3 дня |
+| **R4 DB-слой** | Реализация вызовов РЕАЛЬНЫХ procs AionAccounts (тела сняты R0-09.10: `ap_GPwdWithFlag`→`ap_AutoReg`, `ap_GStat`, `ap_GetServers`, `ap_GetRestriction`, `ap_SLog`): uid+payStat, SLog-запись, OneTimeLogOut | Тесты с локальным MSSQL-контуром/фейком | 2-3 дня |
 | **R5 fork-proxy A/B** | **fork-proxy на 2110**: наш гейт → fork-proxy → ориг L2Authd (живой путь) + КОПИЯ фреймов в наш authd; diff-лог O-vs-N на каждый фрейм (как в gate-треке: C>/O>/N>) | 100% паритет диффа; НЕ слать ориг мусор (L2Authd хрупкий — умирает от кривых пакетов) | 2-3 дня |
 | **R6 Свитч прод** | По «го»: 2110 → наш (задача AionAuth ретаргет), откат = возврат L2Authd (schtasks + restart-auth.ps1 ритуал); наблюдение 24ч (логины/relogin/онлайн-флаг/night-циклы) | Свитчнут + session-док + ROADMAP/README дельта | 1 день |
 
