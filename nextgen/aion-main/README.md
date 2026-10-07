@@ -51,3 +51,4 @@
 Стандарт S3: raw-first io-дампы + fork C>/O>/N> ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)); ориг пишет `MainServer\log\{{date}}.err` (дата RunAsDate!) — тейлерит op; наша перепись = .err-совместимый или перенос тейлеров.
 
 📊 сосед узнал (08.10, от aion-npc RESEARCH): Abyss-логика у Java-эталонов (Mobius7.7/AL7.8, клоны в `../../reference/`) живёт в NPC-AI (`SimpleAbyssGuardHandler`), не в GS-ядре ⇒ поддерживает теорию «abyss-цикл 60с — NPCSvr»; мир Server64 в эталонах = один GameServer, мимикрия только подсистемная (world/creature/stats).
+📊 сосед узнал (08.10, от aion-npc R0 netstat live): «8/8 conns на :2002» (критерий мира op) = 8 соединений **NPCSvr64→Server64** (NPC-канал, не игроки); Server64 дополнительно слушает **:2012** (⏳ назначение); Server64 держит 9 коннектов к IC:2005.

@@ -52,6 +52,8 @@
 
 ## 📜 Логи
 
+📊 сосед узнал (08.10, от aion-npc R0 netstat live): CacheD64 слушает **2006/2007/2009**; NPCSvr64 подключается к CacheD по **2006** (общий пул, как Server64) — 2009 в бою БЕЗ клиентов (npcDb-гипотеза отхлопнута, см. aion-npc/ROADMAP леджер); CacheD→IC по **2305**; ~100 коннектов к MSSQL 1433.
+
 Стандарт S3 ([../LOGGING-SPEC.md](../LOGGING-SPEC.md)): raw-first — при реализации io-дампы + fork-лог C>/O>/N>; ориг-логи CacheD (log/*.log) = эталон материала R1, трогать только read-only.
 
 ## 📊 Сосед узнал (08.10, чат aion-main R0/RES)

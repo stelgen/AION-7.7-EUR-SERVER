@@ -1,0 +1,1035 @@
+
+=== R0 AionAccounts inventory 2026-10-07 09:32 ===
+--- server version ---
+Microsoft SQL Server 2022 (RTM-GDR) (KB5122771) - 16.0.1200.5 (X64) 
+	Aug 20 2026 01:16:38 
+	Copyright (C) 2022 Microsoft Corporation
+	Enterprise Edition (64-bit) on Windows Server 2022 Standard 10.0 <X64> (Build 20348: ) (Hypervisor)
+
+--- databases like aion ---
+_AionWorldNew114_rc
+Aion_log
+aionaccdeldb
+AionAccountCacheD_rc
+AionAccounts
+BkPetitionDB
+master
+model
+msdb
+PetitionDB
+REF58_aion_log
+REF58_AionAccountCacheD
+REF58_aionaccounts
+REF58_AionWorld
+REF58L_Aion_gm
+REF58L_AionAccountCacheDB
+REF58L_AionAccountDB
+tempdb
+--- proc names ---
+dbo.agent_CreateAccount
+dbo.ap_AutoReg
+dbo.ap_GetAccountGameSlot
+dbo.ap_GetAccountMaxLevelCharacter
+dbo.ap_GetGameAccountNo
+dbo.ap_GetRestriction
+dbo.ap_GetServers
+dbo.ap_GetSSN
+dbo.ap_GPwd11
+dbo.ap_GPwdWithFlag
+dbo.ap_GStat
+dbo.ap_GStat11
+dbo.ap_GStatEtc
+dbo.ap_GUserTime
+dbo.ap_LoginWithPoint
+dbo.ap_LogoutWithPoint
+dbo.ap_RegisterAccountGameCharacter
+dbo.ap_SetConcurrentUserStatistics
+dbo.ap_SetGameRestriction
+dbo.ap_SetIllegalLoginTrace
+dbo.ap_SetPasswordResetFlag
+dbo.ap_SetServerStatus
+dbo.ap_SLog
+dbo.ap_SNewPwd
+dbo.ap_SUserData
+dbo.ap_SUserTime
+dbo.CCU_Stat
+dbo.l2p_TempCreateAccount
+dbo.Pr_acc_act
+dbo.web_CreateAccount
+dbo.web_FindAccount
+--- proc bodies (OBJECT_DEFINITION single-pass) ---
+===== PROC agent_CreateAccount ===== 
+
+
+
+CREATE PROCEDURE [dbo].[agent_CreateAccount]
+
+	@ggid uniqueidentifier,
+	@account varchar(14),
+	@password binary(16),
+	@email varchar(50),
+	@mobile varchar(20),
+	@question1 varchar(255),
+	@question2 varchar(255),
+	@answer1 binary(32),
+	@answer2 binary(32)
+
+AS
+DECLARE @account_num int
+
+SELECT account FROM user_info WHERE account = @account
+IF @@ROWCOUNT <> 0
+BEGIN
+        RETURN 0;
+END
+
+SELECT ssn FROM ssn WHERE email = @email
+IF @@ROWCOUNT <> 0
+BEGIN
+        RETURN 0;
+END
+
+set @account_num = 1
+
+DECLARE @ssn varchar (13)
+set @ssn = SUBSTRING ( @account ,0 , 9 )  + '-ssn'
+ 
+BEGIN TRAN 
+    
+        INSERT ssn ( ssn, name, email, newsletter, job, phone, mobile, reg_date, zip, addr_main, addr_etc, account_num, status_flag)
+        VALUES (@ssn, @account, @email,0,0,@mobile,@mobile,getdate(),'','','',@account_num,0)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+
+        INSERT user_account (account, pay_stat) 
+		VALUES (@account, 1)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+
+        INSERT user_auth ( account, password, quiz1, quiz2, answer1, answer2, new_pwd_flag)
+        VALUES ( @account, @password, @question1, @question2, @answer1, @answer2, 0)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+
+        INSERT user_info ( account, create_date, ssn, status_flag, kind )
+        VALUES ( @account, getdate(),@ssn, 0, 99  )
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK       
+       
+       
+COMMIT TRAN
+
+set @account_num = 0;
+SELECT @account_num = uid FROM user_account WHERE account=@account
+IF @@ERROR <> 0 GOTO DO_ROLLBACK  
+
+RETURN @account_num
+ 
+
+DO_ROLLBACK:
+ROLLBACK TRAN
+RETURN 0
+
+===== PROC ap_AutoReg ===== 
+CREATE PROCEDURE [dbo].[ap_AutoReg]
+@account varchar(14)
+AS
+BEGIN
+set nocount on
+declare @ssn char(13)
+set @ssn=substring(STR(FLOOR(RAND()*8999999+1000000)),4,7)+substring(STR(FLOOR(RAND()*899999+100000)),5,6)
+INSERT INTO user_account (account,pay_stat) VALUES (@account, 1)
+INSERT INTO [ssn](ssn,name,email,job,phone,zip,addr_main,addr_etc,account_num) VALUES (@ssn,@account,'tmp@kamael.ru','0','telphone','123456','','',1)
+INSERT INTO user_auth (account,password,quiz1,quiz2,answer1,answer2,new_pwd_flag) VALUES (@account,0x00000000000000000000000000000000,'1','2',0x0,0x0,3)
+INSERT INTO user_info (account,ssn,kind,code) VALUES (@account,@ssn, 99, '123')
+set nocount off
+END
+ 
+
+===== PROC ap_GetAccountGameSlot ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[ap_GetAccountGameSlot]  
+	 @accountId int,
+	 @p2 datetime output,
+     @p3 datetime output,
+     @p4 varbinary(8) output
+AS
+BEGIN
+	select @p2 = DATEADD(year, DATEDIFF(year, -1, GETDATE()), 0), @p3 = DATEADD(year, DATEDIFF(year, -1, GETDATE()), 0),  @p4 = 0
+END
+
+===== PROC ap_GetAccountMaxLevelCharacter ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[ap_GetAccountMaxLevelCharacter] 
+ @unk1 int,
+ @p2 tinyint output,
+ @p3 int output,
+ @p4 int output,
+ @p5 int output
+AS
+BEGIN
+
+	SELECT @p2 = 0, @p3 = 0, @p4 = 0, @p5 = 0
+END
+
+===== PROC ap_GetGameAccountNo ===== 
+---------------------------------------------
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_GetGameAccountNo]
+*Purpose        :   Get gameAccountNo of the gameAccount
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/05/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       @gameAccount
+*               gameAccount
+*
+*/
+create  PROCEDURE [dbo].[ap_GetGameAccountNo]
+@gameAccount    VARCHAR(16)
+AS
+ 
+SELECT  uid
+FROM    user_account with (nolock)
+WHERE   account = @gameAccount
+
+===== PROC ap_GetRestriction ===== 
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_GetRestriction]
+*Purpose        :   Get message for the restriction of the user
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/05/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       @gameAccountNo
+*               gameAccountNo
+*
+*/
+create  PROCEDURE [dbo].[ap_GetRestriction]
+@gameAccountNo  INT
+AS
+ 
+SELECT  reason, msg
+FROM    block_msg with (nolock)
+WHERE   uid = @gameAccountNo
+
+===== PROC ap_GetServers ===== 
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_GetServers]
+*Purpose        :   Get information of the servers
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/19/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       None
+*              
+*/
+ 
+create  PROCEDURE [dbo].[ap_GetServers]
+AS
+ 
+SELECT  id, name, ip, inner_ip, ageLimit, pk_flag, kind, port, region
+FROM    server
+ORDER BY id
+
+===== PROC ap_GetSSN ===== 
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_GetSSN]
+*Purpose        :   Get the ssn of the user
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/19/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       @gameAccountNo
+*               gameAccountNo
+*
+*/
+ 
+create  PROCEDURE [dbo].[ap_GetSSN]
+        @gameAccountNo  INT,
+        @ssn CHAR(13) OUTPUT
+AS
+ 
+SET @ssn = ''
+ 
+SELECT  @ssn = ssn
+FROM    user_info with (nolock)
+WHERE   account = @gameAccountNo
+
+===== PROC ap_GPwd11 ===== 
+ 
+ 
+CREATE  PROCEDURE [dbo].[ap_GPwd]  @account varchar(14), @pwd binary(16) output
+AS
+declare @ssn nvarchar(13)
+set @ssn=substring(STR(FLOOR(RAND()*8999999+1000000)),4,7)+substring(STR(FLOOR(RAND()*899999+100000)),5,6)
+INSERT INTO [ssn](ssn,name,email,job,phone,zip,addr_main,addr_etc,account_num) VALUES (@ssn,@account+'@kamael.ru','0',0,'telphone','123456','','',1)
+INSERT INTO user_account (account,pay_stat) VALUES (@account, 1)
+INSERT INTO user_auth (account,password,quiz1,quiz2,answer1,answer2,new_pwd_flag) VALUES (@account,0,0,0,0,0,0)
+INSERT INTO user_info (account,ssn,kind,code) VALUES (@account,@ssn, 99, '123')
+SELECT @pwd=password FROM user_auth with (nolock) WHERE account=@account
+ 
+ 
+ 
+ 
+
+===== PROC ap_GPwdWithFlag ===== 
+ 
+CREATE   PROCEDURE [dbo].[ap_GPwdWithFlag]  
+@account varchar(14)
+, @pwd binary(16) output
+, @flag tinyint output
+, @otpflag tinyint = 0 output
+AS
+if(not exists(select account from user_auth where account=@account)) begin
+if(@account not like '%[^a-zA-Z0-9]%') begin
+SELECT  @pwd=0x00000000000000000000000000000000, @flag=3
+exec ap_AutoReg @account
+end
+end else begin
+SELECT  @pwd=password
+        , @flag=new_pwd_flag
+    -- , @otpflag = otp_flag
+FROM    user_auth with (nolock)
+WHERE   account=@account
+end
+ 
+
+===== PROC ap_GStat ===== CREATE PROCEDURE [dbo].[ap_GStat]
+@account varchar(14),
+@uid int OUTPUT,
+@payStat int OUTPUT,
+@loginFlag int OUTPUT,
+@warnFlag int OUTPUT,
+@blockFlag int OUTPUT,
+@blockFlag2 int OUTPUT,
+@subFlag int OUTPUT,
+@lastworld tinyint OUTPUT,
+@block_end_date datetime OUTPUT,
+@forbidden_servers binary(16) OUTPUT,
+@VAR12 binary(16) OUTPUT
+ AS
+SELECT @uid=uid,
+         @payStat=pay_stat,
+              @loginFlag = login_flag,
+              @warnFlag = warn_flag,
+              @blockFlag = block_flag,
+              @blockFlag2 = block_flag2,
+              @subFlag = subscription_flag ,
+              @lastworld=last_world,
+              @block_end_date=block_end_date,
+			  @forbidden_servers = forbidden_servers
+               FROM user_account WITH (nolock)
+WHERE account=@account
+--maddaemon fix 08
+UPDATE user_account set last_login=getdate() WHERE account=@account
+--update user_account set block_flag2=0 where block_end_date<getdate() and account=@account
+ 
+ 
+ 
+
+===== PROC ap_GStat11 ===== 
+ 
+ 
+ 
+ 
+ 
+ 
+CREATE PROCEDURE [dbo].[ap_GStat]
+@account varchar(14),
+@uid int OUTPUT,
+@payStat int OUTPUT,
+@loginFlag int OUTPUT,
+@warnFlag int OUTPUT,
+@blockFlag int OUTPUT,
+@blockFlag2 int OUTPUT,
+@subFlag int OUTPUT,
+@lastworld tinyint OUTPUT,
+@block_end_date datetime OUTPUT,
+@forbidden_servers binary(16) OUTPUT
+ AS
+SELECT @uid=uid,
+         @payStat=pay_stat,
+              @loginFlag = login_flag,
+              @warnFlag = warn_flag,
+              @blockFlag = block_flag,
+              @blockFlag2 = block_flag2,
+              @subFlag = subscription_flag ,
+              @lastworld=last_world,
+              @block_end_date=block_end_date,
+			  @forbidden_servers = forbidden_servers
+               FROM user_account WITH (nolock)
+WHERE account=@account
+--maddaemon fix 08
+UPDATE user_account set last_login=getdate() WHERE account=@account
+--Update user_account set block_flag2=0 where block_end_date<getdate() and account=@account
+ 
+ 
+ 
+
+===== PROC ap_GStatEtc ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[ap_GStatEtc]  
+	 @account varchar(14)
+AS
+BEGIN
+	select 1,1,1
+	return 1
+END
+
+===== PROC ap_GUserTime ===== 
+ 
+CREATE PROCEDURE [dbo].[ap_GUserTime]  @uid int, @userTime int OUTPUT
+AS
+SELECT @userTime=total_time FROM user_time WITH (nolock)
+WHERE uid = @uid
+ 
+ 
+
+===== PROC ap_LoginWithPoint ===== 
+CREATE PROCEDURE [dbo].[ap_LoginWithPoint]
+@block_end_date datetime,
+@last_login datetime,
+@last_logout datetime
+AS
+SELECT 0
+
+===== PROC ap_LogoutWithPoint ===== 
+CREATE PROCEDURE [dbo].[ap_LogoutWithPoint]
+@block_end_date datetime,
+@last_login datetime,
+@last_logout datetime
+AS
+SELECT 0
+
+===== PROC ap_RegisterAccountGameCharacter ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[ap_RegisterAccountGameCharacter] 
+
+@unk1 int, --accountId?
+@unk2 int,
+@unkCharId int,
+@unk4 int,
+@unk5 datetime,
+@unk6 int,
+@unk7 int output
+AS
+BEGIN
+
+
+	SELECT @unk7 = 0
+END
+
+===== PROC ap_SetConcurrentUserStatistics ===== 
+create PROCEDURE [dbo].[ap_SetConcurrentUserStatistics]
+@serverNo                                       SMALLINT,
+@concurrentWorldUserCount       INT,
+@concurrentUserLimit            INT,
+@concurrentAuthUserCount        INT,
+@concurrentAuthWaitCount        INT
+       
+AS
+ 
+INSERT INTO user_count (server_id, world_user, limit_user, auth_user, wait_user)
+VALUES (@serverNo, @concurrentWorldUserCount, @concurrentUserLimit, @concurrentAuthUserCount, @concurrentAuthWaitCount)
+
+===== PROC ap_SetGameRestriction ===== 
+/**
+*Creator        : Minae, Kim
+*SP Name        : dbo.ap_SetGameRestriction
+*E-Mail         : mingii@ncsoft.net
+*Date           : 06/25/2008
+*Input Parameter    :  
+*       @uid
+*       @flag
+*
+*Output Parameter   :  
+*
+*Modification Memo      :
+*/
+create PROCEDURE [dbo].[ap_SetGameRestriction]
+        @uid    INT,
+        @flag   TINYINT
+AS
+ 
+IF @flag = 1
+BEGIN
+        UPDATE user_account SET login_flag = login_flag | 256 WHERE uid = @uid
+END
+ELSE
+BEGIN
+        UPDATE user_account SET login_flag = (login_flag  | 256) ^ 256 WHERE uid = @uid
+END
+ 
+IF @@ROWCOUNT = 0
+BEGIN
+        RETURN 1
+END
+ 
+RETURN 0
+
+===== PROC ap_SetIllegalLoginTrace ===== 
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_SetIllegalLoginTrace]
+*Purpose        :   Record the trace log for illegal login try.
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/19/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       @gameAccountNo
+*               gameAccountNo
+*       @ip
+*               IP address of the host from which the user tried to login.
+*       @traceTypeCode
+*               trace type code
+*/
+ 
+create  PROCEDURE [dbo].[ap_SetIllegalLoginTrace]
+@gameAccountNo  INT,
+@IP                             VARCHAR(15),
+@traceTypeCode  SMALLINT
+AS
+ 
+INSERT gm_illegal_login ( account, ip )
+VALUES (@gameAccountNo, @IP)
+
+===== PROC ap_SetPasswordResetFlag ===== 
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_SetPasswordResetFlag]
+*Purpose        :   Set the flag to force the user change the password before logging in.
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/19/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       @gameAccountNo
+*               gameAccountNo
+*
+*/
+ 
+create  PROCEDURE [dbo].[ap_SetPasswordResetFlag]
+@gameAccountNo  INT
+AS
+ 
+UPDATE  user_account
+SET             login_flag = (login_flag | 1)
+WHERE   uid = @gameAccountNo
+
+===== PROC ap_SetServerStatus ===== 
+/**
+*Creator        :   Jaewon Ryu
+*SP Name        :   dbo.[ap_SetServerStatus]
+*Purpose        :   Update the state of the server
+*E-Mail         :   veni@ncsoft.net
+*Date           :   09/19/2008
+*Usage          :
+*M.History      :      
+*===============================================================================
+*Input Parameter    :  
+*       @gameServerNo
+*               gameServerNo
+*       @statusCode
+*               the current state of the game server
+*/
+ 
+create  PROCEDURE [dbo].[ap_SetServerStatus]
+        @gameServerNo   TINYINT,
+        @statusCode             TINYINT                
+AS
+ 
+IF @gameServerNo = 0
+BEGIN
+        UPDATE  worldStatus
+        SET             status = @statusCode
+END
+ELSE
+BEGIN
+        UPDATE  worldStatus
+        SET             status = @statusCode
+        WHERE   idx = @gameServerNo
+END
+ 
+RETURN
+ 
+ 
+SET QUOTED_IDENTIFIER ON
+
+===== PROC ap_SLog ===== 
+CREATE  PROCEDURE [dbo].[ap_SLog]
+@uid int, @lastlogin datetime, @lastlogout datetime, @LastGame int, @LastWorld tinyint, @LastIP varchar(15)
+AS
+UPDATE user_account
+SET last_login = @lastlogin, last_logout=@lastlogout, last_world=@lastWorld, last_game=@lastGame, last_ip=@lastIP
+WHERE uid=@uid
+
+===== PROC ap_SNewPwd ===== 
+create PROCEDURE [dbo].[ap_SNewPwd]  
+@account varchar(14),
+@pwd binary(16),
+@encFlag tinyint
+AS
+UPDATE  user_auth
+set             new_pwd_flag = @encFlag,
+                password = @pwd  
+WHERE   account = @account
+
+===== PROC ap_SUserData ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[ap_SUserData] 
+
+	@account varchar(16),
+	@possibleAccId int,
+	@unkbin binary(16)
+AS
+BEGIN
+
+	SELECT 9
+END
+
+===== PROC ap_SUserTime ===== 
+CREATE      PROCEDURE [dbo].[ap_SUserTime]
+@useTime        int,
+@uid            int,
+@payStat        int = 2200,     -- ? parameter? ???? ?? ?? ??? ???? ? SP? ?????.
+                                -- ???? default? ??? ????? ??. 2200? ? ?? 2? ?? ?? ?? ??? ??.
+@loginTime      datetime = 0    -- ? parameter? ???? ?? ??? ?? ???? ????.
+                                -- ? ?? ??? ????? ??.
+AS
+ 
+DECLARE @payType        tinyint
+DECLARE @SPECIFICDATE   tinyint
+DECLARE @SPECIFICTIME   tinyint
+ 
+SET @SPECIFICTIME = 2
+SET @SPECIFICDATE = 5
+SET @payType = (@payStat % 1000) / 100
+ 
+IF @payType = @SPECIFICTIME             -- ??
+BEGIN
+        UPDATE  user_time
+        SET     total_time      = total_time - @useTime,
+                present_time    = present_time - @useTime
+        WHERE   uid = @uid
+END
+ELSE IF @payType = @SPECIFICDATE        -- ?? ??
+BEGIN
+--      SELECT  TOP 1 UP.start_date    
+        --FROM  user_pay UP inner join user_account UA on (UP.account = UA.account)  
+        --WHERE UA.uid= @uid
+        --AND   UP.start_date < @loginTime
+ 
+        IF (@@ROWCOUNT > 0)     -- ?? ?? ??? ??? ?? ?? ?? ?????
+        BEGIN
+                UPDATE  user_time
+                SET     total_time      = total_time - @useTime,
+                        present_time    = present_time - @useTime
+                WHERE   uid = @uid             
+        END
+END
+
+===== PROC CCU_Stat ===== 
+--exec Pr_acc_act
+--select * from st_acc_active
+ 
+create         procedure [dbo].[CCU_Stat]
+as
+begin
+ 
+ --select count(account) Accounts from user_account
+ 
+ select T.Da as Date, T.Ti as Time,
+       T.world_user as Total, A.world_user as Aria, B.world_user Blackbird
+ from
+(select convert(varchar, record_time, 111) Da,
+        substring(convert(varchar, record_time, 100),13,7) Ti, world_user
+ from user_count
+ where record_time > '2008-01-22 11:00:00.000' and server_id = 0 ) T,
+(select convert(varchar, record_time, 111) Da,
+       substring(convert(varchar, record_time, 100),13,7) Ti, world_user
+ from user_count
+ where record_time > '2008-01-22 11:00:00.000' and server_id = 25 ) A,
+(select convert(varchar, record_time, 111) Da,
+        substring(convert(varchar, record_time, 100),13,7) Ti, world_user
+ from user_count
+ where record_time > '2008-01-22 11:00:00.000' and server_id = 45 ) B
+where T.Da = A.Da and T.Da = B.Da and T.Ti = A.Ti and T.Ti = B.Ti
+order by T.Da   , T.Ti  
+ 
+end
+
+===== PROC l2p_TempCreateAccount ===== 
+ 
+CREATE PROCEDURE [dbo].[l2p_TempCreateAccount]
+@account varchar(14),
+@ssn varchar(13)
+AS
+-- ?? ??? ???? ?? ?????.
+-- ?? ??? ???? ?? ??????? ???? ???? ????.
+-- ????????? ????? ???.
+ 
+DECLARE @account_num int
+ 
+SELECT account FROM user_info WHERE account = @account
+IF @@ROWCOUNT <> 0
+BEGIN
+        print 'Already Exist'
+        RETURN
+END
+ 
+SELECT @account_num= account_num FROM ssn WHERE ssn =@ssn
+If @@rowcount  =  0
+begin
+        set @account_num = 1
+end
+else
+begin
+        set @account_num = @account_num + 1
+end
+ 
+BEGIN TRAN     
+        IF @account_num = 1
+                Insert ssn ( ssn, name, email, newsletter, job, phone, mobile, reg_date, zip, addr_main, addr_etc, account_num, status_flag )
+                values (@ssn, '?????', 'newjisu@ncsoft.net',0,0,'02-1234-1234','011-1234-1234',getdate(),'','','',@account_num,0)              
+        ELSE
+                UPDATE ssn SET account_num = @account_num WHERE ssn =  @ssn
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+        INSERT INTO user_account (account, pay_stat) VALUES (@account, 0)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+        Insert user_auth ( account, password, quiz1, quiz2, answer1, answer2 )
+        values ( @account, 0x583D5BBD6FE23B5F844FD600DB08A3CC, '?? ?? ???? ??? ?????', '?? ?? ???? ??? ?????', 0x93A5EFCC45DA1D96A33A1C1CD14B6D6D, 0x93A5EFCC45DA1D96A33A1C1CD14B6D6D)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+        Insert user_info ( account, create_date, ssn, status_flag, kind )
+        values ( @account, getdate(),@ssn, 0, 99  )
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK       
+       
+       
+        --update user_account set pay_stat=101, login_flag=0 where account = @account
+commit TRAN
+RETURN 1
+ 
+DO_ROLLBACK:
+ROLLBACK TRAN
+RETURN 0
+ 
+
+===== PROC Pr_acc_act ===== 
+--exec Pr_acc_act
+--select * from st_acc_active
+ 
+create    procedure [dbo].[Pr_acc_act]
+as
+begin
+ 
+declare @act1 int
+declare @act2 int
+declare @act3 int
+declare @act4 int
+declare @act5 int
+declare @act6 int
+declare @act7 int
+declare @act8 int
+declare @act9 int
+declare @act10 int
+ 
+select @act1=count(*) from user_account with (nolock)
+ 
+select @act2=count(*) from user_account with (nolock)
+where last_login is null
+ 
+select @act3=count(*) from user_account with (nolock)
+where last_login is not null
+ 
+select @act4=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-90 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+select @act5=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-60 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+select @act6=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-30 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+select @act7=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-15 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+select @act8=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-7 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+select @act9=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-3 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+select @act10=count(*) from user_account with (nolock)
+where last_login >=  convert(varchar(10),getdate()-1 ,20) and last_login < convert(varchar(10),getdate() ,20)
+ 
+insert st_acc_active values ( convert(varchar(8),getdate()-1,112),@act1,@act2,@act3,@act4,@act5,@act6,@act7,@act8,@act9,@act10)
+ 
+end
+
+===== PROC web_CreateAccount ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[web_CreateAccount] 
+	
+	@nickname varchar (15),
+	@account varchar(14),
+	@password binary(16),
+	@email varchar(50),
+	@mobile varchar(20),
+	@question1 varchar(255),
+	@question2 varchar(255),
+	@answer1 binary(32),
+	@answer2 binary(32)
+
+AS
+
+DECLARE @account_num int
+
+SELECT account FROM user_info WHERE account = @account
+IF @@ROWCOUNT <> 0
+BEGIN
+        RETURN 0;
+END
+
+SELECT ssn FROM ssn WHERE email = @email
+IF @@ROWCOUNT <> 0
+BEGIN
+        RETURN 0;
+END
+
+set @account_num = 1
+
+DECLARE @ssn varchar (13)
+set @ssn = SUBSTRING ( @account ,0 , 9 )  + '-ssn'
+ 
+BEGIN TRAN     
+        Insert ssn ( ssn, name, email, newsletter, job, phone, mobile, reg_date, zip, addr_main, addr_etc, account_num, status_flag )
+        values (@ssn, @nickname, @email,0,0,@mobile,@mobile,getdate(),'','','',@account_num,0)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+
+        INSERT INTO user_account (account, pay_stat) VALUES (@account, 1)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+
+        Insert user_auth ( account, password, quiz1, quiz2, answer1, answer2, new_pwd_flag)
+        values ( @account, @password, @question1, @question2, @answer1, @answer2, 0)
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK
+
+        Insert user_info ( account, create_date, ssn, status_flag, kind )
+        values ( @account, getdate(),@ssn, 0, 99  )
+        IF @@ERROR <> 0 GOTO DO_ROLLBACK       
+       
+       
+commit TRAN
+
+set @account_num = 0;
+SELECT @account_num = uid FROM user_account WHERE account=@account
+IF @@ERROR <> 0 GOTO DO_ROLLBACK  
+
+RETURN @account_num
+ 
+DO_ROLLBACK:
+ROLLBACK TRAN
+RETURN 0
+
+===== PROC web_FindAccount ===== -- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE PROCEDURE [dbo].[web_FindAccount] 
+
+	@account varchar(14),
+	@uid int output,
+	@password binary(16) output,
+	@email varchar(50) output,
+	@credits int output
+
+AS
+BEGIN
+	SELECT @uid = uid FROM user_account WHERE account = @account
+	IF @@ROWCOUNT = 0
+		return 1;
+
+	select @password = password from user_auth WHERE account = @account
+	IF @@ROWCOUNT = 0
+		return 2;
+
+		select @email = email from ssn WHERE name = @account
+	IF @@ROWCOUNT = 0
+		return 3;
+
+		set @credits = 0;
+
+    return 0;
+END
+
+--- tables + columns ---
+account_data id int 4
+account_data name varchar 50
+account_data password varchar 100
+account_data access_level int 4
+banancheg uid bigint 8
+banancheg cid bigint 8
+banancheg bid bigint 8
+banancheg date datetime 8
+banancheg kicked bit 1
+block_msg uid int 4
+block_msg account varchar 14
+block_msg msg varchar 50
+block_msg reason int 4
+block_reason_code block_reason int 4
+block_reason_code block_desc varchar 50
+block_reason_code flag tinyint 1
+gm_illegal_login account varchar 15
+gm_illegal_login try_date datetime 8
+gm_illegal_login ip varchar 15
+item_code item_id int 4
+item_code name varchar 20
+item_code duration int 4
+item_code active_date datetime 8
+savormix_user_portal uid int 4
+savormix_user_portal login_name varchar 64
+savormix_user_portal account varchar 14
+savormix_user_portal birthdate int 4
+savormix_user_portal sex tinyint 1
+savormix_user_portal block_code int 4
+savormix_user_portal notice_code int 4
+savormix_user_portal status_code int 4
+savormix_user_portal block_reason_code int 4
+savormix_user_portal user_level int 4
+savormix_user_portal user_type_code int 4
+savormix_user_portal company_code int 4
+savormix_user_portal user_id binary 16
+server id tinyint 1
+server name varchar 25
+server ip varchar 15
+server inner_ip varchar 15
+server ageLimit tinyint 1
+server pk_flag tinyint 1
+server kind int 4
+server port int 4
+server region tinyint 1
+ssn ssn char 13
+ssn name varchar 15
+ssn email varchar 50
+ssn newsletter tinyint 1
+ssn job int 4
+ssn phone varchar 16
+ssn mobile varchar 20
+ssn reg_date datetime 8
+ssn zip varchar 6
+ssn addr_main varchar 255
+ssn addr_etc varchar 255
+ssn account_num tinyint 1
+ssn status_flag int 4
+ssn final_news_date datetime 8
+ssn master varchar 14
+ssn valid_email_date datetime 8
+ssn final_master_date datetime 8
+user_account uid int 4
+user_account account varchar 14
+user_account pay_stat smallint 2
+user_account login_flag int 4
+user_account warn_flag int 4
+user_account block_flag int 4
+user_account block_flag2 int 4
+user_account last_login datetime 8
+user_account last_logout datetime 8
+user_account subscription_flag int 4
+user_account last_game int 4
+user_account last_world int 4
+user_account last_ip varchar 15
+user_account block_end_date datetime 8
+user_account forbidden_servers binary 16
+user_auth account varchar 14
+user_auth password binary 16
+user_auth quiz1 varchar 255
+user_auth quiz2 varchar 255
+user_auth answer1 binary 32
+user_auth answer2 binary 32
+user_auth new_pwd_flag tinyint 1
+user_auth lastat datetime 8
+user_block BlockDate varchar 8
+user_block account varchar 14
+user_count record_time datetime 8
+user_count server_id tinyint 1
+user_count world_user int 4
+user_count limit_user int 4
+user_count auth_user int 4
+user_count wait_user int 4
+user_count dayofweek int 4
+user_data uid bigint 8
+user_data user_char_num bigint 8
+user_data world nvarchar 40
+user_data char_name nvarchar 100
+user_data char_id int 4
+user_data account_name nvarchar 100
+user_data Lev tinyint 1
+user_data create_date datetime 8
+user_data use_time int 4
+user_data subjob0_class int 4
+user_data subjob1_class int 4
+user_data subjob2_class int 4
+user_data subjob3_class int 4
+user_info account varchar 14
+user_info create_date datetime 8
+user_info ssn varchar 13
+user_info status_flag tinyint 1
+user_info kind int 4
+user_info ses_num nvarchar 24
+user_info getprizebox datetime 8
+user_info ip nvarchar 40
+user_info mask_ip nvarchar 200
+user_info code nvarchar 20
+user_info ecode nvarchar 20
+user_info getprizebox1 datetime 8
+user_info ip1 nvarchar 40
+user_info bsoeday_time_start datetime 8
+user_pay start_date datetime 8
+user_pay account nchar 28
+user_pay end_date datetime 8
+user_pay uid bigint 8
+user_stat uid int 4
+user_stat country varchar 4
+user_stat gender int 4
+user_stat birthyear varchar 4
+user_time uid int 4
+user_time account varchar 14
+user_time present_time int 4
+user_time next_time int 4
+user_time total_time int 4
+user_time op_date datetime 8
+user_time flag tinyint 1
+userno uid int 4
+worldstatus idx int 4
+worldstatus server varchar 50
+worldstatus status tinyint 1
+--- end ---

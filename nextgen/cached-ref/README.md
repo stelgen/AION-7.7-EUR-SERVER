@@ -20,7 +20,7 @@
 |---|---|---|
 | serverHandlers (283) | :2006 (RQ/RP) | мир-канал Server64 |
 | adminHandlers | :2007 (GQ/GP) | builder/GM interactive |
-| npcDbHandlers | :2009 | третий листенер — NPC-DB канал NPCSvr64 |
+| npcDbHandlers | :2009 | третий листенер — NPC-DB канал NPCSvr64. ⚠️ 08.10 live-netstat: гипотеза «клиент = NPCSvr64» ОТПАДЕНА — NPCSvr ходит в CacheD по 2006; 2009 в бою без клиентов (aion-npc ROADMAP леджер); кто клиент 2009 — ⏳ |
 
 L2 wire: `[u16 self-len LE][opcode][payload][2Б csum]` + rolling-XOR DummyCrypt — вероятно эволюция в наш 2006; закрыть capture R1 (pktmon).
 
