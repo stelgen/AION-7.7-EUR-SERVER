@@ -23,7 +23,7 @@
 | `InterSvrType=1` live; **2 = matchmaker/beginner** («main difference», AKllX #26); matchmaker = отдельный мини-стек с портами 7778/aion_event=true | aion-ic/RESEARCH §2 |
 | Матчмейкер арен = JZ→JNZ патч #108 (план); манастоны #111 (план) — до переписи | fixes-pending |
 | Конфиги: `MainServer\common.xml` (captcha/useCaptcha, порты), `config.xml`, `common.xml` блок 3.0.1221 (ICServerAddr/Port/Id) | live + ic-RESEARCH |
-| Клиент-протокол: семантика пакетов из Java-эталонов (reference/ Mobius 7.7 + beyond-aion 4.8: CM_/SM_ полный реестр) | reference/ |
+| Клиент-протокол: семантика пакетов из Java-эталонов. **reference/ = 5 эталонов** (веб-ресёрч 08.10, все свежие HEAD): Mobius_AionEmu 7.7 (CM 248/SM 346), **aion-germany 7.8 EU Gameforge + AL-Game-5.8 (CM 481/SM 666 — максимум!)**, AionLightning 7.8.0 (CM 258/SM 356), beyond-aion 4.8 (CM 233/SM 285), Yoress ARP = Aion-Core 4.7.5 open-source (CM 227/SM 282) | reference/ + гист neon-dev |
 
 ## 🚧 Блокеры
 
@@ -32,7 +32,7 @@
 
 ## ⏭️ Следующий шаг
 
-`WORKFLOW: main` → R0: конфиг-инвентарь + карта зависимостей + Java-эталоны сматчить к нашим опкодам (ШАРИРОВАТЬ с aion-npc/aion-cache!) → ROADMAP-детализация. Промпт: [PROMPT.md](PROMPT.md).
+`WORKFLOW: main` → R0: конфиг-инвентарь + карта зависимостей + Java-эталоны сматчить к нашим опкодам — приоритет маппинга: **aion-germany AL-Game 7.8 (EU/Gameforge = наш регион!) + Mobius 7.7 (наша версия!)**, затем AionLightning 7.8 → cross-check; beyond-aion 4.8/ARP 4.7.5 = ретро-семантика (ШАРИРОВАТЬ с aion-npc/aion-cache!) → ROADMAP-детализация. Промпт: [PROMPT.md](PROMPT.md).
 
 ## 📦 Артефакты
 
@@ -40,7 +40,7 @@
 |---|---|
 | Промпт | [PROMPT.md](PROMPT.md) |
 | PDB 284МБ | VM `D:\AION_LIVE_SERVER\MainServer\` (манифест manifest-pdb-big) |
-| Java-эталоны | `STELGEN/projects/aion_server_2026-10-02/reference/` (Mobius_AionEmu 7.7, beyond-aion 4.8 — песочница) |
+| Java-эталоны (5 шт, ~3.2ГБ) | `STELGEN/projects/aion_server_2026-10-02/reference/` (песочница, вне гита): `Mobius_AionEmu` (HEAD d634851 tag 20260718 «Aion 7.7 update»), `aion-germany` (HEAD 562c5b2, **EU 7.8 Gameforge** + AL-Game-5.8, shallow), `AionLightning` (HEAD 4427aa7, ветка 7.8.0), `aion-server` = beyond-aion 4.8 (HEAD 81e409c), `yoress-arp-475` = Aion-Core 4.7.5 (HEAD 6d670f1). Опкоды встроены в Java-классы (отдельных opcode-файлов нет) |
 | 2.7-кит | VM `D:\SAION\downloads\rz\unpacked\2.7\` |
 | Ориг | VM `D:\AION_LIVE_SERVER\MainServer\` (задача AionMain; пара с AionNPC) |
 | Креды/доступы | VM `D:\SAION\creds\` |
