@@ -118,8 +118,8 @@ func TestE2EFullFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, typ, payload = readReply(t, c)
-	if typ != 4 || len(payload) != 31 {
-		t.Fatalf("serverlist: typ=%d len=%d", typ, len(payload))
+	if typ != 4 || len(payload) != 26 {
+		t.Fatalf("serverlist: typ=%d len=%d (канон ориг 26Б)", typ, len(payload))
 	}
 	if payload[3] != 192 || payload[6] != 125 { // worldIP 192.168.0.125
 		t.Fatalf("worldIP: %x", payload[3:7])
@@ -135,8 +135,11 @@ func TestE2EFullFlow(t *testing.T) {
 		t.Fatal(err)
 	}
 	_, typ, payload = readReply(t, c)
-	if typ != 7 || len(payload) != 15 {
-		t.Fatalf("play: typ=%d len=%d", typ, len(payload))
+	if typ != 7 || len(payload) != 9 {
+		t.Fatalf("play: typ=%d len=%d (канон ориг 9Б)", typ, len(payload))
+	}
+	if binary.LittleEndian.Uint32(payload[4:8]) != 1 {
+		t.Fatalf("pk2: %d want accID 1", binary.LittleEndian.Uint32(payload[4:8]))
 	}
 
 	// 5. [01] CltDisconnect — онлайн-флаг НЕ снимается (live)

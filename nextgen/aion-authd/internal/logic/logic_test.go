@@ -163,11 +163,12 @@ func TestSweepTTL(t *testing.T) {
 }
 
 func TestBuildType4(t *testing.T) {
+	// канон ориг (fork 07.10 05:33, юзер-фрейм): payload 26Б БЕЗ хвостового пада
 	cfg := &config.Config{}
 	cfg.FillDefaults()
 	p := BuildType4([]byte{192, 168, 0, 125}, 7777)
-	if len(p) != 31 {
-		t.Fatalf("len: %d want 31 (pt 32 = [04]+payload)", len(p))
+	if len(p) != 26 {
+		t.Fatalf("len: %d want 26", len(p))
 	}
 	if p[0] != 1 || p[1] != 1 || p[2] != 1 || p[3] != 192 || p[4] != 168 || p[5] != 0 || p[6] != 125 {
 		t.Fatalf("ip-зона: %x", p[:8])
@@ -175,12 +176,23 @@ func TestBuildType4(t *testing.T) {
 	if port := binary.LittleEndian.Uint16(p[7:9]); port != 7777 { // live 61 1e
 		t.Fatalf("port: %d", port)
 	}
+	// зона 6 нулей после порта, затем f4010101
+	if p[9] != 0 || p[15] != 0xf4 { // 6 нулей [9:15], потом f4010101
+		t.Fatalf("pad/const: %x", p[9:16])
+	}
 }
 
 func TestBuildType7(t *testing.T) {
-	p := BuildType7(1)
-	if len(p) != 15 {
-		t.Fatalf("len: %d want 15 (pt 16 = [07]+payload)", len(p))
+	// канон ориг (fork 07.10 05:33): payload 9Б = [pk1=1][pk2=accID][serverID]
+	p := BuildType7(1010, 1)
+	if len(p) != 9 {
+		t.Fatalf("len: %d want 9", len(p))
+	}
+	if binary.LittleEndian.Uint32(p[0:4]) != 1 {
+		t.Fatalf("pk1: %d want 1 (ориг-канон)", binary.LittleEndian.Uint32(p[0:4]))
+	}
+	if binary.LittleEndian.Uint32(p[4:8]) != 1010 {
+		t.Fatalf("pk2: %d want accID 1010", binary.LittleEndian.Uint32(p[4:8]))
 	}
 	if p[8] != 1 {
 		t.Fatalf("serverID: %d", p[8])

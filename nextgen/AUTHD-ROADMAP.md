@@ -3,10 +3,12 @@
 > Верхнеуровневый план 07.10.2026. Полный ресёрч сурсов: [AUTHD-RESEARCH.md](AUTHD-RESEARCH.md).
 > Промпт для разработки: [PROMPT-AUTHD.md](PROMPT-AUTHD.md).
 >
-> **СТАТУС 07.10 (вечер): MVP-код R1-R4 ГОТОВ** в `aion-authd/` (wire 2110 + логика live-фактов +
-> DB mem/mssql; тесты зелёные; probe-e2e от `aion-gate/cmd/probe` = «healthy»). **НЕ ДЕПЛОИТЬ —
-> прод не тронут.** Остались: R0-верификация (procs AionAccounts sp_helptext, роль 2104 — Server64!
-> без него свитч невозможен), R5 fork-дифф (unk-dword'ы type=3, точные формы), R6 свитч по «го».
+> **СТАТУС 07.10 ночь: R1-R4 ГОТОВЫ + R5 fork-стенд ЖИВОЙ НА ПРОДЕ** (гейт 2106 → forkauthd 2116 →
+> ориг 2110 + копия в shadow aion-authd 2117; юзер залогинился и в игре — живой путь через ориг).
+> Каноны сняты fork'ом (type=3/4/7/fail — см. aion-authd/docs/authd-wire-20261007.md §2.5);
+> **PA обязателен** (без него SYSTEM_ERROR 20). Прод-топология ОСТАВЛЕНА КАК ЕСТЬ (fork-shadow постоянно,
+> по решению юзера) = R6-свитч свёл­ся к: наш authd в shadow до R0 (procs AionAccounts, роль 2104) →
+> затем переключение живого пути на наш (fork: orig→shadow режим).
 > Сессия-док: [aion-authd/docs/session-20261007-authd-mvp.md](aion-authd/docs/session-20261007-authd-mvp.md).
 > Метод-референс: треки aion-logd → aion-captcha → aion-gate (метод отработан 3 раза).
 > Приложение-цель: `L2Authd.exe` (1,198,592 Б) — **2104** (serverPort), **2110** (serverExPort → AuthGateD),

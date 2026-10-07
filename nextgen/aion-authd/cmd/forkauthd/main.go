@@ -7,9 +7,10 @@
 // SAME/DIFF против ориг-ответа (O>) по ключу (frame, sid, type). Ориг НЕ трогаем
 // лишним трафиком: копируются ТОЛЬКО фреймы, которые сам шлёт наш гейт.
 //
-// Лог: C> (гейт→fork) / O> (ориг→гейт) / N> (shadow→fork) полные hex → дифф O-vs-N.
-// Токены динамичны (type=3/7 содержат Rnd) — байтовый DIFF там ожидаем; арбитр =
-// структура (длины/зоны нулей), а не побайтовое равенство.
+// Матчинг O-vs-N: per-key состояние {lastO, lastC, lastO}; N> сравнивается с lastO,
+// ЕСЛИ ответ ориг пришёл ПОСЛЕ последнего запроса C> этого ключа (иначе N-ONLY —
+// shadow ответил раньше ориг, гонка). Поля uid/токены динамичны — байтовый DIFF там
+// ожидаем; арбитр = структура (длины/зоны), а не побайтовое равенство.
 package main
 
 import (
@@ -59,13 +60,20 @@ func dump(tagS, dir string, raw []byte, f wire.Frame) string {
 	return fmt.Sprintf("%s %s [%02x] sid=%d len=%d hex=%s", tagS, dir, f.Type, f.Sid, len(raw), head)
 }
 
+// tagState — сопоставление запросов/ответов per-key.
+type tagState struct {
+	lastO  []byte    // последний фрейм ориг этого ключа
+	lastOT time.Time // когда пришёл lastO
+	lastCT time.Time // когда шёл последний запрос C> этого ключа
+}
+
 type fwd struct {
 	gate, orig, shadow net.Conn
 
 	wmu sync.Mutex // запись в gate (только O>-горутина пишет)
 
 	mu    sync.Mutex
-	lastO map[tag][]byte
+	keys  map[tag]*tagState
 	log   *log.Logger
 }
 
@@ -84,7 +92,7 @@ func (fw *fwd) pump(name string, src net.Conn, onFrame func([]byte, wire.Frame))
 // run — одна сессия fork'а (один коннект гейта).
 func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 	defer gate.Close()
-	fw := &fwd{gate: gate, lastO: map[tag][]byte{}, log: logger}
+	fw := &fwd{gate: gate, keys: map[tag]*tagState{}, log: logger} // gate ОБЯЗАТЕЛЕН: O>-pump пишет в него (nil → panic, поймано 07.10)
 	logger.Printf("=== gate connected %s ===", gate.RemoteAddr())
 
 	orig, err := net.DialTimeout("tcp", origAddr, 5*time.Second)
@@ -127,7 +135,13 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 	go fw.pump("orig", orig, func(raw []byte, f wire.Frame) {
 		k := keyOf(f)
 		fw.mu.Lock()
-		fw.lastO[k] = raw
+		st := fw.keys[k]
+		if st == nil {
+			st = &tagState{}
+			fw.keys[k] = st
+		}
+		st.lastO = raw
+		st.lastOT = time.Now()
 		fw.mu.Unlock()
 		logger.Printf("%s", dump("O>", "O>G", raw, f))
 		fw.wmu.Lock()
@@ -144,10 +158,16 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 		go fw.pump("shadow", fw.shadow, func(raw []byte, f wire.Frame) {
 			k := keyOf(f)
 			fw.mu.Lock()
-			last, ok := fw.lastO[k]
+			st := fw.keys[k]
+			var last []byte
+			if st != nil && st.lastO != nil && st.lastOT.After(st.lastCT) {
+				// ориг ответил ПОСЛЕ запроса — валидная пара
+				last = st.lastO
+				st.lastO = nil // одноразовое сопоставление
+			}
 			fw.mu.Unlock()
-			verdict := "N-ONLY (ориг не отвечал на этот ключ)"
-			if ok {
+			verdict := "N-ONLY (ориг ещё не ответил на этот ключ)"
+			if last != nil {
 				if string(last) == string(raw) {
 					verdict = "SAME"
 				} else {
@@ -155,7 +175,7 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 				}
 			}
 			logger.Printf("%s VERDICT=%s", dump("N>", "S>F", raw, f), verdict)
-			if ok && verdict != "SAME" {
+			if last != nil && verdict != "SAME" {
 				logger.Printf("  O-full hex=%s", hex.EncodeToString(last))
 				logger.Printf("  N-full hex=%s", hex.EncodeToString(raw))
 			}

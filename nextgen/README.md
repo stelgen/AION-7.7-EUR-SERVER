@@ -7,8 +7,11 @@
 
 - **Трек A** (недели): `aion-op` оператор — supervisor + watchdog + лог-тейлеры + метрики (SQL waits/CCU/RAM/хендлы) + алерты + вкладки. Прод не трогает (Phase 0 = SSH read-only).
 - **Трек B** (месяцы): замены — CAPTCHA → AuthGateD → L2Authd → LogServer64 → AccountCache → ChannelChat → CacheD(RAM-кэш) → ICServer. Server64+NPCSvr+ScriptDLL64 — НЕ переписывать: Ghidra+PDB точечные патчи (метод #180).
-  Статус: ✅ **aion-logd** (прод 2051), ✅ **aion-captcha** (прод 22206), ✅ **aion-gate** (прод 2106, РЕЛИЗ 08.10 —
+  Статус: ✅ **aion-logd** (прод 2051), ✅ **aion-captcha** (прод 22206), ✅ **aion-gate** (прод 2106 —
   замена AuthGateD; README/архитектура: [aion-gate/README.md](aion-gate/README.md), [aion-gate/docs/architecture-aion-gate-20261007.md](aion-gate/docs/architecture-aion-gate-20261007.md)).
+  ⚠ **PA (01-PAServer7.7, 10057) = ОБЯЗАТЕЛЬНЫЙ компонент** (старое «SKIP НАВСЕГДА» НЕВЕРНО):
+  authd при UsePAServer=true отклоняет ЛЮБОЙ логин SYSTEM_ERROR(20), если PA мёртв (доказано 07.10 fork'ом).
+  Старт-порядок: PA ДО authd.
   **→ ТЕКУЩИЙ: L2Authd → свой authd** — ресёрч закрыт 07.10, шанс ~85%: [AUTHD-RESEARCH.md](AUTHD-RESEARCH.md),
   план [AUTHD-ROADMAP.md](AUTHD-ROADMAP.md) (R0-R6, реестр S1-S7), промпт [PROMPT-AUTHD.md](PROMPT-AUTHD.md); эталоны [authd-ref/](authd-ref/).
   **MVP-код готов 07.10** (R1-R4: wire 2110 + логика live-фактов + DB-слой, тесты зелёные, probe-e2e OK) —

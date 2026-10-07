@@ -244,10 +244,12 @@ func (d *Deps) ServerList(s *GateSession) *Reply {
 	return &Reply{Typ: 4, Payload: BuildType4(ip, d.Cfg.WorldPort)}
 }
 
-// Play — [02] CM_PLAY → type=7 (play-ok 26Б: pk1/pk2 Rnd + serverID).
+// Play — [02] CM_PLAY → type=7.
+// КАНОН от ориг (fork 07.10 05:33, юзер-логин stelgen): payload 9Б =
+// [pk1=1 u32][pk2=accID u32][serverID байт] — БЕЗ хвостового пада.
 func (d *Deps) Play(s *GateSession) *Reply {
-	log.Printf("play: sid=%d acc=%d → type=7 (pk1/pk2 Rnd, serverID=%d)", s.Sid, s.AccID, d.Cfg.ServerID)
-	return &Reply{Typ: 7, Payload: BuildType7(d.Cfg.ServerID)}
+	log.Printf("play: sid=%d acc=%d → type=7 (pk1=1 pk2=accID, serverID=%d)", s.Sid, s.AccID, d.Cfg.ServerID)
+	return &Reply{Typ: 7, Payload: BuildType7(s.AccID, d.Cfg.ServerID)}
 }
 
 // fail — LOGIN_FAIL: type=1, payload = [code u8] (1 БАЙТ — R5-дифф 07.10: ориг шлёт
@@ -275,26 +277,28 @@ func BuildType3(accID, token uint32, cfg *config.Config) []byte {
 	return p
 }
 
-// BuildType4 — payload server-info (live 31Б; клиентский pt 32 = [04]+payload):
-// [01 01 01][IP][port u16 LE][00000000][f4 01 01 01][00000002][01 00 01][7×0].
+// BuildType4 — payload server-info. КАНОН от ориг (fork 07.10 05:33, юзер-фрейм):
+// payload 26Б = [01 01 01][IP4][port u16 LE][6×0][f4 01 01 01][00 00 00 02][01 00 01]
+// — БЕЗ хвостового пада (клиентский pt 27 = [04]+26 → wire 42... roundup8(27)=32 → 40 ct).
 func BuildType4(worldIP []byte, worldPort uint16) []byte {
 	p := []byte{0x01, 0x01, 0x01}
 	p = append(p, worldIP...)
 	p = binary.LittleEndian.AppendUint16(p, worldPort)
-	p = append(p, 0x00, 0x00, 0x00, 0x00)
+	p = append(p, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
 	p = append(p, 0xf4, 0x01, 0x01, 0x01)
 	p = append(p, 0x00, 0x00, 0x00, 0x02)
 	p = append(p, 0x01, 0x00, 0x01)
-	p = append(p, make([]byte, 7)...)
 	return p
 }
 
-// BuildType7 — payload play-ok (live 15Б; клиентский pt 16 = [07]+payload):
-// [pk1 u32 Rnd][pk2 u32 Rnd][serverID байт][6×0] (эталон SessionKey: playOk=Rnd).
-func BuildType7(serverID byte) []byte {
-	p := make([]byte, 15)
-	_, _ = crand.Read(p[0:8])
-	p[8] = serverID
+// BuildType7 — payload play-ok. КАНОН от ориг (fork 07.10 05:33, юзер-фрейм):
+// payload 9Б = [pk1=1 u32][pk2=accID u32][serverID байт] — БЕЗ хвоста.
+// (pk1=1 в единственном живом сэмпле; pk2 = accId юзера.)
+func BuildType7(accID uint32, serverID byte) []byte {
+	p := make([]byte, 0, 9)
+	p = binary.LittleEndian.AppendUint32(p, 1)
+	p = binary.LittleEndian.AppendUint32(p, accID)
+	p = append(p, serverID)
 	return p
 }
 
