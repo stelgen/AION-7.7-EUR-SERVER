@@ -13,6 +13,8 @@
 | R2: протокол-док + Go-каркас (ops.yaml 637 пакетов, crypt/wire/dispatch, тень :7778, golden-тесты на capture) | ✅ 08.10 (06b0ac7) |
 | R3: Go MVP — хендлеры-эхо + Session; интеграции-стабы (cached ping-only до aion-cache R1) | ✅ 08.10 (2035a69): E2E PASS |
 | R3.5: мир-стейт по capture-раскладкам (13 SM-payload'ов прод, InitSequence канон) | ✅ 08.10 (bd10861): E2E PASS 9 фреймов байт-в-байт |
+| R3.6: динамические подмены раскладок (layouts.yaml, hp/mp/time) | ✅ 08.10 (6ab4509): live-вердикт SM_STATUPDATE_HP |
+| R4: fork tap-режим (пассивный разбор КОПИИ трафика, VERDICT) | ✅ 08.10 (6ab4509): тест на реальном capture 2147 кадров; полная A/B под миром = R4.5 |
 | R4 A/B → R5 свитч (пара!) → R6 наблюдение | ⬜ |
 
 ## 📟 Канон (известное сейчас)
