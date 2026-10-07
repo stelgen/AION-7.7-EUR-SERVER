@@ -169,3 +169,11 @@ usage у нас минимальный (PA вырублен, OTP off, QMAS мё�
   на сервер-селекте (и в R6-логине 11:23).
 - ГОТОВО К ЛОГИНУ: ожидание = login OK → serverlist → world relay (ip-дворд) → **world ack** →
   type=7 pk1=эхо → вход в мир.
+
+## 🔧 12:22: RAW-loop slice fix (деплой 12:24)
+
+- Мир ответил ack на relay: RAW `[0b00][00][f2030000 0a000000]` = uid 1010, **pk1=10** — но
+  raw-loop парсил payload со сдвигом +2 (ack обрезался до 4Б → OnPlayAck не сработал → type=7
+  не ушёл → висяк на выборе сервера 12:19). Формула подтверждена: total = X (2 + body),
+  payload = buf[3:x]. Фикс + тест зелёные (`7f9bce4`), деплой 12:24 (authd PID 3320).
+- Цепочка play теперь полная: CM_PLAY → relay type=0 → ack (pk1) → type=7 pk1=эхо → мир.
