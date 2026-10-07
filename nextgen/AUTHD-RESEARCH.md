@@ -78,7 +78,7 @@ OneTimeLogOut=true, AutokickAccount=true, UseOneIOCom=true
 | Wire authd↔gate (2110) | **~85%** | Уже вскрыт с нашей стороны (SmsSendConnect, [01]/[02]/[03], EncryptSecondary); L2Auth даст вторую проекцию (serverEx/Int-разделение) |
 | DB-слой (procs, payStat, block_msg) | **~80%** | C1-процедуры названы в сорцах; наша схема (AionAccounts) уже частично известна, дизasm authd даст имена наших procs |
 | Client-facing 2104 | **n/a** | В Aion клиенты НЕ ходят в authd напрямую (гейт держит 2106) — 2104 занят самим authd (второй листенер); выяснить роль дизasmом |
-| OTP/ncguard/PA-ветки | **SKIP** | Отключаемы (UseNPLogin=false и аналоги; PA уже вырублен навсегда) |
+| OTP/ncguard/PA-ветки | **SKIP** | Отключаемы (UseNPLogin=false и аналоги; PA — ориг, обязателен в стеке, не наша замена) |
 
 **Итог: вероятность рабочего своего authd — ~85%**, сложность ≈ уровень aion-gate (уже сделан на ~90%).
 Блокеры возможны только в редких [0x]-типах authd-wire — закрываются живым релеем (у нас уже
@@ -97,7 +97,7 @@ onAuthdPacket-роутер) + cdb/pdb дизasmом оригинала.
 ## 5. TODO (докачать)
 - [x] ~~`l2_c1.7z` (MasterToma C1 сорцы)~~ — СКАЧАН 06.10 (юзер дал с гейт-сервера 192.168.0.248:3923) → в гите `authd-ref/l2-c1-mastertoma/` (35МБ, 1140 файлов): `L2Auth/` (reversed 6М + generated 5.8М + src 780К, маркеры FIXED: overflow в CIOTimer/CJob, blockFlag_custom в CAccount), `L2LogD/`, `CacheD/`, `L2Core/`, `PetitionD/`, **`DBScript/` = ReleaseAuthDBSchema.sql (procs: `ap_GPwd`, `ap_GStat` ← payStat!, `ap_GUserTime`, `ap_SLog`, `ap_SUserTime`) + lin2comm.sql (44 procs) + lin2user/lin2log/lin2report/lin2world** — ГОТОВАЯ СХЕМА БД authd (все девелоперские ветки: legacy/develop-Extender C1/C4/C6, MSVC2013+). Полный пак (99МБ: + html 30М, CachedScript 29М, tests 5.7М) — локально `~/STELGEN/tmp/authd-research/artifacts/l2_c1/` + исходный `l2_c1.7z`.
 - [ ] `Auth.7z` (classic x64, mmo-dev 22808) — нужна регистрация mmo-dev.
-- [ ] RZ 1205208 p16-17: аттач portal-auth-emulator (если PA когда-нибудь понадобится — вердикт SKIP в силе).
+- [ ] RZ 1205208 p16-17: аттач portal-auth-emulator (если PA когда-нибудь понадобится для замены (не планируется — обязателен как ориг, старт ДО authd)).
 - [ ] Погуглить Google-Drive changelog MasterToma (ссылка в его подписи на mmo-dev).
 
 📌 Примечание: README ChaosPaladin/L2Auth и README MasterToma-пака совпадают почти дословно — это одна и та же шара (MasterToma-стрим 2019 → ChaosPaladin-репо). В гите лежат ОБА для трассировки.

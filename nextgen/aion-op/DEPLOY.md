@@ -12,7 +12,7 @@
 | Задача | `AionOp` — schtasks, `/ru SYSTEM /sc onstart /rl HIGHEST`, автозапуск при буте |
 | Kill-задачи | AionKickGate/AionKickAuth — /IT созданы 05.10 (пароль из реестра Winlogon, нигде не сохранён); AionKickMain/AionKickNPC2 были; AionCAPTCHA — ре-enable 05.10 (был найден Disabled) |
 | Режим | `vm.mode: local` (пробы локально на VM), `operator.mode: operate` + `dry_run: false` — реальное управление включено 05.10 (решение юзера) |
-| Безопасность | `bind: 0.0.0.0` (решение юзера: стек в локалке, наружу не торчит — NAT закрыт), `dry_run: true` (действия только планируются), POST /api/action отсутствует в observe |
+| Безопасность | `bind: 0.0.0.0` (решение юзера: стек в локалке, наружу не торчит — NAT закрыт), `dry_run: false` + `operate` (реальные действия с confirm=restart на опасных; см. README «OP-FIRST») |
 | pprof | `127.0.0.1:10201/debug/pprof/` |
 | Данные | `C:\aionop\aionop.db` — SQLite WAL, retention 30 дней |
 

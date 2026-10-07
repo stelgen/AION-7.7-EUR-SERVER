@@ -1,3 +1,5 @@
+> ⚠ АРХИВ — задача ЗАКРЫТА (компонент в бою/релизе). Документ сохранён для истории. Открытые промпты: PROMPT-ACCACHE.md, PROMPT-AUTHD.md, PROMPT-CACHED.md, PROMPT-ICSERVER.md (шаблон: README-TEMPLATE.md).
+
 # PROMPT — Фаза 1: закрытие флоу aion-gate по эталону Mobius_AionEmu 7.7
 
 > Скопировать целиком в новый чат. Ревью-док: nextgen/aion-gate/docs/mobius-77-flow-review-20261006.md (КОСЯКИ К-1..К-6 там).

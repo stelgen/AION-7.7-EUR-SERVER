@@ -13,7 +13,8 @@ AION клиент 7.7 EU ──2106──▶ aion-gate (Go, mode:authgate) ─�
 успех: type=3 → [03]74Б login-ok → [05] relay → [04]42Б server-info → [02] relay → [07]26Б play-ok → мир 7777 (Server64)
 ```
 
-- PA/PortalAuth НЕ участвует (SKIP НАВСЕГДА — authd сам держит акки через L2Conn.dsn→AionAccounts,
+- PA/PortalAuth НЕ участвует в НАШЕМ пути гейта, но ЖИВОЙ В СТЕКЕ ОБЯЗАТЕЛЕН (07.10: без PA ориг
+  отклоняет логин SYSTEM_ERROR(20) — authd сам держит акки через L2Conn.dsn→AionAccounts,
   авторегистрация по ASCII-логину, пароль НЕ проверяется; не-ASCII логин = 18Б LoginFail).
 - Гейт = замена AuthGateD. fork-proxy/mode:fork — инструмент A/B с оригиналом, НЕ прод.
 

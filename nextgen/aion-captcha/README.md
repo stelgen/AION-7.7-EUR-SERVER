@@ -1,8 +1,10 @@
-# aion-captcha — замена CAPTCHAImageServer.exe (Трек B, шаг 2)
+# aion-captcha — замена CAPTCHAImageServer.exe (Трек B #2 — ✅ В БОЮ с 05.10)
 
 > Протокол capture-верифицирован 05.10.2026: `docs/captcha-protocol-20261005.md`.
 > Телеметрия по `nextgen/TELEMETRY-SPEC.md` (ship скопирован из aion-logd как есть).
-> Прод: `D:\SAION\aion-captcha\` (exe + config.yaml + run.cmd), задача AionCAPTCHA — пере-таргет на run.cmd.
+> ✅ Прод: `D:\SAION\aion-captcha\` (exe MD5 `5394aab1` + config.yaml + run.cmd), задача AionCAPTCHA
+> → run.cmd, PID 5572 на :22206, буфер 10000 за ~4с, Server64.err чист. Откат:
+> `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run AionCAPTCHA`.
 
 ## Протокол (TCP :22206)
 

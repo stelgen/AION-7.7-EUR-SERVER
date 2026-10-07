@@ -1,8 +1,22 @@
-# aion-op — оператор стека AION 7.7 (Phase 1: observe + глаза + SQL-вкладка; прод = VM)
+# aion-op — оператор стека AION 7.7 (Phase 1: РЕАЛЬНОЕ УПРАВЛЕНИЕ стеком на проде)
 
-Единый Go-бинарь. **Фаза 1**: read-only пробы + лог-парсер + метрики + SQLite + алерты
-+ CCU/SQL-waits (read-only логин aionop_ro). Управление: act-слой с dry-run=true по
-умолчанию; POST /api/action существует только в operate-режиме.
+Единый Go-бинарь. **Фаза 1 живёт на VM с 05.10, управляет стеком с 07.10** (`operate`, dry_run=false):
+read-only пробы + лог-парсер + метрики + SQLite + алерты + CCU/SQL-waits + POST /api/action
+(start/stop/restart/restart_pair) + группы fork (authdn/forkd) + kick-задачи.
+
+## 🧭 OP-FIRST — единая точка управления стеком (правило для ВСЕХ агентов/чатов)
+
+- Старт/стоп/рестарт/статус любого сервиса = **ТОЛЬКО через op**: ssh →
+  `C:\Temp\op-act.ps1 -Action start|stop|restart|restart_pair -Id <svc> [-Confirm restart]`
+  (helpers юзать ТОЛЬКО через `-File`, не инлайн-PS с $), статус = `C:\Temp\op-status.ps1`.
+- PowerShell/schtasks напрямую = **последний рубеж** (op не помог) — и потом op чиним.
+- `Start-Process` из ssh-сессии = ЗАПРЕЩЁН (умирает с сессией). op сам стартует `schtasks /run AionOp`.
+- Песочница НЕ имеет TCP к VM кроме :22 — op-API дергать ТОЛЬКО через ssh на VM
+  (Invoke-RestMethod на VM; «op висит» = ложный вывод таймаута с песочницы).
+- Управляемые сервисы (config-vm.yaml): acc/logd/logsrv(locked)/ic/captcha/pa/authd(task=AionAuthOnly)/
+  gate/gateorig(2109)/cache/npc/main/authdn(2117)/forkd(2116) + группа fork.
+- **PA обязателен** (кнопка pa разблокирована: без PA = SYSTEM_ERROR(20)); старт-порядок PA ДО authd.
+- Критерий мира = 8 коннектов на :2002 (`expected_conns: 8`, было 16 netstat-строк = FALSE ALERT).
 Прод-деплой: `C:\aionop\` + задача AionOp — см. [DEPLOY.md](DEPLOY.md).
 План: [../TRACK-A-PLAN.md](../TRACK-A-PLAN.md), постановка: [../PLAN.md](../PLAN.md).
 
@@ -76,5 +90,5 @@ internal/web/          — API (GET-only) + embedded UI (вкладки, кно�
 ## Дорожная карта (см. TRACK-A-PLAN.md)
 
 - **0** ✅ скелет observe-only. **0.5** ✅ глаза.
-- **1**: агент ~2 МБ в юзер-сессии VM (единственная инсталляция на прод, по «го») → режим operate, кнопки.
-- **1.5**: watchdog-автопилот (ночной рестарт пары, эскалации).
+- **1** ✅ ЖИВОТ на VM (решение юзера 05.10: без агента — op на VM, `vm.mode: local`, `operate`, dry_run=false; start/stop/restart через schtasks/kick-задачи, кириллические пароли задач берутся из реестра Winlogon — в гит не сохраняются).
+- **1.5** ⬜: watchdog-автопилот (ночной рестарт пары = тумблер юзера, эскалации), async-ожидания маркеров в act-шагах.

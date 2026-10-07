@@ -18,7 +18,7 @@
 
 ## 🏗 Архитектура стека
 
-Поток игрока: **Клиент → AuthGateD(2106) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)** — PA(10057) **скипнут навсегда** ([docs/pa-research-20261006.md](docs/pa-research-20261006.md))
+Поток игрока (на 08.10): **Клиент → aion-gate(2106) → forkauthd(2116) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)**, fork-копия всех фреймов → наш aion-authd shadow(2117). **PA(10057) = ОБЯЗАТЕЛЕН**: без него ориг отклоняет ЛЮБОЙ логин SYSTEM_ERROR(20) молча (старое «SKIP НАВСЕГДА» из этого раздела — НЕВЕРНО, исправлено 07.10; контекст ресёрча: [docs/pa-research-20261006.md](docs/pa-research-20261006.md)). Our-gate/логгер/капча уже переписаны (nextgen) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
@@ -38,7 +38,7 @@
 
 | Компонент | Exe | Порт | Роль |
 |---|---|---|---|
-| **PAServer (PortalAuth)** | `01-PAServer7.7.exe` | 10057 (loopback) | ❌ **НЕ ЗАПУСКАЕМ НАВСЕГДА** (задача `AionPA` DISABLE): «Обязателен» = миф портал-архитектуры NCsoft, опровергнут живьём (авторегистрация/логин работают без PA, authd сам держит аккаунты через `L2Conn.dsn`→`AionAccounts`). Это релей payStat/подписок веб-портала — у нас портала нет. Вернуться только при веб-портале/биллинге. Ресёрч + единственный публичный эмулятор: [docs/pa-research-20261006.md](docs/pa-research-20261006.md) |
+| **PAServer (PortalAuth)** | `01-PAServer7.7.exe` | 10057 (loopback) | ✅ **ОБЯЗАТЕЛЕН** (задача `AionPA`, старт ДО authd): при `UsePAServer=true` ориг отказывает ЛЮБОЙ логин мгновенно и молча (SYSTEM_ERROR(20)=код 0x14), если PA мёртв — доказано fork'ом 07.10. Мы не переписываем его (релей payStat/подписок веб-портала, портала у нас нет), но держим живым. Ресёрч + публичный эмулятор: [docs/pa-research-20261006.md](docs/pa-research-20261006.md) |
 | NPRelayServer | `NPRelay64.exe` | — (исходящий) | NCoin/Warehouse-релей к MainServer. Не блокирует логин; тестировался, задачи в DISABLE |
 | RankingServer | `RankingServer.exe` | .NET-сервис | Веб-рейтинг; некритично, требует своего config.xml |
 | NPCRelay | `NPRelay64.exe` | — | см. NPRelayServer |
@@ -48,16 +48,19 @@
 
 ---
 
-## 📊 Статус стека (06.10.2026)
+## 📊 Статус стека (08.10.2026)
 
-### Nextgen-переписи (Трек B)
+### Nextgen-переписи (Трек B — [nextgen/README.md](nextgen/README.md))
 
 | Роль | Оригинал | Наш (nextgen) | Статус |
 |---|---|---|---|
 | Логгер | LogServer64 `:2051` | `nextgen/aion-logd` (Go) | ✅ в бою 05.10 (Л1–Л4), откат = `schtasks /run AionLog` |
 | Капча | CAPTCHAImageServer `:22206` | `nextgen/aion-captcha` (Go) | ✅ в бою 05.10 (буфер 10000 за ~4с против 6.4 мин) |
-| Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ в бою 06.10: e=65537 доказана на живом ct, фаза-1 флоу закрыта по ревью Mobius 7.7, режимы fork/classic |
-| Операции | — | `nextgen/aion-op` | ✅ `:10200` статус/рестарт |
+| Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ РЕЛИЗ 08.10 (`f8912a9`, exe `7c4dcab`): e=65537, op=0x00, blob asm-форма, T1-фейлы (authdTimeout=15s, тексты 1..22+45 live); полный юзер-флоу, юзер играет |
+| Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | 🟡 MVP+тень: fork-стенд жив (forkauthd :2116, shadow :2117, паритет по type=3/4/7/fail); свитч после R0 (2104/procs/mssql) |
+| Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟡 каркас R2 (dispatch+wire дизasmом, тесты зелёные); R1 capture = следующий |
+| Кэш мира | CacheD64 `:2006/2007/2009` | aion-cache (план) | 🔬 ресёрч R0 закрыт 08.10 (PDB 106МБ, RPC-словари, 781 procs; шанс ~85%) |
+| Операции | — | `nextgen/aion-op` | ✅ Phase 1: РЕАЛЬНОЕ управление стеком (operate, группы fork, kick-задачи); OP-FIRST = единственная точка управления |
 
 ### Компоненты стека
 
@@ -72,7 +75,7 @@
 | LogServer64 | ⏸ заменён `aion-logd` |
 | CAPTCHAImageServer | ⏸ заменён `aion-captcha` |
 | AuthGateD | ⏸ заменён `aion-gate` |
-| **PAServer (PortalAuth)** | ❌ **СКИП НАВСЕГДА** — не нужен, стек живёт без него: [docs/pa-research-20261006.md](docs/pa-research-20261006.md) |
+| **PAServer (PortalAuth)** | ✅ ОБЯЗАТЕЛЕН (ориг, задача AionPA, старт ДО authd; без него SYSTEM_ERROR(20)) — не переписываем, держим живым |
 | NPRelayServer / RankingServer | ⏸ скип (некритично, config.xml в ките нет) |
 | ShopAgent(10100)/Petition(2107)/ChannelChat(10254) | ❌ exe в ките нет; луперы event-driven, безвредны |
 
@@ -82,14 +85,14 @@
 |---|---|---|---|---|
 | 1 | Телеметрия rsyslog→Loki→Grafana + `ship.enabled: true` в прод-конфигах | 🟢 полдня | 🟢 ~90% | nextgen/TELEMETRY-SPEC.md |
 | 2 | Деплой 2 REF58-проц (UpdateTotalMainStatus/InsertServerinfo) + metric1-4 → logdb | 🟢 1 день | 🟢 ~80% | scripts/sql/ref58-logprocs-pending-20261005.sql |
-| 3 | Гейт: решающий живой логин юзера на наш (forkprobe-сверки → свитч 2106) | 🟡 дни | 🟢 ~70% | nextgen/aion-gate (PROMPT-AUTHGATE-FLOW.md) |
+| 3 | **nextgen главный поток**: accache R1 capture → CacheD64 R1 pktmon → authd R6-блокеры (2104/procs/mssql) → gate T2-T6 | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
 | 4 | Ghidra-silence луперов 10100/10254/2107 (один проход закроет все три) | 🟡 1–2 дня | 🟡 ~60% | fixes-pending/loops-shopagent-channelchat-petition |
 | 5 | Матчмейкер арен на одном MainServer (JZ→JNZ на IsEventServer, AKllX) | 🟡 дни | 🟡 ~50% | fixes-pending/108-matchmaker-arenas |
 | 6 | Manastone-стек фикс MainServer64 (только чистый exe, ENIGMA = риск бэкдора) | 🟠 нед | 🟡 ~50% | fixes-pending/111-mainserver64-manastones |
 | 7 | Эмуляторы Petition/ShopAgent/ChannelChat | 🟠 нед | 🔴 ~20% (некритично, можно не делать) | docs/roadmap.md Этап 3 |
 | 8 | Песочные часы / integration-сервер (2 новые карты) | 🔴 — | 🔴 ~10% (даже кит a7741288 не поднял) | RaGEZONE #32/#39 |
 
-Скиппед (не делать): **PA/PAServer** (см. выше), NPRelay, Ranking — вычеркнуты из стека.
+Скиппед (не делать): NPRelay, Ranking — вычеркнуты из стека. **PA не скиппается** — обязателен (см. выше).
 
 ---
 
@@ -153,7 +156,7 @@ sqlcmd -S localhost -U sa -P 123 -i scripts\sql\fix-community-2026-10-02.sql
 scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то же самое)
 ```
 - Проверяет «уже запущен» (не дублирует), стартует через задачи schtasks, в конце — сводка портов и RAM.
-- Порядок: AccountCache → L2Authd → AuthGateD → LogServer → CacheD → **ICServer** → **CAPTCHAImageServer** → NPCSvr (10–15 мин) → RunAsDate → жми **RUN**.
+- Порядок: AccountCache → LogServer → ICServer → CAPTCHA → **PA (10057 — ОБЯЗАТЕЛЕН!)** → L2Authd → AuthGateD → CacheD → NPCSvr (10–15 мин) → Server64 (RunAsDate/патч #180) — но живой канон сейчас = `AION-START-ALL-v6.bat` (nextgen): он стартует наш logd и учёт PA, критерий мира = 8 коннектов на :2002.
 - ⚠️ Не запускай компоненты через `Start-Process` из SSH-сессии — умирают при её закрытии. Только schtasks/консоль.
 - STOP: `AION-STOP-SERVER.bat` — обратный порядок + шаг [10/10] **удаляет все `*.err`** (логи не растут гигами).
 
@@ -256,7 +259,7 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 | [docs/server-internals.md](docs/server-internals.md) | **Как работает сервер**: кто к кому обращается, порты, конфиги, заглушки, что не копали |
 | [docs/findings-log.md](docs/findings-log.md) | **Журнал расследования логина**: патчи AuthGateD p1–p5 (что сломалось и почему), протокол (RSA+блочный шифр), теория клиентов, 5 путей решения |
 | [docs/auth-server-internals.md](docs/auth-server-internals.md) | **Сервер авторизации детально**: схема, процедуры БД с сигнатурами, таблицы, где какая логика, шансы решений |
-| [docs/pa-research-20261006.md](docs/pa-research-20261006.md) | **PA/PortalAuth ресёрч + вердикт СКИП**: что за бинарь, почему не нужен, единственный публичный эмулятор (python/docker), где искать PDB |
+| [docs/pa-research-20261006.md](docs/pa-research-20261006.md) | **PA/PortalAuth ресёрч** (⚠ вердикт «СКИП» в нём ОТМЕНЁН 07.10: PA обязателен — SYSTEM_ERROR(20) без него; не переписываем, держим живым): что за бинарь, публичный эмулятор (python/docker), где искать PDB |
 | [docs/ports.md](docs/ports.md) / [docs/nat-ports.md](docs/nat-ports.md) | Карта портов / проброс за NAT |
 | [fixes-pending/](fixes-pending/README.md) | Очередь фиксов по папкам (каждый двигается отдельно) |
 | [tools/ragezone-1211744/](tools/ragezone-1211744/README.md) | Скачанные community-фиксы (Server64 #180, LogServer патчи, SQL) с SHA256 |

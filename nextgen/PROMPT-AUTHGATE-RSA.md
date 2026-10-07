@@ -1,3 +1,5 @@
+> ⚠ АРХИВ — задача ЗАКРЫТА (компонент в бою/релизе). Документ сохранён для истории. Открытые промпты: PROMPT-ACCACHE.md, PROMPT-AUTHD.md, PROMPT-CACHED.md, PROMPT-ICSERVER.md (шаблон: README-TEMPLATE.md).
+
 # AION AuthGateD — ПРОДОЛЖЕНИЕ (RSA-decbuf блокер)
 
 ЧИТАТЬ ПЕРВЫМ: nextgen/aion-gate/docs/rsa-hunt-20261006.md — полное состояние, все теории (включая мёртвые), артефакты, косяки.

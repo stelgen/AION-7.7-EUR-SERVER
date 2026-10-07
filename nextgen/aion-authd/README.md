@@ -1,4 +1,4 @@
-# aion-authd — замена L2Authd.exe для AION 7.7 EU (Go, трек B #5)
+# aion-authd — замена L2Authd.exe для AION 7.7 EU (Go, трек B #4)
 
 **MVP 07.10.2026** — код R1-R4 полный, тесты зелёные, probe-e2e против живого эталона OK.
 **ПРОД НЕ ТРОНУТ и не деплоен** — свитч только по «го» и только после R0/R5 (см. §Статус).
@@ -10,13 +10,13 @@
 
 | Фаза | Статус |
 |---|---|
-| R0 разведка VM (config.txt, dsn, порты, procs sp_helptext, PDB) | ⬜ нужно для R4-mssql/R5 |
+| R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | ⬜ частично: config/dsn/порты известны; procs/2104 = блокеры R6 |
 | R1 wire-фундамент | ✅ `docs/authd-wire-20261007.md` + golden-тесты |
 | R2 каркас (framing/listener/config/ship) | ✅ |
-| R3 логика (логин/автосоздание/online-TTL/фейлы) | ✅ (live-факты 06-07.10) |
+| R3 логика (логин/автосоздание/online-TTL/фейлы) | ✅ live-факты 06-07.10 + каноны fork (type=3/4/7/fail) |
 | R4 DB-слой | ✅ mem + mssql (C1-схема; реальные procs — сверка на R0) |
-| R5 fork-proxy A/B на 2110 (копия фреймов, diff O-vs-N) | ⬜ СЛЕДУЮЩИЙ ШАГ |
-| R6 свитч 2110 по «го» + наблюдение 24ч | ⬜ |
+| R5 fork-стенд на проде | 🟡 **ЖИВОЙ с 07.10 и ОСТАВЛЕН юзером** (forkauthd 2116 → ориг 2110 + копия → shadow 2117): каноны сняты, shadow структурно паритетен; осталась очередь арбитража O-vs-N по (sid,type) — N-ONLY = гонка тени |
+| R6 свитч живого пути на наш + наблюдение 24ч | ⬜ после R0 (2104/procs/mssql) по «го» |
 
 ## Собрать/запустить
 
@@ -55,19 +55,26 @@ go build -o aion-authd-linux . && ./aion-authd-linux -config config.yaml        
 - `store`: map-стор (seed live-uid), ErrNotFound, blocks.
 - `ship`: копия из aion-logd (App-имя = aion-authd 2110).
 
-## R5 fork-стенд (07.10, ЖИВОЙ на VM)
+## R5 fork-стенд (07.10, ЖИВОЙ на VM — юзер решил ОСТАВИТЬ как есть)
 
-Топология: `aion-gate (2106) → forkauthd (:2116) → ориг L2Authd (:2110, живой путь юзера)
-+ копия всех фреймов → aion-authd shadow (:2117)`. Ответы shadow НЕ идут юзеру; лог
-`D:\SAION\aion-authd\fork-authd.log`: `C>/O>/N>` + VERDICT=SAME/DIFF по ключу (frame,sid,type).
-Управление — через aion-op (группа fork: authdn/forkd, кнопки start/stop/restart).
-Первые дифф-факты: greeting SAME; ориг-фейл = payload 1Б кода + [01][sid] после; ориг
-отвечает SYSTEM_ERROR(20) на login пока мир не собран (8/16 conns).
+Топология: `aion-gate (2106, authPort=2116) → forkauthd (:2116) → ориг L2Authd (:2110, живой путь
+юзера) + копия всех фреймов → aion-authd shadow (:2117, mem-store)`. Ответы shadow НЕ идут юзеру;
+лог `D:\SAION\aion-authd\fork-authd.log`: `C>/O>/N>` + VERDICT=SAME/DIFF по ключу (frame,sid,type).
+Управление — через aion-op (группа fork: authdn/forkd); задачи SYSTEM AionAuthdShadow/AionForkAuthd;
+`fork.cmd` пишет в fork-run.log (редирект `>> ... 2>&1` — паники видно).
+
+Каноны сняты fork'ом НА ЮЗЕР-ФРЕЙМАХ (структурный паритет тени): greeting `[03][0xc621]` SAME;
+type=3 = 52Б `[accId][token Rnd][8×0][2000][unk1 Rnd][28×0]`; type=4 = 26Б `[04]+[010101][ip][port 7777]…`;
+type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid]` после.
+Ориг отвечает SYSTEM_ERROR(20) на login пока мир не собран (8 conns на :2002) и пока жив PA.
 
 ## ⚠ Перед R6 (свитч) — блокеры
 
-1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: его канал нужно
+1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: канал нужно
    дизasm-верифицировать (R0) и реализовать, иначе свитч уронит мир.
-2. **procs AionAccounts** — сверить sp_helptext с дефолтами C1-схемы.
-3. **fork-proxy A/B** — diff O-vs-N до 100% паритета (метод трека гейта).
-4. Дисциплина: L2Authd хрупкий; probe-логины лочат акки; секреты не в гит.
+2. **procs AionAccounts** — сверить sp_helptext с дефолтами C1-схемы (`authd-ref/`).
+3. **mssql-стор в shadow** — сейчас mem-store: до свитча подключить SQLStore.
+4. **Арбитраж fork-лога** — очередь запрос-ответ по (sid,type): N-ONLY-вердикты = гонка
+   тени с оригом (shadow быстрее), сравнивать по позициям в логе (fork-authd.log).
+5. Дисциплина: L2Authd хрупкий; probe-логины лочат акки (TTL 2–6 мин, тестовый пул
+   probeacc*); PA жив ДО authd; секреты не в гит.

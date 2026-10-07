@@ -1,10 +1,15 @@
-# Промпт для нового чата: ПЕРЕПИСЬ L2Authd → свой authd (Трек B, шаг 4)
+# Промпт для нового чата: L2Authd → свой authd (Трек B #4)
+
+> **СТАТУС 08.10:** MVP R1–R4 ГОТОВ + fork-стенд ЖИВОЙ (см. README/ROADMAP) — промпт-основа устарела в части «начинаем каркас».
+> Следующий чат по authd = **R6-блокеры**: R0 (procs AionAccounts sp_helptext, роль 2104 Server64-канала дизasmом),
+> mssql-стор вместо mem, арбитраж fork-лога по (sid,type) → потом свитч живого пути по «го».
+> Ниже — исходный промпт-основа (история/контекст; сверяй с README перед работой).
 
 > Скопируй текст ниже в новый чат как первое сообщение.
 
 ---
 
-Ты — ассистент проекта **STELGEN / AION 7.7 PTS EU private server**. Продолжаем Трек B: поэтапная замена NC-бинарей на свои (Go). Заменено и в бою: **aion-logd** (:2051), **aion-captcha** (:22206), **aion-gate** (:2106, замена AuthGateD — wire 2110 раскрыт нами 1-в-1). Метод отработан трижды. Теперь по плану **L2Authd → свой authd**.
+Ты — ассистент проекта **STELGEN / AION 7.7 PTS EU private server**. Продолжаем Трек B: поэтапная замена NC-бинарей на свои (Go). Заменено и в бою: **aion-logd** (:2051), **aion-captcha** (:22206), **aion-gate** (:2106, релиз — полный юзер-флоу). fork-стенд authd жив (2116/2117). **PA обязателен в живом пути** (без него SYSTEM_ERROR 20). Управление стеком — через op. Сейчас по плану **authd R6-блокеры** (см. статус-блок выше).
 
 ## Первый шаг (обязательно, до любых действий)
 1. Прочитай память по пути `STELGEN/projects/aion_server_2026-10-02` (хронология, готчи, прод-стек).
@@ -17,7 +22,7 @@
 3. Сурсы-эталоны уже в репо: `nextgen/authd-ref/L2Auth-chaospaladin/` (полный декомпил L2AuthD C1), `nextgen/authd-ref/l2-c1-mastertoma/` (+ `DBScript/` — схема БД authd: procs `ap_GPwd/ap_GStat/ap_GUserTime/ap_SLog/ap_SUserTime`), `reference/Mobius_AionEmu/` (семантика фейлов/онлайн-флага).
 
 ## Цель
-Своя замена **L2Authd.exe** (1,198,592 Б, NC, native C++; порты **2104** serverPort, **2110** serverExPort — его слушает наш aion-gate, 2108 GM, 10062 QMAS; конфиг `etc\config.txt`; БД `AionAccounts` через `L2Conn.dsn`; клиенты: AuthGateD 2110, AccountCache 2220; PA 10057 — DISABLE навсегда, SKIP). Живёт в `D:\AION_LIVE_SERVER\L2Authd\`, задача планировщика **AionAuth** (ритуал рестарта `C:\Temp\restart-auth.ps1`). Реверс-фундамент: **L2Authd.pdb малый уже скачан локально** (manifest-pdb-big.md) → метод pdbpub.py.
+Своя замена **L2Authd.exe** (1,198,592 Б, NC, native C++; порты **2104** serverPort, **2110** serverExPort — его слушает наш aion-gate, 2108 GM, 10062 QMAS; конфиг `etc\config.txt`; БД `AionAccounts` через `L2Conn.dsn`; клиенты: AuthGateD 2110, AccountCache 2220; PA 10057 — ОБЯЗАТЕЛЕН в стеке как ориг (старт ДО authd; без него SYSTEM_ERROR 20)). Живёт в `D:\AION_LIVE_SERVER\L2Authd\`, задача планировщика **AionAuth** (ритуал рестарта `C:\Temp\restart-auth.ps1`). Реверс-фундамент: **L2Authd.pdb малый уже скачан локально** (manifest-pdb-big.md) → метод pdbpub.py.
 
 ## Дисциплина (не нарушать)
 - **Прод трогать ТОЛЬКО после явного «го» юзера.** Fork-фаза (R5) невидима для игрока: наш гейт продолжает ходить в ориг.

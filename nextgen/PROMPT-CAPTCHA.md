@@ -1,3 +1,5 @@
+> ⚠ АРХИВ — задача ЗАКРЫТА (компонент в бою/релизе). Документ сохранён для истории. Открытые промпты: PROMPT-ACCACHE.md, PROMPT-AUTHD.md, PROMPT-CACHED.md, PROMPT-ICSERVER.md (шаблон: README-TEMPLATE.md).
+
 # Промпт для нового чата: ПЕРЕПИСЬ CAPTCHAImageServer (Трек B, шаг 2)
 
 > Скопируй текст ниже в новый чат как первое сообщение.
