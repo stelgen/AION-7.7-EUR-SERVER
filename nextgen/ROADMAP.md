@@ -5,7 +5,7 @@
 > authd ✅ R6 В БОЮ 09.10 (живой путь 2110+2104; fork 2116/тень 2117 = откат); accache 🟡 R2 каркас (R1 capture = следующий чат); CacheD64 🔬 R0 закрыт (R1 wire из log/*.log — pktmon-2006 loopback-блокер доказан); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него — старое «SKIP» исправлено везде).
 > Следующие чаты: 1) accache R1 capture [aion-accache/PROMPT.md] 2) cache R1 wire из логов [aion-cache/PROMPT.md] 3) gate T2-а/T3/T4/T6 4) op Phase 1.5 + R6-конфиг (OP-1..OP-6).
 
-## 1. СТАТУС КОМПОНЕНТОВ (что где — 08.10)
+## 1. СТАТУС КОМПОНЕНТОВ (что где — 10.10; свод с % — [README.md §2.5](README.md))
 
 | Блок | Статус |
 |---|---|
@@ -47,8 +47,8 @@
 | **5** | **AccountCacheServer → aion-accache** | 🟡 каркас | ~90% | dispatch+wire сняты дизasmом; R1 capture; PDB+procs в гите |
 | **6** | **CacheD64 → aion-cache (будет)** | 🔬 R0 закрыт | ~85% | 8× больше ACS по RPC (~590 команд); MVP read-путь + write-транзит в SQL |
 | 7 | ICServer → свой | ⬜ не тронут | ~50% | транзакционный хаб 3 сторон; PDB 104МБ; без него лупер IC — пока ориг |
-| 8 | NPCSvr64 | ✅ КРИТИЧЕН | НЕ переписываем | симуляция мира; watchdog/ночной рестарт есть |
-| 9 | Server64/MainServer | ✅ КРИТИЧЕН | НЕ переписываем | Ghidra-патчи: #108/#111/#180 + обвязка |
+| 8 | NPCSvr64 | 🔬 ДЕПРИОРИТ ~15% (R0 ✅, R1 ⏸) | ~85% эталонов ×7 | **перепись В ПЛАНЕ** (бескомпромиссно); пока мир на ориг — тактика = aion-binpatch |
+| 9 | Server64/MainServer | 🟡 ДЕПРИОРИТ ~30% (R0–R4 ✅) | ~85% | **перепись В ПЛАНЕ** (последняя в свитче); пока Ghidra-патчи: #108/#111/#180 + обвязка |
 | − 10 | Petition/ShopAgent/ChannelChat | − НЕ КРИТИЧНЫ | ~30% | exe нет в ките; ILSpy = ТЗ; луперы молча |
 | − 11 | GMServer | − НЕ КРИТИЧЕН | — | GM = builder в SQL (user_data.builder); GMcmd.txt |
 | − 12/13 | NPRelay/Ranking | − НЕ КРИТИЧНЫ | — | не биндят/конфига нет; задачи DISABLE |

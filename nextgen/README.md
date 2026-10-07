@@ -25,33 +25,62 @@
 | **Гейт** (точка входа клиентов) | 2106 | `AuthGateD.exe` | [aion-gate/](aion-gate/) | ✅ **100% релиз** (f8912a9, exe `7c4dcab`) на проде с 06.10; полный живой флоу юзера; R6: ходит в НАШ authd 2110; хвосты T2-а/T3/T4/T6 (T2-б/в закрыты R6 09.10) | `D:\SAION\aion-gate\`, задача AionGate; откат: `mode: fork` → ориг 2109, exe `.bak-*` | [README](aion-gate/README.md), [архитектура](aion-gate/docs/architecture-aion-gate-20261007.md) |
 | **Логгер** | 2051 | `LogServer64.exe` | [aion-logd/](aion-logd/) | ✅ **~95% в бою** 05.10 (Л1–Л4 закрыты); pending: REF58-процы + ship-приёмник | `D:\SAION\aion-logd\`, задача AionLogCap; откат: `schtasks /run AionLog` | [README](aion-logd/README.md), [snapshot](aion-logd/SNAPSHOT.md) |
 | **Капча** | 22206 | `CAPTCHAImageServer.exe` | [aion-captcha/](aion-captcha/) | ✅ **~95% в бою** 05.10 (буфер 10000 за ~4с vs 6.4 мин ориг); pending: ship-приёмник | `D:\SAION\aion-captcha\`, задача AionCAPTCHA → run.cmd; откат: retarget задачи | [README](aion-captcha/README.md), [snapshot](aion-captcha/SNAPSHOT.md) |
-| **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | ✅ **R6 В БОЮ (09.10)**: наш authd = живой путь (2110 гейт + 2104 мир, Server64 переключился); полный цикл юзера подтверждён (логин→мир→выход→мгновенный перелогин, pk1=эхо, квитанции 40/3-выход); mssql-стор на реальных ap_* procs | prod :2110+:2104 (AionAuthdProd), тень :2117 (AionAuthdShadow), fork :2116 — `D:\SAION\aion-authd\`; наблюдение 24ч | [README](aion-authd/README.md), [ROADMAP](aion-authd/ROADMAP.md), [RESEARCH](aion-authd/RESEARCH.md) |
+| **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | ✅ **R6 В БОЮ ~90% (09.10)**: наш authd = живой путь (2110 гейт + 2104 мир, Server64 переключился); полный цикл юзера подтверждён (логин→мир→выход→мгновенный перелогин, pk1=эхо, квитанции 40/3-выход); mssql-стор на реальных ap_* procs | prod :2110+:2104 (AionAuthdProd), тень :2117 (AionAuthdShadow), fork :2116 — `D:\SAION\aion-authd\`; наблюдение 24ч | [README](aion-authd/README.md), [ROADMAP](aion-authd/ROADMAP.md), [RESEARCH](aion-authd/RESEARCH.md) |
 | **Кэш аккаунтов (ACS)** | 2220 | `AccountCacheServer.exe` | [aion-accache/](aion-accache/) | 🟡 **~45%**: R0 (PDB 92МБ, 101 proc), R0.5 (dispatch-таблица), R2 (Go-каркас, тесты зелёные); **R1 capture = следующий чат** | НЕ деплоен (ориг жив); prod-ACS :2220 | [README](aion-accache/README.md), [ROADMAP](aion-accache/ROADMAP.md), [RESEARCH](aion-accache/RESEARCH.md) |
 | **Кэш мира (CacheD64)** | 2006/2007/2009 | `CacheD64.exe` (22.5МБ) | [aion-cache/](aion-cache/) | 🔬 **~20%**: R0 ✅ 08.10 (PDB 106МБ, словари RQ382/RP255/GQ55/GP53, 781 procs); **R1-prep ✅ 10.10 — опкод-нумерация ВСЕХ 8 протоколов снята из .profile (RP238/RQ381/LP/IC/NPRelay), дифф 5.8⊂7.7 append-only, топ-нагрузка**; осталось R1 wire из log/*.log (pktmon-2006 = loopback-блокер доказан) + R2 семантика | НЕ тронут (ориг жив); 2–4 нед на MVP | [README](aion-cache/README.md), [RESEARCH](aion-cache/RESEARCH.md), [cached-ref/](cached-ref/README.md) |
-| **Interchange** | 2005/2305 | `ICServer.exe` | [aion-ic/](aion-ic/) | 🔬 **ресёрч закрыт 07.10**: публичного IC-эмулятора НЕТ (GitHub 0; Java-эмуляторы без IC); протокол-факты из AKllX #26 (`InterSvrType`/`ICServerAddr`, matchmaker = отдельный мини-стек; **IC опционален**); киты 2.7/4.6db/5.8 на VM; R0 = следующий. Опционален: лупер безвреден, можно не включать | ориг работает | [README](aion-ic/README.md), [RESEARCH](aion-ic/RESEARCH.md) |
+| **Interchange** | 2005/2305 | `ICServer.exe` | [aion-ic/](aion-ic/) | 🔬 **ресёрч закрыт ~10% (07.10)**: публичного IC-эмулятора НЕТ (GitHub 0; Java-эмуляторы без IC); протокол-факты из AKllX #26 (`InterSvrType`/`ICServerAddr`, matchmaker = отдельный мини-стек; **IC опционален**); киты 2.7/4.6db/5.8 на VM; R0 = следующий. Опционален: лупер безвреден, можно не включать | ориг работает | [README](aion-ic/README.md), [RESEARCH](aion-ic/RESEARCH.md) |
 | **Чат** | 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ⬜ не начат, низший (exe нет — реконструкция) | не запускать | [README](aion-chat/README.md) |
 | **Петиции** | 2107 | Petition (.NET) | [aion-petition/](aion-petition/) | ⬜ не начат, низший (exe нет; БД PetitionDB есть) | не запускать | [README](aion-petition/README.md) |
 | **Магазин** | 10100 | ShopAgent (.NET) | [aion-shopagent/](aion-shopagent/) | ⬜ не начат, низший (exe нет; бизнес-вопрос юзеру) | не запускать | [README](aion-shopagent/README.md) |
 | **GM-панель** | — | GMServer-семейство | [aion-gm/](aion-gm/) | ⬜ вероятно НЕ нужен (GM = builder в SQL; op+SQL покрывают 90%); старт = вопрос юзеру | — | [README](aion-gm/README.md) |
 | **Патчи мира (тактика)** | — | Server64+NPCSvr64 (Ghidra, метод #180) | [aion-binpatch/](aion-binpatch/) | ⬜ тактический трек ПОВЕРХ стратегии переписи (aion-npc/aion-main — деприор): #180 ✅ (уже в бинаре), #108/#111/silence = планы готовы (стенд) | fixes-pending/ | [README](aion-binpatch/README.md) |
-| **Оператор** | 10200 | — | [aion-op/](aion-op/) | ✅ **Phase 1 в бою**: управляет стеком (start/stop/restart/restart_pair), группы fork, kick-задачи, SQL/CCU-вкладки, алерты; Phase 1.5 = не начата; ⏳ R6-конфиг: сервис authdprod + expected-down + kill-коллизия aion-authd.exe (OP-1..OP-6, [docs/tech-debt-stack-20261010.md](../docs/tech-debt-stack-20261010.md)) | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [aion-op/ROADMAP.md](aion-op/ROADMAP.md), [DEPLOY](aion-op/DEPLOY.md) |
+| **Оператор** | 10200 | — | [aion-op/](aion-op/) | ✅ **Phase 1 в бою ~70%**: управляет стеком (start/stop/restart/restart_pair), группы fork, kick-задачи, SQL/CCU-вкладки, алерты; Phase 1.5 = не начата; ⏳ R6-конфиг: сервис authdprod + expected-down + kill-коллизия aion-authd.exe (OP-1..OP-6, [docs/tech-debt-stack-20261010.md](../docs/tech-debt-stack-20261010.md)) | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [aion-op/ROADMAP.md](aion-op/ROADMAP.md), [DEPLOY](aion-op/DEPLOY.md) |
 | **PortalAuth (PA)** | 10057 | `01-PAServer7.7.exe` | [aion-pa/](aion-pa/) | ✅ **ориг ОБЯЗАТЕЛЕН в бою** (SYSTEM_ERROR(20) без него; старт ДО authd); наш эмулятор = адаптация **pae** (единственный публичный, доказанно рабочий) — **НЕ писать с нуля**: 🔬 ресёрч закрыт 08.10, R1 = скачать аттачи/интеграция (деприор) | op-кнопка `pa`; откат = ориг exe | [README](aion-pa/README.md), [RESEARCH](aion-pa/docs/pa-binaries-research-20261007.md) |
 | **NCoin-релей** | — | `NPRelay64.exe` | [aion-relay/](aion-relay/) | ⬜ **ДЕПРИОРИТ** (исходящий релей, ничего не биндит, логин не блокирует; связка с shopagent); ориг задача DISABLE | не запускать | [README](aion-relay/README.md) |
 | **Веб-рейтинг** | — | `RankingServer.exe` (.NET) | [aion-ranking/](aion-ranking/) | ⬜ **ДЕПРИОРИТ** (config.xml в ките нет — реконструкция; данные = aion_ranking_* уже в ACS-схеме) | ориг наличие проверить R0 | [README](aion-ranking/README.md) |
-| **NPC-сервер (мир-симуляция)** | 2002/:2006/:2051 | `NPCSvr64.exe` (+ScriptDLL64) | [aion-npc/](aion-npc/) | 🔬 **ДЕПРИОРИТ**; **R0 ✅ / R1 ⏸ (юзером до прогресса соседей)** / R2 next; эталоны ×7 клонов (7 эталонов AI-модели 2.7–7.8 — [RESEARCH](aion-npc/RESEARCH.md)); ориг в бою (10–15 мин загрузка, утечка → ночной рестарт пары) | пара NPC+MAIN через op restart_pair | [README](aion-npc/README.md) |
-| **Игровое ядро (Main)** | 7777/2002 | `Server64.exe`/MainServer | [aion-main/](aion-main/) | 🟡 **каркас+реестр: R0–R4 ✅** (08.10: реестр 637 пакетов live, крипта 7.x подтверждена live, Go-каркас тени :7778 с мир-раскладками и tap-режимом; E2E PASS); свитч = гейт после полного MVP-мира (R3.8–R4.4: cached-RPC после aion-cache R1, NPC-пара после aion-npc MVP) | пара через op | [README](aion-main/README.md) |
+| **NPC-сервер (мир-симуляция)** | 2002/:2006/:2051 | `NPCSvr64.exe` (+ScriptDLL64) | [aion-npc/](aion-npc/) | 🔬 **ДЕПРИОРИТ ~15%** (R0 ✅ / R1 ⏸); **R0 ✅ / R1 ⏸ (юзером до прогресса соседей)** / R2 next; эталоны ×7 клонов (7 эталонов AI-модели 2.7–7.8 — [RESEARCH](aion-npc/RESEARCH.md)); ориг в бою (10–15 мин загрузка, утечка → ночной рестарт пары) | пара NPC+MAIN через op restart_pair | [README](aion-npc/README.md) |
+| **Игровое ядро (Main)** | 7777/2002 | `Server64.exe`/MainServer | [aion-main/](aion-main/) | 🟡 **каркас+реестр ~30%: R0–R4 ✅** (08.10: реестр 637 пакетов live, крипта 7.x подтверждена live, Go-каркас тени :7778 с мир-раскладками и tap-режимом; E2E PASS); свитч = гейт после полного MVP-мира (R3.8–R4.4: cached-RPC после aion-cache R1, NPC-пара после aion-npc MVP) | пара через op | [README](aion-main/README.md) |
 | **Fork-proxy (инструмент)** | любой | — | [fork-proxy/](fork-proxy/README.md) | ✅ живой: первый форк гейта 2106→2109; эволюция = forkauthd в aion-authd | по схеме FORK-SPEC | [README](fork-proxy/README.md) |
 | **.NET-мелочь** | 10100/10254/2107 | ShopAgent/ChannelChat/Petition | exe НЕТ в ките | ⬜ некритично: луперы event-driven, безвредны; Ghidra-silence одним проходом | не запускать | [loops-фикс](../fixes-pending/loops-shopagent-channelchat-petition/) |
 | **NPRelay / Ranking** | — | `NPRelay64.exe` / `RankingServer.exe` | — | ⬜ скип (не биндят портов / config.xml в ките нет) | задачи DISABLE | — |
+
+### 2.5 📈 СВОДНЫЙ ДАШБОРД СТЕКА (агрегат — обновлять при КАЖДОМ статус-сдвиге, [WORKFLOW §1.1](WORKFLOW.md))
+
+| Блок | Компоненты (символ · %) | Прогресс блока | Вердикт |
+|---|---|---|---|
+| 🔐 **Auth-цепочка** | gate ✅ 100 · authd ✅ 90 | **~95%** | ✅ ЖИВОЙ ПУТЬ — юзер играет |
+| 📟 **Обвязка** | logd ✅ 95 · captcha ✅ 95 · op ✅ 70 | **~87%** | ✅ в бою |
+| 🗄 **Кэши** | accache 🟡 45 · cache 🔬 20 | **~33%** | 🟡 фронт работ |
+| 🌍 **Мир** | ic 🔬 10 · npc 🔬 15 · main 🟡 30 | **~18%** | 🔬 деприор (в плане — «бескомпромиссно») |
+| 🧰 **Деприор-хвост** | pa ⬜ 10 · binpatch ⬜ 10 · chat/petition/shop/gm/relay/ranking ⬜ 0 | **~5%** | ⬜ план, не отмена |
+
+**ВЕСЬ ТРЕК B: ≈ 44%** (взвешенно по трудоёмкости, оценка PM 10.10.2026). Ядро «логин+мир живы» — сделано; фронт = кэши (accache R1 → cache R1) и потом мир (npc/main).
+*Методика:* % компонента = закрытые фазы его R0..R6 ROADMAP (честно, не «почти готово»); вес = доля трудоёмкости (cache 20% · main 15% · npc 15% · authd 10% · gate/accache 8% · op/ic/logd ~5% · прочее ≤4%); пересчёт при каждом статус-сдвиге. Цвета: 🟢 просто · 🟡 каркас · 🟠 средне · 🔴 тяжело; статусы: ✅ бой · 🔬 ресёрч · ⬜ не начат · ⏳ ждёт «го».
+
+### 2.6 🗺 ЖИВАЯ ТОПОЛОГИЯ ПРОДА (R6) И МЕТОД-ЦИКЛ
+
+```mermaid
+flowchart LR
+  C["🎮 Клиент"] --> G["aion-gate :2106\n✅ 100% релиз"]
+  G --> A["aion-authd :2110\n✅ R6 в бою ~90%"]
+  W["Server64 :7777 (ориг, патч 180)\n🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
+  W --> ACS["ACS :2220 (ориг)\n🟡 aion-accache ~45%"]
+  W --> CD["CacheD64 :2006 (ориг)\n🔬 aion-cache ~20%"]
+  G -. "тень :2117 / fork :2116\n= откат одной командой" .-> A
+  PA["PA :10057 (ориг, ОБЯЗАТЕЛЕН)"] --> A
+```
+
+```mermaid
+flowchart LR
+  S["1 СУРСЫ-эталоны\n(киты/эмуляторы)"] --> P["2 PDB publics\n+ дизasm"] --> K["3 Go-каркас\n+ тесты"] --> F["4 Fork A/B\nтень + VERDICT"] --> SW["5 СВИТЧ\nпо «го» юзера"] --> N["6 Наблюдение\n24ч"]
+  N -. "откат одной командой\nориг всегда жив" .-> S
+```
 
 ⚠ **Секреты и PA:** PA не переписываем (его логика — релей payStat, у нас портала нет; он просто должен быть ЖИВ до authd). Креды/пароли — только на VM в `D:\SAION\creds\` ([CREDS.md](CREDS.md)), в гит/память/логи НЕ класть.
 
 ## 3. ПРОД-ТОПОЛОГИЯ (fork-стенд — решение юзера 07.10, ОСТАВИТЬ КАК ЕСТЬ)
 
-```
-клиент → aion-gate (2106, authPort=2110) → **наш aion-authd** (:2110, живой путь R6; Server64 → наш :2104); откат = authd-rollback.cmd + rollback-gate.ps1
-                                            └ копия всех фреймов → aion-authd shadow (:2117, mem-store)
-```
+**Поток (живой путь R6):** `клиент → aion-gate(2106, authPort=2110) → наш aion-authd(:2110; Server64 → наш :2104)`; копия фреймов → shadow(:2117); откат = `authd-rollback.cmd` + `rollback-gate.ps1`. Граф — [§2.6](#26-живая-топология-прода-r6-и-метод-цикл).
 
 - fork НЕВИДИМ для юзера: живой путь = оригинал; shadow отвечает только в лог `D:\SAION\aion-authd\fork-authd.log` (`C>/O>/N>` + VERDICT=SAME/DIFF).
 - Старт-порядок стека: SQL → ACS 2220 → logd 2051 → IC 2005 → CAPTCHA 22206 → **PA 10057** → **наш aion-authd 2104/2110 (задача AionAuthdProd; ориг L2Authd = откат, задача AionAuthOnly)** → gate 2106 → тень 2117 → CacheD 2006 → NPCSvr → Server64 7777 → критерий мира = 8 коннектов на :2002.

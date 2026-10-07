@@ -2,7 +2,7 @@
 
 > 📡 **Канал VM (S12):** Agent API — `curl http://192.168.0.125:10200/api/agent/*`, токен `X-Agent-Token` (на VM `D:\SAION\creds\CREDS.md`, в песочнице `~/.aion-agent-token`), обёртка `nextgen/agent-cli.sh`. Новый шаг на VM = ps1 через `aionput`+`aionrun "powershell -File"`. SSH (алиас `aion`) — ТОЛЬКО деплой самого op. Спека: ../AGENT-SPEC.md
 
-**РЕЛИЗ 08.10.2026** (T1-фейлы + таймауты + live-тексты ошибок + тест-крутилка). Прод: `192.168.0.125:2106`,
+✅ **РЕЛИЗ · 100% · 08.10.2026** (T1-фейлы + таймауты + live-тексты ошибок + тест-крутилка); хвосты T2-а/T3/T4/T6 = хардинг (см. TD-6). Прод: `192.168.0.125:2106`,
 `mode: authgate`, полный живой флоу доказан (`1/1` → accId 7; `stelgen` → accId 1010):
 `welcome 194B → AUTH_GG 42b → CM_LOGIN → blob cbdb 191Б → authd type=3 → [03]74Б →
 [05] relay → [04]42Б → [02] relay → [07]26Б → мир 7777`.

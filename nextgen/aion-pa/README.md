@@ -1,6 +1,6 @@
 # aion-pa — PortalAuth (PA, :10057) — ориг ОБЯЗАТЕЛЕН; наш эмулятор = адаптация pae, НЕ с нуля
 
-> 🔬 **Ресёрч закрыт 08.10** ([docs/pa-binaries-research-20261007.md](docs/pa-binaries-research-20261007.md)): с нуля НЕ пишем — два пути: **(1) pae (portal-auth-emulator)** = единственный публичный эмулятор, доказанно рабочий в L2-стеке (Python+Docker, RZ 1205208 #307); **(2) оригинальные бинари** (`01-PAServer7.7.exe` + L2-PA из L2_LIVE_CSERVER_SVN) для кросс-версионного диффа.
+> 🔬 **наш-эмулятор ~10% (деприор, адаптация pae) · ресёрч закрыт 08.10** ([docs/pa-binaries-research-20261007.md](docs/pa-binaries-research-20261007.md)): с нуля НЕ пишем — два пути: **(1) pae (portal-auth-emulator)** = единственный публичный эмулятор, доказанно рабочий в L2-стеке (Python+Docker, RZ 1205208 #307); **(2) оригинальные бинари** (`01-PAServer7.7.exe` + L2-PA из L2_LIVE_CSERVER_SVN) для кросс-версионного диффа.
 > Прод: **ориг PA жив и обязателен** (задача AionPA, старт ДО authd): без живого PA ориг отклоняет ЛЮБОЙ логин SYSTEM_ERROR(20) молча (fork-доказательство 07.10; старый вердикт «SKIP» в [docs/pa-research-20261006.md](docs/pa-research-20261006.md) ОТМЕНЁН).
 > Запуск чата: `WORKFLOW: pa` ([../WORKFLOW.md](../WORKFLOW.md)). Стандарты S1–S12: [../README.md](../README.md) §4.
 

@@ -1,4 +1,4 @@
-# aion-captcha — замена CAPTCHAImageServer.exe (Трек B #2 — ✅ В БОЮ с 05.10)
+# aion-captcha — замена CAPTCHAImageServer.exe (Трек B #2 — ✅ В БОЮ ~95% с 05.10)
 
 > Протокол capture-верифицирован 05.10.2026: `docs/captcha-protocol-20261005.md`.
 > Телеметрия по `nextgen/TELEMETRY-SPEC.md` (ship скопирован из aion-logd как есть).

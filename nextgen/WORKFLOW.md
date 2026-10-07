@@ -15,10 +15,10 @@
 | gate / AuthGateD / 2106 | AuthGateD.exe | [aion-gate/](aion-gate/) | docs/ + README §T2-T6 | ✅ релиз (хвосты T2–T6) |
 | logd / LogServer / 2051 | LogServer64.exe | [aion-logd/](aion-logd/) | aion-logd/SNAPSHOT.md | ✅ в бою (~95%) |
 | captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | aion-captcha/SNAPSHOT.md | ✅ в бою (~95%) |
-| op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | ✅ Phase 1 (1.5 не начата) |
-| authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | 🟡 MVP+тень (R6-блокеры) |
-| accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | 🟡 каркас (R1 capture) |
-| cache / CacheD64 / 2006 | CacheD64.exe | [aion-cache/](aion-cache/) | ROADMAP.md / PROMPT.md | 🔬 R0 закрыт, кода нет |
+| op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | ✅ Phase 1 ~70% (1.5 не начата) |
+| authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | ✅ R6 в бою ~90% (свитч 09.10, хвосты R6) |
+| accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | 🟡 ~45% (R2 каркас ✅, R1 capture = след.) |
+| cache / CacheD64 / 2006 | CacheD64.exe | [aion-cache/](aion-cache/) | ROADMAP.md / PROMPT.md | 🔬 ~20% (R0+R1-prep ✅, кода нет) |
 | ic / ICServer / 2005/2305 | ICServer.exe | [aion-ic/](aion-ic/) | ROADMAP.md / PROMPT.md | ⬜ не начат |
 | chat / ChannelChat / 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ROADMAP.md / PROMPT.md | ⬜ не начат (низший) |
 | petition / 2107 | Petition (.NET) | [aion-petition/](aion-petition/) | ROADMAP.md / PROMPT.md | ⬜ не начат (низший) |
@@ -28,7 +28,19 @@
 | fork / proxy | — | [fork-proxy/](fork-proxy/) | README | ✅ инструмент |
 | refs / сурсы | — | authd-ref/, cached-ref/, accountcache-ref/ | их README | ✅ референсы |
 
-Приоритет по умолчанию (если юзер не назвал компонент): порядок §6 [nextgen/README.md](README.md) — accache R1 → cache R1 → authd R6-блокеры → gate T2-T6.
+Приоритет по умолчанию (если юзер не назвал компонент): порядок §6 [nextgen/README.md](README.md) — accache R1 → cache R1 → authd R6-хвосты → gate T2-T6.
+
+## 1.1 ДАШБОРД-КОНТРАКТ: сводные статусы и % (кто/где двигает)
+
+Сводный дашборд стека (блоки, %, агрегат) живёт в [README.md §2.5](README.md) — ЕДИНСТВЕННОЕ место сводки. Правила:
+
+| Правило | Суть |
+|---|---|
+| **Один источник %** | % компонента считает владелец-чат по фазам его ROADMAP (R0..R6 = 100%). Сводка в хабе — копия, не источник. |
+| **Три места синхронно** | Статус-сдвиг = 1) README компонента (шапка) → 2) стек-таблица [README.md §2](README.md) + дашборд §2.5 → 3) root [../README.md](../README.md) сводка. Всё в ОДНОМ коммите + память-дельта. |
+| **Легенда едина** | ✅ в бою/релиз · 🟡 каркас/в работе · 🔬 ресёрч · ⬜ не начат/деприор · ⏳ ждёт «го» · 🟢 просто · 🟠 средне · 🔴 тяжело. Цвет/символ = статус-семантика, не украшение. |
+| **% честный** | Не «почти готово»: R2 каркас из 7 фаз ≈ 30–45%, а не 70%. Деприор ≠ отмена: фазы те же, скорость ниже. |
+| **Схемы** | Топология/потоки — mermaid в README хаба и root; компонентный README содержит мини-схему только если его роль в ней меняется. |
 
 ## 2. ЗАПУСК ЧАТА (обязательный порядок, ~5 минут)
 

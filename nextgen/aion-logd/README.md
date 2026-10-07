@@ -1,4 +1,4 @@
-# aion-logd — замена LogServer64 (В БОЮ на проде, Л1–Л4 закрыты)
+# aion-logd — замена LogServer64 (✅ В БОЮ ~95%, Л1–Л4 закрыты)
 
 Один Go-исходник → `GOOS=windows/linux`. Анализ протокола: [../LOGD-REWRITE-ANALYSIS.md](RESEARCH.md).
 Статус-снимок: [../LOGD-STATUS-SNAPSHOT.md](SNAPSHOT.md). Стандарт телеметрии: [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).

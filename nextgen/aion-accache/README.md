@@ -1,6 +1,6 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-Каркас R2 готов (07.10.2026): фрейминг + dispatch + RAM-кэш + db-интерфейс — **без capture**.
+🟡 **~45% · каркас R2 готов (07.10.2026)**: фрейминг + dispatch + RAM-кэш + db-интерфейс — **без capture**. Следующий шаг = R1 capture-стенд.
 Статус трека: nextgen/ACCOUNTCACHE-ROADMAP.md. Факты: RESEARCH.md (§9-10).
 
 ## Канон (доказано дизasmом, не догадки)

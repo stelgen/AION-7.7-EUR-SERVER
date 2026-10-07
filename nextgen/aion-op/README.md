@@ -1,5 +1,7 @@
 # aion-op — оператор стека AION 7.7 (Phase 1: РЕАЛЬНОЕ УПРАВЛЕНИЕ стеком на проде)
 
+> ✅ **Phase 1 в бою · ~70% · 10.10** — управление стеком живое; Phase 1.5 не начата; R6-конфиг OP-1..OP-6 = [docs/tech-debt-stack-20261010.md](../../docs/tech-debt-stack-20261010.md).
+
 Единый Go-бинарь. **Фаза 1 живёт на VM с 05.10, управляет стеком с 07.10** (`operate`, dry_run=false):
 read-only пробы + лог-парсер + метрики + SQLite + алерты + CCU/SQL-waits + POST /api/action
 (start/stop/restart/restart_pair) + группы fork (authdn/forkd) + kick-задачи.

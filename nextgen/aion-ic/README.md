@@ -1,6 +1,6 @@
 # aion-ic — перепись ICServer (Interchange/Channel, :2005/:2305) — РЕСЁРЧ ЗАКРЫТ, R0 ждёт
 
-> 🟡 **Веб-ресёрч закрыт 07.10** ([RESEARCH.md](RESEARCH.md)): публичных сурсов/эмуляторов IC **нет** (GitHub 0 репо, Java-эмулиаторы без IC); протокольная семантика получена из открытого конфига AKllX. Бинари чужих китов на VM. Ориг жив, без него лупер «Can't connect to Interchange» у Server64+CacheD (event-driven, безвреден). PDB 104МБ на VM (manifest-pdb-big).
+> 🔬 **~10% · веб-ресёрч закрыт 07.10, R0 ждёт** ([RESEARCH.md](RESEARCH.md)): публичных сурсов/эмуляторов IC **нет** (GitHub 0 репо, Java-эмулиаторы без IC); протокольная семантика получена из открытого конфига AKllX. Бинари чужих китов на VM. Ориг жив, без него лупер «Can't connect to Interchange» у Server64+CacheD (event-driven, безвреден). PDB 104МБ на VM (manifest-pdb-big).
 > Запуск чата: `WORKFLOW: ic` ([../WORKFLOW.md](../WORKFLOW.md)). Стандарты S1–S10: [../README.md](../README.md) §4.
 
 ## 📊 Статус и фазы
