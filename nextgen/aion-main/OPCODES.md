@@ -58,6 +58,18 @@
 - proc_missing за сессию: НОВЫХ НЕТ (все те же 8: коллекции×5 + fame + reinvent + itemAttributeDelta) — PET-канал работает на живых таблицах; коллекции/фама остаются доб. (TD2).
 - Unknown остаются: S2C 0x0182×151 (SM_STRONGHOLDS, encom75-only), C2S 0x00D4×1.
 
-## 8. Следующий шаг
+## 8. ✅ R1 LIVE-АРБИТРАЖ #3 (08.10, файл 0810d, 2148 S2C + 425 C2S, 0 invalid)
 
-R1 продолжение: capture#3 = целевые действия (миньон: призов/корм; дом: войти/декор; брокер: зарегистрировать предмет) → CM_MINION_*/домашнее семейство; payload-разбор 0x0182 (SM_STRONGHOLDS) и 0x00D4.
+- 🔥 **МИНЬОН**: `0x01ED CM_MINIONS×21` — семейство миньонов live подтверждено (многочисленные призывы); SM-ответы миньонов в этой сессии не выделились.
+- 🔥 **ДОМ**: `0x01B5×10 = CM_HOUSE_OPEN_DOOR (только encom75!)` — дверь открывалась ~10 раз + после GM-«принудительной регистрации» дом СТАЛ ТУС (dверь открылась при подходе!) → **house-логика частично жива**; `0x0111×34 SM_HOUSE_RENDER` (en/mo/ag; xml75 ошибочно SM_DELETE_HOUSE); GM-опции «регистрация дома» шли через `0x02FA CM_SHOW_DIALOG`/`0x02F8 CM_DIALOG_SELECT`.
+- 🔥 **БРОКЕР**: полный сет: `0x0156 CM_REGISTER_BROKER_ITEM×1` (регистрация), `0x0140 CM_BROKER_REGISTERED_LIST×1`, `0x0154 CM_BROKER_SETTLE_ACCOUNT/SOLD_LIST×1`, `0x0157 CM_BROKER_CANCEL_REGISTERED×1` (снял с аукциона), `0x0138 CM_BROKER_SETTLE_LIST/START_REGISTER×1`.
+- 🔥 **АУКЦИОН ДОМОВ**: `0x01A0×1 CM_PLACE_BID` (попытка купить дом за 1kk — «надо закончить задание» — quest-триггер) (ag58 ошибочно CM_CHALLENGE_LIST).
+- **Часы/порталы Иннисона**: шли через NPC-диалог-канал (`0x003C SM_DIALOG_WINDOW×57`, 0x02F8/0x02FB) — отдельный опкод часов не выделен; повторить целевым прогоном позже.
+- Прочее live: `0x00DF CM_LEVEL_READY×3` (телепорты), `0x00E7 SM_CHAT_INIT×26 + 0x0171 CM_CHAT_AUTH×26` (чат-канал), `0x02F9 CM_CHARGE_ITEM×3`, `0x0028 SM_LOOKATOBJECT×42`, `0x0019 SM_SYSTEM_MESSAGE×29`.
+- ⚠️ **proc_missing выросло 8→10**: +`aion_getitemattributedelta_20190919` (сингл — при регистрации брокер-товара) и +`aion_GetItemAttributeDeltaListAllVendorLight_20190919` → TD2 пополнился.
+- ⚠️ Безопасность: Server64.err = внешний сканер **34.78.135.85** стучался на 7777 («bad packet size 17733 Unknown[]» — отбит); 7777 открыт наружу → на проде закрыть firewall'ом (LAN-only).
+- Тех-инфра дешифратора: tshark follow-режим надёжнее собственного reassembly (retransmissions ломают фрейминг; dup/overlap требуют вырезания) — cap7777_decrypt.py теперь поддерживает режим hex-файлов (s2c.hex/c2s.hex).
+
+## 9. Следующий шаг
+
+R1 продолжение (по желанию): payload-разбор 0x0182 SM_STRONGHOLDS и 0x00D4; целевой прогон коллекций/фама-окна (TD2 procs); переход к R2 (протокол-док финализация + Go-диспетчер).
