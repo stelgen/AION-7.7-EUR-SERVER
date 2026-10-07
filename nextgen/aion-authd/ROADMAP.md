@@ -27,8 +27,11 @@
 > ap_GetRestriction); created = флаг 3 + нулевой pwd; не-ASCII = NULL → ErrNotFound.
 > **АРБИТРАЖ FORK-ЛОГА 09.10**: FIFO пар по ключу ОТВЕТА (sid,type) — вердикт только при полной
 > паре, N-ONLY-гонки исключены (race-тест); SINGLE/ARBITRATION-DROP (>60с).
-> ОСТАТОК ДО R6: деплой новых exe на VM (forkauthd+shadow с gsPort/mssql) + fork-сверка 2104
-> (квитанции + tail релея) — потом «го» на свитч.
+> **ДЕПЛОЙ НА VM 09.10 (окно без юзера на 2106, через op)**: новые aion-authd.exe + forkauthd.exe
+> (scp → .new → stop forkd/authdn → copy → start) — forkd/authdn RUNNING, гейт реконнектнулся.
+> Shadow: mem-store + gsPort=0 (мир-канал выкл до R6). ОСТАТОК ДО R6: fork-сверка 2104/квитанций/tail
+> на живых логинах юзера (новый арбитраж даёт чистые пары) + mssql-стор на shadow (переключение
+> driver: mssql) — потом «го» на свитч.
 
 ## 🧪 Журнал теорий (2104)
 
