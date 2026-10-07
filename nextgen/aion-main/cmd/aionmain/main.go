@@ -11,12 +11,17 @@ import (
 	"io"
 	"log"
 	"net"
+	"net/http"
 	"time"
 
 	"aion-main/internal/crypt"
+	"aion-main/internal/handlers"
+	"aion-main/internal/integrations"
 	"aion-main/internal/ops"
 	"aion-main/internal/wire"
 )
+
+var hs handlers.Registry
 
 func main() {
 	cfg := flag.String("config", "ops.yaml", "YAML-реестр опкодов (S7)")
@@ -27,12 +32,23 @@ func main() {
 	if err != nil {
 		log.Fatalf("FATAL config: %v", err)
 	}
+	hs = handlers.Build()
 	// Канарейка-баннер (S7): конфиг прочитан, ключевой пакет на месте.
 	_, hasSMKey := reg.Lookup(0x48, "SM")
 	log.Printf("[CANARY] cfg loaded: packets=%d, SM_KEY(0x48)=%v, mode=shadow %s", reg.Count(), hasSMKey, *listen)
 	if !hasSMKey {
 		log.Fatalf("FATAL: SM_KEY отсутствует в реестре — конфиг битый, откат")
 	}
+
+	go func() {
+		http.HandleFunc("/status", func(w http.ResponseWriter, _ *http.Request) {
+			fmt.Fprintf(w, "{\"svc\":\"aion-main\",\"mode\":\"shadow\",\"packets\":%d,\"cached\":%v,\"ts\":\"%s\"}",
+				reg.Count(), integrations.Statuses()[0].Online, time.Now().Format(time.RFC3339))
+		})
+		if err := http.ListenAndServe("127.0.0.1:10221", nil); err != nil {
+			log.Printf("[S2] status http: %v", err)
+		}
+	}()
 
 	ln, err := net.Listen("tcp", *listen)
 	if err != nil {
@@ -67,7 +83,10 @@ func handle(conn net.Conn, reg *ops.Registry) {
 		log.Printf("[ERR] write SM_KEY: %v", err)
 		return
 	}
-	key := crypt.NewKeyPair(base)
+	// канон: ДВА независимых ключа (EncryptionKeyPair keys[SERVER]/keys[CLIENT])
+	srvKey := crypt.NewKeyPair(base) // SM-отправка
+	clKey := crypt.NewKeyPair(base)  // C2S-приём
+	sess := &handlers.Session{Peer: peer}
 
 	// --- чтение потока ---
 	buf := make([]byte, 1<<16)
@@ -80,7 +99,7 @@ func handle(conn net.Conn, reg *ops.Registry) {
 			bodies, tail := wire.Split(stream)
 			stream = stream[len(stream)-tail:]
 			for _, body := range bodies {
-				dec, ok := key.Decrypt(body, crypt.C2S)
+				dec, ok := clKey.Decrypt(body, crypt.C2S)
 				if !ok {
 					log.Printf("[RAW-FAIL] %s body(%d): %s", peer, len(body), hex.EncodeToString(body[:min(24, len(body))]))
 					continue
@@ -96,6 +115,13 @@ func handle(conn net.Conn, reg *ops.Registry) {
 				}
 				log.Printf("[C2S] %s %s len=%d payload=%s t=%.1fs", peer, name, len(payload),
 					hex.EncodeToString(payload[:min(32, len(payload))]), time.Since(start).Seconds())
+				// R3: диспетчеризация MVP-хендлеров; Sender = шифрованный SM-фрейм (serverKey)
+				send := senderFor(conn, srvKey, reg)
+				if h, ok := hs[name]; ok {
+					h(sess, payload, send, log.Default())
+				} else {
+					log.Printf("[UNHANDLED] %s (R3.5+ backlog)", name)
+				}
 			}
 		}
 		if err == io.EOF {
@@ -105,6 +131,22 @@ func handle(conn net.Conn, reg *ops.Registry) {
 		if err != nil {
 			log.Printf("[ERR] %s: %v", peer, err)
 			return
+		}
+	}
+}
+
+// senderFor — отправка SM-пакета: имя -> op (ops.yaml) -> BuildServerFrame -> serverKey encrypt -> write.
+func senderFor(conn net.Conn, key *crypt.KeyPair, reg *ops.Registry) handlers.Sender {
+	return func(name string, payload []byte) {
+		p, ok := reg.Lookup2(name)
+		if !ok {
+			log.Printf("[SEND-SKIP] %s: нет в ops.yaml (реестр)", name)
+			return
+		}
+		frame := wire.BuildServerFrame(p.Op, payload)
+		key.Encrypt(frame[2:]) // шифруем тело (size не шифруется — канон AionServerPacket.write)
+		if _, err := conn.Write(frame); err != nil {
+			log.Printf("[ERR] write %s: %v", name, err)
 		}
 	}
 }

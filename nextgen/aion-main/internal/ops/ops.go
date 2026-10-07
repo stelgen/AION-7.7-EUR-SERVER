@@ -12,17 +12,17 @@ import (
 // Packet — запись реестра.
 type Packet struct {
 	Name string `yaml:"name"`
-	Dir  string `yaml:"dir"`   // SM | CM
+	Dir  string `yaml:"dir"` // SM | CM
 	Op   uint16 `yaml:"op"`
 	Src  string `yaml:"src"` // статус согласия: FULL | DIFF | single-<источник>
 }
 
 // Registry — индексы реестра.
 type Registry struct {
-	Packets     []Packet
-	byOpSM      map[uint16]Packet
-	byOpCM      map[uint16]Packet
-	byName      map[string]Packet
+	Packets []Packet
+	byOpSM  map[uint16]Packet
+	byOpCM  map[uint16]Packet
+	byName  map[string]Packet
 }
 
 // Load читает ops.yaml (S7: латиница-комменты, байтово-осторожно).
@@ -57,6 +57,12 @@ func (r *Registry) Lookup(op uint16, dir string) (Packet, bool) {
 		return p, ok
 	}
 	p, ok := r.byOpCM[op]
+	return p, ok
+}
+
+// Lookup2 — пакет по имени (для senderFor).
+func (r *Registry) Lookup2(name string) (Packet, bool) {
+	p, ok := r.byName[name]
 	return p, ok
 }
 
