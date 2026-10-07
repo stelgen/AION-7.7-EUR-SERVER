@@ -29,7 +29,7 @@
 | 3 | **authd R0/R6**: sp_helptext procs AionAccounts; роль 2104 (Server64-канал, дизasm L2Authd.pdb); mssql-стор; арбитраж fork по (sid+type); потом свитч живого пути | aion-authd/ROADMAP.md §2 | 3–5 дней |
 | 4 | **Гейт T2–T6**: T2-а TTL флага authd (probe-цикл 30с), T3 CM_UPDATE_SESSION живьём (kill клиента в мире), T4 стабильность (5 логинов, 2 клиента), T5 паритет 42b-фолбэка, T6 финализация+tag | aion-gate/README §T2/T3 | дни |
 | 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах | TELEMETRY-SPEC §2 | полдня |
-| 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | aion-logd/SNAPSHOT.md | 1 день |
+| 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | [aion-logd/SNAPSHOT.md](aion-logd/SNAPSHOT.md) | 1 день |
 | 7 | op Phase 1.5: событийный watchdog (ночной рестарт пары = тумблер юзера), async-ожидания маркеров | aion-op/ROADMAP.md | 1–2 дня |
 | 8 | Ghidra-патчи: матчмейкер #108 (JZ→JNZ), манастоны #111 (перенос в копию #180) — только в MainServer_backup-копии | fixes-pending/ | дни, стенд |
 | 9 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr (~600k блоков/сессия → ночной рестарт), RESOURCE_SEMAPHORE | docs/app-architecture.md §7 | пассивно |
