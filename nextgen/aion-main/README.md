@@ -9,7 +9,7 @@
 |---|---|
 | R-сурсы: 2.7-кит Server64.exe (28МБ) на VM; PDB 284МБ; чужие эмуляторы | ✅ ЗАКРЫТ 08.10: 7 эталонов (~3.9ГБ) + [RESEARCH.md](RESEARCH.md) |
 | R0: разведка (протокол клиента S/C-фреймы 7777, RPC CacheD 2006, NPC 2002, конфиги) | ✅ ЗАКРЫТ 08.10: [RESEARCH.md](RESEARCH.md) + [OPCODES.md](OPCODES.md) (688 пакетов, единая таблица) |
-| R1: wire capture (pktmon 7777 при логинах юзера + 2006 из cache-трека — ШАРИРОВАТЬ с aion-cache!) | ⬜ |
+| R1: wire capture (pktmon 7777 при логинах юзера + 2006 из cache-трека — ШАРИРОВАТЬ с aion-cache!) | 🟡 LIVE#1 08.10: крипта подтверждена, 24 пакета проарбированы, 2 новых ([OPCODES.md §6](OPCODES.md)) |
 | R2–R3: Go `nextgen/aion-main` MVP: мир-пакеты (движение/чат/инвентарь) + интеграция aion-cache/aion-npc/aion-authd | ⬜ |
 | R4 A/B → R5 свитч (пара!) → R6 наблюдение | ⬜ |
 
