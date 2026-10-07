@@ -18,7 +18,7 @@
 
 ## 🏗 Архитектура стека
 
-Поток игрока (на 08.10): **Клиент → aion-gate(2106) → forkauthd(2116) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)**, fork-копия всех фреймов → наш aion-authd shadow(2117). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча переписаны; authd в fork-стенде; мир = деприор перепись; **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
+Поток игрока (на 08.10): **Клиент → aion-gate(2106) → forkauthd(2116) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)**, fork-копия всех фреймов → наш aion-authd shadow(2117). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча переписаны; authd в fork-стенде; мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
