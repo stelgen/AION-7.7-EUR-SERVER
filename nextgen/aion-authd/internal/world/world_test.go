@@ -21,8 +21,8 @@ const orig0410Relay = "f20300005374656c67656e00000000000000000000000000d00700000
 func TestEncodeFraming(t *testing.T) {
 	fr := Encode(5, []byte{0, 0, 0xf4, 1})
 	x := binary.LittleEndian.Uint16(fr[0:2])
-	if int(x)+2 != len(fr) {
-		t.Fatalf("X=%d, total=%d — контракт X=total-2 (body+2) нарушен", x, len(fr))
+	if int(x) != len(fr) {
+		t.Fatalf("X=%d, total=%d — контракт X=total (2+len-2? total=X) нарушен", x, len(fr))
 	}
 	if fr[2] != 5 {
 		t.Fatalf("type=%d", fr[2])
@@ -126,12 +126,12 @@ func TestServeE2E(t *testing.T) {
 		t.Fatalf("X=%d, want 110", x)
 	}
 	wantFrame, _ := RelayLogin(s.Cfg, 1010, "Stelgen", "127.0.0.1")
-	body := make([]byte, int(x)-1)
+	body := make([]byte, int(x)-2)
 	if _, err := readFull(wc, body); err != nil {
 		t.Fatal(err)
 	}
 	if !bytes.Equal(body, wantFrame[2:]) {
-		t.Fatalf("relay body mismatch: got %dБ want %dБ", len(body), len(wantFrame)-2)
+		t.Fatalf("relay body mismatch: x=%d got %dБ want %dБ\n got %x", x, len(body), len(wantFrame)-2, body)
 	}
 
 	// world ack → OnPlayAck (uid, pk1=N)

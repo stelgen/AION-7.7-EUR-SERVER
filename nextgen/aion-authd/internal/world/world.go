@@ -306,12 +306,12 @@ func (s *S) loop(conn net.Conn) {
 					buf = nil
 					break
 				}
-				if len(buf) < x+2 {
+				if len(buf) < x {
 					break
 				}
 				typ := buf[2]
-				payload := append([]byte{}, buf[3:x+2]...)
-				buf = buf[x+2:]
+				payload := append([]byte{}, buf[3:x]...)
+				buf = buf[x:]
 				s.dispatch(conn, typ, payload)
 			}
 			if buf == nil {
