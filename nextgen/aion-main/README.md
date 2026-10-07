@@ -11,7 +11,7 @@
 | R0: разведка (протокол клиента S/C-фреймы 7777, RPC CacheD 2006, NPC 2002, конфиги) | ✅ ЗАКРЫТ 08.10: [RESEARCH.md](RESEARCH.md) + [OPCODES.md](OPCODES.md) (688 пакетов, единая таблица) |
 | R1: wire capture (pktmon 7777 при логинах юзера + 2006 из cache-трека — ШАРИРОВАТЬ с aion-cache!) | 🟡 LIVE#1 08.10: крипта подтверждена, 24 пакета проарбированы, 2 новых ([OPCODES.md §6](OPCODES.md)) |
 | R2: протокол-док + Go-каркас (ops.yaml 637 пакетов, crypt/wire/dispatch, тень :7778, golden-тесты на capture) | ✅ 08.10 (06b0ac7) |
-| R3: Go MVP (движение/чат/инвентарь) — хендлеры в готовый диспетчер | ⬜ |
+| R3: Go MVP — хендлеры-эхо VERSION/TIME/PING/MOVE/CHAT + Session; интеграции-стабы (cached ping-only до aion-cache R1; authd=npc=R4/R6) | 🟡 08.10 (2035a69): E2E PASS, мир-стейт/инвентарь = R3.5 |
 | R4 A/B → R5 свитч (пара!) → R6 наблюдение | ⬜ |
 
 ## 📟 Канон (известное сейчас)
