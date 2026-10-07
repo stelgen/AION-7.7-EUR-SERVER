@@ -120,6 +120,7 @@ GMServer (GM_* procs, GQ/GP)
 - **RZ 7.7 PTS EU (1211744) / mmo-dev 28786**: комьюнити считает 7.7-паки «too broken», уходят на 4.6
   или Java-эмуляторы → мотивации реверсить ACS у рынка нет (гонки за нами нет).
 - grep.app — за Vercel-чекпоинтом, недоступен без браузера (покрыто Sourcegraph).
+- **Контрольный свип (07.10, сессия после R1)**: GitHub repo-search API `AccountCacheServer` = **0 репо** (переподтверждено); `aion cached server` упёрся в rate-limit API, веб-пусто; точные символы (`AccountCacheServer.pdb`, `ServerToAccountCached`, `ACQ_*`) в вебе = 0 хитов; RZ 1267905 (aion 2.7 pts, слив ~07.2026) — «tons of stuff missing or tampered», ACS-реверса нет; кандидат только на кросс-версионный бин-дифф ACS 2.7 (качает юзер). **ВЕРДИКТ ДЕРЖИТСЯ: публично путь до нас НЕ пройден.**
 
 ## 7. Артефакты (в гит: ../accountcache-ref/)
 
@@ -223,3 +224,10 @@ Payload-детали: декодеры (`Decode*@ServerToAccountCached`) выз�
 **Критично для R2.5**: раскладки payload per-cmd = докрутка accparse (CTRL-границы) + сверка с
 PDB Decode* сигнатурами; дозахват возможен на живом стенде (стенд ОСТАВЛЕН работать: ориг-задача
 AionAcc Ready, откат = taskkill accmirror.exe + kill копии + `schtasks /run /tn AionAcc`).
+
+**Стенд-статус (07.10 14:02 VM, read-only сверка)**: зеркало **В БОЮ** — accmirror.exe PID 2248 слушает
+:2220, копия ACS PID 6668 на :2221, ориг-задача AionAcc = Ready (остановлена), Server64 (3580) держит
+коннект 58656→2220 (netstat). accmirror.log на VM = 5941 Б = байт-в-байт наш capture → **новых логинов
+после 13:48 нет** (op-события 13:50 «proc_missing item collection» = CacheD/мир 2006, не ACS).
+⇒ Дозахват недостающих cmds (10-13 CUSTOM, 17 LOGOUT, 20 REFRESH, 23/24, 26-29 LUNA) = просто логин
+юзера в живой стенд — НОЛЬ прод-действий.
