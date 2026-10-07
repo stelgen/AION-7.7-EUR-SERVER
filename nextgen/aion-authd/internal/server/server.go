@@ -23,6 +23,7 @@ import (
 	"aion-authd/internal/ship"
 	"aion-authd/internal/store"
 	"aion-authd/internal/wire"
+	"aion-authd/internal/world"
 )
 
 // Server — authd.
@@ -31,6 +32,7 @@ type Server struct {
 	sh  *ship.S
 	st  store.Store
 	L   *logic.Deps
+	W   *world.S // мир-канал 2104 (nil/выкл = не слать релеи)
 
 	mu    sync.Mutex
 	gates map[net.Conn]*gateConn
@@ -205,6 +207,9 @@ func (g *gateConn) reply(ses *logic.GateSession, rep *logic.Reply) {
 		return
 	}
 	g.write(fr)
+	if rep.Typ == 3 && g.srv.W != nil && g.srv.W.Enabled() { // логин ок → релей в мир (live: type0 uid+account)
+		go g.srv.W.NotifyLogin(ses.AccID, ses.User)
+	}
 	if rep.Close { // ориг после фейла шлёт [01][sid] (закрытие сессии) — R5-дифф 07.10
 		g.write(wire.UnknownSession(ses.Sid))
 		delete(g.ses, ses.Sid)

@@ -20,6 +20,19 @@
 > релей логина type 0 (uid+аккаунт в мир + ack), uid-эхо-события 13-44, type 35 = char_id+lev.
 > Словарь+корпус: docs/authd-2104-recon-20261009.md + ../authd-ref/logs-2104/. Мир сам реконнектится.
 > MVP 2104 = heartbeat + type0-релей + квитанции.
+> **MVP-2104 РЕАЛИЗОВАН 09.10**: `internal/world` (Go) — листенер gsPort (дефолт 0=выкл),
+> greeting/heartbeat/релей type-0/статус мира (type5 = users/limit), хук: type=3 на 2110 → релей в мир;
+> golden-тесты из живого корпуса (greeting 110Б/ping/relay 107Б/X=total-1). Квитанции gsAcks=false (T2).
+
+## 🧪 Журнал теорий (2104)
+
+| Дата | Гипотеза | Проверка | Статус |
+|---|---|---|---|
+| 09.10 | wire 2104 = тот же семейственный фрейминг `[u16][type]`, X = total−1 (packetSizeType=2) | C1 WorldSrvSocket.cpp (сорцы, НЕ дизasm): `m_packetSize = buf[0]+buf[1]<<8+1−2` | ✅ канон |
+| 09.10 | greeting мира = C1 OnCreate `Send("cdd",3,build,1)` | Server64-лог: «authVersion:2017012601, protocolVersion:1» — 1-в-1 | ✅ канон |
+| 09.10 | type5 W→A = status [users u16][limit u16] | корпус: `0000f401` → `0100f401` (users 0→1 после логина юзера); 500 = лимит | 🟡 частично (семантика полей — на fork-диффе) |
+| 09.10 | tail type-0 релея [49:107] (554da0b8/ff×24/50c2366b×2) = времена/expire | корпус статичен за 2 логина | ⏳ fork-дифф 2104 |
+| 09.10 | квитанции A→W 19/16/44/14/13/31 = реакции на события мира | соответствие по корпусу в одном флоу | ⏳ fork-дифф 2104 |
 > Сессия-док: [docs/session-20261007-authd-mvp.md](docs/session-20261007-authd-mvp.md).
 > Метод-референс: треки aion-logd → aion-captcha → aion-gate (метод отработан 3 раза).
 > Приложение-цель: `L2Authd.exe` (1,198,592 Б) — **2104** (serverPort), **2110** (serverExPort → AuthGateD),

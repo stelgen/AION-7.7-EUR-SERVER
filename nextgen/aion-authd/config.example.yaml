@@ -20,6 +20,15 @@ failCodeBadUser: 2        # не-ASCII/пустой логин (live → 18Б Lo
 failCodeBlocked: 22       # «Ваш аккаунт заблокирован.»
 failCodeDB: 1             # SYSTEM_ERROR
 
+# Мир-канал Server64 (serverPort 2104, C1 WorldSrvSocket; docs/authd-2104-recon-20261009.md):
+# протокол [u16 X LE][type][payload], X = total-1; greeting [03][authVersion][1];
+# heartbeat 60с (type 2/5); релей логина type 0 = uid+аккаунт+2000+tail (живой корпус 09.10).
+gsPort: 0                 # 0 = листенер ВЫКЛ (вкл. только для стенда/fork или R6-свитча по «го»)
+gsAuthVersion: 2017012601 # из живого лога Server64: «Protocol Version authVersion:2017012601»
+gsHeartbeatSec: 60
+gsAcks: false             # квитанции 13-44 на события мира — после fork-диффа 2104
+# gsRelayTailHex: "..."    # tail type-0 релея [49:107] (default = живой корпус 09.10)
+
 db:
   driver: mem             # mem | mssql  (mssql — на VM: connStr ТОЛЬКО здесь/env AUTHD_CONNSTR)
   connStr: ""             # СЕКРЕТ. Пример: sqlserver://user:pass@127.0.0.1:1433?database=AionAccounts

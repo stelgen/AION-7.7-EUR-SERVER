@@ -47,6 +47,14 @@ type Config struct {
 	FailCodeBlocked uint32 `yaml:"failCodeBlocked"` // block_msg/block_flag
 	FailCodeDB      uint32 `yaml:"failCodeDB"`      // ошибка БД (SYSTEM_ERROR)
 
+	// Мир-канал Server64 (serverPort 2104, C1 WorldSrvSocket; docs/authd-2104-recon-20261009.md).
+	// GSPort=0 = листенер ВЫКЛ (дефолт: не конкурировать с ориг до R6).
+	GSPort         int    `yaml:"gsPort"`         // 2104
+	GSAuthVersion  uint32 `yaml:"gsAuthVersion"`  // greeting [03][V][1] (live 2017012601)
+	GSHeartbeatSec int    `yaml:"gsHeartbeatSec"` // ping 2104 (live 60)
+	GSAcks         bool   `yaml:"gsAcks"`         // квитанции 13-44 на события мира (T2, дефолт false)
+	GSRelayTailHex string `yaml:"gsRelayTailHex"` // tail type-0 релея (default = живой корпус)
+
 	DB   DBConfig `yaml:"db"`
 	Ship ship.Cfg `yaml:"ship"`
 }
@@ -92,6 +100,12 @@ func (c *Config) FillDefaults() {
 	}
 	if c.FailCodeDB == 0 {
 		c.FailCodeDB = 1
+	}
+	if c.GSAuthVersion == 0 {
+		c.GSAuthVersion = 2017012601 // Server64-лог: «Protocol Version authVersion:2017012601»
+	}
+	if c.GSHeartbeatSec == 0 {
+		c.GSHeartbeatSec = 60 // live packet-лог 09.10
 	}
 	if c.DB.Driver == "" {
 		c.DB.Driver = "mem"

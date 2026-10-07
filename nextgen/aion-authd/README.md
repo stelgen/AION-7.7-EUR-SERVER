@@ -12,7 +12,7 @@
 |---|---|
 | R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | 🟡 procs ✅ 09.10: 31 proc + тела сняты → authd-ref/procs-aionaccounts-77.rpt (логин = ap_GPwdWithFlag→ap_AutoReg, serverlist = ap_GetServers); 2104 ✅ 09.10: протокол-корень снят живым packet-логом authd (heartbeat 60с + type0-релей логина + uid-эхо; корпус authd-ref/logs-2104/) — дизasm не нужен |
 | R1 wire-фундамент | ✅ `docs/authd-wire-20261007.md` + golden-тесты |
-| R2 каркас (framing/listener/config/ship) | ✅ |
+| R2 каркас (framing/listener/config/ship) | ✅ (+мир-канал 2104: internal/world 09.10) |
 | R3 логика (логин/автосоздание/online-TTL/фейлы) | ✅ live-факты 06-07.10 + каноны fork (type=3/4/7/fail) |
 | R4 DB-слой | ✅ mem + mssql (C1-схема); 09.10 реальные procs AionAccounts сняты — SQLStore переводится на вызов ap_* procs |
 | R5 fork-стенд на проде | 🟡 **ЖИВОЙ с 07.10 и ОСТАВЛЕН юзером** (forkauthd 2116 → ориг 2110 + копия → shadow 2117): каноны сняты, shadow структурно паритетен; осталась очередь арбитража O-vs-N по (sid,type) — N-ONLY = гонка тени |
@@ -88,7 +88,8 @@ type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid
 1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: протокол-корень уже снят
    живым packet-логом authd (09.10, дизasm не нужен — см. docs/authd-2104-recon-20261009.md +
    authd-ref/logs-2104/): heartbeat 60с (type 2/5), релей логина type 0, uid-эхо 13–44.
-   Осталось реализовать тонкий MVP (heartbeat + type0-релей + квитанции).
+   ✅ 09.10 MVP реализован (`internal/world`: greeting `[03][authVersion][1]` + heartbeat 60с +
+   type0-релей логина по живому корпусу; вкл. `gsPort`, дефолт 0 = выкл; квитанции `gsAcks` — T2 после fork-диффа 2104).
 2. **procs AionAccounts** — ✅ 09.10 сняты (authd-ref/procs-aionaccounts-77.rpt), SQLStore → на ap_* procs.
 3. **mssql-стор в shadow** — сейчас mem-store: до свитча подключить SQLStore.
 4. **Арбитраж fork-лога** — очередь запрос-ответ по (sid,type): N-ONLY-вердикты = гонка
