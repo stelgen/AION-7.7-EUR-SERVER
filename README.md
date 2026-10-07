@@ -18,7 +18,7 @@
 
 ## 🏗 Архитектура стека
 
-Поток игрока (на 08.10): **Клиент → aion-gate(2106) → forkauthd(2116) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)**, fork-копия всех фреймов → наш aion-authd shadow(2117). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча переписаны; authd в fork-стенде; мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
+Поток игрока (на 09.10, R6): **Клиент → aion-gate(2106) → наш aion-authd(2110) → [мир-канал: Server64 → наш authd(2104)] → AccountCacheServer(2220) → мир: Server64(7777)**; тень+fork = откаты. Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча переписаны; authd в fork-стенде; мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
@@ -57,7 +57,7 @@
 | Логгер | LogServer64 `:2051` | `nextgen/aion-logd` (Go) | ✅ в бою 05.10 (Л1–Л4), откат = `schtasks /run AionLog` |
 | Капча | CAPTCHAImageServer `:22206` | `nextgen/aion-captcha` (Go) | ✅ в бою 05.10 (буфер 10000 за ~4с против 6.4 мин) |
 | Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ РЕЛИЗ 08.10 (`f8912a9`, exe `7c4dcab`): e=65537, op=0x00, blob asm-форма, T1-фейлы (authdTimeout=15s, тексты 1..22+45 live); полный юзер-флоу, юзер играет |
-| Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | 🟡 MVP+тень: fork-стенд жив (forkauthd :2116, shadow :2117, паритет по type=3/4/7/fail); свитч после R0 (2104/procs/mssql) |
+| Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | ✅ **R6 В БОЮ 09.10**: живой путь = наш authd (2110 гейт + 2104 мир, Server64 переключился); полный цикл юзера + новый-аккаунт + мгновенный перелогин; mssql-стор на реальных ap_* procs; наблюдение 24ч |
 | Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟡 каркас R2 (dispatch+wire дизasmом, тесты зелёные); R1 capture = следующий |
 | Кэш мира | CacheD64 `:2006/2007/2009` | aion-cache (план) | 🔬 ресёрч R0 закрыт 08.10 (PDB 106МБ, RPC-словари, 781 procs; шанс ~85%) |
 | Операции | — | `nextgen/aion-op` | ✅ Phase 1: РЕАЛЬНОЕ управление стеком (operate, группы fork, kick-задачи); OP-FIRST = единственная точка управления |

@@ -13,7 +13,7 @@
 | Капча aion-captcha | ✅ в бою :22206 (exe MD5 `5394aab1`), буфер 10000 за ~4с (ориг 6.4 мин), Server64.err чист; откат = retarget AionCAPTCHA на `C:\Temp\captcha.bat` |
 | Гейт aion-gate | ✅ РЕЛИЗ на :2106 `mode: authgate` (коммит f8912a9, exe sha `7c4dcab`): e=65537, op=0x00 live-клиента, blob asm-форма 191Б, T1-фейлы (authdTimeoutSec=15, failClose=2, onlineTtl=0 ВЫКЛ, реестр текстов 1..22+45 live); полный юзер-флоу 1/1 и stelgen доказан; юзер играет через fork-стенд; откат exe = `.bak-63f6a47/9c85c12/9f2da98/e1dd475`, режим = `mode: fork` |
 | Fork-стенд authd | ✅ ЖИВОЙ и ОСТАВЛЕН (решение юзера 07.10): gate(2106, authPort=2116) → forkauthd(:2116) → ориг 2110 (живой путь) + копия → shadow aion-authd(:2117); VERDICT-лог `D:\SAION\aion-authd\fork-authd.log`; shadow структурно паритетен по greeting/type=3/4/7/fail (каноны сняты fork'ом) |
-| Authd (наш) | 🟡 MVP R1-R4 готов (probe-e2e OK), НЕ свитчнут; R6-блокеры: 2104 (Server64-канал — дизasm), procs AionAccounts (sp_helptext), mssql-стор (вместо mem), арбитраж fork-лога по (sid,type) — N-ONLY = гонка тени с оригом |
+| Authd (наш) | ✅ **R6 В БОЮ 09.10**: живой путь (2110+2104), полный цикл юзера + мгновенный перелогин + pk1-эхо + квитанции; наблюдение 24ч |
 | aion-accache | 🟡 R0 ✅ (PDB 92МБ+101 procs+21 табл), R0.5 ✅ (dispatch-таблица T1 0..39/T2 0..7, wire [len-2][cmd][0xEB][~cmd]), R2 ✅ (Go-каркас, тесты зелёные); R1 capture-стенд = следующий |
 | CacheD64 ресёрч | 🔬 R0 ✅ 08.10 (PDB 106МБ/14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, 781/789 procs, 356МБ готовых логов); кода нет; шанс ~85% |
 | aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12): управляет стеком (start/stop/restart/restart_pair, группы fork: authdn/forkd), SQL/CCU-вкладки, алерты, kick-задачи (AionKickGate = /IM aion-gate.exe точно); expected_conns=8 (16 netstat-строк); канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)); Phase 1.5 НЕ начата |
@@ -43,7 +43,7 @@
 | ✅ 1 | LogServer64 → aion-logd | ✅ в бою | 100% | метод capture→PDB→Go→fork→свитч отработан |
 | ✅ 2 | CAPTCHAImageServer → aion-captcha | ✅ в бою | 100% | свитч 05.10; промпт закрыт (АРХИВ) |
 | ✅ 3 | AuthGateD → aion-gate | ✅ РЕЛИЗ | 100% | полный юзер-флоу живой; хвост T2-T6 |
-| **4** | **L2Authd → aion-authd** | 🟡 MVP+тень жива | ~85% | fork-стенд паритетен по логину; R6-блокеры = 2104/procs/mssql; убирает хрупкость L2Authd |
+| **4** | **L2Authd → aion-authd** | ✅ R6 в бою | 100% MVP | свитч 09.10; полный цикл юзера; откат-цепочка готова; тех-долг: charcount/висяк выхода (ниже среднего) |
 | **5** | **AccountCacheServer → aion-accache** | 🟡 каркас | ~90% | dispatch+wire сняты дизasmом; R1 capture; PDB+procs в гите |
 | **6** | **CacheD64 → aion-cache (будет)** | 🔬 R0 закрыт | ~85% | 8× больше ACS по RPC (~590 команд); MVP read-путь + write-транзит в SQL |
 | 7 | ICServer → свой | ⬜ не тронут | ~50% | транзакционный хаб 3 сторон; PDB 104МБ; без него лупер IC — пока ориг |
