@@ -11,7 +11,8 @@
 | R0 | ✅ | VM-разведка: PDB 92МБ+map+exe скачаны, тела 101 procs+21 таблица, клиент 2220=Server64 (07.10) |
 | R0.5 | ✅ | Dispatch-таблица дизasmом: wire-фрейм [len-2][cmd][0xEB][~cmd], T1 cmds 0-39, T2 0-7, cmd 22 не занят (07.10) |
 | R2 | ✅ | Каркас nextgen/aion-accache: proto+dispatch+cache+db-интерфейс+server+ship, тесты зелёные (07.10) |
-| R1 | 🟡 | **capture ✅ 10.10**: accmirror v1.0 (:2220→:2221) + копия ACS-2221 + 2 логина юзера → wire-факты в RESEARCH §11 (маркеры EB/EC, 2 формата кадров, cmds 1/4/5/7/25/31, ~cmd инверсия). Осталось: payload-раскладки per-cmd (докрутка accparse CTRL-границ) + ACP-номера (vtable/корреляция) + T2-семантика. Стенд ОСТАВЛЕН работать для дозахвата |
+| R1 | ✅ | **capture + wire-канон 10.10**: accmirror v1.1 (:2220→:2221) + копия ACS-2221; 2 логина; дизasm OnRead/GetCmd_ACQ → **len=total** (офф-бай-2 в v1.0/каркасе исправлен), маркеры EB/EC, 0 bad frames на всём capture (RESEARCH §11). Стенд ОСТАВЛЕН работать (дозахват) |
+| R2.5 | ✅ | **Раскладки 10.10**: internal/payload (Version/FirstLoad/BM/Luna/CharLogin/Logout/Fatigue с UTF-16 stamp) на живых golden-кадрах, тесты зелёные; tools/accparse.py v2; frames.txt в capture-артефактах. Хвосты в R3: роли полей Fatigue/Trial (PDB I,H,I,I,I), push 13/15/20/21, T2-канал |
 | R3 | ⏳ | SQLStore (go-mssqldb) + полный хендлер-набор по телам procs (заглушки по мере наблюдения) |
 | R4 | ⏳ | A/B fork-прогон: копия трафика в наш, ориг НЕ трогать, байт-в-байт дифф |
 | R5 | ⏳ | Свитч по «го» (задача AionAcc retarget на D:\SAION\aion-accache\run.cmd; откат = retarget обратно) |

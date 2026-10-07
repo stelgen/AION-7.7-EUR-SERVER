@@ -67,8 +67,8 @@ func TestFirstLoadResponds5Ints(t *testing.T) {
 	if hdr[4] != 0xEB {
 		t.Fatalf("marker = %#x", hdr[4])
 	}
-	n := int(binary.LittleEndian.Uint16(hdr[0:2]))
-	body := make([]byte, n-5) // после 7Б hdr осталось payload (n = cmd2+eb1+inv2+payload)
+	n := int(binary.LittleEndian.Uint16(hdr[0:2])) // n = полная длина кадра
+	body := make([]byte, n-7)                     // payload = n - len(2) - cmd(2) - marker(1) - ~cmd(2)
 	if _, err := readFull(c, body); err != nil {
 		t.Fatal(err)
 	}

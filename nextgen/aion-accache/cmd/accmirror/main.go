@@ -1,8 +1,10 @@
-// accmirror — R1 capture-прокси aion-accache (паттерн FORK-SPEC §2 "Mirror-копия").
+// accmirror v1.1 — R1 capture-прокси aion-accache (паттерн FORK-SPEC §2 "Mirror-копия").
 // front :2220 (настоящий порт ориг-ACS) -> back :2221 (копия ACS с байтовой правкой порта).
-// Лог raw-first (LOGGING-SPEC): каждый ФРЕЙМ [u16 lenMinus2][u16 cmd][0xEB][u16 ~cmd][payload]
-// целиком hex'ом с направлением C> (клиент->back) / O> (back->клиент) + разбор заголовка.
-// Если фрейминг не сходится — пишем чанк RAW> целиком и продолжаем (никаких молчаливых съеданий).
+// Лог raw-first (LOGGING-SPEC): каждый ФРЕЙМ [u16 len][u16 cmd][m][u16 ~cmd][payload]
+// (len = ПОЛНАЯ длина кадра, вкл. len-поле; m: C2S=0xEB, S2C=0xEC) целиком hex'ом с
+// направлением C> / O> + разбор заголовка. v1.0 имел офф-бай-2 (total=len+2) — кадры
+// неправильно резались (байты в логе при этом НЕ терялись). Если фрейминг не сходится —
+// пишем чанк RAW> целиком и продолжаем (никаких молчаливых съеданий).
 package main
 
 import (
@@ -19,7 +21,7 @@ import (
 	"time"
 )
 
-const banner = "accmirror v1.0 (aion-accache R1, 5707423+)"
+const banner = "accmirror v1.1 (aion-accache R1, len=total)"
 
 var (
 	lg    *log.Logger
@@ -35,8 +37,8 @@ func feed(dst net.Conn, buf []byte, tag string, forward bool) []byte {
 		if len(buf) < 2 {
 			return buf
 		}
-		total := int(binary.LittleEndian.Uint16(buf[:2])) + 2
-		if total < 6 || total > 0x2002 { // лимит протокола 0x2000 + допуск на кадр длины
+		total := int(binary.LittleEndian.Uint16(buf[:2])) // len = полная длина кадра (вкл. len-поле)
+		if total < 7 || total > 0x2002 {                  // тело = total-2, лимит тела 0x2000
 			mu.Lock()
 			stats.rawChunks++
 			lg.Printf("%s> RAW chunk len=%d hex=%s (framing out of range: total=%d)", tag, len(buf), hex.EncodeToString(buf), total)
@@ -80,7 +82,7 @@ func headLine(fr []byte) string {
 	cmd := binary.LittleEndian.Uint16(fr[2:4])
 	marker := fr[4]
 	xcmd := binary.LittleEndian.Uint16(fr[5:7])
-	ok := marker == 0xEB && uint16(^cmd&0xFFFF) == xcmd
+	ok := (marker == 0xEB || marker == 0xEC) && uint16(^cmd&0xFFFF) == xcmd
 	return fmt.Sprintf("cmd=0x%02X(~0x%04X marker=0x%02X ok=%v) payload=%d", cmd, xcmd, marker, ok, len(fr)-7)
 }
 

@@ -1,6 +1,6 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-🟡 **~60% · R1 capture ВЫПОЛНЕН (10.10)**: accmirror стенд жив (:2220→:2221, Server64 reconect сам), 2 логина захвачены, wire-факты в RESEARCH §11 (маркеры EB/EC, cmds 1/4/5/7/25/31). Осталось: payload-раскладки + ACP-номера (R2.5).
+🟢 **~70% · R2.5 ВЫПОЛНЕН (10.10)**: wire-канон снят полностью (len=total, маркеры EB/EC — RESEARCH §11), internal/proto+internal/payload на живых golden-кадрах (тесты зелёные), accmirror v1.1 на стенде (ok=true на всех кадрах live). R3-хвосты: роли полей Fatigue/Trial, push-семантика 13/15/20/21, T2-канал.
 Статус трека: nextgen/ACCOUNTCACHE-ROADMAP.md. Факты: RESEARCH.md (§6 сурс-свип, §9-10).
 
 ## Канон (доказано дизasmом, не догадки)

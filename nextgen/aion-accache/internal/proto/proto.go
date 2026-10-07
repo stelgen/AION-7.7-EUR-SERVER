@@ -1,8 +1,12 @@
-// Package proto: wire-фрейм AccountCacheServer 7.7 (снят дизasmом, dispatch-77.md).
+// Package proto: wire-фрейм AccountCacheServer 7.7.
 //
-//	[u16 lenMinus2 LE][u16 cmd LE][u8 0xEB][u16 ~cmd LE][payload]
-//	lenMinus2 = полная длина на проводе минус 2 (т.е. cmd+EB+~cmd+payload).
-//	Лимит payload 0x2000, cmd >= 0x6C = reject (AC_Socket::OnRead @0x1400799F0).
+//	[u16 len LE][u16 cmd LE][u8 marker][u16 ~cmd LE][payload]
+//	len = ПОЛНАЯ длина кадра ВКЛЮЧАЯ само len-поле (т.е. тело = len-2:
+//	cmd+marker+~cmd+payload). ПОДТВЕРЖДЕНО 10.10 и дизasmом OnRead
+//	(ArithmeticExpect=u16-2, AC_Socket::OnRead @0x1400799F0), и живым capture
+//	(accountcache-ref/capture-20261007, 0 bad frames на обоих направлениях).
+//	Маркер: C2S=0xEB, S2C=0xEC (ответы ACS инкрементят маркер — см. PutCmd_ACP).
+//	Лимит тела 0x2000, cmd >= 0x6C = reject (OnRead).
 package proto
 
 import (
@@ -13,11 +17,19 @@ import (
 )
 
 const (
-	Marker      = 0xEB
+	Marker      = 0xEB // C2S (клиент -> ACS)
+	MarkerS2C   = 0xEC // S2C (ответы ACS — инкремент маркера, PutCmd_ACP)
 	MaxCmd      = 0x6B // cmd >= 0x6C -> reject
-	MaxPayload  = 0x2000
-	HeaderWire  = 5 // len(2) + cmd(2) + marker(1)
-	HeaderBody  = 3 // cmd(2) + marker(1) после len-поля... см. Decode
+	MaxPayload  = 0x2000 // лимит ТЕЛА (len-2), OnRead: cmp 0x2000
+	HeaderWire  = 7 // минимальный кадр: len(2) + cmd(2) + marker(1) + ~cmd(2)
+)
+
+// Направление кадра (по маркеру).
+type Direction uint8
+
+const (
+	DirC2S Direction = iota
+	DirS2C
 )
 
 var (
@@ -29,13 +41,47 @@ var (
 
 // Frame — разобранный пакет.
 type Frame struct {
-	Cmd     uint16
-	Payload []byte // копия payload (без заголовков)
+	Cmd       uint16
+	Marker    uint8
+	Direction Direction
+	Payload   []byte // копия payload (без заголовков)
 }
 
-// BuildLen — значение len-поля для полной длины на проводе wireLen.
+// ParseFrame разбирает ПОЛНЫЙ кадр с провода (с len-полем), C2S и S2C.
+func ParseFrame(wire []byte) (*Frame, error) {
+	if len(wire) < HeaderWire {
+		return nil, ErrShort
+	}
+	n := int(binary.LittleEndian.Uint16(wire[0:2]))
+	if n < HeaderWire || n > len(wire) {
+		return nil, ErrShort
+	}
+	body := wire[2:n]
+	cmd := binary.LittleEndian.Uint16(body[0:2])
+	m := body[2]
+	var dir Direction
+	switch m {
+	case Marker:
+		dir = DirC2S
+	case MarkerS2C:
+		dir = DirS2C
+	default:
+		return nil, ErrMarker
+	}
+	if inv := binary.LittleEndian.Uint16(body[3:5]); inv != ^cmd {
+		return nil, fmt.Errorf("%w: cmd=%#x inv=%#x", ErrMarker, cmd, inv)
+	}
+	if int(cmd) > MaxCmd {
+		return nil, ErrCmdRange
+	}
+	pay := make([]byte, len(body)-5)
+	copy(pay, body[5:])
+	return &Frame{Cmd: cmd, Marker: m, Direction: dir, Payload: pay}, nil
+}
+
+// BuildLen — значение len-поля для полной длины на проводе wireLen (= wireLen).
 func BuildLen(wireLen int) uint16 {
-	return uint16(wireLen - 2)
+	return uint16(wireLen)
 }
 
 // Build собирает полный кадр на проводе.
@@ -92,7 +138,7 @@ func (rd *Reader) ReadFrame() (*Frame, error) {
 	if _, err := io.ReadFull(rd.r, lenb[:]); err != nil {
 		return nil, err
 	}
-	n := int(binary.LittleEndian.Uint16(lenb[:])) + 2 // полная длина на проводе
+	n := int(binary.LittleEndian.Uint16(lenb[:])) // полная длина кадра, включая len-поле
 	if n < HeaderWire {
 		return nil, ErrShort
 	}

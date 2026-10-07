@@ -191,43 +191,62 @@ wire-формат фрейма (закрывается R1) и тела procs (з
 
 Payload-детали: декодеры (`Decode*@ServerToAccountCached`) вызываются непрямо — точные байтовые раскладки = R1 capture; НО состав полей уже известен из mangled-сигнатур publics (DecodeCharLogin: H charId + SpecialSvrTypeEnum + wchar* userId; DecodeDecreaseLunaKey: __int64+LunaParam; DecodeUpdateHiddenFatigue: I,H,I,I,I; EncodeFirstLoadAccountInfo_AddArg: 5×int = 5 колонок GetAccountData...). Каркас MVP пишется БЕЗ capture; capture только для байтовых офсетов.
 
-Инструменты: парсер ctor = /tmp/acs_dispatch2.py + /tmp/acs_final.py (перенести в tools/analysis); дизasm /tmp/acs.asm 283к строк; publics = artifacts/pdb-big/AccountCacheServer/pdb-publics-8035.txt. Готча objdump: адрес границы функции может не существовать как метка (шаг 4Б) — искать ближайший префикс; VA = ImageBase + 0x1000 + public-off (секция .text).## 11. R1 CAPTURE ВЫПОЛНЕН (10.10, accmirror v1.0 fc3799f) — WIRE СНЯТ НА ЖИВЫХ ЛОГИНАХ
+Инструменты: парсер ctor = /tmp/acs_dispatch2.py + /tmp/acs_final.py (перенести в tools/analysis); дизasm /tmp/acs.asm 283к строк; publics = artifacts/pdb-big/AccountCacheServer/pdb-publics-8035.txt. Готча objdump: адрес границы функции может не существовать как метка (шаг 4Б) — искать ближайший префикс; VA = ImageBase + 0x1000 + public-off (секция .text).## 11. R1+R2.5: WIRE СНЯТ ПОЛНОСТЬЮ (10.10, capture + дизasm OnRead/GetCmd_ACQ — финальный канон)
 
-Стенд: FORK-SPEC §2 mirror-copy. Копия `AccountCacheServer-2221` (байтовый патч common.xml 2220→2221,
-один байт @idx293, ориг MD5 DE2EC2B2 не тронут) + accmirror на :2220 → :2221 (frame-aware лог).
-Задачи: AionAccCopy / AionAccMirror (SYSTEM; созданы disabled, включаются на время capture).
-⚠ **ACS = single-instance** (FindWindowA+CreateMutexW в импортах) — копия при живом ориге виснет
-на диалоге (241МБ без порта); копию стартовать ТОЛЬКО соло (после остановки ориг-задачи).
-✅ **Server64 переподключается сам** (~3с) после подмены :2220 — риск R1 закрыт, юзер не заметил.
+Стенд: FORK-SPEC §2 mirror-copy (accmirror v1.1 :2220→:2221 + копия ACS-2221, патч common.xml 1 байта
+@idx293, ориг MD5 DE2EC2B2 цел). ⚠ ACS single-instance (FindWindowA+CreateMutexW в импортах) — копию
+стартовать ТОЛЬКО соло. ✅ Server64 переподключается сам ~3-4с и **переигрывает VERSION-handshake**.
 
-**Захват**: 2 логина юзера (13:35, 13:48) → `accountcache-ref/capture-20261007/` (raw лог + c.hex/o.hex
-+ tools/accparse.py). Парсер: [len-2][cmd][0xEB|0xEC][~cmd] RPC + CTRL-транспорт.
+### ФИНАЛЬНЫЙ WIRE (доказано: дизasm + 0 bad frames на всём capture)
 
-**WIRE-ФАКТЫ (доказано живым трафиком)**:
-1. **Маркер инкрементится по направлению: C2S = 0xEB, S2C = 0xEC** (мой "ok=false" на O> был ложный).
-2. **ДВА формата кадров**: RPC `[u16 len-2][u16 cmd][u8 m][u16 ~cmd][payload]` и CTRL
-   `[u16 len-2][u8 m][u16 ~(len-2)][payload]` (транспортный слой; length-семантика payload у CTRL
-   TBD — len-2 там НЕ длина кадра; EB/EC пары запрос-ответ — похоже на ACK).
-3. `~cmd` инверсия подтверждена на всех RPC; payload большинства кадров начинается с `f2 03 00 00`
-   (u32 0x3F2=1010 — похоже channel/ticket ID; TBD).
-4. **Наблюдённые cmds (C2S)**: 1 VERSION (pay `03000000 01000000 0b00`), 4 FIRST_LOAD_ACCOUNT_INFO
-   (pay `f2030000 0b00`), 5 LOAD_BM_PACK (pay `f2030000 0e00`), 7 LOAD_TRIAL (pay `f2030000 ea0300 020b00`),
-   25 UPDATE_HIDDEN_FATIGUE ×2 (pay `f2030000 0000000000000000 <u32 ts> <u64 ?> 2f00`), 31 ASK_JUMPING_CHAR
-   (pay `01 f2030000 0001 0b00`).
-5. **S2C**: 1 VERSION-resp (pay `03000000 1a00`), 5 BM-ответ (`f2030000 0000 1500`), 16 CHAR_LOGIN
-   (`f2030000 ffffffff*2 ...`), 28 CONFIRM_LUNA... — **пронумерация S2C местами НЕ совпадает с ACQ**
-   (напр. `0b00 0d00 ec f2ff ae310864 0d00` после BM — 13?) → ACP-номера = vtable-дизasm (PDB есть),
-   либо корреляция пара-в-пару (5↔5, 1↔1 подтверждаются).
-6. В потоке есть UTF-16LE лог-строки от Server64 (`2026-10-07T13:35:55.860...`) — это LOG_INFO-канал
-   (cmd 14) и/или CTRL-обёртки + unix-ts (0x6AC61FCA и др.).
+```
+[u16 N][u16 cmd][u8 marker][u16 ~cmd][payload]
+```
+- **N = ПОЛНАЯ длина кадра, включая само len-поле** (тело = N-2). ⚠ В dispatch-77.md поле звалось
+  «lenMinus2» — неверная трактовка, из-за неё accmirror v1.0 и каркас R2 имели офф-бай-2 (исправлено
+  в v1.1/internal/proto; тесты = golden-кадры из живого capture).
+- **marker: C2S = 0xEB, S2C = 0xEC** (ответы ACS инкрементят маркер; PutCmd_ACP).
+- ~cmd = побитовая инверсия cmd (u16 LE).
+- Лимиты OnRead: тело ≤ 0x2000; **cmd ≥ 0x6C → close**; marker ≠ EB → только LOG (не drop!);
+  N < 2 → close. State-машина: state0 ждёт len-поле (+2 байта), state1 ждёт тело (N-2), после
+  обработки offset += N-2... = ровно наш proto.Reader.
+- **ВТОРОГО ФОРМАТА КАДРОВ НЕТ** — «CTRL-кадры» из первого лога = артефакт офф-бай-2 логгера v1.0.
+- Дизasm-бонус: payload[0] (байт, sign-extended) индексирует глобальную таблицу каналов
+  (stride 0xB8 @ 0x14EAC7AB0) → выбор структуры канала до постановки в очередь.
 
-**Критично для R2.5**: раскладки payload per-cmd = докрутка accparse (CTRL-границы) + сверка с
-PDB Decode* сигнатурами; дозахват возможен на живом стенде (стенд ОСТАВЛЕН работать: ориг-задача
-AionAcc Ready, откат = taskkill accmirror.exe + kill копии + `schtasks /run /tn AionAcc`).
+### Наблюдённые cmds и раскладки (fixtures в internal/payload/payload_test.go — ЗЕЛЁНЫЕ)
 
-**Стенд-статус (07.10 14:02 VM, read-only сверка)**: зеркало **В БОЮ** — accmirror.exe PID 2248 слушает
-:2220, копия ACS PID 6668 на :2221, ориг-задача AionAcc = Ready (остановлена), Server64 (3580) держит
-коннект 58656→2220 (netstat). accmirror.log на VM = 5941 Б = байт-в-байт наш capture → **новых логинов
-после 13:48 нет** (op-события 13:50 «proc_missing item collection» = CacheD/мир 2006, не ACS).
-⇒ Дозахват недостающих cmds (10-13 CUSTOM, 17 LOGOUT, 20 REFRESH, 23/24, 26-29 LUNA) = просто логин
-юзера в живой стенд — НОЛЬ прод-действий.
+| cmd | C2S (Server64→ACS) | S2C (ACS→Server64) |
+|---|---|---|
+| 1 VERSION | `03000000 01000000` | `03000000` |
+| 4 FIRST_LOAD | `f2030000` (ch) | ch+u32 1+u32 0+u8+**u32 ts**+u16 (19Б) |
+| 5 LOAD_BM_PACK | ch | ch+u16 (6Б) |
+| 7 LOAD_TRIAL | ch + u32 charRef (`ea030002`) | — |
+| 8 UPDATE_TRIAL | ch+ts+u32 0+u32 0x395+хвост | — |
+| 16 CHAR_LOGIN | u32 1+u32 0+charRef+ch+**UTF-16LE z-stamp** («2026-10-07T13:35:55.860»)+u32 1+u32 2+u32 0 | ch+`ffffffff ffffffff`+нули (31Б) |
+| 17 CHAR_LOGOUT | u32 1+charRef+utf16z-stamp+u32 1+u32 2+u32 0 (**без ch-префикса!**) | — |
+| 25 UPDATE_HIDDEN_FATIGUE | ch+3×u32 0+**ts1(0x6AC62093)+ts2(0x6AC5DFE0)**+u32 0 (24Б) | — |
+| 26 LOAD_LUNA | ch | ch+u32 ts+u32 0 |
+| 27/28 LUNA upd/confirm | — | ch+u32+u16 (хвосты) |
+| 31 ASK_JUMPING_CHAR | u8 01+ch+u16 0001 (**префикс с u8, не u32!**) | — |
+| 37 TRANSFORM_OP | u32 0xF2+ch+u8 00 | — |
+| push 13/15/20/21 | — | ответные/асинхронные пуши (13=`ae310864` после BM; 20=большой blob с ts) |
+
+- **`f2030000` = u32 0x3F2 = 1010** — channel/ticket-константа сессии (не «порт authd» — совпадение).
+  Исключения: VERSION (03...), CHAR_LOGOUT (нет префикса), ASK_JUMPING_CHAR (u8-префикс).
+- **S2C нумерация = ТА ЖЕ enum ACQ (маркер 0xEC)** — «не-совпадение номеров» из первого лога = артефакт
+  офф-бай-2. 1↔1, 4↔4, 5↔5, 26↔26 подтверждаются парами.
+- В CHAR_LOGIN/LOGOUT Server64 передаёт свою **локальную метку времени UTF-16LE z-строкой**.
+
+### Артефакты и состояние
+
+- `accountcache-ref/capture-20261007/`: accmirror.raw.log, c.hex, o.hex, **frames.txt** (полный
+  поимённый список кадров обоих направлений); `aion-accache/tools/accparse.py` (v2, канон).
+- Каркас: `internal/proto` (len=total, DirC2S/DirS2C, ParseFrame) + `internal/payload` (типизированные
+  раскладки) — тесты на живых golden-кадрах, ЗЕЛЁНЫЕ.
+- Стенд ОСТАВЛЕН работать (accmirror v1.1 деплой 14:09, реконнект+handshake ok). Откат =
+  `taskkill /F /IM accmirror.exe` + kill копии по PID + `schtasks /run /tn AionAcc`; задачи
+  AionAccCopy/AionAccMirror (SYSTEM, включены на время capture).
+- **R3-хвосты**: роли полей FatigueReq/TrialReq (PDB DecodeUpdateHiddenFatigue I,H,I,I,I), семантика
+  push 13/15/20/21, ACP-номера через vtable (для не-зеркальных), T2-канал (второй listener) — по
+  дозахвату (стенд живой, логин ×N даёт новые cmds: CUSTOM 10-13, PLAYTIME 32-35 и пр.).
