@@ -47,6 +47,7 @@ type Cfg struct {
 	HeartbeatSec int    // период ping (live 60)
 	Acks         bool   // шлать ли квитанции на события мира (T2, дефолт false)
 	RelayTailHex string // tail type-0 релея [48:107] (default = живой корпус)
+	RawLog       bool   // RAW-hex лог мира (диаг; вкл. gsRawLog)
 }
 
 // S — мир-канал (одно живое подключение Server64 — netstat-факт).
@@ -134,9 +135,10 @@ func (s *S) Status() (online bool, users, limit int) {
 
 // --- wire ---
 
-// Encode — [u16 X LE][type][payload], X = total-1 (C1 WorldSrvSocket).
+// Encode — [u16 X LE][type][payload], X = body+2 (= type+payload+2) — ТА ЖЕ формула, что
+// на 2110 (самоинклюзивный len=body+2); C1: m_packetSize = X+1-packetSizeType, packetSizeType=3.
 func Encode(typ byte, payload []byte) []byte {
-	x := 2 + len(payload) // X = total_frame - 1 = type+payload+1 (C1: assembled+packetSizeType-1)
+	x := 3 + len(payload) // X = type+payload+2
 	out := make([]byte, 0, x+1)
 	var h [2]byte
 	binary.LittleEndian.PutUint16(h[:], uint16(x))
@@ -243,10 +245,10 @@ func ReadFrame(conn net.Conn) (typ byte, payload []byte, err error) {
 		return
 	}
 	x := int(binary.LittleEndian.Uint16(h[:]))
-	if x < 2 || x > 0x2000 { // минимум: type+1; лимит = C1 BUFFER_SIZE
+	if x < 3 || x > 0x2000 { // минимум: type+2; лимит = C1 BUFFER_SIZE
 		return 0, nil, fmt.Errorf("world: bad frame size %d", x)
 	}
-	body := make([]byte, x-1)
+	body := make([]byte, x-2) // type+payload = X-2
 	if _, err = readFull(conn, body); err != nil {
 		return
 	}
@@ -280,16 +282,45 @@ func (s *S) loop(conn net.Conn) {
 		log.Printf("world: disconnected %s (мир сам реконнектится — live)", conn.RemoteAddr())
 	}()
 
+	greet := Greeting(s.Cfg.AuthVersion)
+	if s.Cfg.RawLog {
+		log.Printf("world RAW > %x", greet)
+	}
 	go s.heartbeat(conn)
-	if _, err := conn.Write(Greeting(s.Cfg.AuthVersion)); err != nil {
+	if _, err := conn.Write(greet); err != nil {
 		return
 	}
+	buf := make([]byte, 0, 8192)
+	tmp := make([]byte, 4096)
 	for {
-		typ, payload, err := ReadFrame(conn)
+		n, err := conn.Read(tmp)
+		if n > 0 {
+			if s.Cfg.RawLog {
+				log.Printf("world RAW < %x", tmp[:n])
+			}
+			buf = append(buf, tmp[:n]...)
+			for len(buf) >= 3 {
+				x := int(binary.LittleEndian.Uint16(buf[:2]))
+				if x < 3 || x > 0x2000 {
+					log.Printf("world: BAD SIZE %d (buf %dБ): %x", x, len(buf), buf[:min(64, len(buf))])
+					buf = nil
+					break
+				}
+				if len(buf) < x+2 {
+					break
+				}
+				typ := buf[2]
+				payload := append([]byte{}, buf[3:x+2]...)
+				buf = buf[x+2:]
+				s.dispatch(conn, typ, payload)
+			}
+			if buf == nil {
+				buf = make([]byte, 0, 8192)
+			}
+		}
 		if err != nil {
 			return
 		}
-		s.dispatch(conn, typ, payload)
 	}
 }
 

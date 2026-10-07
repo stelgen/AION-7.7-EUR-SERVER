@@ -21,8 +21,8 @@ const orig0410Relay = "f20300005374656c67656e00000000000000000000000000d00700000
 func TestEncodeFraming(t *testing.T) {
 	fr := Encode(5, []byte{0, 0, 0xf4, 1})
 	x := binary.LittleEndian.Uint16(fr[0:2])
-	if int(x)+1 != len(fr) {
-		t.Fatalf("X=%d, total=%d — контракт X=total-1 нарушен", x, len(fr))
+	if int(x)+2 != len(fr) {
+		t.Fatalf("X=%d, total=%d — контракт X=total-2 (body+2) нарушен", x, len(fr))
 	}
 	if fr[2] != 5 {
 		t.Fatalf("type=%d", fr[2])
@@ -33,14 +33,14 @@ func TestGreetingGolden(t *testing.T) {
 	// КАНОН ориг-лога 04.10 (Auth->World,3: 792b39780100000000 — 9Б payload!):
 	// [03][authVersion][1][0x00] — без 9-го байта Server64 молчит (корень R6-отказа 11:07).
 	g := Greeting(gsAuthVersion)
-	if !bytes.Equal(g, mustHex(t, "0b0003792b39780100000000")) {
-		t.Fatalf("greeting = %x, want 0b0003792b39780100000000", g)
+	if !bytes.Equal(g, mustHex(t, "0c0003792b39780100000000")) {
+		t.Fatalf("greeting = %x, want 0c0003792b39780100000000", g)
 	}
 }
 
 func TestPingGolden(t *testing.T) {
-	if got := Ping(); !bytes.Equal(got, mustHex(t, "020002")) {
-		t.Fatalf("ping = %x, want 020002", got)
+	if got := Ping(); !bytes.Equal(got, mustHex(t, "030002")) {
+		t.Fatalf("ping = %x, want 030002", got)
 	}
 }
 
@@ -51,21 +51,21 @@ func TestRelayLoginGolden(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	want := append([]byte{0x6d, 0x00, 0x00}, mustHex(t, strings.Replace(orig0410Relay, "7f000001", "554da0b8", 1))...) // X=109, type=0
+	want := append([]byte{0x6e, 0x00, 0x00}, mustHex(t, strings.Replace(orig0410Relay, "7f000001", "554da0b8", 1))...) // X=110, type=0
 	if !bytes.Equal(got, want) {
 		t.Fatalf("relay mismatch:\n got %x\nwant %x", got, want)
 	}
 	// 04.10-противоречие: для 127.0.0.1 ориг писал 7f000001 (direct) — конвенция неоднозначна (T2);
 	// у нас принят реверс (09.10 корпус): 127.0.0.1 -> 0100007f
 	got2, _ := RelayLogin(cfg, 1010, "Stelgen", "127.0.0.1")
-	want2 := append([]byte{0x6d, 0x00, 0x00}, mustHex(t, strings.Replace(orig0410Relay, "7f000001", "0100007f", 1))...)
+	want2 := append([]byte{0x6e, 0x00, 0x00}, mustHex(t, strings.Replace(orig0410Relay, "7f000001", "0100007f", 1))...)
 	if !bytes.Equal(got2, want2) {
 		t.Fatalf("relay 127.0.0.1 mismatch")
 	}
 }
 
 func TestReadFrameBadSize(t *testing.T) {
-	for _, bad := range []string{"0000", "0100", "0120"} { // X<2 / X=0x2001
+	for _, bad := range []string{"0000", "0200", "0120"} { // X<3 / X=0x2001
 		c1, c2 := net.Pipe()
 		go func(h string) {
 			c1.Write(mustHex(t, h))
@@ -122,8 +122,8 @@ func TestServeE2E(t *testing.T) {
 		t.Fatal(err)
 	}
 	x := binary.LittleEndian.Uint16(h[:])
-	if x != 109 {
-		t.Fatalf("X=%d, want 109", x)
+	if x != 110 {
+		t.Fatalf("X=%d, want 110", x)
 	}
 	wantFrame, _ := RelayLogin(s.Cfg, 1010, "Stelgen", "127.0.0.1")
 	body := make([]byte, int(x)-1)

@@ -53,7 +53,8 @@ type Config struct {
 	GSAuthVersion  uint32 `yaml:"gsAuthVersion"`  // greeting [03][V][1] (live 2017012601)
 	GSHeartbeatSec int    `yaml:"gsHeartbeatSec"` // ping 2104 (live 60)
 	GSAcks         bool   `yaml:"gsAcks"`         // квитанции 13-44 на события мира (T2, дефолт false)
-	GSRelayTailHex string `yaml:"gsRelayTailHex"` // tail type-0 релея (default = живой корпус)
+	GSRelayTailHex string `yaml:"gsRelayTailHex"`
+	GSRawLog       bool   `yaml:"gsRawLog"` // tail type-0 релея (default = живой корпус)
 
 	DB   DBConfig `yaml:"db"`
 	Ship ship.Cfg `yaml:"ship"`

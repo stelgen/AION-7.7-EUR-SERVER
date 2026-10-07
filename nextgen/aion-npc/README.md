@@ -33,7 +33,7 @@
 
 ## ⏭️ Следующий шаг
 
-`WORKFLOW: npc` → R1: wire-карта 2002 — golden-кадры с 8 NPC-коннектов (метод aion-main: tshark-follow hex, retransmission-safe; выверка по 148-реестру) + 2006-wire из cache-ресёрча ([u16 self-len][op][payload][2Б csum] + rolling XOR — NPCSvr-коннект к 2006 тем же фреймом). Промпт: [PROMPT.md](PROMPT.md).
+`WORKFLOW: npc` → R1 🟡: каркас wire готов (148-реестр + лог-факты мир-цикла, [r1-док](docs/r1-capture-2002-20261008.md)); байт-кадры = выбор юзера: A) R4.1 fork-стенд (рекоменд.) / B) тест-мир на LAN / C) Npcap на прод (не рек.). Промпт: [PROMPT.md](PROMPT.md).
 
 ## 📦 Артефакты
 
