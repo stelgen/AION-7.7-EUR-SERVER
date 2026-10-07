@@ -65,6 +65,9 @@ type S struct {
 	// OnPlayAck — мир подтвердил play (W→A type=0 ack [uid][N]): pk1=N для type=7
 	// (канон 09.10: три логина 2→2/4→4/8→8 — точное эхо ack-dword).
 	OnPlayAck func(uid, pk1 uint32)
+	// OnLogout — мир сообщил о выходе аккаунта (W→A type=40/3): снимаем онлайн-флаг
+	// (R6: «разлогин отдаём миру» — иначе TTL 5 мин держитsilent-relogin = «ошибка 1» у юзера).
+	OnLogout func(uid uint32)
 }
 
 // New — создать канал (не слушает до Serve).

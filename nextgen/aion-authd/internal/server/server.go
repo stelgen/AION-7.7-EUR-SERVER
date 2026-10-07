@@ -103,6 +103,14 @@ func (s *Server) SendPlayOK(uid, pk1 uint32) {
 	target.reply(ses, &logic.Reply{Typ: 7, Payload: logic.BuildType7Pk1(pk1, ses.AccID, s.Cfg.ServerID)})
 }
 
+// OnWorldLogout — колбэк мира: выход аккаунта (type=40/3) → снять онлайн-флаг (R6).
+func (s *Server) OnWorldLogout(uid uint32) {
+	if n := s.L.ClearOnlineByUID(uid); n > 0 {
+		log.Printf("world-logout: снят онлайн-флаг uid=%d (%d)", uid, n)
+		s.send(ship.Event{Ev: "authd.logout", Svc: "world", Data: map[string]any{"uid": uid, "cleared": n}})
+	}
+}
+
 // dropGate — один коннект гейта отвалился.
 func (s *Server) dropGate(g *gateConn) {
 	s.mu.Lock()

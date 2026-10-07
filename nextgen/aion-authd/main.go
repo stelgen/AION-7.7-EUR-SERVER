@@ -51,7 +51,8 @@ func main() {
 		Port: cfg.GSPort, AuthVersion: cfg.GSAuthVersion, MaxUsers: cfg.MaxUsers,
 		HeartbeatSec: cfg.GSHeartbeatSec, Acks: cfg.GSAcks, RelayTailHex: cfg.GSRelayTailHex, RawLog: cfg.GSRawLog,
 	}, sh)
-	w.OnPlayAck = srv.SendPlayOK // мир подтвердил play → type=7 (pk1 = эхо ack, канон 09.10)
+	w.OnPlayAck = srv.SendPlayOK
+	w.OnLogout = srv.OnWorldLogout // мир подтвердил play → type=7 (pk1 = эхо ack, канон 09.10)
 	srv.W = w
 	if w.Enabled() {
 		lnW, err := net.Listen("tcp", ":"+strconv.Itoa(cfg.GSPort))

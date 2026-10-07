@@ -312,3 +312,18 @@ func rand32() uint32 {
 	_, _ = crand.Read(b[:])
 	return binary.LittleEndian.Uint32(b[:])
 }
+
+// ClearOnlineByUID — снять онлайн-флаг по uid (мир сообщил о выходе, R6-канон type=40/3).
+// Возвращает число снятых.
+func (d *Deps) ClearOnlineByUID(uid uint32) int {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	n := 0
+	for u, e := range d.online {
+		if e.UID == uid {
+			delete(d.online, u)
+			n++
+		}
+	}
+	return n
+}
