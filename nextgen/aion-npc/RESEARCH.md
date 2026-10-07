@@ -37,7 +37,6 @@
 - Nexus Connect 2.7 (JDK25): репо за RZ-логином — некритично (см. §1).
 - Юзер/VM: клиент 7.7 (Internet Archive) + geo v7.3 (MEGA) для Mobius; AL-ветки 1.9/4.6/5.8 (`git clone -b X.9.0`) при надобности кросс-диффа.
 
-## 5. В R0 из этого ресёрча
+## 5. Результат R0 (08.10): эталонный словарь AI — ГОТОВ
 
-- Извлечь эталонные словари: AI-типы ↔ npc_templates.xml ↔ spawn_map.xml, think-интервалы, WalkerGroup-модель → заготовка дизasm-dispatch карты NPCSvr64.
-- beyond-aion `ai/` = упрощённая/очищенная версия той же машины (+HpPhases, очередь скиллов) — второй взгляд на ту же модель.
+Словарь собран по всем 4 клонам (+AG 5.8): [docs/etalon-ai-dict-20261008.md](docs/etalon-ai-dict-20261008.md) (+JSON + экстрактор tools/). Ключевое: 111 AI-типов ↔ 143 handler-класса (7.7), 0 пробелов; AL 7.8 ≡ AG 7.8; think event-driven (не в данных); walker_id/walker_index в спавнах; `simple_abyssguard` в 4.8 = 859 NPC, в 7.7 — движковый. Диффы: 5.8-only 463 (свёрнуты), 4.8-only 367, 7.7-only 5.

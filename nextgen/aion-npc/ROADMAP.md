@@ -6,7 +6,7 @@
 
 | Фаза | Что | Статус |
 |---|---|---|
-| R0 | Разведка: каналы (2002 NPC↔Server64, :2009 npcDb-гипотеза, 2051 лог), ScriptDLL64-инвентарь (форматы XML/скриптов), 2.7-кит кросс-версионный дифф, PDB 129МБ publics → карта функций; извлечь эталонные словари из Java-эталонов (AI-типы↔npc_templates, think-интервалы, WalkerGroup) — [RESEARCH.md](RESEARCH.md) | ⬜ |
+| R0 | Разведка: каналы (2002 NPC↔Server64, :2009 npcDb-гипотеза, 2051 лог), ScriptDLL64-инвентарь (форматы XML/скриптов), 2.7-кит кросс-версионный дифф, PDB 129МБ publics → карта функций; извлечь эталонные словари из Java-эталонов (AI-типы↔npc_templates, think-интервалы, WalkerGroup) — [RESEARCH.md](RESEARCH.md) | 🟡 ✅ словарь AI: 111 типов ↔ 143 класса, 0 пробелов, think=event-driven, walker_id/walker_index — [docs/etalon-ai-dict-20261008.md](docs/etalon-ai-dict-20261008.md); ⬜ каналы/ScriptDLL64/2.7-дифф |
 | R1 | pktmon 2002/2009 capture (мир жив, рестарт дорогой) → wire NPC↔Server64 | ⬜ |
 | R2 | Дизasm dispatch по словарям (метод accache/cache) | ⬜ |
 | R3 | Go MVP: спавны из XML + движение/агро-цикл + интеграция aion-cache (RPC) и aion-main (2002) — минимальный мир для соло | ⬜ |
