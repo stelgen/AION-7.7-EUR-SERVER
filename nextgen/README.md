@@ -22,7 +22,7 @@
 
 | Элемент | Порт | NC-оригинал | Наш nextgen | Статус / % | Деплой / откат | Доки |
 |---|---|---|---|---|---|---|
-| **Гейт** (точка входа клиентов) | 2106 | `AuthGateD.exe` | [aion-gate/](aion-gate/) | ✅ **100% релиз** (f8912a9, exe `7c4dcab`) на проде с 06.10; полный живой флоу юзера; R6: ходит в НАШ authd 2110; хвосты T2-а/T3/T4/T6 (T2-б/в закрыты R6 09.10) | `D:\SAION\aion-gate\`, задача AionGate; откат: `mode: fork` → ориг 2109, exe `.bak-*` | [README](aion-gate/README.md), [архитектура](aion-gate/docs/architecture-aion-gate-20261007.md) |
+| **Гейт** (точка входа клиентов) | 2106 | `AuthGateD.exe` | [aion-gate/](aion-gate/) | ✅ **100% релиз** (f8912a9, exe `7c4dcab`) на проде с 06.10; полный живой флоу юзера; R6: ходит в НАШ authd 2110; хвосты T2-а/T3/T4/T6 (T2-б/в ✅ R6 09.10, T5 ✅ 10.10) | `D:\SAION\aion-gate\`, задача AionGate; откат: `mode: fork` → ориг 2109, exe `.bak-*` | [README](aion-gate/README.md), [архитектура](aion-gate/docs/architecture-aion-gate-20261007.md) |
 | **Логгер** | 2051 | `LogServer64.exe` | [aion-logd/](aion-logd/) | ✅ **~95% в бою** 05.10 (Л1–Л4 закрыты); pending: REF58-процы + ship-приёмник | `D:\SAION\aion-logd\`, задача AionLogCap; откат: `schtasks /run AionLog` | [README](aion-logd/README.md), [snapshot](aion-logd/SNAPSHOT.md) |
 | **Капча** | 22206 | `CAPTCHAImageServer.exe` | [aion-captcha/](aion-captcha/) | ✅ **~95% в бою** 05.10 (буфер 10000 за ~4с vs 6.4 мин ориг); pending: ship-приёмник | `D:\SAION\aion-captcha\`, задача AionCAPTCHA → run.cmd; откат: retarget задачи | [README](aion-captcha/README.md), [snapshot](aion-captcha/SNAPSHOT.md) |
 | **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | ✅ **R6 В БОЮ ~90% (09.10)**: наш authd = живой путь (2110 гейт + 2104 мир, Server64 переключился); полный цикл юзера подтверждён (логин→мир→выход→мгновенный перелогин, pk1=эхо, квитанции 40/3-выход); mssql-стор на реальных ap_* procs | prod :2110+:2104 (AionAuthdProd), тень :2117 (AionAuthdShadow), fork :2116 — `D:\SAION\aion-authd\`; наблюдение 24ч | [README](aion-authd/README.md), [ROADMAP](aion-authd/ROADMAP.md), [RESEARCH](aion-authd/RESEARCH.md) |
@@ -120,7 +120,7 @@ flowchart LR
 1. **aion-accache R1** — capture-стенд :2220 (копия ACS :2221 + fork-proxy) при логинах юзера → payload-раскладки + ACP-номера → R3 SQLStore → R4 A/B → R5 свитч. Промпт готов: [aion-accache/PROMPT.md](aion-accache/PROMPT.md).
 2. **aion-cache (CacheD64) R1** — wire 2006 из готовых log/*.log (356МБ) + capture через fork-копию :2016 (go) / тест-мир LAN — pktmon-2006 = loopback-блокер доказан → R2 дизasm → R3 Go MVP (read-путь + write-транзит). Папка-заготовка: [aion-cache/](aion-cache/README.md) (промпт внутри).
 3. **aion-authd R6-хвосты** — завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 (T3).
-4. **aion-gate T2–T6** — T2-а TTL-сверка (опц.), T3 CM_UPDATE_SESSION живьём (теперь на нашем authd R6), T4 стабильность (5 логинов/2 клиента), T5 42b-фолбэк, T6 финализация+tag.
+4. **aion-gate T2–T6** — T2-а TTL-сверка (опц.), T3 CM_UPDATE_SESSION живьём (наш authd R6), T4 стабильность (5 логинов/2 клиента), T6 финализация+tag (T5 42b-фолбэк ✅ закрыт 10.10, live-паритет).
 5. **op Phase 1.5** — событийный watchdog (ночной рестарт пары = тумблер), async-ожидания маркеров.
 6. **Телеметрия** — rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах logd/captcha.
 7. **REF58-процы** — деплой `scripts/sql/ref58-logprocs-pending-20261005.sql` + маппинг metric1-4 → logdb.

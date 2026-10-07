@@ -743,7 +743,10 @@ func (s *Server) handle26(sess *Session, payload []byte) {
 }
 
 // handle26pt — эмуляция 26b-пингов (по capture 06.10: 42b server-info и 26b ack):
-// op=0x05 → 42b: [04][01 01 01][IP][port 7777][00 00][f4 01 01 01][00 00 00 02][01 00 01][12x0]
+// op=0x05 → 42b: [04][26Б SM_SERVER_LIST](+count) — T5-паритет с релеем type=4 (10.10):
+//
+//	pt = padLoginOK(4, payload26[, charCount]) → 27/28Б → wire 42 (как ориг/релей).
+//
 // op=0x02 → 26b: [07][pk1 Rnd][pk2 Rnd][serverID][6x0] (хвост ориг = резидуум, клиент толерантен)
 func (s *Server) handle26pt(sess *Session, ptIn []byte) {
 	if len(ptIn) < 1 {
@@ -789,16 +792,9 @@ func (s *Server) build26ReplyPt(op byte, sess *Session) []byte {
 	var pt []byte
 	switch op {
 	case 0x05:
-		ip := net.ParseIP(s.Cfg.WorldIP).To4()
-		if ip == nil {
-			ip = net.IPv4(192, 168, 0, 125)
-		}
-		pt = append([]byte{0x04, 0x01, 0x01, 0x01}, ip...)
-		var port [2]byte
-		binary.LittleEndian.PutUint16(port[:], uint16(s.Cfg.WorldPort)) // 7777 = 61 1e
-		pt = append(pt, port[0], port[1], 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
-		pt = append(pt, 0xf4, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x01)
-		pt = append(pt, make([]byte, 12)...) // 32
+		// T5 (10.10): фолбэк = БАЙТ-ПАРИТЕТ с релеем type=4 (padLoginOK):
+		// pt = [04][26Б payload](+count) = 27/28Б → wire 42 (был ad-hoc pt 39Б → wire 50 ≠ ориг).
+		pt = padLoginOK(4, s.buildServerListPayload(), s.Cfg.ServerListCharCount)
 	case 0x02:
 		var pk1, pk2 [4]byte
 		_, _ = crand.Read(pk1[:])
@@ -816,6 +812,25 @@ func (s *Server) build26ReplyPt(op byte, sess *Session) []byte {
 		return nil
 	}
 	return pt
+}
+
+// buildServerListPayload — 26Б payload SM_SERVER_LIST (type=4), байт-канон от ориг
+// (fork-дамп 07.10: `010101 c0a8007d 611e 6×0 f4010101 00000002 010001`; authd-wire §2.2):
+// [listSize=1][lastServer=1][id][ip be][порт u16 LE + 6×0 (порт-D регион)][статик-хвост ориг].
+// ip/порт/id — из конфига (WorldIP/WorldPort/ServerID); хвост = константа ориг (клиент толерантен,
+// колонка «Персонажи» пустая — как у всех; count-байт добавляет padLoginOK при serverListCharCount>0).
+func (s *Server) buildServerListPayload() []byte {
+	ip := net.ParseIP(s.Cfg.WorldIP).To4()
+	if ip == nil {
+		ip = net.IPv4(192, 168, 0, 125)
+	}
+	pt := []byte{0x01, 0x01, byte(s.Cfg.ServerID)}
+	pt = append(pt, ip...)
+	var port [8]byte
+	binary.LittleEndian.PutUint16(port[:], uint16(s.Cfg.WorldPort)) // 7777 = 61 1e + 6×0
+	pt = append(pt, port[:]...)
+	pt = append(pt, 0xf4, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x01)
+	return pt // 26
 }
 
 // SessionByIndex — тест-хук.

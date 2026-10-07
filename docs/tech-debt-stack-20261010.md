@@ -20,7 +20,7 @@
 | TD-3 | **expected_down** для ориг-сервисов (gateorig/authd) — шум алертов `down:*` на зелёном стеке | aion-op (OP-3) | aionstatus 12:57 | 2-4ч | ⬜ |
 | TD-4 | Заголовок группы fork «R5 fork-stend…» → «Fork-откат (R6)» | aion-op (OP-4) | config line 194 | 5 мин | ⬜ |
 | TD-5 | Async-ожидания маркеров (гонка старта гейта: первый /run после kick иногда не поднимает) | aion-op (OP-5) | деплой R6 09.10 | Phase 1.5 | ⬜ |
-| TD-6 | **Gate T2-а/T3/T4/T6**: TTL-сверка (опц.), CM_UPDATE_SESSION живьём, стабильность (5 логинов/2 клиента), 42b-фолбэк, финализация+tag | aion-gate | README §T2/T3 10.10 | дни | ⬜ (T2-б/в закрыты R6 ✅) |
+| TD-6 | **Gate T2-а/T3/T4/T6**: TTL-сверка (опц.), CM_UPDATE_SESSION живьём, стабильность (5 логинов/2 клиента), финализация+tag (42b-фолбэк ✅ закрыт 10.10, паритет live) | aion-gate | README §T2/T3 10.10 | дни | ⬜ (T2-б/в ✅ R6, T5 ✅ 10.10) |
 | TD-7 | **Authd R6-хвосты**: завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир теперь на нашем 2104); опц. ACS-клиент 2220 | aion-authd | ROADMAP 10.10 | 1-2 дня | 🟡 наблюдение идёт |
 | TD-8 | **CacheD64 R1**: wire 2006 из готовых log/*.log (171 файл/356МБ); capture = fork-копия :2016 (go) / тест-мир LAN — **pktmon-2006 loopback-блокер доказан** | aion-cache | npc cross-pulse dd54a7d + d701395 | 1-2 дня | 🟡 R1-prep ✅ 10.10 |
 | TD-9 | **proc_missing-каталог БД** (10 procs: GetItemCollection×5, LoadFameInfo, LoadReinventInfo, getItemAttributeDeltaListAll_20190919 +VendorDark/Light, DeleteItemByDate) — спам повторён live 12:30–12:44 | aion-main/БД (→ tech-debt-db TD1/TD2) | op-алерты 10.10 | 2-4 дня | 🟡 каталог ведётся |

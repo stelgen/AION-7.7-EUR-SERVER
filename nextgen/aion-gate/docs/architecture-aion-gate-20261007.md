@@ -99,5 +99,7 @@ fallback-эвристика (leak-клиент шлёт 312/314b). CM_AUTH_GG: �
 - T3: CM_UPDATE_SESSION (0x08) живьём (уйти в мир → kill клиент → перезайти; контракт сорса:
   валид reconnectKey → SM_UPDATE_SESSION 26Б, иначе closeNow; relay реализован).
 - T4: стабильность (5 логинов подряд, 2 клиента параллельно, рестарт гейта без рестарта L2Authd при authReconnectInterval=30).
-- T5: паритет 42b-эмуляции фолбэка (39Б→32Б; в проде не стреляет).
-- T6: git tag gate-7.7-final после T2–T4.
+- T5: ✅ ЗАКРЫТО 10.10 — фолбэк 0x05 = `padLoginOK(4, buildServerListPayload()[26Б канон fork-дампа ориг], charCount)`
+  → pt 27/28Б → wire 42 (был ad-hoc pt 39Б → wire 50); live-паритет подтверждён forkprobe 10.10
+  (релей type=4 = те же байты, SAME); тест `TestFallbackServerListParity`; exe НЕ деплоен (фолбэк в проде не стреляет).
+- T6: git tag gate-7.7-final после T2–T4 (T5 ✅ 10.10).

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/binary"
 	"math/big"
 	"net"
@@ -373,5 +374,34 @@ func TestBrute(t *testing.T) {
 	b.Reset("user")
 	if b.Blocked("user") {
 		t.Fatal("Reset не сбросил")
+	}
+}
+
+// T5 (10.10): фолбэк-эмуляция 0x05 = БАЙТ-ПАРИТЕТ с релеем type=4:
+// pt = padLoginOK(4, payload26[, charCount]) → 27/28Б → wire 42 (был ad-hoc pt 39Б → wire 50 ≠ ориг).
+// Канон payload 26Б = fork-дамп ориг 07.10 (010101 c0a8007d 611e 6×0 f4010101 00000002 010001).
+func TestFallbackServerListParity(t *testing.T) {
+	srv, err := New(config.Gate{WorldIP: "192.168.0.125", WorldPort: 7777, ServerID: 1}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	canon := []byte{0x01, 0x01, 0x01, 0xc0, 0xa8, 0x00, 0x7d, 0x61, 0x1e, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xf4, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x01}
+	pt := srv.build26ReplyPt(0x05, nil)
+	if !bytes.Equal(pt, append([]byte{4}, canon...)) {
+		t.Fatalf("payload не канон: %x", pt)
+	}
+	bf2, _ := proto.NewBlowfish([]byte("t5-parity-key16"))
+	if n := len(proto.WriteFrame(proto.EncryptSecondary(bf2, pt))); n != 42 {
+		t.Fatalf("wire=%d, want 42 (паритет с ориг/релеем)", n)
+	}
+	// serverListCharCount>0 → count-байт в хвост (семантика релея), wire 42 не меняется
+	srv.Cfg.ServerListCharCount = 7
+	pt7 := srv.build26ReplyPt(0x05, nil)
+	if len(pt7) != 28 || pt7[27] != 7 {
+		t.Fatalf("charCount: len=%d tail=%d, want 28/7", len(pt7), pt7[27])
+	}
+	if n := len(proto.WriteFrame(proto.EncryptSecondary(bf2, pt7))); n != 42 {
+		t.Fatalf("charCount wire=%d, want 42", n)
 	}
 }

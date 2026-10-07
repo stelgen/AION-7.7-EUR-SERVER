@@ -27,7 +27,7 @@
 | 1 | **accache R1 capture**: копия ACS на :2221 (байтовая правка common.xml в КОПИИ каталога) + наш fork-proxy :2220→:2221 + логины юзера → payload-раскладки per-cmd, ACP-номера, T2-канал | aion-accache/PROMPT.md | 1–2 дня |
 | 2 | **CacheD64 R1**: wire 2006 из готовых log/*.log (171 файл, 356МБ) + capture через fork-копию :2016 (go) / тест-мир LAN (pktmon-2006 = loopback-блокер доказан 10.10) → wire 2006 | aion-cache/RESEARCH.md §MVP | 1–2 дня |
 | 3 | **authd R6-хвосты**: завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 | aion-authd/ROADMAP.md | 1–2 дня |
-| 4 | **Гейт T2–T6**: T2-а TTL-сверка (опц. — флаг снимается миром 40/3 + [01] + TTL), T3 CM_UPDATE_SESSION живьём (теперь на нашем authd), T4 стабильность (5 логинов, 2 клиента), T5 паритет 42b-фолбэка, T6 финализация+tag | aion-gate/README §T2/T3 | дни |
+| 4 | **Гейт T2–T6**: T2-а TTL-сверка (опц. — флаг снимается миром 40/3 + [01] + TTL), T3 CM_UPDATE_SESSION живьём (наш authd), T4 стабильность (5 логинов, 2 клиента), T6 финализация+tag (T5 ✅ 10.10 — 42b-фолбэк паритетен, exe ждёт деплоя) | aion-gate/README §T2/T3 | дни |
 | 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах | TELEMETRY-SPEC §2 | полдня |
 | 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | [aion-logd/SNAPSHOT.md](aion-logd/SNAPSHOT.md) | 1 день |
 | 7 | op Phase 1.5: событийный watchdog (ночной рестарт пары = тумблер юзера), async-ожидания маркеров + **R6-конфиг**: сервис authdprod, expected-down, kill-коллизия aion-authd.exe (OP-1..OP-6) | aion-op/ROADMAP.md §6 | 1–2 дня |
