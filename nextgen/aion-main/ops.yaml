@@ -640,3 +640,5 @@ packets:
   - { name: SM_WINDSTREAM_ANNOUNCE, dir: SM, op: 0x00A4, src: FULL }
   - { name: SM_WORLD_PLAYTIME, dir: SM, op: 0x0185, src: FULL }
   - { name: SM_YOUTUBE_VIDEO, dir: SM, op: 0x0146, src: FULL }
+  - { name: SM_UNK0195, dir: SM, op: 0x0195, src: LIVE-UNK7.7 }  # payload=1Б 00; вне эталонов
+  - { name: SM_UNK0184, dir: SM, op: 0x0184, src: LIVE-UNK7.7 }  # пустой сигнал; вне эталонов

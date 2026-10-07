@@ -4,6 +4,7 @@
 package world
 
 import (
+	"encoding/binary"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -69,4 +70,26 @@ func (ls *LayoutStore) InitSequence() (seq [][2]string) {
 		}
 	}
 	return seq
+}
+
+// ReplaceOID — R3.7: подмена OID-константы capture-сессии на сессионную (все вхождения).
+// Факт 08.10: в 13 раскладках OID игрока (0x443E29B5 из CM_MOVE) НЕ встречается —
+// они персоно-агностичны по OID; механизм оставлен для будущих раскладок (NPC/чар-листы).
+func ReplaceOID(payload []byte, from, to uint32) []byte {
+	out := make([]byte, len(payload))
+	copy(out, payload)
+	var fromB [4]byte
+	binary.LittleEndian.PutUint32(fromB[:], from)
+	var toB [4]byte
+	binary.LittleEndian.PutUint32(toB[:], to)
+	for i := 0; i+4 <= len(out); i++ {
+		if out[i] == fromB[0] && out[i+1] == fromB[1] && out[i+2] == fromB[2] && out[i+3] == fromB[3] {
+			out[i] = toB[0]
+			out[i+1] = toB[1]
+			out[i+2] = toB[2]
+			out[i+3] = toB[3]
+			i += 3
+		}
+	}
+	return out
 }
