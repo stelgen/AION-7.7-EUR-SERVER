@@ -8,7 +8,7 @@
 | Фаза | Статус |
 |---|---|
 | R-сурсы: 2.7-кит Server64.exe (28МБ) на VM; PDB 284МБ; чужие эмуляторы | ✅ ЗАКРЫТ 08.10: 7 эталонов (~3.9ГБ) + [RESEARCH.md](RESEARCH.md) |
-| R0: разведка (протокол клиента S/C-фреймы 7777, RPC CacheD 2006, NPC 2002, конфиги) | 🟡 карта подсистем PDB ✅, конфиг-инвентарь ✅, опкод-маппинг ⏳ |
+| R0: разведка (протокол клиента S/C-фреймы 7777, RPC CacheD 2006, NPC 2002, конфиги) | ✅ ЗАКРЫТ 08.10: [RESEARCH.md](RESEARCH.md) + [OPCODES.md](OPCODES.md) (688 пакетов, единая таблица) |
 | R1: wire capture (pktmon 7777 при логинах юзера + 2006 из cache-трека — ШАРИРОВАТЬ с aion-cache!) | ⬜ |
 | R2–R3: Go `nextgen/aion-main` MVP: мир-пакеты (движение/чат/инвентарь) + интеграция aion-cache/aion-npc/aion-authd | ⬜ |
 | R4 A/B → R5 свитч (пара!) → R6 наблюдение | ⬜ |
@@ -33,7 +33,7 @@
 
 ## ⏭️ Следующий шаг
 
-`WORKFLOW: main` → R0 хвост: **маппинг опкодов** (aion-germany 7.8 EU + Mobius 7.7 + Encom 7.5-словарь Packet Samurai) + карта зависимостей финализировать; R1 = pktmon 7777 capture при логинах юзера → сверка с Game_7.5.x.xml (checksumSize=3, GG+Blowfish крипта). Промпт: [PROMPT.md](PROMPT.md).
+`WORKFLOW: main` → **R1**: pktmon 7777 capture при логинах юзера → арбитраж 256 DIFF-опкодов + верификация 15×«7.7 EU TODO» (реестр: [OPCODES.md](OPCODES.md) + docs/opcodes-unified-0810.csv). Промпт: [PROMPT.md](PROMPT.md).
 
 ## 📦 Артефакты
 
