@@ -33,7 +33,10 @@ db:
   driver: mem             # mem | mssql  (mssql — на VM: connStr ТОЛЬКО здесь/env AUTHD_CONNSTR)
   connStr: ""             # СЕКРЕТ. Пример: sqlserver://user:pass@127.0.0.1:1433?database=AionAccounts
   autoCreate: true
-  # SQL переопределяется (дефолты = C1-схема user_account/block_msg; сверить на R0 sp_helptext):
+  # Дефолты (09.10) = РЕАЛЬНЫЕ procs AionAccounts (R0-инвентарь authd-ref/procs-aionaccounts-77.rpt):
+  #   qAccount = ap_GPwdWithFlag (автосоздание внутри SQL) + ap_GStat; qInsert = ap_AutoReg;
+  #   qBlocks = ap_GetRestriction; qLogLogin = UPDATE last_login (эффект ap_GStat).
+  # Переопределение (напр. прямые SQL по C1-схеме):
   # qAccount: "SELECT uid, ... FROM user_account WITH (NOLOCK) WHERE account = @account"
   # qInsert:  "INSERT INTO user_account ...; SELECT CAST(SCOPE_IDENTITY() AS int);"
   # qBlocks:  "SELECT reason, msg FROM block_msg WITH (NOLOCK) WHERE uid = @uid"

@@ -4,9 +4,9 @@ import (
 	"bytes"
 	"encoding/binary"
 	"io"
-	"os"
 	"log"
 	"net"
+	"os"
 	"testing"
 	"time"
 
@@ -26,12 +26,11 @@ func TestForkE2E(t *testing.T) {
 		defer c.Close()
 		c.Write(wire.Greeting(0x1111))
 		for {
-			raw, f, err := wire.ReadFrameRaw(c)
+			_, f, err := wire.ReadFrameRaw(c)
 			if err != nil {
 				return
 			}
 			if f.Type == wire.FConnect {
-				_ = raw
 				rep, _ := wire.ReplyPkt(f.Sid, 9, []byte{0xAB})
 				c.Write(rep)
 			}
@@ -118,4 +117,83 @@ func TestForkE2E(t *testing.T) {
 
 func testLogger() *log.Logger {
 	return log.New(os.Stderr, "fork-test ", log.LstdFlags)
+}
+
+// Арбитраж: shadow отвечает БЫСТРЕЕ ориг — вердикт должен быть DIFF при полной паре,
+// никаких ложных N-ONLY (гонка, баг старой схемы lastO/lastCT).
+func TestForkArbitrationRace(t *testing.T) {
+	var buf bytes.Buffer
+	logger := log.New(&buf, "arb ", log.LstdFlags)
+
+	// fake-orig: отвечает на CltConnect с задержкой 300мс (медленнее shadow)
+	origLn, _ := net.Listen("tcp", "127.0.0.1:0")
+	defer origLn.Close()
+	go func() {
+		c, _ := origLn.Accept()
+		defer c.Close()
+		c.Write(wire.Greeting(0x1111))
+		for {
+			_, f, err := wire.ReadFrameRaw(c)
+			if err != nil {
+				return
+			}
+			if f.Type == wire.FConnect {
+				time.Sleep(300 * time.Millisecond)
+				rep, _ := wire.ReplyPkt(f.Sid, 9, []byte{0xAB})
+				c.Write(rep)
+			}
+		}
+	}()
+
+	// fake-shadow: отвечает МГНОВЕННО, другим байтом
+	shLn, _ := net.Listen("tcp", "127.0.0.1:0")
+	defer shLn.Close()
+	go func() {
+		c, _ := shLn.Accept()
+		defer c.Close()
+		c.Write(wire.Greeting(0x2222))
+		for {
+			_, f, err := wire.ReadFrameRaw(c)
+			if err != nil {
+				return
+			}
+			if f.Type == wire.FConnect {
+				rep, _ := wire.ReplyPkt(f.Sid, 9, []byte{0xCD})
+				c.Write(rep)
+			}
+		}
+	}()
+
+	gateLn, _ := net.Listen("tcp", "127.0.0.1:0")
+	defer gateLn.Close()
+	go func() {
+		c, _ := gateLn.Accept()
+		run(c, origLn.Addr().String(), shLn.Addr().String(), logger)
+	}()
+
+	gc, err := net.DialTimeout("tcp", gateLn.Addr().String(), 2*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer gc.Close()
+	_ = gc.SetReadDeadline(time.Now().Add(3 * time.Second))
+
+	if _, err := gc.Write(wire.ConnectFrame(9, [4]byte{10, 0, 0, 1})); err != nil {
+		t.Fatal(err)
+	}
+	var g [5]byte
+	if _, err := io.ReadFull(gc, g[:]); err != nil { // greeting
+		t.Fatal(err)
+	}
+
+	deadline := time.Now().Add(3 * time.Second)
+	for time.Now().Before(deadline) && !bytes.Contains(buf.Bytes(), []byte("VERDICT=DIFF")) {
+		time.Sleep(50 * time.Millisecond)
+	}
+	if !bytes.Contains(buf.Bytes(), []byte("VERDICT=DIFF")) {
+		t.Fatalf("нет финального DIFF (гонка не разрулилась):\n%s", buf.String())
+	}
+	if bytes.Contains(buf.Bytes(), []byte("N-ONLY")) {
+		t.Fatalf("ложный N-ONLY при живой паре:\n%s", buf.String())
+	}
 }

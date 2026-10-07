@@ -7,13 +7,15 @@
 // SAME/DIFF против ориг-ответа (O>) по ключу (frame, sid, type). Ориг НЕ трогаем
 // лишним трафиком: копируются ТОЛЬКО фреймы, которые сам шлёт наш гейт.
 //
-// Матчинг O-vs-N: per-key состояние {lastO, lastC, lastO}; N> сравнивается с lastO,
-// ЕСЛИ ответ ориг пришёл ПОСЛЕ последнего запроса C> этого ключа (иначе N-ONLY —
-// shadow ответил раньше ориг, гонка). Поля uid/токены динамичны — байтовый DIFF там
-// ожидаем; арбитр = структура (длины/зоны), а не побайтовое равенство.
+// Матчинг O-vs-N (арбитраж 09.10): FIFO-очередь пар per-key (sid,type) — каждая C>-заявка
+// ждёт ДВА ответа (ориг+shadow) в порядке прихода; вердикт только при полной паре.
+// Старая схема «lastO/lastCT» давала ложные N-ONLY, когда shadow отвечал быстрее ориг
+// (гонка) — теперь N, пришедший раньше O, ждёт его и вердикт вычисляется на втором ответе.
+// Незапрошенные фреймы (authd сам пушит type=4) = SINGLE, пары не портят.
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
 	"flag"
 	"fmt"
@@ -60,11 +62,11 @@ func dump(tagS, dir string, raw []byte, f wire.Frame) string {
 	return fmt.Sprintf("%s %s [%02x] sid=%d len=%d hex=%s", tagS, dir, f.Type, f.Sid, len(raw), head)
 }
 
-// tagState — сопоставление запросов/ответов per-key.
-type tagState struct {
-	lastO  []byte    // последний фрейм ориг этого ключа
-	lastOT time.Time // когда пришёл lastO
-	lastCT time.Time // когда шёл последний запрос C> этого ключа
+// pair — одна заявка C>, ждущая двух ответов (FIFO per-key).
+type pair struct {
+	cAt  time.Time
+	oRaw []byte // ответ ориг (nil = ещё не пришёл)
+	nRaw []byte // ответ shadow (nil = ещё не пришёл)
 }
 
 type fwd struct {
@@ -72,9 +74,75 @@ type fwd struct {
 
 	wmu sync.Mutex // запись в gate (только O>-горутина пишет)
 
-	mu    sync.Mutex
-	keys  map[tag]*tagState
-	log   *log.Logger
+	mu   sync.Mutex
+	keys map[tag][]*pair // FIFO очередей in-flight пар по ключу
+	log  *log.Logger
+}
+
+// pairTimeout — сколько ждать вторую сторону пары (мир/ориг молчит >60с = дроп).
+const pairTimeout = 60 * time.Second
+
+// onSide — фиксирует ответ стороны ("o"/"n") в FIFO-очередь пар по ключу ОТВЕТА
+// (заявка C> и ответ живут в разных ключах: {00,sid} vs {02,sid,type}); пара
+// создаётся первым пришедшим и закрывается вторым — гонка N-быстрее-O рулится.
+func (fw *fwd) onSide(k tag, side string, raw []byte) (verdict string, done bool, oRaw, nRaw []byte) {
+	fw.mu.Lock()
+	defer fw.mu.Unlock()
+	q := fw.keys[k]
+	for i, p := range q {
+		if (side == "o" && p.oRaw == nil) || (side == "n" && p.nRaw == nil) {
+			if side == "o" {
+				p.oRaw = raw
+			} else {
+				p.nRaw = raw
+			}
+			if p.oRaw != nil && p.nRaw != nil { // пара собрана → снять с очереди
+				q = append(q[:i], q[i+1:]...)
+				if len(q) == 0 {
+					delete(fw.keys, k)
+				} else {
+					fw.keys[k] = q
+				}
+				if bytes.Equal(p.oRaw, p.nRaw) {
+					return "SAME", true, p.oRaw, p.nRaw
+				}
+				return fmt.Sprintf("DIFF (len O=%d N=%d)", len(p.oRaw), len(p.nRaw)), true, p.oRaw, p.nRaw
+			}
+			fw.keys[k] = q
+			return "WAIT (пара ждёт вторую сторону)", false, nil, nil
+		}
+	}
+	np := &pair{cAt: time.Now()} // нет слота — первый пришедший открывает пару
+	if side == "o" {
+		np.oRaw = raw
+	} else {
+		np.nRaw = raw
+	}
+	fw.keys[k] = append(q, np)
+	return "WAIT (пара ждёт вторую сторону)", false, nil, nil
+}
+
+// sweepQueue — дроп зависших пар (>60с без второго ответа) — защита от роста карты.
+func (fw *fwd) sweepQueue() {
+	fw.mu.Lock()
+	defer fw.mu.Unlock()
+	now := time.Now()
+	for k, q := range fw.keys {
+		kept := q[:0]
+		for _, p := range q {
+			if now.Sub(p.cAt) > pairTimeout {
+				fw.log.Printf("ARBITRATION-DROP key=[%02x/%d/%02x] o=%v n=%v (возраст >%s)",
+					k.ft, k.sid, k.sub, p.oRaw != nil, p.nRaw != nil, pairTimeout)
+				continue
+			}
+			kept = append(kept, p)
+		}
+		if len(kept) == 0 {
+			delete(fw.keys, k)
+		} else {
+			fw.keys[k] = kept
+		}
+	}
 }
 
 // pump — читает фреймы из src целиком (сырые), зовёт onFrame.
@@ -92,8 +160,15 @@ func (fw *fwd) pump(name string, src net.Conn, onFrame func([]byte, wire.Frame))
 // run — одна сессия fork'а (один коннект гейта).
 func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 	defer gate.Close()
-	fw := &fwd{gate: gate, keys: map[tag]*tagState{}, log: logger} // gate ОБЯЗАТЕЛЕН: O>-pump пишет в него (nil → panic, поймано 07.10)
+	fw := &fwd{gate: gate, keys: map[tag][]*pair{}, log: logger} // gate ОБЯЗАТЕЛЕН: O>-pump пишет в него (nil → panic, поймано 07.10)
 	logger.Printf("=== gate connected %s ===", gate.RemoteAddr())
+	go func() { // свип зависших пар
+		t := time.NewTicker(30 * time.Second)
+		defer t.Stop()
+		for range t.C {
+			fw.sweepQueue()
+		}
+	}()
 
 	orig, err := net.DialTimeout("tcp", origAddr, 5*time.Second)
 	if err != nil {
@@ -131,19 +206,15 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 		}
 	})
 
-	// Ориг → гейт (живой путь) + запоминаем последний O> для диффа
+	// Ориг → гейт (живой путь) + фиксация в арбитраже
 	go fw.pump("orig", orig, func(raw []byte, f wire.Frame) {
 		k := keyOf(f)
-		fw.mu.Lock()
-		st := fw.keys[k]
-		if st == nil {
-			st = &tagState{}
-			fw.keys[k] = st
+		verdict, pairDone, oRaw, nRaw := fw.onSide(k, "o", raw)
+		if pairDone && verdict != "SAME" {
+			logger.Printf("  O-full hex=%s", hex.EncodeToString(oRaw))
+			logger.Printf("  N-full hex=%s", hex.EncodeToString(nRaw))
 		}
-		st.lastO = raw
-		st.lastOT = time.Now()
-		fw.mu.Unlock()
-		logger.Printf("%s", dump("O>", "O>G", raw, f))
+		logger.Printf("%s VERDICT=%s", dump("O>", "O>G", raw, f), verdictLine(verdict, pairDone))
 		fw.wmu.Lock()
 		_, werr := fw.gate.Write(raw)
 		fw.wmu.Unlock()
@@ -153,37 +224,29 @@ func run(gate net.Conn, origAddr, shadowAddr string, logger *log.Logger) {
 		}
 	})
 
-	// Shadow → только лог + diff (юзеру НЕ идёт)
+	// Shadow → только лог + вердикт при полной паре (юзеру НЕ идёт)
 	if fw.shadow != nil {
 		go fw.pump("shadow", fw.shadow, func(raw []byte, f wire.Frame) {
 			k := keyOf(f)
-			fw.mu.Lock()
-			st := fw.keys[k]
-			var last []byte
-			if st != nil && st.lastO != nil && st.lastOT.After(st.lastCT) {
-				// ориг ответил ПОСЛЕ запроса — валидная пара
-				last = st.lastO
-				st.lastO = nil // одноразовое сопоставление
-			}
-			fw.mu.Unlock()
-			verdict := "N-ONLY (ориг ещё не ответил на этот ключ)"
-			if last != nil {
-				if string(last) == string(raw) {
-					verdict = "SAME"
-				} else {
-					verdict = fmt.Sprintf("DIFF (len O=%d N=%d)", len(last), len(raw))
-				}
-			}
-			logger.Printf("%s VERDICT=%s", dump("N>", "S>F", raw, f), verdict)
-			if last != nil && verdict != "SAME" {
-				logger.Printf("  O-full hex=%s", hex.EncodeToString(last))
-				logger.Printf("  N-full hex=%s", hex.EncodeToString(raw))
+			verdict, pairDone, oRaw, nRaw := fw.onSide(k, "n", raw)
+			logger.Printf("%s VERDICT=%s", dump("N>", "S>F", raw, f), verdictLine(verdict, pairDone))
+			if pairDone && verdict != "SAME" {
+				logger.Printf("  O-full hex=%s", hex.EncodeToString(oRaw))
+				logger.Printf("  N-full hex=%s", hex.EncodeToString(nRaw))
 			}
 		})
 	}
 
 	<-done
 	logger.Printf("=== gate session closed ===")
+}
+
+// verdictLine — человекочитаемая строка вердикта: для неполной пары вердикт не финален.
+func verdictLine(v string, done bool) string {
+	if done {
+		return v
+	}
+	return v // WAIT/SINGLE уже помечены текстом
 }
 
 func main() {

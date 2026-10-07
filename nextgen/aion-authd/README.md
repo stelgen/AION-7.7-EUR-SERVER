@@ -91,9 +91,12 @@ type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid
    ✅ 09.10 MVP реализован (`internal/world`: greeting `[03][authVersion][1]` + heartbeat 60с +
    type0-релей логина по живому корпусу; вкл. `gsPort`, дефолт 0 = выкл; квитанции `gsAcks` — T2 после fork-диффа 2104).
 2. **procs AionAccounts** — ✅ 09.10 сняты (authd-ref/procs-aionaccounts-77.rpt), SQLStore → на ap_* procs.
-3. **mssql-стор в shadow** — сейчас mem-store: до свитча подключить SQLStore.
-4. **Арбитраж fork-лога** — очередь запрос-ответ по (sid,type): N-ONLY-вердикты = гонка
-   тени с оригом (shadow быстрее), сравнивать по позициям в логе (fork-authd.log).
+3. **mssql-стор в shadow** — ✅ 09.10: SQLStore дефолты = РЕАЛЬНЫЕ procs AionAccounts
+   (ap_GPwdWithFlag+ap_GStat/ap_AutoReg/ap_GetRestriction; тела в authd-ref/procs-aionaccounts-77.rpt);
+   живую сверку на VM (shadow+connStr) — на R6-стендe.
+4. **Арбитраж fork-лога** — ✅ 09.10: FIFO-очередь пар по ключу ОТВЕТА (sid,type) в forkauthd:
+   пара открывается первым пришедшим (O или N), вердикт только при полной паре — гонки N-ONLY
+   исключены; нзапрошенные = SINGLE; дроп зависших >60с (ARBITRATION-DROP). Race-тест в main_test.
 5. Дисциплина: L2Authd хрупкий; probe-логины лочат акки (TTL 2–6 мин, тестовый пул
    probeacc*); PA жив ДО authd; секреты не в гит.
 
