@@ -143,3 +143,19 @@ usage у нас минимальный (PA вырублен, OTP off, QMAS мё�
    гипотезы a/b/c; НЕ наша регрессия — у ориг тоже пусто).
 3. **[T2] pk1-эхо-верификация на живом логине** — после R6 (мир на нашем 2104): type=7 SAME.
 4. **[T2] 2104-квитанции/tail релея** — fork-дифф возможен только с миром на нашем канале (R6).
+
+## 🚀 R6 СВИТЧ ВЫПОЛНЕН (09.10, «го» юзера) — ЖИВОЙ ПУТЬ = НАШ AUTHD
+
+- Топология: `клиент → aion-gate (2106, authPort=2110) → НАШ aion-authd (:2110 + мир-канал :2104)`;
+  Server64 реконнектнулся к нашему 2104 (ESTABLISHED 3580→6740 ✓ — greeting/heartbeat приняли);
+  гейт ↔ наш 2110 ESTABLISHED (5480→6740). Мир 8/8 не пострадал, PA жив, тень 2117 жива.
+- Прод-конфиг: `D:\SAION\aion-authd\config-prod-authd.yaml` (serverPort 2110, gsPort 2104,
+  db mssql trusted); задача **AionAuthdProd** (SYSTEM); лог `authd-prod.log`.
+- forkauthd 2116 ОСТАВЛЕН запущенным (без клиентов) — часть отката.
+- **ОТКАТ (одна цепочка)**: `D:\SAION\aion-authd\authd-rollback.cmd` (taskkill наш + старт ориг
+  AionAuthOnly) → `C:\Temp\rollback-gate.ps1` (authPort 2110→2116) → `aionact restart gate restart`.
+  Бекап гейт-конфига: config-prod.yaml.bak-0910-preR6.
+- Гонка старта гейта повторилась (kick → пауза → первый /run иногда не поднимает; второй /run поднял
+  PID 5480) — известная, учесть в op (задача «пауза 5с» маловата).
+- Наблюдение 24ч: юзер логинится туда-сюда; смотреть authd-prod.log (login OK uid, world relay/ack,
+  play-ok pk1=эхо), мир 8/8, relogin-тишину, онлайн-TTL свипы.
