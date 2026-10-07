@@ -1,0 +1,26 @@
+# aion-accache — каркас (R2). СЕКРЕТЫ НЕ В ГИТ.
+server:
+  listen: ":2220"       # порт ACS (Server64 -> ACS)
+  verbose: false        # дамп кадров в лог
+  capture_all: false    # raw hex (каркас: только лог; полные дампы R1)
+  base_dir: "logs"
+
+db:
+  enabled: false        # R3: go-mssqldb; connStr ТОЛЬКО на VM/env
+  conn: ""              # Server=(local);Database=AionAccountCacheD_rc;UID=...;PWD=...
+
+ship:
+  enabled: false
+  syslog:
+    net: ""             # udp|tcp
+    host: ""
+    facility: 14
+  http:
+    url: ""
+    timeout: 3
+  file:
+    enabled: false
+    dir: ""
+  queue: 4096
+  self_sec: 300
+  max_raw: 256

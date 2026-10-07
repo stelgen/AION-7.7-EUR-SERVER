@@ -14,7 +14,8 @@
   **MVP-код готов 07.10** (R1-R4: wire 2110 + логика live-фактов + DB-слой, тесты зелёные, probe-e2e OK) —
   [aion-authd/](aion-authd/README.md): НЕ деплоен, прод не тронут; перед свитчем нужны R0-верификация
   (procs AionAccounts, роль 2104 Server64) и R5 fork-дифф.
-  Ресёрч **AccountCacheServer** закрыт 07.10 (~90%): [ACCOUNTCACHE-RESEARCH.md](ACCOUNTCACHE-RESEARCH.md) + [accountcache-ref/](accountcache-ref/).
+  Ресёрч **AccountCacheServer** закрыт 07.10 (~92%): [ACCOUNTCACHE-RESEARCH.md](ACCOUNTCACHE-RESEARCH.md) + [accountcache-ref/](accountcache-ref/) (PDB 92МБ+map+101 procs+21 таблица; wire+dispatch сняты дизasmом: [dispatch-77.md](accountcache-ref/dispatch-77.md)).
+  **Каркас R2 готов 07.10**: [aion-accache/](aion-accache/README.md) (Go: proto+dispatch+cache+db-интерфейс, тесты зелёные, БЕЗ capture) — план [ACCOUNTCACHE-ROADMAP.md](ACCOUNTCACHE-ROADMAP.md) (R1 capture-стенд :2220 → R3 SQLStore → R4 A/B → R5 свитч), промпт [PROMPT-ACCACHE.md](PROMPT-ACCACHE.md). Прод не тронут.
   Ресёрч **CacheD64 (мир-кэш, 2006)** закрыт 08.10 (~85%, R0 готов): [CACHE-RESEARCH.md](CACHE-RESEARCH.md) + [cached-ref/](cached-ref/) —
   PDB 106МБ+map сняты, словари RQ 382/RP 255/GQ 55/GP 53, класс-карта (DbToServer 303/ServerToDb 192/Admin 33+17/IC),
   DB-контракт 781/789 procs в нашей БД; публичный передний край = НОЛЬ; следующий шаг R1 = pktmon capture 2006.
