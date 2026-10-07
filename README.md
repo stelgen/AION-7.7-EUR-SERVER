@@ -18,7 +18,7 @@
 
 ## 🏗 Архитектура стека
 
-Поток игрока (на 08.10): **Клиент → aion-gate(2106) → forkauthd(2116) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)**, fork-копия всех фреймов → наш aion-authd shadow(2117). **PA(10057) = ОБЯЗАТЕЛЕН**: без него ориг отклоняет ЛЮБОЙ логин SYSTEM_ERROR(20) молча (старое «SKIP НАВСЕГДА» из этого раздела — НЕВЕРНО, исправлено 07.10; контекст ресёрча: [docs/pa-research-20261006.md](docs/pa-research-20261006.md)). Our-gate/логгер/капча уже переписаны (nextgen) — см. [nextgen/README.md](nextgen/README.md).
+Поток игрока (на 08.10): **Клиент → aion-gate(2106) → forkauthd(2116) → L2Authd(2110) → AccountCacheServer(2220) → мир: Server64(7777)**, fork-копия всех фреймов → наш aion-authd shadow(2117). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча переписаны; authd в fork-стенде; мир = деприор перепись; **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
@@ -38,7 +38,7 @@
 
 | Компонент | Exe | Порт | Роль |
 |---|---|---|---|
-| **PAServer (PortalAuth)** | `01-PAServer7.7.exe` | 10057 (loopback) | ✅ **ОБЯЗАТЕЛЕН** (задача `AionPA`, старт ДО authd): при `UsePAServer=true` ориг отказывает ЛЮБОЙ логин мгновенно и молча (SYSTEM_ERROR(20)=код 0x14), если PA мёртв — доказано fork'ом 07.10. Мы не переписываем его (релей payStat/подписок веб-портала, портала у нас нет), но держим живым. Ресёрч + публичный эмулятор: [docs/pa-research-20261006.md](docs/pa-research-20261006.md) |
+| **PAServer (PortalAuth)** | `01-PAServer7.7.exe` | 10057 (loopback) | ✅ **ОБЯЗАТЕЛЕН** (задача `AionPA`, старт ДО authd): при `UsePAServer=true` ориг отказывает ЛЮБОЙ логин мгновенно и молча (SYSTEM_ERROR(20)=код 0x14), если PA мёртв — доказано fork'ом 07.10. Наш эмулятор = адаптация pae, НЕ писать с нуля (ресёрч закрыт 08.10: [nextgen/aion-pa/](nextgen/aion-pa/README.md)) — деприор |
 | NPRelayServer | `NPRelay64.exe` | — (исходящий) | NCoin/Warehouse-релей к MainServer. Не блокирует логин; тестировался, задачи в DISABLE |
 | RankingServer | `RankingServer.exe` | .NET-сервис | Веб-рейтинг; некритично, требует своего config.xml |
 | NPCRelay | `NPRelay64.exe` | — | см. NPRelayServer |
@@ -70,8 +70,8 @@
 | L2Authd `2104/2110` | ✅ |
 | CacheD64 `2006/2007/2009` | ✅ |
 | ICServer `2005/2305` | ✅ |
-| NPCSvr64 | ✅ (грузится 10–15 мин; утечка RAM → ночной рестарт) |
-| Server64 `7777` | ✅ (RunAsDate / патч #180) |
+| NPCSvr64 | ✅ (грузится 10–15 мин; утечка RAM → ночной рестарт); перепись деприор: [nextgen/aion-npc/](nextgen/aion-npc/README.md) |
+| Server64 `7777` | ✅ (#180 date-bypass уже в бинаре); перепись деприор: [nextgen/aion-main/](nextgen/aion-main/README.md) |
 | LogServer64 | ⏸ заменён `aion-logd` |
 | CAPTCHAImageServer | ⏸ заменён `aion-captcha` |
 | AuthGateD | ⏸ заменён `aion-gate` |
@@ -259,7 +259,7 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 | [docs/server-internals.md](docs/server-internals.md) | **Как работает сервер**: кто к кому обращается, порты, конфиги, заглушки, что не копали |
 | [nextgen/aion-gate/docs/findings-log.md](nextgen/aion-gate/docs/findings-log.md) | **Журнал расследования логина**: патчи AuthGateD p1–p5 (что сломалось и почему), протокол (RSA+блочный шифр), теория клиентов, 5 путей решения |
 | [nextgen/aion-authd/docs/auth-server-internals.md](nextgen/aion-authd/docs/auth-server-internals.md) | **Сервер авторизации детально**: схема, процедуры БД с сигнатурами, таблицы, где какая логика, шансы решений |
-| [docs/pa-research-20261006.md](docs/pa-research-20261006.md) | **PA/PortalAuth ресёрч** (⚠ вердикт «СКИП» в нём ОТМЕНЁН 07.10: PA обязателен — SYSTEM_ERROR(20) без него; не переписываем, держим живым): что за бинарь, публичный эмулятор (python/docker), где искать PDB |
+| [nextgen/aion-pa/docs/pa-research-20261006.md](nextgen/aion-pa/docs/pa-research-20261006.md) | **PA/PortalAuth ресёрч** (⚠ вердикт «СКИП» в нём ОТМЕНЁН 07.10: PA обязателен — SYSTEM_ERROR(20) без него; не переписываем, держим живым): что за бинарь, публичный эмулятор (python/docker), где искать PDB |
 | [docs/ports.md](docs/ports.md) / [docs/nat-ports.md](docs/nat-ports.md) | Карта портов / проброс за NAT |
 | [fixes-pending/](fixes-pending/README.md) | Очередь фиксов по папкам (каждый двигается отдельно) |
 | [tools/ragezone-1211744/](tools/ragezone-1211744/README.md) | Скачанные community-фиксы (Server64 #180, LogServer патчи, SQL) с SHA256 |

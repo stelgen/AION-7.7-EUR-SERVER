@@ -20,7 +20,7 @@
 |---|---|---|
 | SSH к VM | `Администратор@192.168.0.125`, ключ `dimini-agent` (локально `~/.ssh/id_ed25519`), дефолт-шелл PowerShell | creds + локальный ключ |
 | SQL Server 2022 | `sa` / пароль в CREDS.md | creds |
-| aion-op | UI `:10200` (0.0.0.0), helpers `C:\Temp\op-act.ps1`/`op-status.ps1` | открытый доступ в LAN |
+| aion-op / Agent API | `http://192.168.0.125:10200` — UI (человек) + `/api/agent/*` (агенты; токен `X-Agent-Token` в `~/.aion-agent-token` песочницы и в CREDS.md на VM); обёртка `nextgen/agent-cli.sh`; helpers `op-act.ps1`/`op-status.ps1` = фолбэк | открытый доступ в LAN |
 | RaGEZONE | ✅ логин/пароль в CREDS.md; cookies обновлены 07.10 логином агента (`rz-cookies.txt` + `/tmp/rz.txt`; LOGIN_OK, скрытые ссылки открыты). Скачаны чужие киты → `D:\SAION\downloads\rz\` | creds |
 | mmo-dev.info | ❌ НЕ зарегистрирован (нужен аккаунт + «лайк» в Обсуждении ресурса для скачивания аттачментов) | todo в CREDS.md |
 | GitHub push | git remote через `ssh://git@github.com` (Host github.com в `~/.ssh/config` → ключ `id_ed25519_github_langding`, аккаунт stelgen) | локальная песочница |
