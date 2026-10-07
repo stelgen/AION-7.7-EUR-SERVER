@@ -7,8 +7,8 @@ import (
 
 // TestSplit — канон: [u16 size LE self-inclusive][body]; реальная последовательность из capture.
 func TestSplit(t *testing.T) {
-	b1 := Frame([]byte{1, 2, 3, 4, 5})    // тело 5 (мин S2C-заголовок), фрейм 7
-	b2 := Frame(make([]byte, 20))         // фрейм 22
+	b1 := Frame([]byte{1, 2, 3, 4, 5}) // тело 5 (мин S2C-заголовок), фрейм 7
+	b2 := Frame(make([]byte, 20))      // фрейм 22
 	stream := append(append([]byte{}, b1...), b2...)
 	bodies, tail := Split(stream)
 	if len(bodies) != 2 || tail != 0 {

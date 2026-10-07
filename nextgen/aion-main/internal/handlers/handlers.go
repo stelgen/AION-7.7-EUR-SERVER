@@ -13,6 +13,7 @@ import (
 // Session — состояние одного клиентского соединения.
 type Session struct {
 	Peer     string
+	HP, MP   uint32
 	CharName string
 	Account  string
 	X, Y, Z  float32
@@ -28,7 +29,7 @@ type Sender func(name string, payload []byte)
 type Registry map[string]func(s *Session, payload []byte, send Sender, logger *log.Logger)
 
 // Build — все MVP-хендлеры R3.
-func Build(initFn func(Sender)) Registry {
+func Build(initFn func(*Session, Sender)) Registry {
 	return Registry{
 		// --- Версия/время/пинг (handshake-фаза) ---
 		"CM_VERSION_CHECK": func(s *Session, p []byte, send Sender, l *log.Logger) {
@@ -70,7 +71,7 @@ func Build(initFn func(Sender)) Registry {
 			// клиент сообщил «мир загружен» — канон: SM_FLAG_INFO + последовательность мира (capture-раскладки)
 			send("SM_FLAG_INFO", nil)
 			if initFn != nil {
-				initFn(send)
+				initFn(s, send)
 			}
 		},
 	}

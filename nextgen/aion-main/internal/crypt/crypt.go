@@ -107,7 +107,7 @@ func (k *KeyPair) Decrypt(body []byte, dir Dir) ([]byte, bool) {
 	code := dec[2]
 	x := binary.LittleEndian.Uint16(dec[0:2])
 	inv := binary.LittleEndian.Uint16(dec[3:5])
-	ok := (x^0xFFFF) == inv
+	ok := (x ^ 0xFFFF) == inv
 	if dir == S2C {
 		ok = ok && code == ServerPacketCode
 	} else {

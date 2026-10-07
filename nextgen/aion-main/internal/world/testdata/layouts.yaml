@@ -1,0 +1,12 @@
+# layouts.yaml — динамическая подмена полей раскладок (R3.6, 08.10)
+# Смещения от начала payload (после 5-байтового SM-заголовка).
+# Директивы: "u32:V"/"u16:V" — константа; "hp"/"mp" — значения сессии; "time" — unix now.
+# Канон источников: capture 08.10 (SM_STATUPDATE_HP = HP u32 @0 + MP u32 @4).
+patches:
+  SM_STATUPDATE_HP:
+    fields:
+      0: hp
+      4: mp
+  SM_TIME_CHECK:
+    fields:
+      0: time
