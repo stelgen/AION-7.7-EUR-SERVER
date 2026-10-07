@@ -1,0 +1,35 @@
+<config>
+<serverBasis>
+	<serverTitle>AION ACS</serverTitle>
+	<autoShutdown>true</autoShutdown>
+	<develServer>false</develServer>
+	<UseFullDump>true</UseFullDump>
+</serverBasis>
+
+<serverBotAndHack>
+</serverBotAndHack>
+
+<serverConnections>
+	<mailServer>192.168.0.125</mailServer>	
+	<serverPort>2220</serverPort>
+</serverConnections>
+	
+<serverEtcs>
+</serverEtcs>
+
+<serverEvents>
+</serverEvents>
+
+<serverFacilities>
+</serverFacilities>
+
+<serverOverseas>
+	<country>7</country>	
+</serverOverseas>
+
+<serverPerfomances>
+	<numberOfDBThreads>10</numberOfDBThreads>
+</serverPerfomances>
+
+</config>
+

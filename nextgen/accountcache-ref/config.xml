@@ -1,0 +1,72 @@
+<config>
+	<serverBasis>
+		<serverId>10</serverId>
+		
+		<!-- AutoMatic Shutdown -->
+		<autoShutdown>true</autoShutdown>
+		
+		<!-- Log directory -->
+		<!-- <logDirectory>E:\Server\Server\AccountCacheServer\log</logDirectory> -->
+
+		<!-- MAP directory -->
+		<!-- <mapDirectory>E:\Server\Server\Map</mapDirectory> -->
+
+		<serverTitle>AION AccountCacheServer</serverTitle>
+
+		<develServer>false</develServer>
+
+		
+		<!-- deleted -->
+		<!-- Beep when the connection from main server disconnected. -->
+		<!--<alert>false</alert>				     -->
+		<!-- Server time out in seconds 			     -->
+		<!--<serverTimeOut>0</serverTimeOut>	                   -->	
+
+		<!-- UseFullDump -->
+		<UseFullDump>true</UseFullDump>
+	</serverBasis>
+
+
+	<serverBotAndHack>
+	</serverBotAndHack>
+
+
+	<serverConnections>
+		<!-- LogServer -->
+		<!-- <logserveraddr>127.0.0.1</logserveraddr> -->
+		<!-- <logserverport>2051</logserverport> -->
+		<!-- Dev Mail -->
+		<mailServer>127.0.0.1</mailServer>	
+
+		<!-- DB connection string -->
+		<!-- <connStrForDebug>FILEDSN=linserver;UID=park;PWD=</connStrForDebug> -->
+
+		<!-- Port numbers -->
+		<serverPort>2220</serverPort>
+		<!--<restricted>false</restricted>-->
+	</serverConnections>
+	
+
+	<serverEtcs>
+	</serverEtcs>
+
+
+	<serverEvents>
+	</serverEvents>
+
+
+	<serverFacilities>
+	</serverFacilities>
+
+
+	<serverOverseas>
+		<!-- Country code -->
+		<country>5</country>	
+	</serverOverseas>
+
+
+	<serverPerfomances>
+		<!-- Number of threads working for transaction. -->
+		<numberOfDBThreads>10</numberOfDBThreads>
+	</serverPerfomances>
+</config>
