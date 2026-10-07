@@ -17,8 +17,12 @@ read-only пробы + лог-парсер + метрики + SQLite + алер�
 - Сеть: TCP 10200 из LAN ОТКРЫТ (firewall-правило `aionop-agent-10200`, 07.10) — Agent API
   и UI доступны из песочницы напрямую; остальные порты VM снаружи закрыты
   («op висит» в старых доках = устарело: раньше был только ssh-туннель).
-- Управляемые сервисы (config-vm.yaml): acc/logd/logsrv(locked)/ic/captcha/pa/authd(task=AionAuthOnly)/
-  gate/gateorig(2109)/cache/npc/main/authdn(2117)/forkd(2116) + группа fork.
+- Управляемые сервисы (config-vm.yaml): acc/logd/logsrv(locked)/ic/captcha/pa/authd(ориг, задача
+  AionAuthOnly = ОТКАТ, expected-down)/gate/gateorig(2109, expected-down)/cache/npc/main/
+  authdn(2117 = тень)/forkd(2116) + группа fork. ⚠ **authdprod НЕ в конфиге** — живой наш authd
+  (задача AionAuthdProd, порты 2110+2104) op'ом не контролируется: добавить сервис (см. §R6 ниже).
+- ⚠ **kill-коллизия**: `stop authdn` бьёт `taskkill /F /IM aion-authd.exe` = УБИВАЕТ и ПРОД
+  (одно имя exe у prod и тени). До фикса НЕ жать stop authdn (OP-2, [ROADMAP.md](ROADMAP.md) §6).
 - **PA обязателен** (кнопка pa разблокирована: без PA = SYSTEM_ERROR(20)); старт-порядок PA ДО authd.
 - Критерий мира = 8 коннектов на :2002 (`expected_conns: 8`, было 16 netstat-строк = FALSE ALERT).
 Прод-деплой: `C:\aionop\` + задача AionOp — см. [DEPLOY.md](DEPLOY.md).
@@ -114,9 +118,29 @@ internal/web/          — API (GET-only) + embedded UI (вкладки, кно�
 - **1** ✅ ЖИВОТ на VM (решение юзера 05.10: без агента — op на VM, `vm.mode: local`, `operate`, dry_run=false; start/stop/restart через schtasks/kick-задачи, кириллические пароли задач берутся из реестра Winlogon — в гит не сохраняются).
 - **1.5** ⬜: watchdog-автопилот (ночной рестарт пары = тумблер юзера, эскалации), async-ожидания маркеров в act-шагах.
 
-## 🔗 09.10 cross-pulse (authd R6): новая задача AionAuthdProd
+## 🔗 10.10 Актуализация R6-топологии (гейт-чат; authd R6 в бою)
 
-- Живой путь authd = **наш aion-authd** (задача **AionAuthdProd**, SYSTEM, 2104+2110,
-  конфиг `D:\SAION\aion-authd\config-prod-authd.yaml`, лог authd-prod.log); ориг L2Authd =
-  остановлен, откат-задача AionAuthOnly + authd-rollback.cmd. op-конфиг: сервис authdn (2117)
-  = тень; предложить добавить сервис authdprod (контроль портов 2104/2110).
+Живая топология (op aionstatus 12:57 VM 10.10): `клиент → aion-gate(2106, authPort=2110) →
+НАШ aion-authd (задача **AionAuthdProd**, :2110 + мир :2104)`; тень authdn :2117 + forkd :2116 =
+откат-цепочка; ориг L2Authd (AionAuthOnly) и gateorig (2109) остановлены = **EXPECTED-DOWN**.
+Мир 8/8 conns :2002. Замена 09.10-кросс-пульса — поглощён этим разделом.
+
+**Тех-долг op (план — [ROADMAP.md §6](ROADMAP.md), сводка — [../../docs/tech-debt-stack-20261010.md](../../docs/tech-debt-stack-20261010.md))**:
+1. **Сервис authdprod отсутствует** (OP-1) — живой authd не отображается/не управляется;
+   прод-правка config-vm.yaml **по «го»** + рестарт op:
+   ```yaml
+   - id: authdprod
+     group: auth
+     display: "aion-authd (prod 2110+2104, LIVE)"
+     task: AionAuthdProd
+     ports: [2110, 2104]
+     order: 6
+   ```
+2. **kill-коллизия** (OP-2): одно имя exe у prod/тени — kill по /IM убивает оба; фикс =
+   kill_task по PID задачи или переименование тени (`aion-authd-shadow.exe`) + kick-задачи.
+3. **expected_down метки** (OP-3): ориг-сервисы (gateorig/authd) красят дашборд постоянными
+   `down:*`-алертами = шум; флаг `expected_down: true` в конфиге (Phase 1.5) + interim observe_only.
+4. **Заголовок группы fork устарел** (OP-4): «R5 fork-stend: 2116 front -> orig 2110 + shadow»
+   → «Fork-откат: shadow 2117 + forkauthd 2116 (живой путь R6 = authdprod 2110)».
+5. **Гонка старта гейта** (OP-5): после kick первый /run иногда не поднимает (пауза 5с мала,
+   второй поднимает) — async-ожидания маркеров в act-шагах (Phase 1.5, уже в плане).

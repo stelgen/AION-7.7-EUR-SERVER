@@ -18,7 +18,7 @@
 
 ## 🏗 Архитектура стека
 
-Поток игрока (на 09.10, R6): **Клиент → aion-gate(2106) → наш aion-authd(2110) → [мир-канал: Server64 → наш authd(2104)] → AccountCacheServer(2220) → мир: Server64(7777)**; тень+fork = откаты. Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча переписаны; authd в fork-стенде; мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
+Поток игрока (на 09.10, R6): **Клиент → aion-gate(2106) → наш aion-authd(2110) → [мир-канал: Server64 → наш authd(2104)] → AccountCacheServer(2220) → мир: Server64(7777)**; тень+fork = откаты. Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd переписаны (authd R6 в бою, ориг = откат); мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
@@ -85,7 +85,7 @@
 |---|---|---|---|---|
 | 1 | Телеметрия rsyslog→Loki→Grafana + `ship.enabled: true` в прод-конфигах | 🟢 полдня | 🟢 ~90% | nextgen/TELEMETRY-SPEC.md |
 | 2 | Деплой 2 REF58-проц (UpdateTotalMainStatus/InsertServerinfo) + metric1-4 → logdb | 🟢 1 день | 🟢 ~80% | scripts/sql/ref58-logprocs-pending-20261005.sql |
-| 3 | **nextgen главный поток**: accache R1 capture → CacheD64 R1 pktmon → authd R6-блокеры (2104/procs/mssql) → gate T2-T6 | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
+| 3 | **nextgen главный поток**: accache R1 capture → CacheD64 R1 wire (log/*.log) → gate T2-а/T3/T4/T6 → op Phase 1.5+R6-конфиг | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
 | 4 | Ghidra-silence луперов 10100/10254/2107 (один проход закроет все три) | 🟡 1–2 дня | 🟡 ~60% | fixes-pending/loops-shopagent-channelchat-petition |
 | 5 | Матчмейкер арен на одном MainServer (JZ→JNZ на IsEventServer, AKllX) | 🟡 дни | 🟡 ~50% | fixes-pending/108-matchmaker-arenas |
 | 6 | Manastone-стек фикс MainServer64 (только чистый exe, ENIGMA = риск бэкдора) | 🟠 нед | 🟡 ~50% | fixes-pending/111-mainserver64-manastones |

@@ -1,105 +1,102 @@
 # aion-authd — замена L2Authd.exe для AION 7.7 EU (Go, трек B #4)
 
-**MVP 07.10.2026** — код R1-R4 полный, тесты зелёные, probe-e2e против живого эталона OK.
-**ПРОД НЕ ТРОНУТ и не деплоен** — свитч только по «го» и только после R0/R5 (см. §Статус).
+> ✅ **В БОЮ — R6 свитч выполнен 09.10 по «го» юзера.** Живой путь = наш authd:
+> `клиент → aion-gate (2106, authPort=2110) → наш aion-authd (:2110)` + `Server64 → наш :2104`.
+> Полный цикл юзера подтверждён (логин→мир→выход→мгновенный перелогин). exe MD5: authd `8c651f1e`
+> (prod) — см. §Деплой; живёт `D:\SAION\aion-authd\`, задача **AionAuthdProd** (SYSTEM, onstart).
 
-Цель: замена NC `L2Authd.exe` (1,198,592 Б): **2110** (serverExPort — наш aion-gate),
-конфиг `etc\config.txt`, БД `AionAccounts` (L2Conn.dsn). Порты 2104/2108/10062/2220 — вне MVP.
-
-## Статус фаз (ROADMAP.md)
-
+## 📊 Статус и фазы
 | Фаза | Статус |
 |---|---|
-| R0 разведка VM (procs AionAccounts sp_helptext, роль 2104) | 🟡 procs ✅ 09.10: 31 proc + тела сняты → authd-ref/procs-aionaccounts-77.rpt (логин = ap_GPwdWithFlag→ap_AutoReg, serverlist = ap_GetServers); 2104 ✅ 09.10: протокол-корень снят живым packet-логом authd (heartbeat 60с + type0-релей логина + uid-эхо; корпус authd-ref/logs-2104/) — дизasm не нужен |
-| R1 wire-фундамент | ✅ `docs/authd-wire-20261007.md` + golden-тесты |
-| R2 каркас (framing/listener/config/ship) | ✅ (+мир-канал 2104: internal/world 09.10) |
-| R3 логика (логин/автосоздание/online-TTL/фейлы) | ✅ live-факты 06-07.10 + каноны fork (type=3/4/7/fail) |
-| R4 DB-слой | ✅ mem + mssql (C1-схема); 09.10 реальные procs AionAccounts сняты — SQLStore переводится на вызов ap_* procs |
-| R5 fork-стенд на проде | 🟡 **ЖИВОЙ с 07.10 и ОСТАВЛЕН юзером** (forkauthd 2116 → ориг 2110 + копия → shadow 2117): каноны сняты, shadow структурно паритетен; осталась очередь арбитража O-vs-N по (sid,type) — N-ONLY = гонка тени |
-| R6 свитч живого пути на наш + наблюдение 24ч | ✅ **СВИТЧ 09.10 по «го»**: наш authd = живой путь (2110+2104, Server64 переключился), полный цикл юзера подтверждён (вкл. мгновенный перелогин, pk1-эхо, квитанции); наблюдение 24ч идёт |
+| R0 разведка VM (procs AionAccounts, роль 2104, L2Conn.dsn) | ✅ 09.10: 31 proc + тела (`../authd-ref/procs-aionaccounts-77.rpt`); 2104 = GS-канал (Encom-семантика + собственный packet-лог L2Authd) |
+| R1 wire-фундамент 2110 | ✅ `docs/authd-wire-20261007.md` + golden-тесты |
+| R2 каркас (framing/listener/config/ship) | ✅ (+ мир-канал 2104: `internal/world`, 09.10) |
+| R3 логика (логин/автосоздание/online-флаг/фейлы) | ✅ live-факты + каноны fork |
+| R4 DB-слой | ✅ **mssql-стор на РЕАЛЬНЫХ ap_* procs** (ретаргет 09.10); mem = fallback/тесты |
+| R5 fork-стенд A/B | ✅ 07.10 (2116→ориг+копия→тень 2117); арбитраж O-vs-N FIFO-парами (верки SAME/DIFF/WAIT, N-ONLY-гонки исключены) |
+| R6 свитч живого пути + наблюдение 24ч | ✅ **СВИТЧ 09.10**; полный цикл юзера ✓ (вкл. новый-аккаунт test1=uid 1021, мгновенный перелогин); наблюдение идёт |
 
-## Собрать/запустить
+Не работает: QMAS 10062 / GM 2108 (вне MVP, не используются стеком), char-count на сервер-селекте (тех-долг, ниже среднего).
 
-```bash
-cd nextgen/aion-authd
-go vet ./... && go test ./...
-GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o aion-authd.exe .   # для VM
-go build -o aion-authd-linux . && ./aion-authd-linux -config config.yaml            # стенд
+## 📟 Канон протокола (проверено живыми корпусами, «НЕ трогать»)
+
+**2110 (gate↔authd)** — см. `docs/authd-wire-20261007.md`: greeting `[03][V=0x0000c621]`,
+`[00][sid][ip]`, `[01][sid]`, `[02][sid][len=body+2][op][blob]`, ответы type=3/4/7.
+
+**2104 (мир↔authd, `internal/world`)** — фрейм `[u16 X LE][type][payload]`, **X = body+2 = total**
+(та же самоинклюзивная формула, что 2110; C1 packetSizeType=3; подтверждено живым pong'ом мира):
+| Type | Напр. | Смысл | Payload (канон) |
+|---|---|---|---|
+| 3 | A→W | greeting при accept | `792b3978 01000000 00` (9Б! хвостовой 00 обязателен) |
+| 2 | A→W | heartbeat (60с) | пусто |
+| 5 | W→A | world status | `[users u16][limit u16]` (f401=500, 0100f401=users 1) |
+| 0 | A→W | relay PLAY (на CM_PLAY!) | 107Б: `[uid][name 20Б][2000][13×0][«0000000\0»][ip-dword реверс][zeros6][ff×24][zeros4][50c2366b×2][zeros12]` |
+| 0 | W→A | ack | `[uid][N u32]` → N = pk1 для type=7 (эхо, канон 2/4/8/11/14/15/16) |
+| 38/27/35/24/25/9/3/39/40 | W→A | события (вход чара/выход) | uid-базовые; **на каждое — квитанция** (см. acks) |
+| 40/3 | W→A | logout | → снять онлайн-флаг (R6) |
+
+Квитанции (acks, пайлоады 1-в-1 из корпуса 09:33): `38/39/40→44 (uid+63000000 00000000)`,
+`27→19 (uid+0000)`, `35→31 (uid+11×00)`, `24→13 (uid+01010001)`, `25→16 (uid+0000)`, `3→14 (uid+01)`.
+Без квитанций мир ретранслирует type=35 каждые 1-3с (висяк входа в мир).
+
+**Создание аккаунта** — правит БД, не authd: `ap_GPwdWithFlag` → (нет акка + ASCII) → `ap_AutoReg`
+(user_account pay_stat=1 / ssn / user_auth pwd=0×16 flag=3 / user_info kind=99). Пароль не
+проверяется (и у ориг); PA не участвует. Тест test1 12:46: uid 1021 выдан ✓.
+
+## 🧱 Структура / сборка
 ```
-
-Конфиг: `config.example.yaml` (все дефолты = live-факты). Секрет (`db.connStr`) — ТОЛЬКО
-на VM (`AUTHD_CONNSTR` env или config), в гит не попадает.
-
-## Smoke (локально, без прода)
-
-```bash
-./aion-authd-linux -config /dev/null &
-/tmp/probe 127.0.0.1:2110 probeacc 192.168.0.253
-# → A>G [03] sid=50721 (приветствие)
-# → A>G [02] type=3 payload(52) → ВЕРДИКТ: authd ОТВЕТИЛ type=3 (healthy)
+nextgen/aion-authd/
+├── main.go                  # сборка: 2110-листенер + world-канал (gsPort) + колбэки
+├── internal/{wire,logic,server,world,store,ship,config}
+├── cmd/forkauthd/           # R5 fork-прокси (арбитраж O-vs-N)
+├── config.example.yaml      # все дефолты = live-факты (секретов нет)
+└── docs/ + ../authd-ref/    # wire/сессии/ресёрч/корпуса
 ```
+`go vet ./... && go test ./...` (7 пакетов, зелёные); win:
+`GOOS=windows GOARCH=amd64 go build -trimpath -ldflags "-s -w" -o aion-authd.exe .`
 
-`/tmp/probe` = `nextgen/aion-gate/cmd/probe` — ЖИВОЙ эталон, этим же инструментом
-проверялся оригинальный L2Authd на VM. probe-логины лочат акк на onlineTTL — тестовые
-имена держать пулом (прецедент: probeacc, probeacc2…).
-
-## Тесты (что золотое)
-
-- `wire`: CltConnect с LE-инверсией IP, самоинклюзивный len, greeting `03 21 c6 00 00`,
-  лимиты 0x1ffb, negative-ack.
-- `logic`: автосоздание+normalize, 52Б-payload (uid/token/2000/unk1), фейлы
-  (не-ASCII=2, blocked=22, db=1), relogin-тишина и fail7, TTL-sweep, type=4 (31Б,
-  IP/порт), type=7 (15Б, pk Rnd).
-- `server` e2e (TCP): полный флоу фейк-гейта greeting→login→type3→serverlist→type4→
-  play→type7, unknown-session → [01][sid], тишины (strict 86Б, unknown-op, relogin).
-- `store`: map-стор (seed live-uid), ErrNotFound, blocks.
-- `ship`: копия из aion-logd (App-имя = aion-authd 2110).
-
-## R5 fork-стенд (07.10, ЖИВОЙ на VM — юзер решил ОСТАВИТЬ как есть)
-
-Топология: `aion-gate (2106, authPort=2116) → forkauthd (:2116) → ориг L2Authd (:2110, живой путь
-юзера) + копия всех фреймов → aion-authd shadow (:2117, mem-store)`. Ответы shadow НЕ идут юзеру;
-лог `D:\SAION\aion-authd\fork-authd.log`: `C>/O>/N>` + VERDICT=SAME/DIFF по ключу (frame,sid,type).
-Управление — через aion-op (группа fork: authdn/forkd); задачи SYSTEM AionAuthdShadow/AionForkAuthd;
-`fork.cmd` пишет в fork-run.log (редирект `>> ... 2>&1` — паники видно).
-
-Каноны сняты fork'ом НА ЮЗЕР-ФРЕЙМАХ (структурный паритет тени): greeting `[03][0xc621]` SAME;
-type=3 = 52Б `[accId][token Rnd][8×0][2000][unk1 Rnd][28×0]`; type=4 = 26Б `[04]+[010101][ip][port 7777]…`;
-type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid]` после.
-Ориг отвечает SYSTEM_ERROR(20) на login пока мир не собран (8 conns на :2002) и пока жив PA.
+## 🧪 Тесты и верификация
+- Golden: greeting/ping/relay 2104 (1-в-1 с корпусами 04.10+09.10), wire 2110, логика (автосоздание, фейлы 2/22/1, TTL), e2e 2110 (TCP), mssql-стор (RC-контракты).
+- Живое: probe-e2e против ориг-эталона; fork-арбитраж O-vs-N (SAME по type=4, type=3 = структурный паритет); R6 живой путь: полный цикл юзера ✓✓, Server64 принял greeting 9Б + pong.
 
 ## 📦 Артефакты
+| Что | Гит | VM |
+|---|---|---|
+| код/конфиги | этот каталог | `D:\SAION\aion-authd\` (aion-authd.exe `8c651f1e`/`b954de48`+, forkauthd `3bd24ff3`, config-prod-authd.yaml, config-shadow.yaml, authd-prod.log, shadow.log, fork-authd.log) |
+| корпуса wire | `../authd-ref/logs-2104/` | `D:\AION_LIVE_SERVER\AuthD\etc\log\*.packet` (текстовый wire-дамп!) |
+| procs БД | `../authd-ref/procs-aionaccounts-77.rpt` | — |
+| doc wire/каноны | `docs/authd-wire-20261007.md`, `docs/authd-2104-recon-20261009.md` | — |
 
-| Что | Где |
-|---|---|
-| Код/конфиг-пример | этот каталог (internal/{wire,logic,server,store,ship,config}; проверка через `../aion-gate/cmd/probe`) |
-| Доки wire/сессии | docs/authd-wire-20261007.md, docs/session-20261007-authd-mvp.md, docs/auth-server-internals.md (общий референс авторизации) |
-| Ресёрч/план/промпт | RESEARCH.md, ROADMAP.md, PROMPT.md |
-| Референсы-сурсы | ../authd-ref/ (README-индекс) |
-| Прод: exe+конфиги+логи | VM `D:\SAION\aion-authd\` (aion-authd.exe, forkauthd.exe, config-shadow.yaml, shadow.cmd, fork.cmd, *.log) |
-| Креды/доступы | VM `D:\SAION\creds\` (CREDS.md) |
+## 🗂 Сурсы-эталоны
+S1 live-логи gate/authd (главный актив) · S2 C1-декомпил `../authd-ref/L2Auth-chaospaladin/` (WorldSrvSocket = фрейминг 2104) · S3 БД-схема `l2-c1-mastertoma/DBScript/` · S4 L2Authd.pdb (4513 publics, в гите) · S5 Encom Java-LS (GS↔LS семантика, `reference/encom-leak-7577/`) · S6 Packet Samurai Login_4.0.x.xml (клиентский LS-протокол, SM_LOGIN_OK/SERVER_LIST/PLAY_OK) · S7 aion-logd ship.
+
+## 🚢 Деплой и откат
+- Прод: `D:\SAION\aion-authd\authd-prod.cmd` → задача **AionAuthdProd** (2104/2110); тень — shadow.cmd → AionAuthdShadow (2117); fork — fork.cmd → AionForkAuthd (2116).
+- **ОТКАТ** (одна цепочка): `D:\SAION\aion-authd\authd-rollback.cmd` (taskkill наш + schtasks AionAuthOnly = ориг L2Authd) → `C:\Temp\rollback-gate.ps1` (gate authPort 2110→2116) → `aionact restart gate restart`. Бекап гейт-конфига: `config-prod.yaml.bak-0910-preR6`.
+- Канон-готчи: exe сменять только kill→copy→start; задача гейта иногда не поднимает с первого /run (повторить).
 
 ## 📜 Логи
+`authd-prod.log` (prod), `shadow.log` (тень), `fork-authd.log` (арбитраж; сейчас вне цепочки) — все `>> file 2>&1` (паники видны). RAW-диаг мира: `gsRawLog: true` → «world RAW >/<» hex-строки. ship = TELEMETRY-SPEC (выкл. на проде).
 
-Стандарт S3: fork-лог `D:\SAION\aion-authd\fork-authd.log` (C>/O>/N> + VERDICT), тень пишет shadow.log; run.cmd редирект `>> ... 2>&1` (паники видно); ship по [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
+## 🚧 Тех-бэклог (приоритеты)
+1. **[ниже среднего] Висяк выхода из игры** (~10 мин, иногда краш клиента) — сервер-стор чистая (мир отпускает за 5с), клиент-локально; ревизия по триггеру.
+2. **[ниже среднего] charcount на сервер-селекте** — 2 эксперимента, вердикты в `docs/techdebt-charcount-20261009.md`; НЕ наша регрессия (у ориг тоже пусто).
+3. **[T2] pk1-эхо / 2104-квитанции** — live-верификация done; сверка байт-в-байт с ориг возможна только на A/B-стенде.
+4. **[T2] IP-дворд релея** — конвенция 04.10↔09.10 неоднозначна (реверс vs direct) — сверить last_ip в БД.
+5. **[T3] Наш authd ↔ ACS 2220** — не реализовано (мир ходит в ACS сам; authd-клиент ACS = фича-запрос).
 
-## ⚠ Перед R6 (свитч) — блокеры
+## ⏭️ Следующий шаг
+Наблюдение 24ч завершить → дельта ROADMAP/README. Следующие компоненты по приоритетам стека:
+accache R1 capture (`../aion-accache/PROMPT.md`), gate T2-T6 (`../aion-gate/`), `WORKFLOW: <имя>`.
 
-1. **Порт 2104 НЕ реализован** — Server64 (мир) ходит в L2Authd: протокол-корень уже снят
-   живым packet-логом authd (09.10, дизasm не нужен — см. docs/authd-2104-recon-20261009.md +
-   authd-ref/logs-2104/): heartbeat 60с (type 2/5), релей логина type 0, uid-эхо 13–44.
-   ✅ 09.10 MVP реализован (`internal/world`: greeting `[03][authVersion][1]` + heartbeat 60с +
-   type0-релей логина по живому корпусу; вкл. `gsPort`, дефолт 0 = выкл; квитанции `gsAcks` — T2 после fork-диффа 2104).
-2. **procs AionAccounts** — ✅ 09.10 сняты (authd-ref/procs-aionaccounts-77.rpt), SQLStore → на ap_* procs.
-3. **mssql-стор в shadow** — ✅ 09.10: SQLStore дефолты = РЕАЛЬНЫЕ procs AionAccounts
-   (ap_GPwdWithFlag+ap_GStat/ap_AutoReg/ap_GetRestriction; тела в authd-ref/procs-aionaccounts-77.rpt);
-   живую сверку на VM (shadow+connStr) — на R6-стендe.
-4. **Арбитраж fork-лога** — ✅ 09.10: FIFO-очередь пар по ключу ОТВЕТА (sid,type) в forkauthd:
-   пара открывается первым пришедшим (O или N), вердикт только при полной паре — гонки N-ONLY
-   исключены; нзапрошенные = SINGLE; дроп зависших >60с (ARBITRATION-DROP). Race-тест в main_test.
-5. Дисциплина: L2Authd хрупкий; probe-логины лочат акки (TTL 2–6 мин, тестовый пул
-   probeacc*); PA жив ДО authd; секреты не в гит.
+## 📡 Кросс-пульс соседям (10.10, гейт-чат)
 
-## 📊 Сосед узнал (08.10, чат aion-main R0/RES)
-- Утёкшие сурсы Encom 7.5–7.7 (`reference/encom-leak-7577/`) содержат `network/loginserver/clientpackets/*` = **Java-эталон GS↔LS протокола 2104** (CM_GS_AUTH_RESPONSE, CM_ACCOUNT_RECONNECT_KEY и др.) — прямой материал для R6-блокера 2104-канала.
-- Крипта/флоу 7777 Server64: GG(GameGuard)+Blowfish+AES из PDB publics.
+- **op**: добавить сервис `authdprod` (задача AionAuthdProd, контроль портов 2110+2104) — сейчас
+  живой authd в op НЕ контролируется (видна только тень authdn :2117); ⚠ `stop authdn` =
+  `taskkill /F /IM aion-authd.exe` бьёт И ПРОД (общее имя exe у prod и тени) — разделить по
+  kill_task/PID или переименовать тень. Детали: [../aion-op/ROADMAP.md](../aion-op/ROADMAP.md) §6.
+- **gate**: T2-б/T2-в закрыты этим R6 ([../aion-gate/README.md](../aion-gate/README.md) §T2/T3);
+  откат-цепочка на месте (rollback-gate.ps1 + authd-rollback.cmd).
+- **Статус live**: op-метрики 12:57 VM 10.10 — оба процесса aion-authd.exe живы (prod 2110+2104 +
+  тень 2117); алерты `down:authd` (ориг AionAuthOnly) = EXPECTED.
+- README приведён к [README-TEMPLATE.md](../README-TEMPLATE.md) (S1) — этот коммит.
