@@ -95,9 +95,12 @@ onAuthdPacket-роутер) + cdb/pdb дизasmом оригинала.
 7. **Свитч прод**: 2110 → наш (гейт уже умеет переподключение authReconnectInterval=30), открат — задача AionAuth.
 
 ## 5. TODO (докачать)
-- [ ] mmo-dev регистрация → скачать `l2_c1.7z` (MasterToma C1 сорцы, AuthD в составе) + `Auth.7z` (classic x64) — по 4.5МБ/0.6МБ, вложения под логином.
+- [x] ~~`l2_c1.7z` (MasterToma C1 сорцы)~~ — СКАЧАН 06.10 (юзер дал с гейт-сервера 192.168.0.248:3923) → в гите `authd-ref/l2-c1-mastertoma/` (35МБ, 1140 файлов): `L2Auth/` (reversed 6М + generated 5.8М + src 780К, маркеры FIXED: overflow в CIOTimer/CJob, blockFlag_custom в CAccount), `L2LogD/`, `CacheD/`, `L2Core/`, `PetitionD/`, **`DBScript/` = ReleaseAuthDBSchema.sql (procs: `ap_GPwd`, `ap_GStat` ← payStat!, `ap_GUserTime`, `ap_SLog`, `ap_SUserTime`) + lin2comm.sql (44 procs) + lin2user/lin2log/lin2report/lin2world** — ГОТОВАЯ СХЕМА БД authd (все девелоперские ветки: legacy/develop-Extender C1/C4/C6, MSVC2013+). Полный пак (99МБ: + html 30М, CachedScript 29М, tests 5.7М) — локально `~/STELGEN/tmp/authd-research/artifacts/l2_c1/` + исходный `l2_c1.7z`.
+- [ ] `Auth.7z` (classic x64, mmo-dev 22808) — нужна регистрация mmo-dev.
 - [ ] RZ 1205208 p16-17: аттач portal-auth-emulator (если PA когда-нибудь понадобится — вердикт SKIP в силе).
 - [ ] Погуглить Google-Drive changelog MasterToma (ссылка в его подписи на mmo-dev).
+
+📌 Примечание: README ChaosPaladin/L2Auth и README MasterToma-пака совпадают почти дословно — это одна и та же шара (MasterToma-стрим 2019 → ChaosPaladin-репо). В гите лежат ОБА для трассировки.
 
 ## 6. Локальные артефакты (вне гита)
 - `artifacts/authd-ref/L2AuthD-PATCHED-WINDOWS11.exe` (725КБ, PE32) + исходный zip — патч AKllX.
