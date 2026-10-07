@@ -1,6 +1,6 @@
 # 🛰 ROADMAP aion-cache — CacheD64 → свой RAM-кэш (Go)
 
-> Обновлено 08.10. Полный ресёрч: [../CACHE-RESEARCH.md](../CACHE-RESEARCH.md). Запуск чата: `WORKFLOW: cache`.
+> Обновлено 08.10. Полный ресёрч: [../CACHE-RESEARCH.md](RESEARCH.md). Запуск чата: `WORKFLOW: cache`.
 > Метод переписи отработан 4 раза (logd/captcha/gate/accache-каркас); здесь объём 8× ACS.
 
 ## Фазы

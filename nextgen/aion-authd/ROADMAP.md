@@ -1,7 +1,7 @@
 # 🛰 AUTHD-ROADMAP — L2Authd → свой authd (Go)
 
-> Верхнеуровневый план 07.10.2026. Полный ресёрч сурсов: [AUTHD-RESEARCH.md](AUTHD-RESEARCH.md).
-> Промпт для разработки: [PROMPT-AUTHD.md](PROMPT-AUTHD.md).
+> Верхнеуровневый план 07.10.2026. Полный ресёрч сурсов: [AUTHD-RESEARCH.md](RESEARCH.md).
+> Промпт для разработки: [PROMPT-AUTHD.md](PROMPT.md).
 >
 > **СТАТУС 07.10 ночь: R1-R4 ГОТОВЫ + R5 fork-стенд ЖИВОЙ НА ПРОДЕ** (гейт 2106 → forkauthd 2116 →
 > ориг 2110 + копия в shadow aion-authd 2117; юзер залогинился и в игре — живой путь через ориг).
@@ -9,7 +9,7 @@
 > **PA обязателен** (без него SYSTEM_ERROR 20). Прод-топология ОСТАВЛЕНА КАК ЕСТЬ (fork-shadow постоянно,
 > по решению юзера) = R6-свитч свёл­ся к: наш authd в shadow до R0 (procs AionAccounts, роль 2104) →
 > затем переключение живого пути на наш (fork: orig→shadow режим).
-> Сессия-док: [aion-authd/docs/session-20261007-authd-mvp.md](aion-authd/docs/session-20261007-authd-mvp.md).
+> Сессия-док: [docs/session-20261007-authd-mvp.md](docs/session-20261007-authd-mvp.md).
 > Метод-референс: треки aion-logd → aion-captcha → aion-gate (метод отработан 3 раза).
 > Приложение-цель: `L2Authd.exe` (1,198,592 Б) — **2104** (serverPort), **2110** (serverExPort → AuthGateD),
 > 2108 (GM interactive), 10062 (QMAS); конфиг `etc\config.txt`; БД `AionAccounts` через `L2Conn.dsn`;
@@ -20,13 +20,13 @@
 
 | # | Сурс | Где | Что берём |
 |---|---|---|---|
-| S1 | **Wire 2110 live-эталон** | `nextgen/aion-gate/README.md` §Канонические факты + `D:\SAION\aion-gate\gate-prod.log` (RAW A>G/G>A hex) | Фреймы `[00][sid][IP-be]`/`[01][sid]`/`[02][sid][len][blob 191Б asm-форма]` → назад `[03][sid]`(V=0xc621)/`[02][id][len][type][payload]`, type=3/4/7. Это УЖЕ 100% образец трафика — главный актив |
-| S2 | **L2Auth (C1, полный декомпил)** | `nextgen/authd-ref/L2Auth-chaospaladin/` + `l2-c1-mastertoma/L2Auth/` | Архитектура authd: CAuthServer/CAuthSocket, WorldSrvServer (gs-wire), CAccount (ODBC-процедуры, block_msg, payStat), OneTimeLogOut/AutokickAccount семантика, crypt-модули |
+| S1 | **Wire 2110 live-эталон** | `../aion-gate/README.md` §Канонические факты + `D:\SAION\aion-gate\gate-prod.log` (RAW A>G/G>A hex) | Фреймы `[00][sid][IP-be]`/`[01][sid]`/`[02][sid][len][blob 191Б asm-форма]` → назад `[03][sid]`(V=0xc621)/`[02][id][len][type][payload]`, type=3/4/7. Это УЖЕ 100% образец трафика — главный актив |
+| S2 | **L2Auth (C1, полный декомпил)** | `../authd-ref/L2Auth-chaospaladin/` + `l2-c1-mastertoma/L2Auth/` | Архитектура authd: CAuthServer/CAuthSocket, WorldSrvServer (gs-wire), CAccount (ODBC-процедуры, block_msg, payStat), OneTimeLogOut/AutokickAccount семантика, crypt-модули |
 | S3 | **Схема БД authd** | `l2-c1-mastertoma/DBScript/` (ReleaseAuthDBSchema.sql: `ap_GPwd/ap_GStat/ap_GUserTime/ap_SLog/ap_SUserTime`, lin2comm 44 procs) | Формат DB-слоя; сверить с нашими procs в AionAccounts (sp_helptext, схема/TBL в aiongm_ur) |
 | S4 | **L2Authd.pdb** | Локально (малый PDB, manifest-pdb-big.md: «локально уже есть малые PDB (L2Authd/AuthGateD/...)») + бинарь 1,198,592 на VM | Метод LOGD-REWRITE-ANALYSIS: `pdbpub.py` → publics → objdump дизasm ключевых функций (проверка гипотез по wire 2104/10062/2220) |
 | S5 | **Эталон семантики** | `reference/Mobius_AionEmu` (LoginServer: AccountController, AionAuthResponse) | Коды фейлов 0-22 (уже в aion-gate `authfail.go`), kick/ALREADY_LOGGED_IN, онлайн-флаг TTL |
 | S6 | **Классика L2AuthD (архив)** | `authd-ref/l2auth-legacy-2008/`, `L2AuthHost-csharp/`, Ruk33/l2auth (локально) | Вторичные проекции: IP-фильтры, режимы хостинга, клиентский wire C4 |
-| S7 | **Инфраструктурные заготовки** | `nextgen/aion-logd/internal/ship`, aion-gate (config/ship/логгеры) | ship-телеметрия по TELEMETRY-SPEC копируется как есть; стиль конфигов/деплоя D:\SAION |
+| S7 | **Инфраструктурные заготовки** | `../aion-logd/internal/ship`, aion-gate (config/ship/логгеры) | ship-телеметрия по TELEMETRY-SPEC копируется как есть; стиль конфигов/деплоя D:\SAION |
 
 ## 2. Фазы (верхнеуровнево; каждая = коммит+пуш+дельта в память)
 

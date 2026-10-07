@@ -18,7 +18,7 @@ read-only пробы + лог-парсер + метрики + SQLite + алер�
 - **PA обязателен** (кнопка pa разблокирована: без PA = SYSTEM_ERROR(20)); старт-порядок PA ДО authd.
 - Критерий мира = 8 коннектов на :2002 (`expected_conns: 8`, было 16 netstat-строк = FALSE ALERT).
 Прод-деплой: `C:\aionop\` + задача AionOp — см. [DEPLOY.md](DEPLOY.md).
-План: [../TRACK-A-PLAN.md](../TRACK-A-PLAN.md), постановка: [../PLAN.md](../PLAN.md).
+План: [ROADMAP.md](ROADMAP.md), постановка: [../PLAN.md](../PLAN.md).
 
 ## Запуск
 
@@ -87,7 +87,17 @@ internal/alerts/       — движок правил
 internal/web/          — API (GET-only) + embedded UI (вкладки, кнопки-замки)
 ```
 
-## Дорожная карта (см. TRACK-A-PLAN.md)
+## 📦 Артефакты
+
+| Что | Где |
+|---|---|
+| Код/конфиг | этот каталог (internal/*, config.yaml — шаблон без секретов) |
+| Роадмап/деплой | ROADMAP.md, DEPLOY.md |
+| Доки эксплуатации | docs/ (authlog-*, config-inventory, direct-ports, chronology, session-cached-rootfix) |
+| Прод | `C:\aionop\` (aionop-win.exe, config-vm.yaml, aionop.db) |
+| Креды/доступы | VM `D:\SAION\creds\` (CREDS.md) |
+
+## Дорожная карта (см. ROADMAP.md)
 
 - **0** ✅ скелет observe-only. **0.5** ✅ глаза.
 - **1** ✅ ЖИВОТ на VM (решение юзера 05.10: без агента — op на VM, `vm.mode: local`, `operate`, dry_run=false; start/stop/restart через schtasks/kick-задачи, кириллические пароли задач берутся из реестра Winlogon — в гит не сохраняются).

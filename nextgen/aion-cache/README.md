@@ -1,7 +1,7 @@
 # aion-cache — перепись CacheD64 (RAM-кэш мира, :2006/2007/2009) — код НЕ начат
 
 > 🔬 **Ресёрч R0 ЗАКРЫТ 08.10, кода НЕТ.** Самый большой компонент трека B: ~590 RPC-команд (8× ACS). Оценка MVP 2–4 нед, шанс ~85%.
-> Ресёрч: [../CACHE-RESEARCH.md](../CACHE-RESEARCH.md) · референсы: [../cached-ref/](../cached-ref/README.md) · запуск чата: `WORKFLOW: cache` ([../WORKFLOW.md](../WORKFLOW.md)).
+> Ресёрч: [../CACHE-RESEARCH.md](RESEARCH.md) · референсы: [../cached-ref/](../cached-ref/README.md) · запуск чата: `WORKFLOW: cache` ([../WORKFLOW.md](../WORKFLOW.md)).
 > Прод НЕ тронут: ориг CacheD64 жив; рестарт Server64 дорогой — capture только pktmon.
 
 ## 📊 Статус и фазы

@@ -22,7 +22,7 @@
 - Не запускается и не мешает (`docs/fixes-registry.md` #119); задача `AionPA` DISABLE; NPRelay тоже.
 - Авторегистрация/логин работают без PA (проверено 02.10; version.dll-фикс #189–194 не нужен).
 - При потушенном PA authd терпит отсутствие мостов молча (event-driven, тишина в err).
-- `CPASocket 10057` виден только в auth-логах при отвалах мира (`docs/authlog-merge-0410.md`).
+- `CPASocket 10057` виден только в auth-логах при отвалах мира (`../nextgen/aion-op/docs/authlog-merge-0410.md`).
 - README-заявление «Обязателен / без PA EU-клиенты login only after official portal» = миф
   оригинальной портал-архитектуры, опровергнут живьём. (README поправлен этим же коммитом.)
 
@@ -61,8 +61,8 @@
 ## 5. Если однажды понадобится (триггеры пересмотра)
 1. Появится веб-портал/биллинг с payStat-логикой → тогда: скачать аттачмент `portal-auth-emulator`
    (тред 1205208, пост renobizarro #307, нужен акк RaGEZONE), взять наши GUID'ы
-   `ClientAppId/AuthdAppId` из `AuthD\etc\config.txt` (инвентаризованы в `docs/config-inventory-0410.md`),
-   процы `ap_*`/`web_*` из `docs/auth-server-internals.md`.
+   `ClientAppId/AuthdAppId` из `AuthD\etc\config.txt` (инвентаризованы в `../nextgen/aion-op/docs/config-inventory-0410.md`),
+   процы `ap_*`/`web_*` из `../nextgen/aion-authd/docs/auth-server-internals.md`.
 2. Если authd на каком-то ребуте начнёт сыпать ошибками по PA или тормозить старт.
 
 ## 6. Ссылки
@@ -70,5 +70,5 @@
 - RaGEZONE 1211744 p.5–6 — AION7.7pts Europe (PA-конфиг, FliesQQ #119, pdb's, ENIGMA-бин.main'ы).
 - RaGEZONE 1205208 p.16–17 — L2 Classic 3.0 (portal-auth-emulator: docker/py/pp_GetPortalUser/pay_stat-обход).
 - GitHub: `ChaosPaladin/L2Auth` (реверс L2AuthD), поиск `portal-auth-emulator`/`pp_GetPortalUser` = 0.
-- Локальные: `docs/auth-server-internals.md` (процы/схема), `docs/server-internals.md` (PAServer в архитектуре),
-  `docs/fixes-registry.md` (#119, #189–194), `docs/authlog-merge-0410.md` (CPASocket).
+- Локальные: `../nextgen/aion-authd/docs/auth-server-internals.md` (процы/схема), `docs/server-internals.md` (PAServer в архитектуре),
+  `docs/fixes-registry.md` (#119, #189–194), `../nextgen/aion-op/docs/authlog-merge-0410.md` (CPASocket).

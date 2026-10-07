@@ -44,7 +44,7 @@ D:\SAION\aion-logd\run.cmd). Верифицировано: 3 клиента ESTA
   udp/tcp(octet-counted) + HTTP ndjson + локальный ndjson-фолбэк (только явно); неблокирующая
   очередь + drop-счётчики, recover на каждой отправке, self-статус ev=self каждые 300с,
   события: start/stop/conn.up/conn.down/version/server.started/status/text/parse.err/db/db.err/sweep/self.
-  Спека для ВСЕХ переписей: nextgen/TELEMETRY-SPEC.md. По умолчанию ship disabled — прод без приёмника.
+  Спека для ВСЕХ переписей: ../TELEMETRY-SPEC.md. По умолчанию ship disabled — прод без приёмника.
 - Тесты: textlog на живых fixture'ах (3 реальных пакета), ship (UDP/TCP/file/недоступный-синк),
   все зелёные; exe: linux+windows (build/), новый exe staged на VM C:\Temp\logd-new\ (НЕ запущен).
 
@@ -145,7 +145,7 @@ Handshake: accept → СЕРВЕР шлёт Version(29)+VerAndTime(13) перв�
 
 ## ФАЙЛЫ/АРТЕФАКТЫ
 
-- Репо: nextgen/LOGD-REWRITE-ANALYSIS.md (анализ+4.1), nextgen/aion-logd/ (код)
+- Репо: RESEARCH.md (анализ+4.1), aion-logd/ (код)
 - VM: C:\logd-capture\ (exe/yaml/логи/mirror-io.hex 3.8МБ/run-cap.cmd/mirror.cmd/common.xml+orig)
 - Локально: /tmp/logd-mirror/mirror-io.hex, ~/STELGEN/tmp/logd-io/io/2026-10-05.io.hex (1 МБ)
 - Артефакты: /tmp/logsrv.asm (LogServer64 полный), /tmp/npcs.asm (NPCSvr64 полный 1.2М строк),

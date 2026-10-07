@@ -14,11 +14,11 @@
 
 ## Первый шаг (обязательно)
 1. Память `STELGEN/projects/aion_server_2026-10-02` (запись 05.10 ночь про AuthGateD реверс).
-2. **docs/authgate-protocol-20261005.md** — ГЛАВНЫЙ референс: адресная карта, криптосхема,
+2. **./authgate-protocol-20261005.md** — ГЛАВНЫЙ референс: адресная карта, криптосхема,
    welcome-модель, wire 2110, конфиг-зеркало, ОТКРЫТЫЕ ПОЗИЦИИ §5, план §6.
-3. nextgen/ROADMAP.md §4 (правила эксплуатации), nextgen/TELEMETRY-SPEC.md.
-4. Эталоны: nextgen/aion-gate/testdata/ (746 пакетов capture 03.10, LUT 0x437160, config.txt).
-5. Код-образец: nextgen/aion-captcha/ (структура internal/*, ship копируется из aion-logd).
+3. ../../ROADMAP.md §4 (правила эксплуатации), ../../TELEMETRY-SPEC.md.
+4. Эталоны: ../testdata/ (746 пакетов capture 03.10, LUT 0x437160, config.txt).
+5. Код-образец: ../../aion-captcha/ (структура internal/*, ship копируется из aion-logd).
 
 ## Ключевые факты (не переоткрывать)
 - key1 static `6b60cb5b82ce90b1cc2b6c556c6c6c6c` (LUT seed 0x4bd), Blowfish СТАНДАРТНЫЙ.

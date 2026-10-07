@@ -38,7 +38,7 @@
 
 ## 3. ТРЕК A — ОПЕРАТОР `aion-op` (✅ Phase 1 в бою)
 
-Детальный план: [TRACK-A-PLAN.md](TRACK-A-PLAN.md). Сделано: state machine, пробы, лог-парсер 13 правил, метрики (RAM/хендлы/waits), SQLite WAL, алерты, SQL/CCU-вкладки, act-слой (start/stop/restart/restart_pair с confirm) — **управляет стеком на проде с 07.10**, группы fork (authdn/forkd), kick-задачи.
+Детальный план: [aion-op/ROADMAP.md](aion-op/ROADMAP.md). Сделано: state machine, пробы, лог-парсер 13 правил, метрики (RAM/хендлы/waits), SQLite WAL, алерты, SQL/CCU-вкладки, act-слой (start/stop/restart/restart_pair с confirm) — **управляет стеком на проде с 07.10**, группы fork (authdn/forkd), kick-задачи.
 
 Остаток (Phase 1.5): событийный watchdog (ночной рестарт пары = тумблер), async-ожидания маркеров в act-шагах, феномен «задачи сами Disabled».
 
@@ -48,12 +48,12 @@
 
 | # | Компонент | Статус | Док |
 |---|---|---|---|
-| 1 | LogServer64 → aion-logd | ✅ в бою (Л1–Л4) | [LOGD-STATUS-SNAPSHOT.md](LOGD-STATUS-SNAPSHOT.md) |
-| 2 | CAPTCHAImageServer → aion-captcha | ✅ в бою | [CAPTCHA-STATUS-SNAPSHOT.md](CAPTCHA-STATUS-SNAPSHOT.md) |
+| 1 | LogServer64 → aion-logd | ✅ в бою (Л1–Л4) | [aion-logd/SNAPSHOT.md](aion-logd/SNAPSHOT.md) |
+| 2 | CAPTCHAImageServer → aion-captcha | ✅ в бою | [aion-captcha/SNAPSHOT.md](aion-captcha/SNAPSHOT.md) |
 | 3 | AuthGateD → aion-gate | ✅ РЕЛИЗ (T2–T6 хвосты) | [aion-gate/README.md](aion-gate/README.md) |
-| 4 | L2Authd → aion-authd | 🟡 MVP + тень жива; R6-блокеры 2104/procs/mssql | [AUTHD-ROADMAP.md](AUTHD-ROADMAP.md) |
-| 5 | AccountCacheServer → aion-accache | 🟡 R2 каркас; R1 capture | [ACCOUNTCACHE-ROADMAP.md](ACCOUNTCACHE-ROADMAP.md) |
-| 6 | CacheD64 → aion-cache | 🔬 R0 закрыт; R1 pktmon; MVP read-путь + write-транзит | [CACHE-RESEARCH.md](CACHE-RESEARCH.md) |
+| 4 | L2Authd → aion-authd | 🟡 MVP + тень жива; R6-блокеры 2104/procs/mssql | [aion-authd/ROADMAP.md](aion-authd/ROADMAP.md) |
+| 5 | AccountCacheServer → aion-accache | 🟡 R2 каркас; R1 capture | [aion-accache/ROADMAP.md](aion-accache/ROADMAP.md) |
+| 6 | CacheD64 → aion-cache | 🔬 R0 закрыт; R1 pktmon; MVP read-путь + write-транзит | [aion-cache/RESEARCH.md](aion-cache/RESEARCH.md) |
 | 7 | ICServer → aion-ic | ⬜ папка-заготовка (README+ROADMAP+PROMPT) | aion-ic/ |
 | 8 | ChannelChat/Petition/ShopAgent → aion-chat/aion-petition/aion-shopagent | ⬜ некритично, папки-заготовки; ILSpy = ТЗ | fixes-pending/loops |
 | 9 | PA (PortalAuth) | ✅ ориг ОБЯЗАТЕЛЕН (старт до authd) | [pa-research](../docs/pa-research-20261006.md) |

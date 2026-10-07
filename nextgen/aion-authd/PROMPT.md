@@ -14,12 +14,12 @@
 ## Первый шаг (обязательно, до любых действий)
 1. Прочитай память по пути `STELGEN/projects/aion_server_2026-10-02` (хронология, готчи, прод-стек).
 2. Прочитай в репо `~/STELGEN/projects/aion_server_2026-10-02/AION-7.7-EUR-SERVER/`:
-   - `nextgen/AUTHD-ROADMAP.md` — план фаз R0-R6 и полный реестр сурсов S1-S7 (живой);
-   - `nextgen/AUTHD-RESEARCH.md` — ресёрч эмуляторов L2AuthD (кто дальше всех, артефакты);
-   - `nextgen/aion-gate/README.md` — раздел «Канонические факты протокола»: **вся наша сторона wire 2110** (фреймы, blob 191Б asm-форма, [03] V=0xc621, type=3/4/7, онлайн-флаг);
-   - `nextgen/ROADMAP.md` + `nextgen/TELEMETRY-SPEC.md` (обязателен для переписи);
-   - `nextgen/LOGD-REWRITE-ANALYSIS.md` — метод PDB→publics→дизasm (референс).
-3. Сурсы-эталоны уже в репо: `nextgen/authd-ref/L2Auth-chaospaladin/` (полный декомпил L2AuthD C1), `nextgen/authd-ref/l2-c1-mastertoma/` (+ `DBScript/` — схема БД authd: procs `ap_GPwd/ap_GStat/ap_GUserTime/ap_SLog/ap_SUserTime`), `reference/Mobius_AionEmu/` (семантика фейлов/онлайн-флага).
+   - `ROADMAP.md` — план фаз R0-R6 и полный реестр сурсов S1-S7 (живой);
+   - `RESEARCH.md` — ресёрч эмуляторов L2AuthD (кто дальше всех, артефакты);
+   - `../aion-gate/README.md` — раздел «Канонические факты протокола»: **вся наша сторона wire 2110** (фреймы, blob 191Б asm-форма, [03] V=0xc621, type=3/4/7, онлайн-флаг);
+   - `../ROADMAP.md` + `../TELEMETRY-SPEC.md` (обязателен для переписи);
+   - `../aion-logd/RESEARCH.md` — метод PDB→publics→дизasm (референс).
+3. Сурсы-эталоны уже в репо: `../authd-ref/L2Auth-chaospaladin/` (полный декомпил L2AuthD C1), `../authd-ref/l2-c1-mastertoma/` (+ `DBScript/` — схема БД authd: procs `ap_GPwd/ap_GStat/ap_GUserTime/ap_SLog/ap_SUserTime`), `reference/Mobius_AionEmu/` (семантика фейлов/онлайн-флага).
 
 ## Цель
 Своя замена **L2Authd.exe** (1,198,592 Б, NC, native C++; порты **2104** serverPort, **2110** serverExPort — его слушает наш aion-gate, 2108 GM, 10062 QMAS; конфиг `etc\config.txt`; БД `AionAccounts` через `L2Conn.dsn`; клиенты: AuthGateD 2110, AccountCache 2220; PA 10057 — ОБЯЗАТЕЛЕН в стеке как ориг (старт ДО authd; без него SYSTEM_ERROR 20)). Живёт в `D:\AION_LIVE_SERVER\L2Authd\`, задача планировщика **AionAuth** (ритуал рестарта `C:\Temp\restart-auth.ps1`). Реверс-фундамент: **L2Authd.pdb малый уже скачан локально** (manifest-pdb-big.md) → метод pdbpub.py.
@@ -29,7 +29,7 @@
 - Каждая замена переключаемая: бекап, откат одной командой; бекапы БД перед любым SQL ALTER (`D:\_REF58\prod-backups\`).
 - **L2Authd ХРУПКИЙ: умирает от кривых пакетов** — в fork-режиме оригиналу НЕ СЛАТЬ ничего, кроме копий валидных фреймов гейта; смерть → рестарт-ритуал `C:\Temp\restart-auth.ps1` (/end+/run AionAuth → wait 2104 → рестарт AionGate).
 - Probe-логины ЛОЧАТ акки на 2-6 мин (онлайн-флаг authd, TTL) — тестовые креды держать пулом (логины-цифры 1/2/3...), не долбить один.
-- TELEMETRY-SPEC: телеметрия В СЕТЬ, пакет `internal/ship` копировать из `nextgen/aion-logd/internal/ship` как есть, конфиг-ключи `ship.*` единые.
+- TELEMETRY-SPEC: телеметрия В СЕТЬ, пакет `internal/ship` копировать из `../aion-logd/internal/ship` как есть, конфиг-ключи `ship.*` единые.
 - Своя апка: `D:\SAION\aion-authd\` (exe + config.yaml + run.cmd, ASCII+CRLF); автостарт из юзер-сессии 1 (паттерн AION-START-ALL-v6.bat).
 - Готчи VM (192.168.0.125, `ssh 'Администратор@192.168.0.125'`): дефолт-шелл PowerShell; scp push да, pull нет (вниз через `cmd /c type`/PS base64); git `--no-pager`; Go тулчейн `~/STELGEN/go-dist/go/bin`; кириллица в конфигах — только байтовая замена; sqlcmd на больших XML глючит — SqlClient ExecuteScalar; TBL_GAME_* в схеме aiongm_ur; тела procs через sp_helptext.
 - Секреты (connStr/пароли) — только в конфиге на VM, в гит/память не сохранять.

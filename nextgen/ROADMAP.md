@@ -3,7 +3,7 @@
 > **Последнее обновление: 08.10.2026.** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
 > Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
 > authd 🟡 MVP+shadow-паритет (fork 2116/shadow 2117 живы); accache 🟡 R2 каркас (R1 capture = следующий чат); CacheD64 🔬 R0 закрыт (R1 pktmon); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него — старое «SKIP» исправлено везде).
-> Следующие чаты: 1) accache R1 capture [PROMPT-ACCACHE.md] 2) cache R1 pktmon [aion-cache/PROMPT.md] 3) authd R6-блокеры (R0 2104/procs/mssql/арбитр) 4) gate T2-T6.
+> Следующие чаты: 1) accache R1 capture [aion-accache/PROMPT.md] 2) cache R1 pktmon [aion-cache/PROMPT.md] 3) authd R6-блокеры (R0 2104/procs/mssql/арбитр) 4) gate T2-T6.
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где — 08.10)
 
@@ -24,13 +24,13 @@
 
 | # | Пункт | Где | Оценка |
 |---|---|---|---|
-| 1 | **accache R1 capture**: копия ACS на :2221 (байтовая правка common.xml в КОПИИ каталога) + наш fork-proxy :2220→:2221 + логины юзера → payload-раскладки per-cmd, ACP-номера, T2-канал | PROMPT-ACCACHE.md | 1–2 дня |
-| 2 | **CacheD64 R1**: pktmon filter port 2006 (НЕ трогая мир, рестарт Server64 дорогой) + разбор готовых log/*.log (171 файл) → wire 2006 | CACHE-RESEARCH.md §MVP | 1–2 дня |
-| 3 | **authd R0/R6**: sp_helptext procs AionAccounts; роль 2104 (Server64-канал, дизasm L2Authd.pdb); mssql-стор; арбитраж fork по (sid+type); потом свитч живого пути | AUTHD-ROADMAP.md §2 | 3–5 дней |
+| 1 | **accache R1 capture**: копия ACS на :2221 (байтовая правка common.xml в КОПИИ каталога) + наш fork-proxy :2220→:2221 + логины юзера → payload-раскладки per-cmd, ACP-номера, T2-канал | aion-accache/PROMPT.md | 1–2 дня |
+| 2 | **CacheD64 R1**: pktmon filter port 2006 (НЕ трогая мир, рестарт Server64 дорогой) + разбор готовых log/*.log (171 файл) → wire 2006 | aion-cache/RESEARCH.md §MVP | 1–2 дня |
+| 3 | **authd R0/R6**: sp_helptext procs AionAccounts; роль 2104 (Server64-канал, дизasm L2Authd.pdb); mssql-стор; арбитраж fork по (sid+type); потом свитч живого пути | aion-authd/ROADMAP.md §2 | 3–5 дней |
 | 4 | **Гейт T2–T6**: T2-а TTL флага authd (probe-цикл 30с), T3 CM_UPDATE_SESSION живьём (kill клиента в мире), T4 стабильность (5 логинов, 2 клиента), T5 паритет 42b-фолбэка, T6 финализация+tag | aion-gate/README §T2/T3 | дни |
 | 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах | TELEMETRY-SPEC §2 | полдня |
-| 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | LOGD-STATUS-SNAPSHOT | 1 день |
-| 7 | op Phase 1.5: событийный watchdog (ночной рестарт пары = тумблер юзера), async-ожидания маркеров | TRACK-A-PLAN.md | 1–2 дня |
+| 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | aion-logd/SNAPSHOT.md | 1 день |
+| 7 | op Phase 1.5: событийный watchdog (ночной рестарт пары = тумблер юзера), async-ожидания маркеров | aion-op/ROADMAP.md | 1–2 дня |
 | 8 | Ghidra-патчи: матчмейкер #108 (JZ→JNZ), манастоны #111 (перенос в копию #180) — только в MainServer_backup-копии | fixes-pending/ | дни, стенд |
 | 9 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr (~600k блоков/сессия → ночной рестарт), RESOURCE_SEMAPHORE | docs/app-architecture.md §7 | пассивно |
 | 10 | Уборка: тестовые probe-акки probetest1-14 в AionAccounts (мусор от probe, uid ~1007-1018) — удалить по «го» | VM SQL | 5 мин |
@@ -76,7 +76,7 @@
 | Хаб nextgen (стек-таблица + стандарты) | nextgen/README.md |
 | Код переписей | nextgen/<svc>/ + прод `D:\SAION\<svc>\` (dev-наборы `D:\SAION\<svc>-dev\`) |
 | Оператор | nextgen/aion-op/; прод `C:\aionop\` (UI 0.0.0.0:10200; из песочницы — только через ssh-туннель) |
-| Ресёрч | nextgen/{LOGD-REWRITE-ANALYSIS, CAPTCHA-RECON/PROTOCOL, AUTHD-RESEARCH, ACCOUNTCACHE-RESEARCH, CACHE-RESEARCH}.md + docs/*.md |
+| Компонентные доки | nextgen/<comp>/ (README/RESEARCH/ROADMAP/PROMPT/SNAPSHOT/docs — self-contained); общие доки в docs/ |
 | Референс-сурсы | nextgen/{authd-ref,cached-ref,accountcache-ref}/README.md; эталоны: `STELGEN/projects/aion_server_2026-10-02/reference/` (Mobius 7.7, beyond-aion 4.8) |
 | PDB/бинари | VM `D:\AION_LIVE_SERVER\`; локально `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/`; манифесты nextgen/manifest-*.md |
 | Capture-дампы | VM C:\Temp\*, C:\logd-capture\; локально ~/STELGEN/tmp/ |

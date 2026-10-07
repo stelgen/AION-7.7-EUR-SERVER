@@ -1,4 +1,4 @@
-# CACHE-RESEARCH: CacheD64 (Aion CacheServer64 7.7) — ресёрч и план MVP
+# RESEARCH aion-cache — CacheD64 (Aion CacheServer64 7.7) — ресёрч и план MVP
 
 Дата: 08.10.2026. Статус: R0-разведка ЗАВЕРШЕНА. Прод не тронут.
 
@@ -29,7 +29,7 @@ DSN-набор на VM: `aionworld_new.dsn` → (local)\_AionWorldNew114_rc; `L2
 - **`CacheD64.pdb` 106 377 216 B, MD5 `979ae355d1fda7fb666e9cd6a05a7adc`** — полная символика, лежала рядом с exe
 - `CacheD64.map` 10 173 037 B, MD5 `022066814de26ffb7b417a80163e4d72`
 - Локально: `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/pdb-big/CacheD64/CacheServer/` (exe+pdb+map+конфиги+лог-сэмплы+log/ 356МБ)
-- **pdbpub: 14 281 публичных символа** (ACS было 8035) → `nextgen/cached-ref/pdb-publics-14281.txt`
+- **pdbpub: 14 281 публичных символа** (ACS было 8035) → `../cached-ref/pdb-publics-14281.txt`
 - Framework тот же, что ACS: `..\..\Shared\IoCompletion.cpp` / `Main.cpp ListenThread`, deadlock-dumper («Intentional exception») в `AIONErr.txt` — 4 краша 04-05.10 (AV @+0x18c31f) = это ДАМПЕР дедлоков IOThread, не баг (audit-linked-loopback-20261005.md).
 
 ## 4. Класс-карта (из publics, `cached-ref/class-counts.txt` / `cached-rpc-map.md`)
@@ -79,7 +79,7 @@ RPC-направления (глобальные функции, стилист�
 ## 7. Публичный передний край (web-ресёрч)
 
 - **Ноль публичных реализаций/портов Aion CacheD64**: github пуст (CacheD64/l2cached/aionworld — ложные совпадения), L2J вообще не имеет CacheD-слоя.
-- RageZone: 5.8 PTS leak тред (402 реплая), «Aion 7.7 C++ server files» 1205286 (PTS-бинари с PDB, ссылки под логином), 4.6 PTS треды, AKllX cracked matchmaking 4.6. HTML-копии тредов 1197401/1205208/1205286(p1-7)/1211744 + mmo-dev cached-тред сохранены в `nextgen/cached-ref/ragezone/`.
+- RageZone: 5.8 PTS leak тред (402 реплая), «Aion 7.7 C++ server files» 1205286 (PTS-бинари с PDB, ссылки под логином), 4.6 PTS треды, AKllX cracked matchmaking 4.6. HTML-копии тредов 1197401/1205208/1205286(p1-7)/1211744 + mmo-dev cached-тред сохранены в `../cached-ref/ragezone/`.
 - mmo-dev: настройки conn CacheD/L2AuthD в **реестре** (PROJECT_L2/NCSoft) — PTS-паттерн; наш CacheD64 хранит connStr аналогично (как ACS: Load/SaveConnStrToReg).
 - L2-референс: **L2 CacheD MasterToma C1** (локально `~/STELGEN/tmp/authd-research/artifacts/l2_c1/l2_c1/CacheD`, 692 файла): `src/{model(CUser/CItem/CPledge/CTransaction/CWarehouse...),network(CServerSocket/CNpcDbSocket/CCacheDServer/CAdminServer),threads,config,data}`, `reversed/Cached.h` 6504 строки IDA-типлибы, `generated/Cached.c`, RPC **без крипты** (DummyCrypt), handler-таблицы. Это архитектурный образец, НЕ паритет.
 - Вывод: **мы идём первыми** — методика authd/ACS (fork-proxy capture + pdbpub + дизasm + Go) уже отработана 4 раза.
@@ -89,7 +89,7 @@ RPC-направления (глобальные функции, стилист�
 - **R0 ✅ (этот чат)**: артефакты сняты, словари вскрыты, DB-контракт посчитан.
 - **R1 capture**: wire 2006 НЕ трогая мир — `pktmon` на VM (filter port 2006 → pcapng → парс офлайн). Фрейминг ожидается `[u16 len][u16 opcode]` (как 2110/2220). Плюс анализ готовых логов `CacheServer/log/*.log` (171 файл, 356МБ — там RPC-строки с параметрами!).
 - **R2 дизasm**: dispatch-таблица ServerToDb по opcode + фрейминг; objdump + map (метод AuthGateD).
-- **R3 `nextgen/aion-cache` (Go)**: wire 2006 + MapStore RAM-моделей (User/Item/Guild/...) + DB-слой (тела 781 procs снять в гит) + Admin-канал + Log-клиент 2051 + IC-клиент 2305.
+- **R3 `aion-cache` (Go)**: wire 2006 + MapStore RAM-моделей (User/Item/Guild/...) + DB-слой (тела 781 procs снять в гит) + Admin-канал + Log-клиент 2051 + IC-клиент 2305.
 - **R4 A/B**: второй инстанс на копии порта + pktmon-сверка трафика.
 - **R5 свитч по «го»**: common.xml cacheServerPort / правка конфига Server64; откат — вернуть конфиг.
 - **R6 наблюдение**: abyss-цикл 60с, логины, трейд/аукцион.
@@ -136,6 +136,6 @@ m_key += m_packetSize;                             // ключ двигаетс�
 
 ## 11. Артефакты
 
-- `nextgen/cached-ref/` — publics, rpc-map, словари, procs-списки, strings, ragezone/mmo-dev HTML
+- `../cached-ref/` — publics, rpc-map, словари, procs-списки, strings, ragezone/mmo-dev HTML
 - `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/pdb-big/CacheD64/` — exe+pdb+map+конфиги+log (вне гита, 140МБ)
 - Обновить `manifest-bin.md`: добавить CacheD64 строки.

@@ -6,7 +6,7 @@
 Цель: замена NC `L2Authd.exe` (1,198,592 Б): **2110** (serverExPort — наш aion-gate),
 конфиг `etc\config.txt`, БД `AionAccounts` (L2Conn.dsn). Порты 2104/2108/10062/2220 — вне MVP.
 
-## Статус фаз (AUTHD-ROADMAP)
+## Статус фаз (ROADMAP.md)
 
 | Фаза | Статус |
 |---|---|
@@ -67,6 +67,21 @@ go build -o aion-authd-linux . && ./aion-authd-linux -config config.yaml        
 type=3 = 52Б `[accId][token Rnd][8×0][2000][unk1 Rnd][28×0]`; type=4 = 26Б `[04]+[010101][ip][port 7777]…`;
 type=7 = 9Б `[07]+[pk1][pk2][serverID]`; fail type=1 = 1Б кода + `[01][sid]` после.
 Ориг отвечает SYSTEM_ERROR(20) на login пока мир не собран (8 conns на :2002) и пока жив PA.
+
+## 📦 Артефакты
+
+| Что | Где |
+|---|---|
+| Код/конфиг-пример | этот каталог (internal/{wire,logic,server,store,ship,config}; проверка через `../aion-gate/cmd/probe`) |
+| Доки wire/сессии | docs/authd-wire-20261007.md, docs/session-20261007-authd-mvp.md, docs/auth-server-internals.md (общий референс авторизации) |
+| Ресёрч/план/промпт | RESEARCH.md, ROADMAP.md, PROMPT.md |
+| Референсы-сурсы | ../authd-ref/ (README-индекс) |
+| Прод: exe+конфиги+логи | VM `D:\SAION\aion-authd\` (aion-authd.exe, forkauthd.exe, config-shadow.yaml, shadow.cmd, fork.cmd, *.log) |
+| Креды/доступы | VM `D:\SAION\creds\` (CREDS.md) |
+
+## 📜 Логи
+
+Стандарт S3: fork-лог `D:\SAION\aion-authd\fork-authd.log` (C>/O>/N> + VERDICT), тень пишет shadow.log; run.cmd редирект `>> ... 2>&1` (паники видно); ship по [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
 
 ## ⚠ Перед R6 (свитч) — блокеры
 

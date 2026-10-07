@@ -1,7 +1,7 @@
 # aion-logd — замена LogServer64 (В БОЮ на проде, Л1–Л4 закрыты)
 
-Один Go-исходник → `GOOS=windows/linux`. Анализ протокола: [../LOGD-REWRITE-ANALYSIS.md](../LOGD-REWRITE-ANALYSIS.md).
-Статус-снимок: [../LOGD-STATUS-SNAPSHOT.md](../LOGD-STATUS-SNAPSHOT.md). Стандарт телеметрии: [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
+Один Go-исходник → `GOOS=windows/linux`. Анализ протокола: [../LOGD-REWRITE-ANALYSIS.md](RESEARCH.md).
+Статус-снимок: [../LOGD-STATUS-SNAPSHOT.md](SNAPSHOT.md). Стандарт телеметрии: [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
 
 ## Статус: ПРОД (замена штатная) + Л1–Л4 (05.10.2026)
 
@@ -39,6 +39,7 @@ GOOS=windows GOARCH=amd64 go build -o aion-logd.exe .        # кросс-сбо
 | Логи/дампы | `D:\SAION\aion-logd\logs\` (status CSV per-day svc301/302/309, io-дамп rx/tx, capture.raw, badstatus.raw — всё с таймстампами) |
 | Dev-набор | `D:\SAION\aion-logd-dev\` (src/bin/scripts/artifacts + README-BUILD.txt) — всё для финальной компиляции |
 | Откат на оригинал | `taskkill /F /IM aion-logd.exe` + `schtasks /run /tn AionLog` (ориг LogServer64; common.xml на :2051 — возвращён) |
-| Секреты | SQL-пароль только в `config.yaml` на VM (в гит НЕ попадает) |
+| Секреты | SQL-пароль только в `config.yaml` на VM (в гит НЕ попадает); полный реестр доступов: `D:\SAION\creds\` (CREDS.md) |
+| Ресёрч/план/промпт | RESEARCH.md (анализ+протокол), SNAPSHOT.md (статус) — в этой папке |
 
 `D:\SAION\` = папка наших переписанных апок (следующие — туда же).

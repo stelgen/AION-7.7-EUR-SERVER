@@ -22,18 +22,18 @@
 | Элемент | Порт | NC-оригинал | Наш nextgen | Статус / % | Деплой / откат | Доки |
 |---|---|---|---|---|---|---|
 | **Гейт** (точка входа клиентов) | 2106 | `AuthGateD.exe` | [aion-gate/](aion-gate/) | ✅ **100% релиз** (f8912a9, exe `7c4dcab`) на проде с 06.10; полный живой флоу юзера; хвосты T2–T6 | `D:\SAION\aion-gate\`, задача AionGate; откат: `mode: fork` → ориг 2109, exe `.bak-*` | [README](aion-gate/README.md), [архитектура](aion-gate/docs/architecture-aion-gate-20261007.md) |
-| **Логгер** | 2051 | `LogServer64.exe` | [aion-logd/](aion-logd/) | ✅ **~95% в бою** 05.10 (Л1–Л4 закрыты); pending: REF58-процы + ship-приёмник | `D:\SAION\aion-logd\`, задача AionLogCap; откат: `schtasks /run AionLog` | [README](aion-logd/README.md), [snapshot](LOGD-STATUS-SNAPSHOT.md) |
-| **Капча** | 22206 | `CAPTCHAImageServer.exe` | [aion-captcha/](aion-captcha/) | ✅ **~95% в бою** 05.10 (буфер 10000 за ~4с vs 6.4 мин ориг); pending: ship-приёмник | `D:\SAION\aion-captcha\`, задача AionCAPTCHA → run.cmd; откат: retarget задачи | [README](aion-captcha/README.md), [snapshot](CAPTCHA-STATUS-SNAPSHOT.md) |
-| **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | 🟡 **~75%**: MVP R1–R4 готов; **fork-стенд жив на проде** (тень паритетна по type=3/4/7/fail); R6-блокеры: канал 2104, procs AionAccounts, mssql-стор | shadow :2117 (AionAuthdShadow), fork :2116 (AionForkAuthd) — `D:\SAION\aion-authd\`; ориг = живой путь | [README](aion-authd/README.md), [ROADMAP](AUTHD-ROADMAP.md), [RESEARCH](AUTHD-RESEARCH.md) |
-| **Кэш аккаунтов (ACS)** | 2220 | `AccountCacheServer.exe` | [aion-accache/](aion-accache/) | 🟡 **~45%**: R0 (PDB 92МБ, 101 proc), R0.5 (dispatch-таблица), R2 (Go-каркас, тесты зелёные); **R1 capture = следующий чат** | НЕ деплоен (ориг жив); prod-ACS :2220 | [README](aion-accache/README.md), [ROADMAP](ACCOUNTCACHE-ROADMAP.md), [RESEARCH](ACCOUNTCACHE-RESEARCH.md) |
-| **Кэш мира (CacheD64)** | 2006/2007/2009 | `CacheD64.exe` (22.5МБ) | [aion-cache/](aion-cache/) | 🔬 **~15%**: R0-ресёрч ЗАКРЫТ 08.10 (PDB 106МБ, 14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, DB-контракт 781 procs; шанс ~85%); R1 = pktmon 2006 | НЕ тронут (ориг жив); 2–4 нед на MVP | [README](aion-cache/README.md), [RESEARCH](CACHE-RESEARCH.md), [cached-ref/](cached-ref/README.md) |
+| **Логгер** | 2051 | `LogServer64.exe` | [aion-logd/](aion-logd/) | ✅ **~95% в бою** 05.10 (Л1–Л4 закрыты); pending: REF58-процы + ship-приёмник | `D:\SAION\aion-logd\`, задача AionLogCap; откат: `schtasks /run AionLog` | [README](aion-logd/README.md), [snapshot](aion-logd/SNAPSHOT.md) |
+| **Капча** | 22206 | `CAPTCHAImageServer.exe` | [aion-captcha/](aion-captcha/) | ✅ **~95% в бою** 05.10 (буфер 10000 за ~4с vs 6.4 мин ориг); pending: ship-приёмник | `D:\SAION\aion-captcha\`, задача AionCAPTCHA → run.cmd; откат: retarget задачи | [README](aion-captcha/README.md), [snapshot](aion-captcha/SNAPSHOT.md) |
+| **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | 🟡 **~75%**: MVP R1–R4 готов; **fork-стенд жив на проде** (тень паритетна по type=3/4/7/fail); R6-блокеры: канал 2104, procs AionAccounts, mssql-стор | shadow :2117 (AionAuthdShadow), fork :2116 (AionForkAuthd) — `D:\SAION\aion-authd\`; ориг = живой путь | [README](aion-authd/README.md), [ROADMAP](aion-authd/ROADMAP.md), [RESEARCH](aion-authd/RESEARCH.md) |
+| **Кэш аккаунтов (ACS)** | 2220 | `AccountCacheServer.exe` | [aion-accache/](aion-accache/) | 🟡 **~45%**: R0 (PDB 92МБ, 101 proc), R0.5 (dispatch-таблица), R2 (Go-каркас, тесты зелёные); **R1 capture = следующий чат** | НЕ деплоен (ориг жив); prod-ACS :2220 | [README](aion-accache/README.md), [ROADMAP](aion-accache/ROADMAP.md), [RESEARCH](aion-accache/RESEARCH.md) |
+| **Кэш мира (CacheD64)** | 2006/2007/2009 | `CacheD64.exe` (22.5МБ) | [aion-cache/](aion-cache/) | 🔬 **~15%**: R0-ресёрч ЗАКРЫТ 08.10 (PDB 106МБ, 14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, DB-контракт 781 procs; шанс ~85%); R1 = pktmon 2006 | НЕ тронут (ориг жив); 2–4 нед на MVP | [README](aion-cache/README.md), [RESEARCH](aion-cache/RESEARCH.md), [cached-ref/](cached-ref/README.md) |
 | **Interchange** | 2005/2305 | `ICServer.exe` | — | ⬜ не начат, низкий приоритет (PDB 104МБ на VM); лупер «Can't connect to Interchange» безвреден | ориг работает | [README](aion-ic/README.md) |
 | **Чат** | 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ⬜ не начат, низший (exe нет — реконструкция) | не запускать | [README](aion-chat/README.md) |
 | **Петиции** | 2107 | Petition (.NET) | [aion-petition/](aion-petition/) | ⬜ не начат, низший (exe нет; БД PetitionDB есть) | не запускать | [README](aion-petition/README.md) |
 | **Магазин** | 10100 | ShopAgent (.NET) | [aion-shopagent/](aion-shopagent/) | ⬜ не начат, низший (exe нет; бизнес-вопрос юзеру) | не запускать | [README](aion-shopagent/README.md) |
 | **GM-панель** | — | GMServer-семейство | [aion-gm/](aion-gm/) | ⬜ вероятно НЕ нужен (GM = builder в SQL; op+SQL покрывают 90%); старт = вопрос юзеру | — | [README](aion-gm/README.md) |
 | **Патчи мира** | — | Server64+NPCSvr64 (Ghidra, метод #180) | [aion-binpatch/](aion-binpatch/) | ⬜ НЕ переписываем: точечные патчи — #180 ✅ (уже в бинаре), #108/#111/silence = планы готовы (стенд) | fixes-pending/ | [README](aion-binpatch/README.md) |
-| **Оператор** | 10200 | — | [aion-op/](aion-op/) | ✅ **Phase 1 в бою**: управляет стеком (start/stop/restart/restart_pair), группы fork, kick-задачи, SQL/CCU-вкладки, алерты; Phase 1.5 = не начата | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [TRACK-A-PLAN.md](TRACK-A-PLAN.md), [DEPLOY](aion-op/DEPLOY.md) |
+| **Оператор** | 10200 | — | [aion-op/](aion-op/) | ✅ **Phase 1 в бою**: управляет стеком (start/stop/restart/restart_pair), группы fork, kick-задачи, SQL/CCU-вкладки, алерты; Phase 1.5 = не начата | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [aion-op/ROADMAP.md](aion-op/ROADMAP.md), [DEPLOY](aion-op/DEPLOY.md) |
 | **PortalAuth (PA)** | 10057 | `01-PAServer7.7.exe` | НЕ переписываем | ✅ **ОБЯЗАТЕЛЕН** (ориг, задача AionPA, старт ДО authd): без PA ориг отклоняет ЛЮБОЙ логин SYSTEM_ERROR(20) молча — доказано 07.10 (старое «SKIP НАВСЕГДА» = НЕВЕРНО, исправлено в доках) | op-кнопка `pa` | [pa-research](../docs/pa-research-20261006.md) |
 | **Мир: NPC + Server64** | 7777/2002 | `NPCSvr64.exe` + `Server64.exe` | НЕ переписываем (Ghidra+PDB точечные патчи, метод #180) | ✅ ориг в бою; NPC грузится 10–15 мин, утечка RAM → ночной рестарт пары | AION-START-ALL-v6.bat; пары только вместе | [fixes-pending/](../fixes-pending/README.md) |
 | **Fork-proxy (инструмент)** | любой | — | [fork-proxy/](fork-proxy/README.md) | ✅ живой: первый форк гейта 2106→2109; эволюция = forkauthd в aion-authd | по схеме FORK-SPEC | [README](fork-proxy/README.md) |
@@ -83,7 +83,7 @@
 
 ## 6. ДАЛЬНЕЙШИЙ ПОРЯДОК (сводка; детали = [ROADMAP.md](ROADMAP.md))
 
-1. **aion-accache R1** — capture-стенд :2220 (копия ACS :2221 + fork-proxy) при логинах юзера → payload-раскладки + ACP-номера → R3 SQLStore → R4 A/B → R5 свитч. Промпт готов: [PROMPT-ACCACHE.md](PROMPT-ACCACHE.md).
+1. **aion-accache R1** — capture-стенд :2220 (копия ACS :2221 + fork-proxy) при логинах юзера → payload-раскладки + ACP-номера → R3 SQLStore → R4 A/B → R5 свитч. Промпт готов: [aion-accache/PROMPT.md](aion-accache/PROMPT.md).
 2. **aion-cache (CacheD64) R1** — pktmon 2006 (НЕ трогая мир) + разбор готовых log/*.log (356МБ готового материала) → R2 дизasm → R3 Go MVP (read-путь + write-транзит). Папка-заготовка: [aion-cache/](aion-cache/README.md) (промпт внутри).
 3. **aion-authd R6-блокеры** — R0 (procs AionAccounts sp_helptext), роль 2104 (Server64-канал — дизasm), mssql-стор, арбитраж fork-лога по sid+type (гонка N-ONLY) → потом переключение живого пути на наш.
 4. **aion-gate T2–T6** — TTL флага authd, CM_UPDATE_SESSION живьём, стабильность (5 логинов/2 клиента), финализация+tag.
@@ -106,27 +106,29 @@ nextgen/
 ├── FORK-SPEC.md         ← S4 fork A/B методология
 ├── README-TEMPLATE.md   ← S1 шаблон README подпроекта
 ├── CREDS.md             ← S6 политика кредов (значения — только на VM)
-├── aion-op/             ← оператор (Трек A) ✅ прод
-├── aion-logd/           ← замена LogServer64 ✅ прод
-├── aion-captcha/        ← замена CAPTCHAImageServer ✅ прод
-├── aion-gate/           ← замена AuthGateD ✅ прод (доки/docs/, инструменты cmd/)
-├── aion-authd/          ← замена L2Authd 🟡 (тень на 2117, fork 2116)
-├── aion-accache/        ← замена AccountCacheServer 🟡 (каркас)
-├── aion-cache/          ← ЗАГОТОВКА: замена CacheD64 🔬 (R0 ресёрч готов; README+ROADMAP+PROMPT)
-├── aion-ic/             ← ЗАГОТОВКА: замена ICServer ⬜ (низкий приоритет)
-├── aion-chat/           ← ЗАГОТОВКА: ChannelChat ⬜ (низший)
-├── aion-petition/       ← ЗАГОТОВКА: Petition ⬜ (низший)
-├── aion-shopagent/      ← ЗАГОТОВКА: ShopAgent ⬜ (низший; бизнес-вопрос юзеру)
-├── aion-gm/             ← ЗАГОТОВКА: GM-панель ⬜ (вероятно не нужен; старт = вопрос юзеру)
-├── aion-binpatch/       ← ЗАГОТОВКА: Ghidra-патчи мира (#180 ✅, #108/#111/silence) ⬜
-├── fork-proxy/          ← fork-инструмент (прародитель forkauthd)
-├── authd-ref/           ← референс-сурсы authd (C1 декомпилы, схема БД)
-├── cached-ref/          ← референс-сурсы CacheD64 (L2 CacheD C1, RPC-карты)
-├── accountcache-ref/    ← референс-сурсы ACS (dispatch, procs, конфиги)
-├── *-RESEARCH.md        ← ресёрч-доки компонентов
-├── *-ROADMAP.md         ← фазовые планы компонентов
-├── PROMPT-*.md          ← копипаст-промпты чатов (открытые/АРХИВ)
+├── aion-op/             ← оператор (Трек A) ✅ прод (README+ROADMAP+DEPLOY+docs/)
+├── aion-logd/           ← замена LogServer64 ✅ прод (README+RESEARCH+SNAPSHOT+docs/)
+├── aion-captcha/        ← замена CAPTCHAImageServer ✅ прод (README+SNAPSHOT+PROMPT-ARCHIVE+docs/)
+├── aion-gate/           ← замена AuthGateD ✅ релиз (README+cmd/+deploy/+docs/ = архитектура+архивы PROMPT)
+├── aion-authd/          ← замена L2Authd 🟡 (README+RESEARCH+ROADMAP+PROMPT+docs/)
+├── aion-accache/        ← замена AccountCacheServer 🟡 (README+RESEARCH+ROADMAP+PROMPT)
+├── aion-cache/          ← ЗАГОТОВКА CacheD64 🔬 (README+RESEARCH+ROADMAP+PROMPT)
+├── aion-ic/             ← ЗАГОТОВКА ICServer ⬜ (README+ROADMAP+PROMPT)
+├── aion-chat/           ← ЗАГОТОВКА ChannelChat ⬜ низший (README+ROADMAP+PROMPT)
+├── aion-petition/       ← ЗАГОТОВКА Petition ⬜ низший (README+ROADMAP+PROMPT)
+├── aion-shopagent/      ← ЗАГОТОВКА ShopAgent ⬜ низший (README+ROADMAP+PROMPT)
+├── aion-gm/             ← ЗАГОТОВКА GM-панель ⬜ (README+ROADMAP+PROMPT+docs/ выдачи)
+├── aion-binpatch/       ← ЗАГОТОВКА Ghidra-патчи мира ⬜ (README+ROADMAP+PROMPT+docs/)
+├── fork-proxy/          ← fork-инструмент (README)
+├── authd-ref/           ← референс-сурсы authd (README-индекс + C1 декомпилы, схема БД)
+├── cached-ref/          ← референс-сурсы CacheD64 (README-индекс + L2 CacheD C1, RPC-карты)
+├── accountcache-ref/    ← референс-сурсы ACS (README-индекс + dispatch, procs, конфиги)
 └── manifest-*.md        ← MD5-манифесты PDB/бинарей (сами бинари в гит НЕ кладём)
+
+СИММЕТРИЯ-КОНТРАКТ: у каждого компонента = своя папка, внутри self-contained:
+README.md + ROADMAP.md (или SNAPSHOT.md/архитектура-док) + PROMPT.md (+ RESEARCH.md где есть,
++ docs/ для истории сессий/ресёрчей). В корне nextgen — ТОЛЬКО сквозные спеки/планы/манифесты.
+Архивные промпты лежат рядом с кодом своего компонента (docs/PROMPT-*.md / PROMPT-ARCHIVE.md).
 ```
 
 ## 8. ГИГИЕНА ДЛЯ АГЕНТОВ (как продолжать проект)

@@ -1,7 +1,7 @@
-# ACCOUNTCACHE-ROADMAP (aion-accache) — живой план
+# ROADMAP aion-accache — AccountCacheServer (Go) — живой план
 
-Обновлено: 07.10.2026. Факты/ресёрч: ACCOUNTCACHE-RESEARCH.md; артефакты: accountcache-ref/.
-Общие правила эксплуатации: nextgen/ROADMAP.md §4 (ssh-PowerShell готчи, «го» на прод-действия,
+Обновлено: 07.10.2026. Факты/ресёрч: RESEARCH.md; артефакты: accountcache-ref/.
+Общие правила эксплуатации: ../ROADMAP.md §4 (ssh-PowerShell готчи, «го» на прод-действия,
 бекапы, секреты не в гит, TELEMETRY-SPEC).
 
 ## Прогресс
@@ -25,7 +25,7 @@
 2. Capture-сценарий: юзер логинится ×N (Server64 сам наливает чар-флоу: FIRST_LOAD/CHAR_LOGIN/SAVE_CUSTOM/LUNA).
 3. Разбор: payload-раскладка per-cmd (арбитр = PDB-сигнатуры Decode*), ACP-номера (vtable SendIOBuffer),
    T2-канал (кто второй клиент: возможен отдельный сокет того же Server64).
-4. Промпт: nextgen/PROMPT-ACCACHE.md.
+4. Промпт: PROMPT.md.
 
 ## Критерии готовности R4
 

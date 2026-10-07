@@ -1,6 +1,6 @@
 # cached-ref — референс-сурсы и артефакты ресёрча CacheD64 (порт 2006/2007/2009)
 
-> Ресёрч: [../CACHE-RESEARCH.md](../CACHE-RESEARCH.md) (R0 закрыт 08.10, шанс ~85%). Цель: `aion-cache` (план) — RAM-кэш мира, единственный ODBC-писатель в `_AionWorldNew114_rc`.
+> Ресёрч: [aion-cache/RESEARCH.md](../aion-cache/RESEARCH.md) (R0 закрыт 08.10, шанс ~85%). Цель: `aion-cache` (план) — RAM-кэш мира, единственный ODBC-писатель в `_AionWorldNew114_rc`.
 > Самый большой компонент трека B: ~590 RPC-команд (8× ACS) — MVP = read-путь (char login/item load) + write-транзит в SQL.
 
 | Файл/каталог | Что это |

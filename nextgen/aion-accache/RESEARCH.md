@@ -59,7 +59,7 @@ GMServer (GM_* procs, GQ/GP)
 
 Полный словарь из strings exe (UTF-16): **ACQ_* = запросы к ACS, ACP_* = ответы/пуши ACS.**
 Имена = enum-опкоды (есть `ACQ_MAX`/`ACP_MAX` → дискретная таблица диспетча). 71 команда.
-Файл: `nextgen/accountcache-ref/rpc-opcodes-58.txt`. Ключевые:
+Файл: `../accountcache-ref/rpc-opcodes-58.txt`. Ключевые:
 
 - Handshake: `ACQ_VERSION_PACKET` → `ACP_VERSION_RESPONE`
 - Логин-флоу: `ACQ_FIRST_LOAD_ACCOUNT_INFO` → `ACP_FIRST_LOAD_ACCOUNT_INFO` (+ `ACP_REQUEST_USER_INFO`)
@@ -79,7 +79,7 @@ GMServer (GM_* procs, GQ/GP)
 
 ## 5. БД AionAccountCacheD (эталон 5.8)
 
-Полный список процедур: `nextgen/accountcache-ref/db-procs-58.txt` (UTF-16 → открыть в utf-16).
+Полный список процедур: `../accountcache-ref/db-procs-58.txt` (UTF-16 → открыть в utf-16).
 Сигнатуры-версии: `_20120703 / _20121206 / _20160303 / _20170428` — миграции по релизам.
 Ядро: `aion_Get/SetAccountData(_20151117/_20170428)`, `aion_SetCreateUser_20160303`,
 `aion_SetLogin/LogoutUser_20121206`, `aion_SetUserInfo_20160303`,
@@ -100,7 +100,7 @@ GMServer (GM_* procs, GQ/GP)
   — архитектурный референс семейства, НЕ протокольный паритет.
 - AION-эмуляторы (beyond-aion, Mobius, AionLightning) — Java/GS-стек, ACS не реализуют.
 
-## 7. Артефакты (в гит: nextgen/accountcache-ref/)
+## 7. Артефакты (в гит: ../accountcache-ref/)
 
 - `config.xml` — полный конфиг 5.8 (serverPort 2220, mailServer, DSN-примеры, numberOfDBThreads=10)
 - `AccountCacheServer.common` / `.config` — снятые с нашей VM 7.7 (country=7, serverTitle «AION ACS»)

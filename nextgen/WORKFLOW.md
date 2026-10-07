@@ -13,11 +13,11 @@
 | Имя (любое из) | NC-приложение | Папка | ROADMAP/PROMPT | Статус |
 |---|---|---|---|---|
 | gate / AuthGateD / 2106 | AuthGateD.exe | [aion-gate/](aion-gate/) | docs/ + README §T2-T6 | ✅ релиз (хвосты T2–T6) |
-| logd / LogServer / 2051 | LogServer64.exe | [aion-logd/](aion-logd/) | LOGD-STATUS-SNAPSHOT.md | ✅ в бою (~95%) |
-| captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | CAPTCHA-STATUS-SNAPSHOT.md | ✅ в бою (~95%) |
-| op / оператор / 10200 | — | [aion-op/](aion-op/) | TRACK-A-PLAN.md | ✅ Phase 1 (1.5 не начата) |
-| authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | AUTHD-ROADMAP.md / PROMPT-AUTHD.md | 🟡 MVP+тень (R6-блокеры) |
-| accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | ACCOUNTCACHE-ROADMAP.md / PROMPT-ACCACHE.md | 🟡 каркас (R1 capture) |
+| logd / LogServer / 2051 | LogServer64.exe | [aion-logd/](aion-logd/) | aion-logd/SNAPSHOT.md | ✅ в бою (~95%) |
+| captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | aion-captcha/SNAPSHOT.md | ✅ в бою (~95%) |
+| op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | ✅ Phase 1 (1.5 не начата) |
+| authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | 🟡 MVP+тень (R6-блокеры) |
+| accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | 🟡 каркас (R1 capture) |
 | cache / CacheD64 / 2006 | CacheD64.exe | [aion-cache/](aion-cache/) | ROADMAP.md / PROMPT.md | 🔬 R0 закрыт, кода нет |
 | ic / ICServer / 2005/2305 | ICServer.exe | [aion-ic/](aion-ic/) | ROADMAP.md / PROMPT.md | ⬜ не начат |
 | chat / ChannelChat / 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ROADMAP.md / PROMPT.md | ⬜ не начат (низший) |
@@ -37,6 +37,7 @@
 3. **Работа**: по следующему шагу ROADMAP/PROMPT компонента. Не по шаблону «спроси что делать» — план уже лежит в доках.
 4. **Блокер** → 1) вариант обхода (сорс-эталон → дизasm → capture → конфиг), 2) фикс обхода в ROADMAP, 3) только если хода нет физически — вопрос юзеру (с 2–3 вариантами и своим выбором).
 5. **Незнакомый компонент** (нет папки) → создать по шаблону (README + ROADMAP + PROMPT), страницу памяти, строчку в реестр §1 — потом работать.
+6. **Симметрия-контракт** (проверять в конце каждого чата): (а) у КАЖДОГО компонента есть страница памяти `STELGEN/projects/aion_server_2026-10-02/<имя>` — при первом касании создать заглушку; (б) в папке компонента self-contained: README + ROADMAP (или SNAPSHOT/архитектура-док) + PROMPT (+RESEARCH где есть, +docs/); (в) в корне nextgen — ТОЛЬКО сквозные спеки/планы/манифесты; (г) архивные промпты лежат в папке своего компонента (docs/PROMPT-*.md / PROMPT-ARCHIVE.md), НЕ в корне; (д) ссылки после переносов проверяются скриптом битых линков — 0 битых перед пушем.
 
 ## 3. ПУЛЬС КАЖДОГО СООБЩЕНИЯ (контекст не теряется)
 

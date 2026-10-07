@@ -1,6 +1,6 @@
 # accountcache-ref — референс-сурсы и артефакты ресёрча AccountCacheServer (:2220)
 
-> Ресёрч: [../ACCOUNTCACHE-RESEARCH.md](../ACCOUNTCACHE-RESEARCH.md) (~92%). Код: [../aion-accache/](../aion-accache/). План: [../ACCOUNTCACHE-ROADMAP.md](../ACCOUNTCACHE-ROADMAP.md) (R1 capture = следующий).
+> Ресёрч: [aion-accache/RESEARCH.md](../aion-accache/RESEARCH.md) (~92%). Код: [../aion-accache/](../aion-accache/). План: [aion-accache/ROADMAP.md](../aion-accache/ROADMAP.md) (R1 capture = следующий).
 
 | Файл | Что это |
 |---|---|

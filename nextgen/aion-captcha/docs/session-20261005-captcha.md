@@ -1,11 +1,11 @@
 # 🧵 Сессия 05.10.2026 — замена CAPTCHAImageServer → aion-captcha (Трек B, шаг 2)
 
 > Прод-замена ВЫПОЛНЕНА И ВЕРИФИЦИРОВАНА. Коммиты: `3bfe87d` (recon) → `297b716` (протокол) →
-> `179a808` (код) → см. git log. Статус-снимок: nextgen/CAPTCHA-STATUS-SNAPSHOT.md.
+> `179a808` (код) → см. git log. Статус-снимок: ../SNAPSHOT.md.
 
 ## Хронология
 
-1. **Разведка read-only** (док docs/captcha-recon-20261005.md): единственный клиент :22206 = Server64
+1. **Разведка read-only** (док ./captcha-recon-20261005.md): единственный клиент :22206 = Server64
    (постоянная сессия); authd/gate чисты; XML-генератор капчи раскрыт (6 цифр, dds/dxt1 128×32);
    Server64 ретраит и переподключается сам — замена безопасна; конфиг капчи в common.xml L37-40
    (useCaptcha=true, buffer 10000, addr 127.0.0.1:22206); aion-op задача AionCAPTCHA.
@@ -13,11 +13,11 @@
    mirror-прокси capmirror.exe (Go, C2S/S2C hexdump). Server64 переподключился сам. Снято:
    101×1 + 1001×10000 → 102×1 + 1002×10000 (0 bad). Реставрация: /run AionCAPTCHA → оригинал PID 1940,
    Server64 reconnected. Дамп 77МБ (conn-1.hex) в песочницу + на VM.
-3. **Протокол закрыт** (док docs/captcha-protocol-20261005.md): фрейм [u16 len][u16 type], seq пер-тип;
+3. **Протокол закрыт** (док ./captcha-protocol-20261005.md): фрейм [u16 len][u16 type], seq пер-тип;
    handshake 101/102; запрос 1001 (18Б); ответ 1002 (2212Б: DDS+DXT1+текст). Секрет: Server64 наливает
    буфер 10000 капч после каждого reconnect (26/с), потом тишина; при логине — из буфера. Валидация в
    Server64 по тексту из 1002. Rate оригинала 26/с (38мс/картинку GDI+).
-4. **Реализация** nextgen/aion-captcha (Go): proto/render(DXT1)/server/config/ship(из logd). Тесты
+4. **Реализация** aion-captcha (Go): proto/render(DXT1)/server/config/ship(из logd). Тесты
    зелёные на fixture. Локальный smoke: 10000 запросов за 4.14с = 2415/с (92× быстрее оригинала).
 5. **Деплой-свитч по «го»**: D:\SAION\aion-captcha\ (exe MD5 5394aab1 + config.yaml verbose=true +
    run.cmd); оригинал убит через одноразовую SYSTEM-задачу taskkill (schtasks /end не убивает

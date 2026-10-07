@@ -1,7 +1,7 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
 Каркас R2 готов (07.10.2026): фрейминг + dispatch + RAM-кэш + db-интерфейс — **без capture**.
-Статус трека: nextgen/ACCOUNTCACHE-ROADMAP.md. Факты: nextgen/ACCOUNTCACHE-RESEARCH.md (§9-10).
+Статус трека: nextgen/ACCOUNTCACHE-ROADMAP.md. Факты: RESEARCH.md (§9-10).
 
 ## Канон (доказано дизasmом, не догадки)
 
@@ -40,6 +40,20 @@ server e2e: FIRST_LOAD → 5×int-ответ, unknown → дроп, bad-marker �
 | R3 | SQLStore (go-mssqldb) + полный хендлер-набор по proc-телам |
 | R4 | A/B fork-прогон, diff байт-в-байт с оригом |
 | R5 | свитч по «го» (откат = retarget задачи AionAcc) |
+
+## 📦 Артефакты
+
+| Что | Где |
+|---|---|
+| Код/конфиг-пример | этот каталог (internal/{proto,dispatch,cache,db,server,ship}) |
+| Ресёрч/план/промпт | RESEARCH.md, ROADMAP.md, PROMPT.md |
+| Референсы (dispatch/procs/конфиги) | ../accountcache-ref/ (README-индекс) |
+| PDB/бинари ориг | VM `D:\AION_LIVE_SERVER\AccountCacheServer\`; локально `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/pdb-big/AccountCacheServer/` |
+| Креды/доступы | VM `D:\SAION\creds\` (CREDS.md) |
+
+## 📜 Логи
+
+Стандарт S3 (raw-first, io-дампы, parse.err+raw) — см. [../LOGGING-SPEC.md](../LOGGING-SPEC.md); ship-маркировка «aion-accache 2220».
 
 ## Готчи
 

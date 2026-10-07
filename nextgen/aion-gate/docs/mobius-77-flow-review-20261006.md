@@ -79,7 +79,7 @@ build26ReplyPt: [07][1][1010][1] фиксированные. В relay-контр
 - e=65537 / ScrambleModulusServer / DecryptSecondary-до-SplitLogin / relay prepend-типа — доказаны.
 - Классический SM_INIT (pt 176 vs 4.8-192) — только как конфиг-флаг classic-режима.
 
-## 4. ПЛАН ЗАКРЫТИЯ ФЛОУ (Фаза 1, промпт в nextgen/PROMPT-AUTHGATE-FLOW.md)
+## 4. ПЛАН ЗАКРЫТИЯ ФЛОУ (Фаза 1, промпт в ./PROMPT-AUTHGATE-FLOW.md)
 
 | # | Правка | Файл | Приоритет |
 |---|---|---|---|

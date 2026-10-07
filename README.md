@@ -257,8 +257,8 @@ scripts\start-server.bat   (десктопный AION-START-SERVER.bat — то 
 | [docs/fields.md](docs/fields.md) | Все поля всех диалогов + launcher.config клиента |
 | [docs/errors.md](docs/errors.md) | Ошибка → причина → фикс |
 | [docs/server-internals.md](docs/server-internals.md) | **Как работает сервер**: кто к кому обращается, порты, конфиги, заглушки, что не копали |
-| [docs/findings-log.md](docs/findings-log.md) | **Журнал расследования логина**: патчи AuthGateD p1–p5 (что сломалось и почему), протокол (RSA+блочный шифр), теория клиентов, 5 путей решения |
-| [docs/auth-server-internals.md](docs/auth-server-internals.md) | **Сервер авторизации детально**: схема, процедуры БД с сигнатурами, таблицы, где какая логика, шансы решений |
+| [nextgen/aion-gate/docs/findings-log.md](nextgen/aion-gate/docs/findings-log.md) | **Журнал расследования логина**: патчи AuthGateD p1–p5 (что сломалось и почему), протокол (RSA+блочный шифр), теория клиентов, 5 путей решения |
+| [nextgen/aion-authd/docs/auth-server-internals.md](nextgen/aion-authd/docs/auth-server-internals.md) | **Сервер авторизации детально**: схема, процедуры БД с сигнатурами, таблицы, где какая логика, шансы решений |
 | [docs/pa-research-20261006.md](docs/pa-research-20261006.md) | **PA/PortalAuth ресёрч** (⚠ вердикт «СКИП» в нём ОТМЕНЁН 07.10: PA обязателен — SYSTEM_ERROR(20) без него; не переписываем, держим живым): что за бинарь, публичный эмулятор (python/docker), где искать PDB |
 | [docs/ports.md](docs/ports.md) / [docs/nat-ports.md](docs/nat-ports.md) | Карта портов / проброс за NAT |
 | [fixes-pending/](fixes-pending/README.md) | Очередь фиксов по папкам (каждый двигается отдельно) |

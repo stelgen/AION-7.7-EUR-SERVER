@@ -1,7 +1,7 @@
 # ГОТОВЫЙ ПРОМПТ для следующего чата (копипаст первым сообщением)
 
 AION aion-accache — ПРОДОЛЖЕНИЕ (прочитай память STELGEN/projects/aion_server_2026-10-02
-+ nextgen/ACCOUNTCACHE-ROADMAP.md + nextgen/ACCOUNTCACHE-RESEARCH.md + nextgen/aion-accache/README.md).
++ ROADMAP.md + RESEARCH.md + README.md).
 
 ГДЕ МЫ: каркас R2 готов и запушен (nextgen/aion-accache, Go: proto [u16 len-2][u16 cmd][0xEB][~cmd]
 лимит 0x2000/cmd≥0x6C reject; dispatch T1 cmds 0..39 (cmd 22 не занят) + T2 0-7; RAM-кэш;

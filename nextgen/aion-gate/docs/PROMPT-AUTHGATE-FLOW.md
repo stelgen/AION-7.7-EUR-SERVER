@@ -2,7 +2,7 @@
 
 # PROMPT — Фаза 1: закрытие флоу aion-gate по эталону Mobius_AionEmu 7.7
 
-> Скопировать целиком в новый чат. Ревью-док: nextgen/aion-gate/docs/mobius-77-flow-review-20261006.md (КОСЯКИ К-1..К-6 там).
+> Скопировать целиком в новый чат. Ревью-док: ./mobius-77-flow-review-20261006.md (КОСЯКИ К-1..К-6 там).
 
 ```text
 Проект: nextgen/aion-gate (Go) — замена AuthGateD для AION 7.7 EU leaked-стека.
@@ -14,7 +14,7 @@
   Эталон: java/com/aionemu/loginserver/network/** (LoginConnection, ncrypt/*, clientpackets/*,
   serverpackets/*, factories/AionPacketHandlerFactory.java, SessionKey.java, AionAuthResponse.java).
   Код эталона НЕ копировать — реализовывать в Go по ревью-доку
-  nextgen/aion-gate/docs/mobius-77-flow-review-20261006.md (там таблица сверок и 6 косяков К-1..К-6).
+  ./mobius-77-flow-review-20261006.md (там таблица сверок и 6 косяков К-1..К-6).
 
 ПРАВКИ (порядок P0→P2):
   P0-1 (К-1, КРИТИЧНО): internal/server/server.go handleLogin — relay-хвост при loginex.

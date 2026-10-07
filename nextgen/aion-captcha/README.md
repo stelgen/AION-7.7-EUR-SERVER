@@ -48,6 +48,15 @@ GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags '-s -w' -o aion-captch
 start/stop (uptime, счётчики), conn.up/conn.down (remote), `captcha` (каждый 100-й запрос +
 медленные >50мс: seq/text/ms), parse.err (raw капится), self (каждые 300с).
 
+## 📦 Артефакты
+
+| Что | Где |
+|---|---|
+| Код/конфиг/fixture | этот каталог (internal/{proto,render,server,ship}, testdata/) |
+| Статус/ресёрч/промпт-архив | SNAPSHOT.md, PROMPT-ARCHIVE.md, docs/ (recon/protocol/session) |
+| Прод | `D:\SAION\aion-captcha\` (exe+config.yaml+run.cmd) |
+| Креды/доступы | VM `D:\SAION\creds\` (CREDS.md) |
+
 ## Деплой (по «го»)
 
 1. `D:\SAION\aion-captcha\`: aion-captcha.exe + config.yaml + run.cmd.

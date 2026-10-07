@@ -1,6 +1,6 @@
 # authd-ref — референс-сурсы для aion-authd (замена L2Authd)
 
-> Реестр S1–S7 = [../AUTHD-ROADMAP.md](../AUTHD-ROADMAP.md) §1. Ресёрч: [../AUTHD-RESEARCH.md](../AUTHD-RESEARCH.md).
+> Реестр S1–S7 = [aion-authd/ROADMAP.md](../aion-authd/ROADMAP.md) §1. Ресёрч: [aion-authd/RESEARCH.md](../aion-authd/RESEARCH.md).
 > Приоритет источников при спорах: live-фреймы fork'а (S1) > сорс эталона (S5) > декомпил C1 (S2/S3) > дизasm PDB (S4).
 
 | Каталог/файл | Что это | Что берём |

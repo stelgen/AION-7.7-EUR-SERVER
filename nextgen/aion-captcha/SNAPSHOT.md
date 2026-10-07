@@ -63,7 +63,7 @@ schtasks /run /tn AionCAPTCHA
 
 ## АРТЕФАКТЫ
 
-- Репо: nextgen/aion-captcha/ (код+тесты+fixture), docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md
+- Репо: aion-captcha/ (код+тесты+fixture), docs/captcha-recon-20261005.md, docs/captcha-protocol-20261005.md
 - VM: D:\SAION\aion-captcha\ (exe+config.yaml+run.cmd+captcha.log), C:\Temp\captcha.bat (ориг. лаунчер), C:\Temp\capcap\conn-1.hex (capture 77МБ — можно удалить)
 - Локально: ~/STELGEN/tmp/aion-vm/captcha-capture/ (conn-1.hex 77МБ, dds-header.hex, full-1002-sample.txt),
   ~/STELGEN/tmp/aion-vm/capmirror/main.go (capture-прокси), fake_captcha_client.py
