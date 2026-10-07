@@ -3,7 +3,7 @@
 > **Последнее обновление: 08.10.2026.** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
 > Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
 > authd 🟡 MVP+shadow-паритет (fork 2116/shadow 2117 живы); accache 🟡 R2 каркас (R1 capture = следующий чат); CacheD64 🔬 R0 закрыт (R1 pktmon); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него — старое «SKIP» исправлено везде).
-> Следующие чаты: 1) accache R1 capture [PROMPT-ACCACHE.md] 2) cache R1 pktmon [PROMPT-CACHED.md] 3) authd R6-блокеры (R0 2104/procs/mssql/арбитр) 4) gate T2-T6.
+> Следующие чаты: 1) accache R1 capture [PROMPT-ACCACHE.md] 2) cache R1 pktmon [aion-cache/PROMPT.md] 3) authd R6-блокеры (R0 2104/procs/mssql/арбитр) 4) gate T2-T6.
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где — 08.10)
 
@@ -34,7 +34,7 @@
 | 8 | Ghidra-патчи: матчмейкер #108 (JZ→JNZ), манастоны #111 (перенос в копию #180) — только в MainServer_backup-копии | fixes-pending/ | дни, стенд |
 | 9 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr (~600k блоков/сессия → ночной рестарт), RESOURCE_SEMAPHORE | docs/app-architecture.md §7 | пассивно |
 | 10 | Уборка: тестовые probe-акки probetest1-14 в AionAccounts (мусор от probe, uid ~1007-1018) — удалить по «го» | VM SQL | 5 мин |
-| 11 | ICServer/ChannelChat — черновики промптов есть, к работе не запланировано (PDB 104МБ на VM) | PROMPT-ICSERVER.md | — |
+| 11 | ICServer/ChannelChat/Petition/ShopAgent/GM — папки-заготовки созданы (README+ROADMAP+PROMPT в каждой), к работе не запланированы | aion-ic/, aion-chat/, aion-petition/, aion-shopagent/, aion-gm/ | — |
 
 ## 3. ТРЕК B — КАРТА ПЕРЕПИСИ (08.10, ✅ нужен стеку / − некритичен / ❌ не нужен)
 
@@ -80,6 +80,7 @@
 | Референс-сурсы | nextgen/{authd-ref,cached-ref,accountcache-ref}/README.md; эталоны: `STELGEN/projects/aion_server_2026-10-02/reference/` (Mobius 7.7, beyond-aion 4.8) |
 | PDB/бинари | VM `D:\AION_LIVE_SERVER\`; локально `~/STELGEN/projects/aion_rev_2026-10-05/artifacts/`; манифесты nextgen/manifest-*.md |
 | Capture-дампы | VM C:\Temp\*, C:\logd-capture\; локально ~/STELGEN/tmp/ |
+| Процесс работы агентов | nextgen/WORKFLOW.md (запуск «WORKFLOW: <имя>», пульс, теорий-журнал, чистка) |
 | Инструменты | tools/analysis/ (pdbpub.py, дизasmы, gen-скрипты); aion-gate/cmd/{probe,forkprobe} |
 | Креды/доступы | VM `D:\SAION\creds\` — единственное место; политика nextgen/CREDS.md |
 | Память | STELGEN/projects/aion_server_2026-10-02 (+fixes/, +aion-gate-fork-classic-20261006) — читать в начале каждого чата |

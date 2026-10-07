@@ -1,4 +1,4 @@
-> ⚠ АРХИВ — задача ЗАКРЫТА (компонент в бою/релизе). Документ сохранён для истории. Открытые промпты: PROMPT-ACCACHE.md, PROMPT-AUTHD.md, PROMPT-CACHED.md, PROMPT-ICSERVER.md (шаблон: README-TEMPLATE.md).
+> ⚠ АРХИВ — задача ЗАКРЫТА (компонент в бою/релизе). Документ сохранён для истории. Открытые промпты: PROMPT-ACCACHE.md, PROMPT-AUTHD.md; промпты компонентов: <компонент>/PROMPT.md (aion-cache, aion-ic, aion-chat, aion-petition, aion-shopagent, aion-gm, aion-binpatch; шаблон: README-TEMPLATE.md).
 
 # Промпт для нового чата: ПЕРЕПИСЬ AuthGateD (Трек B, шаг 3)
 

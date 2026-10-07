@@ -54,8 +54,8 @@
 | 4 | L2Authd → aion-authd | 🟡 MVP + тень жива; R6-блокеры 2104/procs/mssql | [AUTHD-ROADMAP.md](AUTHD-ROADMAP.md) |
 | 5 | AccountCacheServer → aion-accache | 🟡 R2 каркас; R1 capture | [ACCOUNTCACHE-ROADMAP.md](ACCOUNTCACHE-ROADMAP.md) |
 | 6 | CacheD64 → aion-cache | 🔬 R0 закрыт; R1 pktmon; MVP read-путь + write-транзит | [CACHE-RESEARCH.md](CACHE-RESEARCH.md) |
-| 7 | ICServer → свой | ⬜ (PROMPT-ICSERVER.md черновик) | — |
-| 8 | ChannelChat/Petition/ShopAgent | ⬜ некритично (exe нет; ILSpy = ТЗ) | fixes-pending/loops |
+| 7 | ICServer → aion-ic | ⬜ папка-заготовка (README+ROADMAP+PROMPT) | aion-ic/ |
+| 8 | ChannelChat/Petition/ShopAgent → aion-chat/aion-petition/aion-shopagent | ⬜ некритично, папки-заготовки; ILSpy = ТЗ | fixes-pending/loops |
 | 9 | PA (PortalAuth) | ✅ ориг ОБЯЗАТЕЛЕН (старт до authd) | [pa-research](../docs/pa-research-20261006.md) |
 | 10 | NPCSvr64/Server64 | НЕ переписываем: Ghidra+PDB патчи (#180 date-bypass в бинаре уже, #108/#111 кандидаты) + op-обвязка | fixes-pending/ |
 

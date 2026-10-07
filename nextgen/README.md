@@ -1,6 +1,7 @@
 # 🚀 NEXTGEN — перепись стека AION 7.7 EUR на Go (Трек B) + оператор (Трек A)
 
 > **Дата актуализации: 08.10.2026.** Источник истины = этот репо + память `STELGEN/projects/aion_server_2026-10-02` (читать в начале каждого чата).
+> **Процесс работы агентов:** [WORKFLOW.md](WORKFLOW.md) — юзер пишет `WORKFLOW: <имя приложения стека>` → агент сам находит компонент, восстанавливает контекст, продолжает с последней фазы, двигает роадмап и актуализирует доки.
 > Постановка целиком: [PLAN.md](PLAN.md) · живой план: [ROADMAP.md](ROADMAP.md) · стандарты: [TELEMETRY-SPEC.md](TELEMETRY-SPEC.md), [LOGGING-SPEC.md](LOGGING-SPEC.md), [FORK-SPEC.md](FORK-SPEC.md), [README-TEMPLATE.md](README-TEMPLATE.md), [CREDS.md](CREDS.md).
 
 ## 1. Цель (манифест юзера)
@@ -25,8 +26,13 @@
 | **Капча** | 22206 | `CAPTCHAImageServer.exe` | [aion-captcha/](aion-captcha/) | ✅ **~95% в бою** 05.10 (буфер 10000 за ~4с vs 6.4 мин ориг); pending: ship-приёмник | `D:\SAION\aion-captcha\`, задача AionCAPTCHA → run.cmd; откат: retarget задачи | [README](aion-captcha/README.md), [snapshot](CAPTCHA-STATUS-SNAPSHOT.md) |
 | **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | 🟡 **~75%**: MVP R1–R4 готов; **fork-стенд жив на проде** (тень паритетна по type=3/4/7/fail); R6-блокеры: канал 2104, procs AionAccounts, mssql-стор | shadow :2117 (AionAuthdShadow), fork :2116 (AionForkAuthd) — `D:\SAION\aion-authd\`; ориг = живой путь | [README](aion-authd/README.md), [ROADMAP](AUTHD-ROADMAP.md), [RESEARCH](AUTHD-RESEARCH.md) |
 | **Кэш аккаунтов (ACS)** | 2220 | `AccountCacheServer.exe` | [aion-accache/](aion-accache/) | 🟡 **~45%**: R0 (PDB 92МБ, 101 proc), R0.5 (dispatch-таблица), R2 (Go-каркас, тесты зелёные); **R1 capture = следующий чат** | НЕ деплоен (ориг жив); prod-ACS :2220 | [README](aion-accache/README.md), [ROADMAP](ACCOUNTCACHE-ROADMAP.md), [RESEARCH](ACCOUNTCACHE-RESEARCH.md) |
-| **Кэш мира (CacheD64)** | 2006/2007/2009 | `CacheD64.exe` (22.5МБ) | `aion-cache` (план) | 🔬 **~15%**: R0-ресёрч ЗАКРЫТ 08.10 (PDB 106МБ, 14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, DB-контракт 781 procs; шанс ~85%); R1 = pktmon 2006 | НЕ тронут (ориг жив); 2–4 нед на MVP | [RESEARCH](CACHE-RESEARCH.md), [cached-ref/](cached-ref/README.md) |
-| **Interchange** | 2005/2305 | `ICServer.exe` | — | ⬜ не тронут (PDB 104МБ на VM); без него лупер «Can't connect to Interchange» | ориг работает | черновик [PROMPT-ICSERVER.md](PROMPT-ICSERVER.md) |
+| **Кэш мира (CacheD64)** | 2006/2007/2009 | `CacheD64.exe` (22.5МБ) | [aion-cache/](aion-cache/) | 🔬 **~15%**: R0-ресёрч ЗАКРЫТ 08.10 (PDB 106МБ, 14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, DB-контракт 781 procs; шанс ~85%); R1 = pktmon 2006 | НЕ тронут (ориг жив); 2–4 нед на MVP | [README](aion-cache/README.md), [RESEARCH](CACHE-RESEARCH.md), [cached-ref/](cached-ref/README.md) |
+| **Interchange** | 2005/2305 | `ICServer.exe` | — | ⬜ не начат, низкий приоритет (PDB 104МБ на VM); лупер «Can't connect to Interchange» безвреден | ориг работает | [README](aion-ic/README.md) |
+| **Чат** | 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ⬜ не начат, низший (exe нет — реконструкция) | не запускать | [README](aion-chat/README.md) |
+| **Петиции** | 2107 | Petition (.NET) | [aion-petition/](aion-petition/) | ⬜ не начат, низший (exe нет; БД PetitionDB есть) | не запускать | [README](aion-petition/README.md) |
+| **Магазин** | 10100 | ShopAgent (.NET) | [aion-shopagent/](aion-shopagent/) | ⬜ не начат, низший (exe нет; бизнес-вопрос юзеру) | не запускать | [README](aion-shopagent/README.md) |
+| **GM-панель** | — | GMServer-семейство | [aion-gm/](aion-gm/) | ⬜ вероятно НЕ нужен (GM = builder в SQL; op+SQL покрывают 90%); старт = вопрос юзеру | — | [README](aion-gm/README.md) |
+| **Патчи мира** | — | Server64+NPCSvr64 (Ghidra, метод #180) | [aion-binpatch/](aion-binpatch/) | ⬜ НЕ переписываем: точечные патчи — #180 ✅ (уже в бинаре), #108/#111/silence = планы готовы (стенд) | fixes-pending/ | [README](aion-binpatch/README.md) |
 | **Оператор** | 10200 | — | [aion-op/](aion-op/) | ✅ **Phase 1 в бою**: управляет стеком (start/stop/restart/restart_pair), группы fork, kick-задачи, SQL/CCU-вкладки, алерты; Phase 1.5 = не начата | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [TRACK-A-PLAN.md](TRACK-A-PLAN.md), [DEPLOY](aion-op/DEPLOY.md) |
 | **PortalAuth (PA)** | 10057 | `01-PAServer7.7.exe` | НЕ переписываем | ✅ **ОБЯЗАТЕЛЕН** (ориг, задача AionPA, старт ДО authd): без PA ориг отклоняет ЛЮБОЙ логин SYSTEM_ERROR(20) молча — доказано 07.10 (старое «SKIP НАВСЕГДА» = НЕВЕРНО, исправлено в доках) | op-кнопка `pa` | [pa-research](../docs/pa-research-20261006.md) |
 | **Мир: NPC + Server64** | 7777/2002 | `NPCSvr64.exe` + `Server64.exe` | НЕ переписываем (Ghidra+PDB точечные патчи, метод #180) | ✅ ориг в бою; NPC грузится 10–15 мин, утечка RAM → ночной рестарт пары | AION-START-ALL-v6.bat; пары только вместе | [fixes-pending/](../fixes-pending/README.md) |
@@ -60,7 +66,8 @@
 | S7 | **Конфиги** | YAML, комментарии латиницей; правки байтово + LEN-check после; канарейка-баннер в логе старта (`rsa_exponent=65537` = конфиг прочитан); bool-дефолты — кодом | [gate docs](aion-gate/docs/architecture-aion-gate-20261007.md) |
 | S8 | **Деплой/откат** | `D:\SAION\<svc>\` = exe + config.yaml + run.cmd; задача `AionXxx` + kick-задача `AionKickXxx` (`/IM <exe>` точно!); exe в гит НЕ попадает — версия = коммит; откат = старый exe `.bak-<commit>`/ретаргет задачи | [ROADMAP §4](ROADMAP.md) |
 | S9 | **Тесты** | `go vet ./... && go test ./...` зелёные ДО пуша; golden-фреймы по capture; silence-тесты перепрогоном; фейк-клиенты/эталоны в `cmd/probe`, `cmd/forkprobe` | per-проект README |
-| S10 | **Роадмап + промпт** | На каждый компонент: `<X>-ROADMAP.md` (фазы R0..R6) + `PROMPT-<X>.md` (готовый копипаст нового чата); закрытые PROMPT-файлы помечать ⚠ АРХИВ | шаблон: [PROMPT-AUTHD.md](PROMPT-AUTHD.md) |
+| S10 | **Роадмап + промпт** | На каждый компонент: ROADMAP (фазы R0..R6 + журнал теорий) + PROMPT.md (копипаст нового чата); закрытые помечать ⚠ АРХИВ; новые компоненты — self-contained (всё в папке) | [README-TEMPLATE.md](README-TEMPLATE.md) |
+| S11 | **WORKFLOW (процесс)** | Запуск чата `WORKFLOW: <имя>`; пульс каждого сообщения; теорий-журнал; «исправил = удалил» из всех доков сразу; самоорганизация под цель | [WORKFLOW.md](WORKFLOW.md) |
 
 ## 5. ГДЕ ЧТО ЛЕЖИТ (карта артефактов)
 
@@ -77,14 +84,14 @@
 ## 6. ДАЛЬНЕЙШИЙ ПОРЯДОК (сводка; детали = [ROADMAP.md](ROADMAP.md))
 
 1. **aion-accache R1** — capture-стенд :2220 (копия ACS :2221 + fork-proxy) при логинах юзера → payload-раскладки + ACP-номера → R3 SQLStore → R4 A/B → R5 свитч. Промпт готов: [PROMPT-ACCACHE.md](PROMPT-ACCACHE.md).
-2. **aion-cache (CacheD64) R1** — pktmon 2006 (НЕ трогая мир) + разбор готовых log/*.log (356МБ готового материала) → R2 дизasm → R3 Go MVP (read-путь + write-транзит). Промпт-черновик: [PROMPT-CACHED.md](PROMPT-CACHED.md).
+2. **aion-cache (CacheD64) R1** — pktmon 2006 (НЕ трогая мир) + разбор готовых log/*.log (356МБ готового материала) → R2 дизasm → R3 Go MVP (read-путь + write-транзит). Папка-заготовка: [aion-cache/](aion-cache/README.md) (промпт внутри).
 3. **aion-authd R6-блокеры** — R0 (procs AionAccounts sp_helptext), роль 2104 (Server64-канал — дизasm), mssql-стор, арбитраж fork-лога по sid+type (гонка N-ONLY) → потом переключение живого пути на наш.
 4. **aion-gate T2–T6** — TTL флага authd, CM_UPDATE_SESSION живьём, стабильность (5 логинов/2 клиента), финализация+tag.
 5. **op Phase 1.5** — событийный watchdog (ночной рестарт пары = тумблер), async-ожидания маркеров.
 6. **Телеметрия** — rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах logd/captcha.
 7. **REF58-процы** — деплой `scripts/sql/ref58-logprocs-pending-20261005.sql` + маппинг metric1-4 → logdb.
 8. **Ghidra-патчи** — матчмейкер (#108), манастоны (#111) в копии #180-бинаря.
-9. **ICServer / ChannelChat** — низший приоритет; промпт-черновики по шаблону.
+9. **ICServer / ChannelChat / Petition / ShopAgent / GM / binpatch** — низший приоритет; папки-заготовки созданы (README+ROADMAP+PROMPT в каждой), старт по команде `WORKFLOW: <имя>` ([WORKFLOW.md](WORKFLOW.md)).
 
 ## 7. СТРУКТУРА ДИРЕКТОРИИ
 
@@ -92,6 +99,7 @@
 nextgen/
 ├── README.md            ← ЭТОТ хаб (стек-таблица + стандарты)
 ├── PLAN.md              ← постановка цели/принципов
+├── WORKFLOW.md          ← ПРОЦЕСС работы агентов (запуск «WORKFLOW: <имя>», пульс, теорий-журнал)
 ├── ROADMAP.md           ← живой план (обновлять В КАЖДОМ чате)
 ├── TELEMETRY-SPEC.md    ← S2 телеметрия
 ├── LOGGING-SPEC.md      ← S3 raw-first логирование
@@ -104,6 +112,13 @@ nextgen/
 ├── aion-gate/           ← замена AuthGateD ✅ прод (доки/docs/, инструменты cmd/)
 ├── aion-authd/          ← замена L2Authd 🟡 (тень на 2117, fork 2116)
 ├── aion-accache/        ← замена AccountCacheServer 🟡 (каркас)
+├── aion-cache/          ← ЗАГОТОВКА: замена CacheD64 🔬 (R0 ресёрч готов; README+ROADMAP+PROMPT)
+├── aion-ic/             ← ЗАГОТОВКА: замена ICServer ⬜ (низкий приоритет)
+├── aion-chat/           ← ЗАГОТОВКА: ChannelChat ⬜ (низший)
+├── aion-petition/       ← ЗАГОТОВКА: Petition ⬜ (низший)
+├── aion-shopagent/      ← ЗАГОТОВКА: ShopAgent ⬜ (низший; бизнес-вопрос юзеру)
+├── aion-gm/             ← ЗАГОТОВКА: GM-панель ⬜ (вероятно не нужен; старт = вопрос юзеру)
+├── aion-binpatch/       ← ЗАГОТОВКА: Ghidra-патчи мира (#180 ✅, #108/#111/silence) ⬜
 ├── fork-proxy/          ← fork-инструмент (прародитель forkauthd)
 ├── authd-ref/           ← референс-сурсы authd (C1 декомпилы, схема БД)
 ├── cached-ref/          ← референс-сурсы CacheD64 (L2 CacheD C1, RPC-карты)
