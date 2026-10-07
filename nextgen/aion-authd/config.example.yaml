@@ -1,0 +1,40 @@
+# aion-authd — конфиг (дефолты = live-факты 06-07.10; ASCII, без секретов в гит)
+
+serverPort: 2110          # serverExPort — наш aion-gate
+authVersion: 50465        # 0x0000c621 — приветствие [03] (live)
+
+serverID: 1
+worldIP: "192.168.0.125"  # тип=4 server-info: IP мира (клиент уйдёт сюда :7777)
+worldPort: 7777
+maxUsers: 2000            # поле serverlist (live 2000)
+type3Unk1: 2696412939     # 0xa0c69f0b — живой dword из serverlist (семантика — R5-дифф)
+
+strictAsmBlob: true       # login-blob строго 191Б (live: 86Б → тишина оригинала)
+autoCreate: true          # автосоздание акка по ASCII-логину (live: пароль НЕ проверяется)
+reloginPolicy: "silent"   # live-паритет: relogin онлайн-акка = тишина (гейт сам отдаст fail по таймауту); | fail7
+onlineTtlSec: 300         # online-флаг живёт 2-6 мин (live) — дефолт 5 мин
+sweepSec: 30
+clearOnlineOnDisconnect: false  # live: [01] гейта флаг НЕ снимает
+
+failCodeBadUser: 2        # не-ASCII/пустой логин (live → 18Б LoginFail)
+failCodeBlocked: 22       # «Ваш аккаунт заблокирован.»
+failCodeDB: 1             # SYSTEM_ERROR
+
+db:
+  driver: mem             # mem | mssql  (mssql — на VM: connStr ТОЛЬКО здесь/env AUTHD_CONNSTR)
+  connStr: ""             # СЕКРЕТ. Пример: sqlserver://user:pass@127.0.0.1:1433?database=AionAccounts
+  autoCreate: true
+  # SQL переопределяется (дефолты = C1-схема user_account/block_msg; сверить на R0 sp_helptext):
+  # qAccount: "SELECT uid, ... FROM user_account WITH (NOLOCK) WHERE account = @account"
+  # qInsert:  "INSERT INTO user_account ...; SELECT CAST(SCOPE_IDENTITY() AS int);"
+  # qBlocks:  "SELECT reason, msg FROM block_msg WITH (NOLOCK) WHERE uid = @uid"
+  # qLogLogin: "UPDATE user_account SET last_login=@now, last_ip=@ip WHERE uid=@uid"
+
+ship:                     # TELEMETRY-SPEC (ключи единые со всеми переписями)
+  enabled: false
+  syslog: { net: "udp", host: "", facility: 1 }
+  http:   { url: "", timeout: 3 }
+  file:   { enabled: false, dir: "./logs/ship" }
+  queue: 4096
+  self_sec: 300
+  max_raw: 512
