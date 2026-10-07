@@ -1,0 +1,56 @@
+2026/10/07 13:34:31 BANNER: accmirror v1.0 (aion-accache R1, 5707423+) listen=0.0.0.0:2220 back=127.0.0.1:2221 log=D:\SAION\aion-accache\logs\accmirror.log
+2026/10/07 13:34:32 UP
+2026/10/07 13:34:35 === CLIENT 127.0.0.1:58656
+2026/10/07 13:34:35 BACK UP 127.0.0.1:2221
+2026/10/07 13:35:32 STATS framesC=0 framesO=0 rawChunks=0
+2026/10/07 13:35:51 C> frame len=17 cmd=0x01(~0xFFFE marker=0xEB ok=true) payload=10 hex=0f000100ebfeff03000000010000000b00
+2026/10/07 13:35:51 C> frame len=6 cmd=0xFBEB(~0x03F2 marker=0xFF ok=false) payload=-1 hex=0400ebfbfff2
+2026/10/07 13:35:51 C> RAW chunk len=3 hex=030000 (framing out of range: total=5)
+2026/10/07 13:35:51 O> frame len=13 cmd=0x01(~0xFFFE marker=0xEC ok=false) payload=6 hex=0b000100ecfeff030000001a00
+2026/10/07 13:35:51 O> frame len=6 cmd=0xFBEC(~0x03F2 marker=0xFF ok=false) payload=-1 hex=0400ecfbfff2
+2026/10/07 13:35:51 O> RAW chunk len=18 hex=030000010000000000000000ca1fc66a0000 (framing out of range: total=5)
+2026/10/07 13:35:52 C> frame len=13 cmd=0x05(~0xFFFA marker=0xEB ok=true) payload=6 hex=0b000500ebfafff20300000e00
+2026/10/07 13:35:52 O> frame len=13 cmd=0x0D(~0xFFF2 marker=0xEC ok=false) payload=6 hex=0b000d00ecf2ffae3108640d00
+2026/10/07 13:35:52 O> frame len=7 cmd=0xFAEC(~0x03F2 marker=0xFF ok=false) payload=0 hex=0500ecfafff203
+2026/10/07 13:35:52 O> RAW chunk len=4 hex=00000000 (framing out of range: total=2)
+2026/10/07 13:35:55 C> frame len=33 cmd=0xE0EB(~0xF201 marker=0xFF ok=false) payload=26 hex=1f00ebe0ff01f203000000010f000700ebf8fff2030000ea0300020b001a00ebe5
+2026/10/07 13:35:55 C> RAW chunk len=5 hex=fff2030000 (framing out of range: total=62209)
+2026/10/07 13:35:55 O> frame len=23 cmd=0x15(~0xFFEA marker=0xEC ok=false) payload=16 hex=15001500eceafff2030000020100000000000000002f00
+2026/10/07 13:35:55 O> frame len=8 cmd=0xF9EC(~0x03F2 marker=0xFF ok=false) payload=1 hex=0600ecf9fff20300
+2026/10/07 13:35:55 O> RAW chunk len=37 hex=00ea0300020000000095030000000000004600000000000000000000000000000000000000 (framing out of range: total=59906)
+2026/10/07 13:35:55 C> frame len=18 cmd=0x25(~0xFFDA marker=0xEB ok=true) payload=11 hex=10002500ebdafff2000000f2030000005300
+2026/10/07 13:35:55 C> frame len=18 cmd=0xEFEB(~0x0001 marker=0xFF ok=false) payload=11 hex=1000ebefff0100000000000000ea030002f2
+2026/10/07 13:35:55 C> RAW chunk len=63 hex=03000032003000320036002d00310030002d00300037005400310033003a00330035003a00350035002e003800360030000000010000000200000000000000 (framing out of range: total=5)
+2026/10/07 13:35:55 O> frame len=33 cmd=0x10(~0xFFEF marker=0xEC ok=false) payload=26 hex=1f001000eceffff2030000ffffffffffffffff0000000000000000000000001100
+2026/10/07 13:35:55 O> frame len=29 cmd=0xE4EC(~0x00F2 marker=0xFF ok=false) payload=22 hex=1b00ece4fff2000100f2030000000013001a00ece5fff2030000e0dfc5
+2026/10/07 13:36:19 C> frame len=33 cmd=0x19(~0xFFE6 marker=0xEB ok=true) payload=26 hex=1f001900ebe6fff203000000000000000000009320c66ae0dfc56a000000002f00
+2026/10/07 13:36:19 C> frame len=10 cmd=0xF7EB(~0x03F2 marker=0xFF ok=false) payload=3 hex=0800ebf7fff2030000a3
+2026/10/07 13:36:19 C> RAW chunk len=35 hex=20c66a0000000095030000000000004600000000000000000000000000000000000000 (framing out of range: total=50722)
+2026/10/07 13:36:19 C> frame len=33 cmd=0x19(~0xFFE6 marker=0xEB ok=true) payload=26 hex=1f001900ebe6fff20300000000000000000000a320c66ae0dfc56a000000004b00
+2026/10/07 13:36:19 C> frame len=19 cmd=0xEEEB(~0x0001 marker=0xFF ok=false) payload=12 hex=1100ebeeff01000000ea030002320030003200
+2026/10/07 13:36:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:37:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:38:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:39:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:40:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:41:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:42:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:43:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:44:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:45:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:46:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:47:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:48:32 STATS framesC=10 framesO=8 rawChunks=7
+2026/10/07 13:48:38 C> frame len=56 cmd=0x2D(~0x3000 marker=0x31 ok=false) payload=49 hex=36002d00310030002d00300037005400310033003a00330036003a00310039002e0034003900330000000100000002000000000000000b00
+2026/10/07 13:48:38 C> frame len=6 cmd=0xFBEB(~0x03F2 marker=0xFF ok=false) payload=-1 hex=0400ebfbfff2
+2026/10/07 13:48:38 C> RAW chunk len=3 hex=030000 (framing out of range: total=5)
+2026/10/07 13:48:38 O> frame len=108 cmd=0x00(~0x0013 marker=0x00 ok=false) payload=101 hex=6a0000000013000f00ecf0ffea030002ea070a00030000003f001400ecebffea03000200000000000000000000000000000000b9e7c56a000000000000000000000000010000000000000000000000000000005000000011001c00ece3fff2030000ea03000000001a000400
+2026/10/07 13:48:38 O> RAW chunk len=22 hex=ecfbfff2030000010000000000000000a320c66a0000 (framing out of range: total=64494)
+2026/10/07 13:48:38 C> frame len=13 cmd=0x05(~0xFFFA marker=0xEB ok=true) payload=6 hex=0b000500ebfafff20300000e00
+2026/10/07 13:48:38 C> frame len=33 cmd=0xE0EB(~0xF201 marker=0xFF ok=false) payload=26 hex=1f00ebe0ff01f203000000010b000400ebfbff070000000b000500ebfaff070000
+2026/10/07 13:48:38 O> frame len=15 cmd=0x05(~0xFFFA marker=0xEC ok=false) payload=8 hex=0d000500ecfafff203000000001500
+2026/10/07 13:48:38 O> frame len=23 cmd=0xEAEC(~0x03F2 marker=0xFF ok=false) payload=16 hex=1500eceafff2030000020100000000000000001a000400
+2026/10/07 13:48:38 O> RAW chunk len=22 hex=ecfbff07000000010000000000000000000000000000 (framing out of range: total=64494)
+2026/10/07 13:49:32 STATS framesC=14 framesO=11 rawChunks=10
+2026/10/07 13:50:32 STATS framesC=14 framesO=11 rawChunks=10
+2026/10/07 13:51:32 STATS framesC=14 framesO=11 rawChunks=10

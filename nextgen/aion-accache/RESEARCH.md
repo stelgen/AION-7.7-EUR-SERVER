@@ -190,4 +190,36 @@ wire-формат фрейма (закрывается R1) и тела procs (з
 
 Payload-детали: декодеры (`Decode*@ServerToAccountCached`) вызываются непрямо — точные байтовые раскладки = R1 capture; НО состав полей уже известен из mangled-сигнатур publics (DecodeCharLogin: H charId + SpecialSvrTypeEnum + wchar* userId; DecodeDecreaseLunaKey: __int64+LunaParam; DecodeUpdateHiddenFatigue: I,H,I,I,I; EncodeFirstLoadAccountInfo_AddArg: 5×int = 5 колонок GetAccountData...). Каркас MVP пишется БЕЗ capture; capture только для байтовых офсетов.
 
-Инструменты: парсер ctor = /tmp/acs_dispatch2.py + /tmp/acs_final.py (перенести в tools/analysis); дизasm /tmp/acs.asm 283к строк; publics = artifacts/pdb-big/AccountCacheServer/pdb-publics-8035.txt. Готча objdump: адрес границы функции может не существовать как метка (шаг 4Б) — искать ближайший префикс; VA = ImageBase + 0x1000 + public-off (секция .text).
+Инструменты: парсер ctor = /tmp/acs_dispatch2.py + /tmp/acs_final.py (перенести в tools/analysis); дизasm /tmp/acs.asm 283к строк; publics = artifacts/pdb-big/AccountCacheServer/pdb-publics-8035.txt. Готча objdump: адрес границы функции может не существовать как метка (шаг 4Б) — искать ближайший префикс; VA = ImageBase + 0x1000 + public-off (секция .text).## 11. R1 CAPTURE ВЫПОЛНЕН (10.10, accmirror v1.0 fc3799f) — WIRE СНЯТ НА ЖИВЫХ ЛОГИНАХ
+
+Стенд: FORK-SPEC §2 mirror-copy. Копия `AccountCacheServer-2221` (байтовый патч common.xml 2220→2221,
+один байт @idx293, ориг MD5 DE2EC2B2 не тронут) + accmirror на :2220 → :2221 (frame-aware лог).
+Задачи: AionAccCopy / AionAccMirror (SYSTEM; созданы disabled, включаются на время capture).
+⚠ **ACS = single-instance** (FindWindowA+CreateMutexW в импортах) — копия при живом ориге виснет
+на диалоге (241МБ без порта); копию стартовать ТОЛЬКО соло (после остановки ориг-задачи).
+✅ **Server64 переподключается сам** (~3с) после подмены :2220 — риск R1 закрыт, юзер не заметил.
+
+**Захват**: 2 логина юзера (13:35, 13:48) → `accountcache-ref/capture-20261007/` (raw лог + c.hex/o.hex
++ tools/accparse.py). Парсер: [len-2][cmd][0xEB|0xEC][~cmd] RPC + CTRL-транспорт.
+
+**WIRE-ФАКТЫ (доказано живым трафиком)**:
+1. **Маркер инкрементится по направлению: C2S = 0xEB, S2C = 0xEC** (мой "ok=false" на O> был ложный).
+2. **ДВА формата кадров**: RPC `[u16 len-2][u16 cmd][u8 m][u16 ~cmd][payload]` и CTRL
+   `[u16 len-2][u8 m][u16 ~(len-2)][payload]` (транспортный слой; length-семантика payload у CTRL
+   TBD — len-2 там НЕ длина кадра; EB/EC пары запрос-ответ — похоже на ACK).
+3. `~cmd` инверсия подтверждена на всех RPC; payload большинства кадров начинается с `f2 03 00 00`
+   (u32 0x3F2=1010 — похоже channel/ticket ID; TBD).
+4. **Наблюдённые cmds (C2S)**: 1 VERSION (pay `03000000 01000000 0b00`), 4 FIRST_LOAD_ACCOUNT_INFO
+   (pay `f2030000 0b00`), 5 LOAD_BM_PACK (pay `f2030000 0e00`), 7 LOAD_TRIAL (pay `f2030000 ea0300 020b00`),
+   25 UPDATE_HIDDEN_FATIGUE ×2 (pay `f2030000 0000000000000000 <u32 ts> <u64 ?> 2f00`), 31 ASK_JUMPING_CHAR
+   (pay `01 f2030000 0001 0b00`).
+5. **S2C**: 1 VERSION-resp (pay `03000000 1a00`), 5 BM-ответ (`f2030000 0000 1500`), 16 CHAR_LOGIN
+   (`f2030000 ffffffff*2 ...`), 28 CONFIRM_LUNA... — **пронумерация S2C местами НЕ совпадает с ACQ**
+   (напр. `0b00 0d00 ec f2ff ae310864 0d00` после BM — 13?) → ACP-номера = vtable-дизasm (PDB есть),
+   либо корреляция пара-в-пару (5↔5, 1↔1 подтверждаются).
+6. В потоке есть UTF-16LE лог-строки от Server64 (`2026-10-07T13:35:55.860...`) — это LOG_INFO-канал
+   (cmd 14) и/или CTRL-обёртки + unix-ts (0x6AC61FCA и др.).
+
+**Критично для R2.5**: раскладки payload per-cmd = докрутка accparse (CTRL-границы) + сверка с
+PDB Decode* сигнатурами; дозахват возможен на живом стенде (стенд ОСТАВЛЕН работать: ориг-задача
+AionAcc Ready, откат = taskkill accmirror.exe + kill копии + `schtasks /run /tn AionAcc`).
