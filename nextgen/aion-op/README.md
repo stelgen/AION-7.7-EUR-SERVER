@@ -57,6 +57,13 @@ AIONOP_MOCK_EVENT_EVERY=1 ./aion-op             # темп синтетичес�
   утечка хендлов >20k/мин ×3 тика, рейт 2812 >50/5мин, критичный лог (окно 15 мин), проба VM;
 - **pprof** на loopback — без роста за 48 ч.
 
+**Phase 1.2 (Agent API, 07.10):**
+- `internal/agent` — HTTP/JSON-канал для агента-разработчика: `POST /api/agent/run`
+  (cmd/powershell, таймаут, taskkill-дерево), file read/write (b64), ls, log-tail;
+- токен `agent.token` (конфиг) или `AIONOP_AGENT_TOKEN`; constant-time; аудит в лог op;
+- лимиты: run ≤1МБ тело/900с таймаут/2 параллельно, вывод 8МБ, файл ≤192МБ;
+- спека: [../AGENT-SPEC.md](../AGENT-SPEC.md). R1 (JSON-хелперы) поглощён API.
+
 **Phase 1 (руки + SQL-вкладка):**
 - режим `local` (оператор живёт на VM), `bind: 0.0.0.0` (решение юзера — локалка);
 - **CCU**: Aion_log TBL_GAME_WORLD_INFO (zone0: LIGHT/DARK/NPC_COUNT) + AionAccounts user_count (world/limit/auth/wait per server);

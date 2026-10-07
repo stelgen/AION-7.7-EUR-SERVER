@@ -16,6 +16,18 @@
 | pprof | `127.0.0.1:10201/debug/pprof/` |
 | Данные | `C:\aionop\aionop.db` — SQLite WAL, retention 30 дней |
 
+## Agent API (07.10, R2) — ОСНОВНОЙ канал агента
+
+`/api/agent/{run,file,ls,log}` на :10200, токен `X-Agent-Token` (конфиг `agent:` /
+env `AIONOP_AGENT_TOKEN`). Спека + обёртка: [../AGENT-SPEC.md](../AGENT-SPEC.md).
+Firewall: правило `aionop-agent-10200` (TCP 10200 только из 192.168.0.0/24) — добавлено 07.10,
+до этого UI ходил только через туннель.
+
+```bash
+# статус одной командой:
+ssh 'Администратор@192.168.0.125' "curl -s --max-time 8 http://127.0.0.1:10200/api/status"
+```
+
 ## Доступ с моей машины (Linux)
 
 ```bash

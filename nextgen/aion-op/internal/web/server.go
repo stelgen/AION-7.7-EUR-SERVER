@@ -8,12 +8,14 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sort"
 	"strconv"
 	"sync"
 	"time"
 
 	"aion-op/internal/act"
+	"aion-op/internal/agent"
 	"aion-op/internal/alerts"
 	"aion-op/internal/config"
 	"aion-op/internal/core"
@@ -49,6 +51,14 @@ func (s *Server) Run() error {
 	go s.loop()
 
 	mux := http.NewServeMux()
+	// R2: Agent API — монтируется только при agent.enabled + токене
+	// (конфиг agent.token или env AIONOP_AGENT_TOKEN).
+	if s.cfg.Agent.Enabled && (s.cfg.Agent.Token != "" || os.Getenv("AIONOP_AGENT_TOKEN") != "") {
+		agent.Mount(mux, s.cfg)
+		log.Printf("agent: API смонтирован (/api/agent/*)")
+	} else if s.cfg.Agent.Enabled {
+		log.Printf("agent: enabled, но токена нет (config/env) — API НЕ смонтирован")
+	}
 	mux.HandleFunc("GET /api/status", s.handleStatus)
 	mux.HandleFunc("GET /api/config", s.handleConfig)
 	mux.HandleFunc("GET /api/events", s.handleEvents)

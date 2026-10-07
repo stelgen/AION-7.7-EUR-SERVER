@@ -82,9 +82,17 @@ type SqlCfg struct {
 	Conn    string `yaml:"conn"` // sqlserver://aionop_ro:***@127.0.0.1?encrypt=disable (read-only логин)
 }
 
+type AgentCfg struct {
+	Enabled    bool   `yaml:"enabled"`
+	Token      string `yaml:"token"`      // или env AIONOP_AGENT_TOKEN
+	TimeoutSec int    `yaml:"timeout_sec"` // дефолт для /run
+	MaxOutMB   int    `yaml:"max_out_mb"`  // капа stdout/stderr
+}
+
 type Config struct {
 	VM        VM               `yaml:"vm"`
 	Operator  Operator         `yaml:"operator"`
+	Agent     AgentCfg         `yaml:"agent"`
 	Services  []Service        `yaml:"services"`
 	Groups    map[string]Group `yaml:"groups"`
 	WorldPair WorldPair        `yaml:"world_pair"`
@@ -160,6 +168,12 @@ func (c *Config) normalize() {
 	}
 	if c.Sql.PollSec <= 0 {
 		c.Sql.PollSec = 30
+	}
+	if c.Agent.TimeoutSec <= 0 {
+		c.Agent.TimeoutSec = 120
+	}
+	if c.Agent.MaxOutMB <= 0 {
+		c.Agent.MaxOutMB = 8
 	}
 	if c.Operator.Bind == "" {
 		c.Operator.Bind = "0.0.0.0" // локалка юзера — наружу не торчит (роутер/NAT)
