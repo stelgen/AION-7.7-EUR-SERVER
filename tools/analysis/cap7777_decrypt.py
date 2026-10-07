@@ -34,6 +34,7 @@ def roll_key(key8, size):
     return struct.pack("<Q", v)
 
 def reassemble(pcap):
+    """Корректная склейка TCP-потока: перекрытия (retransmissions) обрезаются."""
     flows = {}
     with PcapReader(pcap) as rd:
         for pkt in rd:
@@ -44,18 +45,25 @@ def reassemble(pcap):
             payload = bytes(t.payload)
             if not payload:
                 continue
-            d = flows.setdefault(key, {})
-            d[t.seq] = payload
+            flows.setdefault(key, []).append((t.seq, payload))
     out = {}
-    for key, d in flows.items():
-        data = b""
-        expected = None
-        for seq in sorted(d):
-            if expected is None:
-                expected = seq
-            data += d[seq]
-            expected = seq + len(d[seq])
-        out[key] = data
+    for key, segs in flows.items():
+        segs.sort(key=lambda sp: sp[0])
+        base = segs[0][0]
+        data = bytearray()
+        covered = 0  # длина уже записанного с base
+        for seq, payload in segs:
+            off = seq - base
+            if off + len(payload) <= covered:
+                continue  # полный дубль
+            if off > covered:
+                # разрыв в последовательности (потерянные сегменты) — вставляем нули-маркер
+                data.extend(b"\x00" * (off - covered))
+                covered = off
+            cut = covered - off
+            data.extend(payload[cut:])
+            covered = off + len(payload)
+        out[key] = bytes(data)
     return out
 
 def split_frames(stream):
@@ -70,19 +78,28 @@ def split_frames(stream):
     return frames, len(stream) - i
 
 def main():
-    flows = reassemble(PCAP)
-    c2s = s2c = None
-    for (sip, sp, dip, dp), data in flows.items():
-        if dp == 7777:
-            c2s = data
-        elif sp == 7777:
-            s2c = data
+    import os
+    if len(sys.argv) >= 4 and sys.argv[2].endswith(".hex"):
+        # режим: s2c.hex / c2s.hex из tshark follow
+        s2c = bytes.fromhex("".join(open(sys.argv[2]).read().split()))
+        c2s = bytes.fromhex("".join(open(sys.argv[3]).read().split()))
+    else:
+        flows = reassemble(PCAP)
+        # выбираем НАИБОЛЬШИЙ поток по каждому направлению (в 7777-фильтр попадают и сканеры)
+        best_c2s, best_s2c = (b"", 0), (b"", 0)
+        for (sip, sp, dip, dp), data in flows.items():
+            if dp == 7777 and len(data) > best_c2s[1]:
+                best_c2s = (data, len(data))
+            if sp == 7777 and len(data) > best_s2c[1]:
+                best_s2c = (data, len(data))
+        c2s, s2c = best_c2s[0], best_s2c[0]
     stats = Counter()
     log = []
 
     # --- S2C ---
     sf, tail = split_frames(s2c)
     keyS = None
+    keyC = None
     first_open = True
     for idx, body in enumerate(sf):
         if first_open:
@@ -150,7 +167,7 @@ def main():
     table = {}
     for r in csv.DictReader(open(CSVP)):
         table[r["name"]] = r
-    print(f"потоков: {len(flows)}; S2C фреймов {len(sf)} (tail {tail}), C2S фреймов {len(cf)} (tail {tail2})")
+    print(f"S2C фреймов {len(sf)} (tail {tail}), C2S фреймов {len(cf)} (tail {tail2})")
     known = unknown = invalid = 0
     unmatched = []
     for (d, op), n in sorted(stats.items(), key=lambda kv: -kv[1]):
