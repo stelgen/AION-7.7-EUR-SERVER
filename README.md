@@ -22,14 +22,16 @@
 
 ```mermaid
 flowchart LR
-  C["🎮 Клиент"] --> G["aion-gate :2106\n✅ 100% релиз"]
-  G --> A["aion-authd :2110\n✅ R6 в бою ~90%"]
-  W["Server64 :7777 (ориг, патч 180)\n🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
-  W --> ACS["ACS :2220 (ориг)\n🟡 aion-accache ~45%"]
-  W --> CD["CacheD64 :2006 (ориг)\n🔬 aion-cache ~20%"]
+  C["🎮 Клиент"] --> G["aion-gate :2106<br/>✅ 100% релиз"]
+  G --> A["aion-authd :2110<br/>✅ R6 в бою ~90%"]
+  W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
+  W --> ACS["ACS :2220 (ориг)<br/>🟡 aion-accache ~45%"]
+  W --> CD["CacheD64 :2006 (ориг)<br/>🔬 aion-cache ~20%"]
   G -. "тень :2117 / fork :2116 = откат" .-> A
   PA["PA :10057 (ориг, ОБЯЗАТЕЛЕН)"] --> A
-``` Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd переписаны (authd R6 в бою, ориг = откат); мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
+```
+
+Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd переписаны (authd R6 в бою, ориг = откат); мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
