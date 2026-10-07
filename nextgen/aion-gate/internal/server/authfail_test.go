@@ -322,20 +322,31 @@ func TestAuthFailTexts(t *testing.T) {
 	}
 }
 
-// ЭКСПЕРИМЕНТ charcount (09.10): байт [63] в 74Б login-ok = счётчик чаров акка.
+// ЭКСПЕРИМЕНТ charcount №2 (09.10): счётчик = хвост type=4 (SM_SERVER_LIST), НЕ байт [63] 74Б
+// (№1 доказал: клиент игнорит [63] — 74Б = SM_LOGIN_OK по Packet Samurai; колонка была пустая).
 func TestPadLoginOKCharCount(t *testing.T) {
-	payload := make([]byte, 52) // authd type=3 payload 52Б
+	payload := make([]byte, 52)
 	pt := padLoginOK(3, payload, 7)
 	if len(pt) != 64 {
 		t.Fatalf("len=%d, want 64", len(pt))
 	}
-	if pt[0] != 3 || pt[63] != 7 {
-		t.Fatalf("op=%d pt[63]=%d, want 3/7", pt[0], pt[63])
+	if pt[0] != 3 || pt[63] != 0 { // [63] больше НЕ заполняем — garbage SM_LOGIN_OK
+		t.Fatalf("op=%d pt[63]=%d, want 3/0", pt[0], pt[63])
 	}
-	if zero := padLoginOK(3, payload, 0); zero[63] != 0 {
-		t.Fatalf("off-режим: pt[63]=%d, want 0", zero[63])
+	p4 := []byte{0x01, 0x01, 0x01, 0xc0, 0xa8, 0x00, 0x7d, 0x61, 0x1e, 0x00, 0x00, 0x00, 0x00,
+		0x00, 0x00, 0xf4, 0x01, 0x01, 0x01, 0x00, 0x00, 0x00, 0x02, 0x01, 0x00, 0x01}
+	if len(p4) != 26 {
+		t.Fatalf("fixture=%dБ, want 26", len(p4))
 	}
-	if four := padLoginOK(4, payload, 7); len(four) != 53 {
-		t.Fatalf("type=4 не падится: len=%d", len(four))
+	pt4 := padLoginOK(4, p4, 7)
+	if len(pt4) != 28 || pt4[27] != 7 || pt4[0] != 4 { // [04]+26+count = 28 (wire 42 не меняется)
+		t.Fatalf("type=4: len=%d tail=%d op=%d, want 28/7/4", len(pt4), pt4[27], pt4[0])
+	}
+	if off := padLoginOK(4, p4, 0); len(off) != 27 { // паритет с ориг: [04]+26 (без count-байта)
+		t.Fatalf("off-режим: len=%d, want 27 (паритет с ориг)", len(off))
+	}
+	other := padLoginOK(4, make([]byte, 25), 7)
+	if len(other) != 26 {
+		t.Fatalf("не-26 payload модифицирован: %d", len(other))
 	}
 }

@@ -680,16 +680,22 @@ func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"type": typ, "len": len(payload)}})
 }
 
-// padLoginOK — сборка pt login-ok/SM_SERVER_LIST: [typ]+payload; для type=3 пад до 64Б
-// (wire 74 — паритет с ориг); serverListCharCount>0 → байт [63] = счётчик чаров акка
-// (Java-эталон: счётчик в хвосте пакета; эксперимент techdebt-charcount-20261009.md).
+// padLoginOK — сборка pt для клиента:
+//
+//	type=3 = SM_LOGIN_OK: [03]+payload, пад до 64Б (wire 74 — паритет с ориг); хвост-байт [63]
+//	  = мусор (эксперимент 09.10 №1 доказал: клиент НЕ читает его — колонка «Персонажи» пустая).
+//	type=4 = SM_SERVER_LIST (Packet Samurai Login_4.0.x.xml): …online/bits/brackets +
+//	  **characterCountsSize(h)=01 00 + autoConnect(c)** и ОБРЫВ — count-байтов НЕТ (26Б payload);
+//	  client ждёт countsSize байт счётчиков → колонка «Персонажи» ПУСТАЯ (и у ориг — их НЕ шлёт).
+//	  serverListCharCount>0 && len==26 → добавляем count-байт (27Б; wire остаётся 42Б —
+//	  roundup8(26)=roundup8(27)=32) → клиент показывает число (эксперимент №2).
 func padLoginOK(typ byte, payload []byte, charCount int) []byte {
 	pt := append([]byte{typ}, payload...)
 	if typ == 3 && len(pt) < 64 {
 		pt = append(pt, make([]byte, 64-len(pt))...)
-		if charCount > 0 {
-			pt[63] = byte(charCount)
-		}
+	}
+	if typ == 4 && charCount > 0 && len(payload) == 26 {
+		pt = append(pt, byte(charCount)) // characterCount[server 1] — хвост SM_SERVER_LIST
 	}
 	return pt
 }
