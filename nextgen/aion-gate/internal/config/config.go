@@ -64,6 +64,11 @@ type Gate struct {
 	// ДЕФОЛТ — live-принят, НЕ ТРОГАТЬ); 50 = эталонная форма 7.7 (SM_AUTH_GG.java:
 	// D sid + B35 = pt 40 → wire 50) для A/B-сверки с оригом в fork-режиме.
 	SmAuthGgWire int `yaml:"smAuthGgWire"`
+	// ServerListCharCount — ЭКСПЕРИМЕНТ 09.10 (тех-долг «клиент видит 0 персонажей»):
+	// >0 = заполнять байт [63] (последний) в 74Б login-ok/SM_SERVER_LIST (pt 64Б) этим
+	// числом — Java-эталон (aion-germany): счётчик чаров акка в хвосте пакета. 0 = off
+	// (байт-паритет с ориг). Решающий тест = живой перелогин юзера.
+	ServerListCharCount int `yaml:"serverListCharCount"`
 
 	// РЕЖИМ (байон-48 06.10, §7 П4):
 	//   authgate — живой 7.7 EU флоу (welcome 194/EncryptPrimary/key1, cc-plaintext,

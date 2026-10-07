@@ -321,3 +321,21 @@ func TestAuthFailTexts(t *testing.T) {
 		t.Fatal("0 AUTHED не шлётся клиенту — текст не нужен")
 	}
 }
+
+// ЭКСПЕРИМЕНТ charcount (09.10): байт [63] в 74Б login-ok = счётчик чаров акка.
+func TestPadLoginOKCharCount(t *testing.T) {
+	payload := make([]byte, 52) // authd type=3 payload 52Б
+	pt := padLoginOK(3, payload, 7)
+	if len(pt) != 64 {
+		t.Fatalf("len=%d, want 64", len(pt))
+	}
+	if pt[0] != 3 || pt[63] != 7 {
+		t.Fatalf("op=%d pt[63]=%d, want 3/7", pt[0], pt[63])
+	}
+	if zero := padLoginOK(3, payload, 0); zero[63] != 0 {
+		t.Fatalf("off-режим: pt[63]=%d, want 0", zero[63])
+	}
+	if four := padLoginOK(4, payload, 7); len(four) != 53 {
+		t.Fatalf("type=4 не падится: len=%d", len(four))
+	}
+}

@@ -673,14 +673,25 @@ func (s *Server) onAuthdPacket(id uint32, typ byte, payload []byte) {
 		log.Printf("authd pkt: нет сессии id=%d type=%d", id, typ)
 		return
 	}
-	pt := append([]byte{typ}, payload...)
-	if typ == 3 && len(pt) < 64 { // login-ok: паритет с оригом (pt 64Б → wire 74)
-		pt = append(pt, make([]byte, 64-len(pt))...)
-	}
+	pt := padLoginOK(typ, payload, s.Cfg.ServerListCharCount)
 	fr := proto.WriteFrame(proto.EncryptSecondary(sess.BF2, pt))
 	dumpRaw(fmt.Sprintf("G>C authd-pkt type=%d sid=%d", typ, sess.ID), fr)
 	_ = sess.write(fr)
 	s.send(ship.Event{Ev: "serverlist", Svc: "authd", Data: map[string]any{"type": typ, "len": len(payload)}})
+}
+
+// padLoginOK — сборка pt login-ok/SM_SERVER_LIST: [typ]+payload; для type=3 пад до 64Б
+// (wire 74 — паритет с ориг); serverListCharCount>0 → байт [63] = счётчик чаров акка
+// (Java-эталон: счётчик в хвосте пакета; эксперимент techdebt-charcount-20261009.md).
+func padLoginOK(typ byte, payload []byte, charCount int) []byte {
+	pt := append([]byte{typ}, payload...)
+	if typ == 3 && len(pt) < 64 {
+		pt = append(pt, make([]byte, 64-len(pt))...)
+		if charCount > 0 {
+			pt[63] = byte(charCount)
+		}
+	}
+	return pt
 }
 
 func (s *Server) onAuthdClosed(err error) {

@@ -40,12 +40,12 @@ func (a *WelcomeArgs) plain() []byte {
 	b = append(b, 0x00)                                     // [0] = opcode SM_INIT (0x00, "c" va0)
 	b = binary.LittleEndian.AppendUint32(b, a.SessionID)    // [1:5] = sid (LE)
 	b = binary.LittleEndian.AppendUint32(b, a.AuthdSession) // [5:9] = V (authd [03])
-	b = append(b, mod[:]...)      // 128
-	b = append(b, a.GGQuery[:]...) // 16
-	b = append(b, a.Key2[:]...)    // 16
-	b = append(b, 0x65, 0x65, 0x00, 0x72) // S,B0,B1,B2 (image-статики)
-	b = append(b, 0x00)           // 'c'-байт va[0]=0x0
-	return b                      // 173
+	b = append(b, mod[:]...)                                // 128
+	b = append(b, a.GGQuery[:]...)                          // 16
+	b = append(b, a.Key2[:]...)                             // 16
+	b = append(b, 0x65, 0x65, 0x00, 0x72)                   // S,B0,B1,B2 (image-статики)
+	b = append(b, 0x00)                                     // 'c'-байт va[0]=0x0
+	return b                                                // 173
 }
 
 // BuildWelcome собирает welcome-пакет целиком (194B), шифрованный key1.

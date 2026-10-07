@@ -145,12 +145,16 @@ func TestInboundFrames(t *testing.T) {
 	c := DialConn(conn, Handler{
 		OnRegistered: func(id uint32) { mu.Lock(); regID = id; mu.Unlock() },
 		OnAssigned:   func(sid uint32) { mu.Lock(); assigned = sid; mu.Unlock() },
-		OnPacket:     func(id uint32, typ byte, p []byte) { mu.Lock(); pktID, pktTyp, payload = id, typ, append([]byte(nil), p...); mu.Unlock() },
-		OnClosed:     func(err error) { closed <- err },
+		OnPacket: func(id uint32, typ byte, p []byte) {
+			mu.Lock()
+			pktID, pktTyp, payload = id, typ, append([]byte(nil), p...)
+			mu.Unlock()
+		},
+		OnClosed: func(err error) { closed <- err },
 	})
 
-	conn.push([]byte{0x01, 0x07, 0x00, 0x00, 0x00})                    // [01][id=7]
-	conn.push([]byte{0x03, 0x14, 0x52, 0x7d, 0x00})                    // [03][sid=0x7d5214]
+	conn.push([]byte{0x01, 0x07, 0x00, 0x00, 0x00})                               // [01][id=7]
+	conn.push([]byte{0x03, 0x14, 0x52, 0x7d, 0x00})                               // [03][sid=0x7d5214]
 	conn.push([]byte{0x02, 0x07, 0x00, 0x00, 0x00, 0x05, 0x00, 0x04, 0xde, 0xad}) // [02][id=7][len=5][type=4][payload=de ad]
 
 	waitFor(t, func() bool { mu.Lock(); defer mu.Unlock(); return regID == 7 && assigned == 0x7d5214 && pktTyp == 4 })

@@ -218,7 +218,7 @@ func TestE2ESkeleton(t *testing.T) {
 
 	// 4. push serverlist (type 4) от authd → клиент получает 26b-фрейм (как в capture!)
 	sl := []byte("serverlist-data") // 15Б → n=24 → frame 26
-	push := append([]byte{0x02, byte(sess.ID), byte(sess.ID >> 8), byte(sess.ID >> 16), byte(sess.ID >> 24), byte(len(sl)+3), 0x00, 0x04}, sl...)
+	push := append([]byte{0x02, byte(sess.ID), byte(sess.ID >> 8), byte(sess.ID >> 16), byte(sess.ID >> 24), byte(len(sl) + 3), 0x00, 0x04}, sl...)
 	if _, err := as.Write(push); err != nil {
 		t.Fatal(err)
 	}

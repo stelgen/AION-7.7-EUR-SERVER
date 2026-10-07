@@ -578,7 +578,8 @@ func TestSplitLoginDynamicTail(t *testing.T) {
 		c := new(big.Int).Exp(new(big.Int).SetBytes(m), big.NewInt(65537), k.Priv.PublicKey.N)
 		return c.FillBytes(make([]byte, 128))
 	}
-	m1 := make([]byte, 128); m1[78] = '1'
+	m1 := make([]byte, 128)
+	m1[78] = '1'
 	m2 := make([]byte, 128)
 	tail := make([]byte, 47)
 	tail[0] = 0x02

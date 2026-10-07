@@ -11,20 +11,23 @@ import (
 // SM_AUTH_GG.java: [0b][sid][4×0][19×0] = 40B pt → wire 50).
 
 const (
-	ClassicWelcomeWire = 210          // [u16 208][ECB 208]
-	ClassicProtocolRev = 0x0000c621   // dword[5:9] SM_INIT
-	ClassicTailMagic   = 0x3FCE09ED   // dword @184 SM_INIT
+	ClassicWelcomeWire = 210        // [u16 208][ECB 208]
+	ClassicProtocolRev = 0x0000c621 // dword[5:9] SM_INIT
+	ClassicTailMagic   = 0x3FCE09ED // dword @184 SM_INIT
 )
 
 // EncryptGitInit — шифрование ПЕРВОГО пакета (CryptEngine.encrypt, updatedKey=false,
 // сверено с исходником AC-Login 4.7.5 = семейство beyond-aion):
-//   length = len(pt) + 4 + 4; length += 8 - length%8  ← JAVA-семантика: при кратности 8
-//   добавляет ЕЩЁ 8 (для SM_INIT pt=192: 200 → 208 → ECB 208 → wire 210); при НЕ-кратности
-//   (наш 7.7 welcome pt=177): 185 → 192 — совпадает с asm-моделью EncryptPrimary 1-в-1.
+//
+//	length = len(pt) + 4 + 4; length += 8 - length%8  ← JAVA-семантика: при кратности 8
+//	добавляет ЕЩЁ 8 (для SM_INIT pt=192: 200 → 208 → ECB 208 → wire 210); при НЕ-кратности
+//	(наш 7.7 welcome pt=177): 185 → 192 — совпадает с asm-моделью EncryptPrimary 1-в-1.
+//
 // encXORPass: ecx = РАНДОМ-СИД; chain dwords 1..(stop/4-1), stop = length-8:
-//   ecx += edx; edx ^= ecx (dword0 не трогается); финальный ecx → [stop:stop+4];
-//   [stop+4:length) остаются нулями («chk-нули»). Отличие от EncryptPrimary: сид Rnd,
-//   а не dword[0] (у 7.7 AuthGateD сид = dword[0] — live-верифицировано дизasm'ом).
+//
+//	ecx += edx; edx ^= ecx (dword0 не трогается); финальный ecx → [stop:stop+4];
+//	[stop+4:length) остаются нулями («chk-нули»). Отличие от EncryptPrimary: сид Rnd,
+//	а не dword[0] (у 7.7 AuthGateD сид = dword[0] — live-верифицировано дизasm'ом).
 func EncryptGitInit(bf *Blowfish, pt []byte, rnd uint32) []byte {
 	length := len(pt) + 8
 	length += 8 - length%8 // Java: 8 - length%8, при %8==0 даёт +8
@@ -93,9 +96,10 @@ func BuildClassicWelcome(sid uint32, modRaw [128]byte, sessionKey [16]byte, stat
 }
 
 // BuildClassicAuthGG — SM_AUTH_GG (0x0b):
-//   gitForm=false → живая форма 7.7: [0b][sid][27×0] (32B pt, wire 42);
-//   gitForm=true  → форма гита (SM_AUTH_GG.java): [0b][sid][0×4][0xCD5000][0]
-//                   [0x0b<<24][sid^0xCD5000][3×0] → 37B pt → ECB 48 → wire 50.
+//
+//	gitForm=false → живая форма 7.7: [0b][sid][27×0] (32B pt, wire 42);
+//	gitForm=true  → форма гита (SM_AUTH_GG.java): [0b][sid][0×4][0xCD5000][0]
+//	                [0x0b<<24][sid^0xCD5000][3×0] → 37B pt → ECB 48 → wire 50.
 func BuildClassicAuthGG(sid uint32, gitForm bool) []byte {
 	pt := []byte{0x0b}
 	pt = binary.LittleEndian.AppendUint32(pt, sid)
@@ -158,7 +162,7 @@ func BuildClassicServerList(ip [4]byte, port uint16, lastServer byte) []byte {
 	pt = append(pt, 0) // type
 	pt = append(pt, 0) // hide
 	pt = binary.LittleEndian.AppendUint16(pt, 0)
-	pt = append(pt, 0) // brackets
+	pt = append(pt, 0)                           // brackets
 	pt = binary.LittleEndian.AppendUint16(pt, 2) // maxIdWithChars+1
 	pt = append(pt, 0x01)                        // автолинк
 	pt = append(pt, 0x00)                        // charCount сервера 1

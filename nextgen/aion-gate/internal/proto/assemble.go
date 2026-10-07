@@ -80,6 +80,6 @@ func num(v any) uint64 {
 	panic(fmt.Sprintf("assemble: нечисловой аргумент %T", v))
 }
 
-func byteOf(v any) byte   { return byte(num(v)) }
+func byteOf(v any) byte     { return byte(num(v)) }
 func uint16Of(v any) uint16 { return uint16(num(v)) }
 func uint32Of(v any) uint32 { return uint32(num(v)) }

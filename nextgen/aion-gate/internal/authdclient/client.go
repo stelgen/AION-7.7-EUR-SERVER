@@ -42,11 +42,11 @@ var (
 
 // Handler — inbound колбеки (вызываются из read-горутины).
 type Handler struct {
-	OnRegistered func(id uint32)                            // [01] authd id
-	OnAssigned   func(sid uint32)                           // [03] authd назначил сессию
-	OnPacket     func(id uint32, typ byte, payload []byte)  // [02] тип<0x15
-	OnClosed     func(err error)                            // коннект потерян
-	OnRaw        func(dir string, b []byte)                 // RAW wire-дамп всего трафика (dir: "A>G"/"G>A")
+	OnRegistered func(id uint32)                           // [01] authd id
+	OnAssigned   func(sid uint32)                          // [03] authd назначил сессию
+	OnPacket     func(id uint32, typ byte, payload []byte) // [02] тип<0x15
+	OnClosed     func(err error)                           // коннект потерян
+	OnRaw        func(dir string, b []byte)                // RAW wire-дамп всего трафика (dir: "A>G"/"G>A")
 }
 
 type Client struct {

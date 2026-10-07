@@ -134,7 +134,14 @@ func DecodeLoginPlain(ms [][]byte) (DecodedLogin, bool) {
 	return d, isPrintableASCII(d.User)
 }
 
-func hexEncode(b []byte) string { const h = "0123456789abcdef"; s := make([]byte, 0, len(b)*2); for _, c := range b { s = append(s, h[c>>4], h[c&15]) }; return string(s) }
+func hexEncode(b []byte) string {
+	const h = "0123456789abcdef"
+	s := make([]byte, 0, len(b)*2)
+	for _, c := range b {
+		s = append(s, h[c>>4], h[c&15])
+	}
+	return string(s)
+}
 
 // BuildLoginDecbuf — decbuf для authd-blob "cbdb", собирается из РЕАЛЬНЫХ полей
 // (asm оригинала arg3=0x22=34 = user14+pwd16+otp4; работает одинаково для обеих форм —
