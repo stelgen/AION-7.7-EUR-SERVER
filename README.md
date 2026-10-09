@@ -25,7 +25,7 @@ flowchart LR
   C["🎮 Клиент"] --> G["aion-gate :2106<br/>✅ 100% релиз"]
   G --> A["aion-authd :2110<br/>✅ R6 в бою ~90%"]
   W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
-  W --> ACS["ACS :2220 (ориг)<br/>🟡 aion-accache ~45%"]
+  W --> ACS["ACS :2220 (ориг, accmirror-стенд)<br/>🟡 aion-accache ~70%"]
   W --> CD["CacheD64 :2006 (ориг)<br/>🔬 aion-cache ~20%"]
   G -. "тень :2117 / fork :2116 = откат" .-> A
   PA["PA :10057 (ориг, ОБЯЗАТЕЛЕН)"] --> A
@@ -73,7 +73,7 @@ flowchart LR
 | Капча | CAPTCHAImageServer `:22206` | `nextgen/aion-captcha` (Go) | ✅ ~95% в бою 05.10 (буфер 10000 за ~4с против 6.4 мин) |
 | Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ **100% РЕЛИЗ** (`b363dda`, exe `f146a415` 10.10): авт-хвосты закрыты live (T3/T4/T5 ✅), остался опц. T2-а; ⚠ мир-хвост 2-го параллельного клиента (GS-вход) → aion-main |
 | Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | ✅ **R6 В БОЮ ~90% (09.10)**: живой путь 2110+2104; полный цикл юзера + мгновенный перелогин; наблюдение 24ч |
-| Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟡 ~45%: R2 каркас готов; **R1 capture = следующий чат** |
+| Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟡 ~70%: capture + wire-канон/раскладки ✅ 10.10 (R2.5); **R3 SQLStore = следующий чат** |
 | Кэш мира | CacheD64 `:2006/2007/2009` | `nextgen/aion-cache` (план) | 🔬 ~20%: R0+R1-prep ✅ 10.10 (опкоды всех 8 протоколов); кода нет |
 | Interchange | ICServer `:2005/2305` | `nextgen/aion-ic` | 🔬 ~10%: ресёрч закрыт 07.10 (IC опционален); R0 ждёт |
 | Мир-симуляция | NPCSvr64 | `nextgen/aion-npc` | 🔬 ~15% деприор: R0 ✅, R1 ⏸ (до прогресса соседей) |
@@ -106,7 +106,7 @@ flowchart LR
 |---|---|---|---|---|
 | 1 | Телеметрия rsyslog→Loki→Grafana + `ship.enabled: true` в прод-конфигах | 🟢 полдня | 🟢 ~90% | nextgen/TELEMETRY-SPEC.md |
 | 2 | Деплой 2 REF58-проц (UpdateTotalMainStatus/InsertServerinfo) + metric1-4 → logdb | 🟢 1 день | 🟢 ~80% | scripts/sql/ref58-logprocs-pending-20261005.sql |
-| 3 | **nextgen главный поток**: accache R1 capture → CacheD64 R1 wire (log/*.log) → gate T2-а/T3/T4/T6 → op Phase 1.5+R6-конфиг | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
+| 3 | **nextgen главный поток**: accache R3 SQLStore → CacheD64 R1 wire (log/*.log) → authd R6-хвосты → op Phase 1.5+OP-1..6 (гейт = финал) | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
 | 4 | Ghidra-silence луперов 10100/10254/2107 (один проход закроет все три) | 🟡 1–2 дня | 🟡 ~60% | fixes-pending/loops-shopagent-channelchat-petition |
 | 5 | Матчмейкер арен на одном MainServer (JZ→JNZ на IsEventServer, AKllX) | 🟡 дни | 🟡 ~50% | fixes-pending/108-matchmaker-arenas |
 | 6 | Manastone-стек фикс MainServer64 (только чистый exe, ENIGMA = риск бэкдора) | 🟠 нед | 🟡 ~50% | fixes-pending/111-mainserver64-manastones |

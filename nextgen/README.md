@@ -26,7 +26,7 @@
 | **Логгер** | 2051 | `LogServer64.exe` | [aion-logd/](aion-logd/) | ✅ **~95% в бою** 05.10 (Л1–Л4 закрыты); pending: REF58-процы + ship-приёмник | `D:\SAION\aion-logd\`, задача AionLogCap; откат: `schtasks /run AionLog` | [README](aion-logd/README.md), [snapshot](aion-logd/SNAPSHOT.md) |
 | **Капча** | 22206 | `CAPTCHAImageServer.exe` | [aion-captcha/](aion-captcha/) | ✅ **~95% в бою** 05.10 (буфер 10000 за ~4с vs 6.4 мин ориг); pending: ship-приёмник | `D:\SAION\aion-captcha\`, задача AionCAPTCHA → run.cmd; откат: retarget задачи | [README](aion-captcha/README.md), [snapshot](aion-captcha/SNAPSHOT.md) |
 | **Authd** (авторизация) | 2104/2110 | `L2Authd.exe` | [aion-authd/](aion-authd/) | ✅ **R6 В БОЮ ~90% (09.10)**: наш authd = живой путь (2110 гейт + 2104 мир, Server64 переключился); полный цикл юзера подтверждён (логин→мир→выход→мгновенный перелогин, pk1=эхо, квитанции 40/3-выход); mssql-стор на реальных ap_* procs | prod :2110+:2104 (AionAuthdProd), тень :2117 (AionAuthdShadow), fork :2116 — `D:\SAION\aion-authd\`; наблюдение 24ч | [README](aion-authd/README.md), [ROADMAP](aion-authd/ROADMAP.md), [RESEARCH](aion-authd/RESEARCH.md) |
-| **Кэш аккаунтов (ACS)** | 2220 | `AccountCacheServer.exe` | [aion-accache/](aion-accache/) | 🟡 **~45%**: R0 (PDB 92МБ, 101 proc), R0.5 (dispatch-таблица), R2 (Go-каркас, тесты зелёные); **R1 capture = следующий чат** | НЕ деплоен (ориг жив); prod-ACS :2220 | [README](aion-accache/README.md), [ROADMAP](aion-accache/ROADMAP.md), [RESEARCH](aion-accache/RESEARCH.md) |
+| **Кэш аккаунтов (ACS)** | 2220 | `AccountCacheServer.exe` | [aion-accache/](aion-accache/) | 🟡 **~70%**: R0/R0.5/R2 ✅; **R1 capture ✅ + R2.5 wire-канон/раскладки ✅ 10.10** (accmirror v1.1 на стенде :2220→:2221, len=total — офф-бай-2 в v1.0/proto исправлен, маркеры EB/EC, internal/payload на живых golden-кадрах, тесты зелёные); **R3 SQLStore = следующий чат** | НЕ свитчен (ориг жив, стенд зеркалит); prod-ACS :2220 | [README](aion-accache/README.md), [ROADMAP](aion-accache/ROADMAP.md), [RESEARCH](aion-accache/RESEARCH.md) |
 | **Кэш мира (CacheD64)** | 2006/2007/2009 | `CacheD64.exe` (22.5МБ) | [aion-cache/](aion-cache/) | 🔬 **~20%**: R0 ✅ 08.10 (PDB 106МБ, словари RQ382/RP255/GQ55/GP53, 781 procs); **R1-prep ✅ 10.10 — опкод-нумерация ВСЕХ 8 протоколов снята из .profile (RP238/RQ381/LP/IC/NPRelay), дифф 5.8⊂7.7 append-only, топ-нагрузка**; осталось R1 wire из log/*.log (pktmon-2006 = loopback-блокер доказан) + R2 семантика | НЕ тронут (ориг жив); 2–4 нед на MVP | [README](aion-cache/README.md), [RESEARCH](aion-cache/RESEARCH.md), [cached-ref/](cached-ref/README.md) |
 | **Interchange** | 2005/2305 | `ICServer.exe` | [aion-ic/](aion-ic/) | 🔬 **ресёрч закрыт ~10% (07.10)**: публичного IC-эмулятора НЕТ (GitHub 0; Java-эмуляторы без IC); протокол-факты из AKllX #26 (`InterSvrType`/`ICServerAddr`, matchmaker = отдельный мини-стек; **IC опционален**); киты 2.7/4.6db/5.8 на VM; R0 = следующий. Опционален: лупер безвреден, можно не включать | ориг работает | [README](aion-ic/README.md), [RESEARCH](aion-ic/RESEARCH.md) |
 | **Чат** | 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ⬜ не начат, низший (exe нет — реконструкция) | не запускать | [README](aion-chat/README.md) |
@@ -50,11 +50,11 @@
 |---|---|---|---|
 | 🔐 **Auth-цепочка** | gate ✅ 100 · authd ✅ 90 | **~95%** | ✅ ЖИВОЙ ПУТЬ — юзер играет |
 | 📟 **Обвязка** | logd ✅ 95 · captcha ✅ 95 · op ✅ 70 | **~87%** | ✅ в бою |
-| 🗄 **Кэши** | accache 🟡 45 · cache 🔬 20 | **~33%** | 🟡 фронт работ |
+| 🗄 **Кэши** | accache 🟡 70 · cache 🔬 20 | **~45%** | 🟡 фронт работ |
 | 🌍 **Мир** | ic 🔬 10 · npc 🔬 15 · main 🟡 30 | **~18%** | 🔬 деприор (в плане — «бескомпромиссно») |
 | 🧰 **Деприор-хвост** | pa ⬜ 10 · binpatch ⬜ 10 · chat/petition/shop/gm/relay/ranking ⬜ 0 | **~5%** | ⬜ план, не отмена |
 
-**ВЕСЬ ТРЕК B: ≈ 44%** (взвешенно по трудоёмкости, оценка PM 10.10.2026). Ядро «логин+мир живы» — сделано; фронт = кэши (accache R1 → cache R1) и потом мир (npc/main).
+**ВЕСЬ ТРЕК B: ≈ 46%** (взвешенно по трудоёмкости; пересчёт после accache R2.5 10.10). Ядро «логин+мир живы» — сделано; фронт = кэши (accache R1 → cache R1) и потом мир (npc/main).
 *Методика:* % компонента = закрытые фазы его R0..R6 ROADMAP (честно, не «почти готово»); вес = доля трудоёмкости (cache 20% · main 15% · npc 15% · authd 10% · gate/accache 8% · op/ic/logd ~5% · прочее ≤4%); пересчёт при каждом статус-сдвиге. Цвета: 🟢 просто · 🟡 каркас · 🟠 средне · 🔴 тяжело; статусы: ✅ бой · 🔬 ресёрч · ⬜ не начат · ⏳ ждёт «го».
 
 ### 2.6 🗺 ЖИВАЯ ТОПОЛОГИЯ ПРОДА (R6) И МЕТОД-ЦИКЛ
@@ -64,7 +64,7 @@ flowchart LR
   C["🎮 Клиент"] --> G["aion-gate :2106<br/>✅ 100% релиз"]
   G --> A["aion-authd :2110<br/>✅ R6 в бою ~90%"]
   W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
-  W --> ACS["ACS :2220 (ориг)<br/>🟡 aion-accache ~45%"]
+  W --> ACS["ACS :2220 (ориг, accmirror-стенд)<br/>🟡 aion-accache ~70%"]
   W --> CD["CacheD64 :2006 (ориг)<br/>🔬 aion-cache ~20%"]
   G -. "тень :2117 / fork :2116<br/>= откат одной командой" .-> A
   PA["PA :10057 (ориг, ОБЯЗАТЕЛЕН)"] --> A
@@ -117,10 +117,10 @@ flowchart LR
 
 ## 6. ДАЛЬНЕЙШИЙ ПОРЯДОК (сводка; детали = [ROADMAP.md](ROADMAP.md))
 
-1. **aion-accache R1** — capture-стенд :2220 (копия ACS :2221 + fork-proxy) при логинах юзера → payload-раскладки + ACP-номера → R3 SQLStore → R4 A/B → R5 свитч. Промпт готов: [aion-accache/PROMPT.md](aion-accache/PROMPT.md).
+1. **aion-accache R3** — SQLStore (go-mssqldb) + полный хендлер-набор по телам procs; хвосты R2.5: поля Fatigue/Trial, push-семантика 13/15/20/21, T2-канал. Capture+wire-канон ✅ 10.10 (R2.5); дозахват недостающих cmds = просто логин юзера (accmirror-стенд жив). Промпт: [aion-accache/PROMPT.md](aion-accache/PROMPT.md).
 2. **aion-cache (CacheD64) R1** — wire 2006 из готовых log/*.log (356МБ) + capture через fork-копию :2016 (go) / тест-мир LAN — pktmon-2006 = loopback-блокер доказан → R2 дизasm → R3 Go MVP (read-путь + write-транзит). Папка-заготовка: [aion-cache/](aion-cache/README.md) (промпт внутри).
 3. **aion-authd R6-хвосты** — завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 (T3).
-4. **aion-gate** — авт-хвосты закрыты live 10.10 (T3 ✅, T4 ✅ 2 параллельны чисто, T5 ✅ exe f146a415 на проде); остался опц. T2-а + tag gate-7.7-final. ⚠ Мир-хвост (не гейт): 2-й параллельный клиент виснет на GS-входе → кросс-пульс aion-main.
+4. **aion-gate** — авт-хвосты закрыты live 10.10 (T3 ✅, T4 ✅ 2 параллельны чисто, T5 ✅ exe f146a415 на проде); T6 ✅ (тег gate-7.7-final на b363dda); остался опц. T2-а. ⚠ Мир-хвост (не гейт): 2-й параллельный клиент виснет на GS-входе → кросс-пульс aion-main.
 5. **op Phase 1.5** — событийный watchdog (ночной рестарт пары = тумблер), async-ожидания маркеров.
 6. **Телеметрия** — rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах logd/captcha.
 7. **REF58-процы** — деплой `scripts/sql/ref58-logprocs-pending-20261005.sql` + маппинг metric1-4 → logdb.

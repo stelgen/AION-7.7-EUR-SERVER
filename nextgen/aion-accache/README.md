@@ -1,7 +1,7 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
 🟢 **~70% · R2.5 ВЫПОЛНЕН (10.10)**: wire-канон снят полностью (len=total, маркеры EB/EC — RESEARCH §11), internal/proto+internal/payload на живых golden-кадрах (тесты зелёные), accmirror v1.1 на стенде (ok=true на всех кадрах live). R3-хвосты: роли полей Fatigue/Trial, push-семантика 13/15/20/21, T2-канал.
-Статус трека: nextgen/ACCOUNTCACHE-ROADMAP.md. Факты: RESEARCH.md (§6 сурс-свип, §9-10).
+Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-10).
 
 ## Канон (доказано дизasmом, не догадки)
 
@@ -12,7 +12,7 @@
 - **T2** (второй канал, cmds 0..7): MoveChar×2, PromotionCoolTime×2, GEN_TEST×2 — семантика канала = R1.
 - **БД**: `AionAccountCacheD` (21 таблица, 101 proc, тела в accountcache-ref/db-procs-77-ref58.rpt).
 - **Клиент 2220 на проде = Server64** (authd подключается лениво).
-- **ACP-ответы**: тот же фрейм (`PutCmd_ACP`), номера ответных cmd TBD (indirect vtable — R1 capture).
+- **ACP-ответы**: тот же фрейм (`PutCmd_ACP`), номера ответных cmd = та же enum ACQ с маркером 0xEC (пары 1↔1/4↔4/5↔5/26↔26; «второй формат» и «S2C ≠ ACQ» = артефакты офф-бай-2, R2.5 10.10).
 
 ## Структура
 
