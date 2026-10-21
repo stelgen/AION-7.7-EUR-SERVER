@@ -1,37 +1,13 @@
-# aion-captcha — боевой конфиг (как у оригинала config.ini; ship — стандарт TELEMETRY-SPEC)
-server:
-  listen: "0.0.0.0:22206"
-  session_count: 1024
-  verbose: false
-  render:
-    width: 128          # <image_width>
-    height: 32          # <image_height>
-    charset: "1234567890"  # <character_set> (en.xml)
-    length: 6           # <character_length>
-    font_size: 32       # <font_size>
-    font_bold: true     # <font_bold>
-    rotate_min: -8      # <font_rotate_min>
-    rotate_max: 8       # <font_rotate_max>
-    bg_max: 30          # background_color_max
-    curve_count: 2      # <curve_count>
-    curve_point_count: 3
-    curve_width: 1.7
-    point_count: 200    # <point_count>
-    point_size: 2.3
-
-# телеметрия В СЕТЬ; недоступный приёмник не мешает (ship — не критичный путь)
+# ship-конфиг aion-captcha — по TELEMETRY-SPEC §5
+# Сеть VM→Linux (192.168.0.2:514) ЗАБЛОКИРОВАНА (тест 21.10: UDP SENT OK с VM,
+# listener 0.0.0.0:514 на Linux жив, пакет не дошёл — NAT/фаервол дропает входящий).
+# Включён явный file-фолбэк (правило №1: только явно), syslog.host прописан —
+# включить при открытии порта 514/UDP VM→192.168.0.2.
 ship:
-  enabled: false
-  syslog:
-    net: "udp"
-    host: ""
-    facility: 1
-  http:
-    url: ""
-    timeout: 3
-  file:
-    enabled: false
-    dir: "./logs/ship"
+  enabled: false            # сетевые синки ВЫКЛ до открытия порта 514
+  syslog: { net: "udp", host: "192.168.0.2:514", facility: 1 }
+  http:   { url: "", timeout: 3 }
+  file:   { enabled: true, dir: "./logs/ship" }   # фолбэк: D:\SAION\aion-captcha\logs\ship\YYYY-MM-DD.ndjson
   queue: 4096
   self_sec: 300
   max_raw: 512

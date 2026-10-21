@@ -1,8 +1,21 @@
-# 🧾 СТАТУС-СНИМОК — aion-captcha (замена CAPTCHAImageServer.exe) на 05.10.2026
+# 🧾 СТАТУС-СНИМОК — aion-captcha (замена CAPTCHAImageServer.exe) на 21.10.2026
 
 > Прод: **наш aion-captcha в бою на :22206** (PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd,
 > откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `schtasks /run AionCAPTCHA`).
 > Протокол capture-верифицирован: docs/captcha-protocol-20261005.md.
+
+## 📡 SHIP TELEMETRY ВКЛЮЧЁН (file-фолбэк) — 21.10.2026
+
+- Новый exe: MD5 `86f6e31161d7b37eacc5125de418f9fc` (код без изменений — только config.yaml
+  с ship-секцией; пересборка для идентичности тулчейна).
+- ⚠️ Сетевой блокер: **UDP VM→192.168.0.2:514 дропается** (тест 21.10: VM `UDP SENT OK`,
+  listener на Linux жив на 0.0.0.0:514, пакет не дошёл — NAT/фаервол). Syslog-синк ГОТОВ,
+  но `ship.enabled: false` до открытия порта 514/UDP VM→Linux.
+- ✅ Фолбэк по правилу №1 TELEMETRY-SPEC (явно в конфиге): `ship.file.enabled: true`
+  → `D:\SAION\aion-captcha\logs\ship\YYYY-MM-DD.ndjson`.
+- Деплой верифицирован 21.10: процесс PID 2328 LISTENING :22206, ship-файл создан,
+  первое событие `{"ev":"start","msg":"aion-captcha started",...}` — это первый ship-выброс.
+- Статус остаётся ~95%: file-фолбэк ≠ единый стак по сети (правило №2), до открытия порта.
 
 ## ✅ СВИТЧ ВЫПОЛНЕН И ВЕРИФИЦИРОВАН (13:50-13:55 VM 05.10)
 
