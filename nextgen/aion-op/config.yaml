@@ -237,3 +237,17 @@ sql:
   enabled: true
   poll_sec: 30
   conn: "sqlserver://aionop_ro:СЕКРЕТ-НА-VM@127.0.0.1:1433?database=master&encrypt=disable"
+# Phase 1.5 (OP-6): событийный watchdog. ВКЛЮЧАЕТСЯ ОСОЗНАННО после деплоя:
+# svc DOWN (не expected_down) -> авторестарт с backoff-эскалацией;
+# после max_attempts — halt автопилота до ResetHalt (ручное вбитие).
+# nightly: ночное окно рестарта пары NPC+MAIN (тумблер юзера: user_toggle).
+watchdog:
+  enabled: false          # false = только observe (безопасный дефолт)
+  interval_sec: 30
+  escalate: [60, 300, 1800]   # 1м -> 5м -> 30м backoff
+  max_attempts: 3
+  nightly:
+    start: "04:00"
+    end: "05:00"
+    restart_pair: false
+  user_toggle: false

@@ -18,7 +18,7 @@ func testCfg() *config.Config {
 				Ports: []int{2002, 7777}, Heavy: true, Pair: "world_pair", PairMaster: true},
 			{ID: "npc", Exe: "NPCSvr64.exe", Task: "AionNPCit", KillTask: "AionKickNPC2",
 				Heavy: true, Pair: "world_pair"},
-			{ID: "gate", Exe: "AuthGateD.exe", Task: "AionGate", Interactive: true},
+			{ID: "gate", Exe: "AuthGateD.exe", Task: "AionGate", Interactive: true, Ports: []int{2106}},
 			{ID: "chat", Exe: "ChannelChattingServer.exe", Locked: true},
 		},
 		WorldPair: config.WorldPair{NPCPort: 2002, ExpectedConns: 16},
@@ -92,8 +92,9 @@ func TestRestartIndividualButtons(t *testing.T) {
 	p := e.Build("restart", "gate", snapOK())
 	if p.Rejected != "" || !p.Danger || p.NeedConfirm != "restart" ||
 		!strings.Contains(p.Steps[0], "Get-ScheduledTask") ||
-		p.Steps[1] != "schtasks /run /tn AionKickGate" || p.Steps[3] != "schtasks /run /tn AionGate" {
-		t.Fatalf("restart gate: %+v", p)
+		p.Steps[1] != "schtasks /run /tn AionKickGate" || p.Steps[2] != "schtasks /run /tn AionGate" ||
+		!strings.Contains(p.Steps[3], "await-port 127.0.0.1 2106") {
+		t.Fatalf("restart gate (OP-5 канон: check/kill/start/await-port): %+v", p)
 	}
 
 	// npc: рестарт = полный цикл пары (каскад NpcSocket Close), confirm RESTART PAIR

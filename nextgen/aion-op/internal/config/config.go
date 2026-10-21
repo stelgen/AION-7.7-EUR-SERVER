@@ -90,6 +90,22 @@ type AgentCfg struct {
 	MaxOutMB   int    `yaml:"max_out_mb"`  // капа stdout/stderr
 }
 
+// OP-6: Phase 1.5 событийный watchdog.
+type WatchdogNightly struct {
+	Start       string `yaml:"start"`        // cron-подобное окно, "04:00"
+	End         string `yaml:"end"`          // "05:00"
+	RestartPair bool   `yaml:"restart_pair"` // рестарт пары NPC+MAIN ночью
+}
+
+type WatchdogCfg struct {
+	Enabled      bool            `yaml:"enabled"`       // дефолт выкл до деплоя
+	IntervalSec  int             `yaml:"interval_sec"`  // тик (дефолт 30)
+	EscalateSec  []int           `yaml:"escalate"`      // backoff 60,300,1800 (1м→5м→30м)
+	MaxAttempts  int             `yaml:"max_attempts"`  // дефолт 3; после — алерт + стоп автопилота
+	Nightly      WatchdogNightly `yaml:"nightly"`
+	UserToggle   bool            `yaml:"user_toggle"`   // тумблер юзера: разрешить автопилоту действия
+}
+
 type Config struct {
 	VM        VM               `yaml:"vm"`
 	Operator  Operator         `yaml:"operator"`
@@ -102,6 +118,7 @@ type Config struct {
 	Logs      LogsCfg          `yaml:"logs"`
 	Metrics   MetricsCfg       `yaml:"metrics"`
 	Sql       SqlCfg           `yaml:"sql"`
+	Watchdog  WatchdogCfg      `yaml:"watchdog"`
 }
 
 func Load(path string) (*Config, error) {
@@ -175,6 +192,21 @@ func (c *Config) normalize() {
 	}
 	if c.Agent.MaxOutMB <= 0 {
 		c.Agent.MaxOutMB = 8
+	}
+	if c.Watchdog.IntervalSec <= 0 {
+		c.Watchdog.IntervalSec = 30
+	}
+	if len(c.Watchdog.EscalateSec) == 0 {
+		c.Watchdog.EscalateSec = []int{60, 300, 1800}
+	}
+	if c.Watchdog.MaxAttempts <= 0 {
+		c.Watchdog.MaxAttempts = 3
+	}
+	if c.Watchdog.Nightly.Start == "" {
+		c.Watchdog.Nightly.Start = "04:00"
+	}
+	if c.Watchdog.Nightly.End == "" {
+		c.Watchdog.Nightly.End = "05:00"
 	}
 	if c.Operator.Bind == "" {
 		c.Operator.Bind = "0.0.0.0" // локалка юзера — наружу не торчит (роутер/NAT)

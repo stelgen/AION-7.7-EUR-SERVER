@@ -21,6 +21,7 @@ import (
 	"aion-op/internal/probe"
 	"aion-op/internal/sqlmon"
 	"aion-op/internal/store"
+	"aion-op/internal/watchdog"
 	"aion-op/internal/web"
 )
 
@@ -76,6 +77,12 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	// Phase 1.5 (OP-6): событийный watchdog — ТОЛЬКО по явному enabled в конфиге.
+	if cfg.Watchdog.Enabled {
+		wd := watchdog.New(cfg, exec, prober, st)
+		go wd.Run(ctx)
+	}
 
 	eng := alerts.New(st)
 	holder := &metrics.Holder{}

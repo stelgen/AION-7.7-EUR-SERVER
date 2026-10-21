@@ -40,6 +40,9 @@ type Executor struct {
 	cfg *config.Config
 	st  *store.Store
 	run func(ctx context.Context, cmd string) (string, error)
+
+	// portCheckFn — подменяется в тестах (fake listener вместо powershell-dial).
+	portCheckFn func(ctx context.Context, host string, port int) (bool, error)
 }
 
 func New(cfg *config.Config, st *store.Store, run func(ctx context.Context, cmd string) (string, error)) *Executor {
@@ -113,7 +116,13 @@ func (e *Executor) Build(action, id string, snap probe.Snapshot) Plan {
 		p.NeedConfirm = "restart"
 		// Шаг-0: задача запуска должна быть готова — иначе abort ДО kill-а
 		// (инцидент 05.10: AionGate оказался Disabled → гейт убит, старт не удался).
-		p.Steps = []string{taskReadyCheck(svc.Task), stop, "пауза 5с", "schtasks /run /tn " + svc.Task}
+		// OP-5: вместо фиксированной паузы 5с — ожидание порта сервиса ПОСЛЕ старта
+		// (гонка старта гейта: 5с было мало). Порт — первый из конфига.
+		steps := []string{taskReadyCheck(svc.Task), stop, "schtasks /run /tn " + svc.Task}
+		if len(svc.Ports) > 0 {
+			steps = append(steps, awaitPortStep("127.0.0.1", svc.Ports[0]))
+		}
+		p.Steps = steps
 
 	case "restart_pair":
 		if id != "pair" {
@@ -165,6 +174,7 @@ func (e *Executor) pairPlan(p *Plan, snap probe.Snapshot, note string) {
 		"ждать полной загрузки NPCSvr (~14.9 ГБ, 10–15 мин)",
 		"schtasks /run /tn " + mainTask.Task, // Server64
 		"ждать conns 16/16 на :2002 и LISTENING 7777",
+		awaitPortStep("127.0.0.1", 7777), // OP-5: await вместо пометки
 	}
 	p.Notes = append(p.Notes, note)
 }
@@ -210,6 +220,19 @@ func (e *Executor) exeShared(exe string) bool {
 	return n > 1
 }
 
+// ExecuteAs — Execute с источником в audit-journal ("manual" | "watchdog", OP-6).
+func (e *Executor) ExecuteAs(ctx context.Context, p Plan, confirm, source string) Result {
+	res := e.Execute(ctx, p, confirm)
+	if source != "" && source != "manual" {
+		e.st.AddAction(store.ActionRow{
+			Ts: time.Now().Unix(), Action: p.Action + " (source=" + source + ")", Target: p.Target,
+			OK: res.OK, Executed: !e.DryRun() && p.Rejected == "" && !(p.Danger && confirm != p.NeedConfirm),
+			Detail: res.Detail,
+		})
+	}
+	return res
+}
+
 // Execute — confirm-гейт → исполнение шагов → audit. При dry_run шаги НЕ исполняются.
 func (e *Executor) Execute(ctx context.Context, p Plan, confirm string) Result {
 	audit := func(ok bool, executed bool, detail string) {
@@ -238,6 +261,30 @@ func (e *Executor) Execute(ctx context.Context, p Plan, confirm string) Result {
 		if strings.HasPrefix(t, "пауза") || strings.HasPrefix(t, "ждать") || strings.HasPrefix(t, "…") {
 			logw.WriteString(step + " — (пометка плана, не команда)\n")
 			continue
+		}
+		if strings.HasPrefix(t, "await-port ") {
+			host, port, _, _, isPort := parseAwaitStep(t)
+			if isPort {
+				if err := e.waitForPort(ctx, host, port, defaultAwaitTimeout); err != nil {
+					logw.WriteString(fmt.Sprintf("FAIL %s: %v\n", step, err))
+					audit(false, true, logw.String())
+					return Result{OK: false, Detail: logw.String(), Plan: p}
+				}
+				logw.WriteString("OK " + step + "\n")
+				continue
+			}
+		}
+		if strings.HasPrefix(t, "await-log ") {
+			_, _, path, marker, _ := parseAwaitStep(t)
+			if path != "" {
+				if err := e.waitForLogMarker(ctx, path, marker, defaultAwaitTimeout); err != nil {
+					logw.WriteString(fmt.Sprintf("FAIL %s: %v\n", step, err))
+					audit(false, true, logw.String())
+					return Result{OK: false, Detail: logw.String(), Plan: p}
+				}
+				logw.WriteString("OK " + step + "\n")
+				continue
+			}
 		}
 		out, err := e.run(ctx, step)
 		detail := strings.TrimSpace(firstLine(out))
