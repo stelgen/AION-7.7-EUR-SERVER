@@ -91,10 +91,10 @@ accache R1 capture (`../aion-accache/PROMPT.md`), gate T2-T6 (`../aion-gate/`), 
 
 ## 📡 Кросс-пульс соседям (10.10, гейт-чат)
 
-- **op**: добавить сервис `authdprod` (задача AionAuthdProd, контроль портов 2110+2104) — сейчас
-  живой authd в op НЕ контролируется (видна только тень authdn :2117); ⚠ `stop authdn` =
-  `taskkill /F /IM aion-authd.exe` бьёт И ПРОД (общее имя exe у prod и тени) — разделить по
-  kill_task/PID или переименовать тень. Детали: [../aion-op/ROADMAP.md](../aion-op/ROADMAP.md) §6.
+- **op**: ✅ ОБА ПУНКТА ЗАКРЫТЫ 21.10 (кросс-пульс подтверждён): (1) сервис `authdprod` в op-конфиге
+  (коммит 89bd259, VM видит prod 2110+2104); (2) kill-коллизия решена (коммит 88cda0a + деплой
+  aionop-win-1022 21.10): stop authdn = точечный `schtasks /end AionAuthdShadow`, ПРОД не задевается —
+  live-verified 21.10 (authdprod PID 6436 пережил stop authdn). Детали: [../aion-op/ROADMAP.md](../aion-op/ROADMAP.md) §6.
 - **gate**: T2-б/T2-в закрыты этим R6 ([../aion-gate/README.md](../aion-gate/README.md) §T2/T3);
   откат-цепочка на месте (rollback-gate.ps1 + authd-rollback.cmd).
 - **Статус live**: op-метрики 12:57 VM 10.10 — оба процесса aion-authd.exe живы (prod 2110+2104 +

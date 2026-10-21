@@ -1,1 +1,4 @@
 internal/world/testdata/layouts/
+put.json
+put.yaml.json
+*.exe
