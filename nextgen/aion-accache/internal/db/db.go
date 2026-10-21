@@ -167,11 +167,12 @@ func GetLuna(ctx context.Context, ex Executor, accountID int32) (int64, error) {
 	return l, rows.Err()
 }
 
-// TrialAccountData — колонки aion_GetTrialAccountData.
+// TrialAccountData — колонки aion_GetTrialAccountData (7.7 = 6 колонок,
+// прод-факт 21.10: reset_time, sell_gold_sum, trade_gold_sum, decompose_sum,
+// gather_sum, extract_gather_sum — UpdateTime-колонки в proc НЕТ).
 type TrialAccountData struct {
-	UpdateTime, ResetTime                       int32
-	SellGold, TradeGold                         int64
-	DecomposeSum, GatherSum, ExtractGatherSum   int32
+	ResetTime, SellGold, TradeGold             int64
+	DecomposeSum, GatherSum, ExtractGatherSum  int32
 }
 
 func GetTrialAccountData(ctx context.Context, ex Executor, accountID int32) (*TrialAccountData, error) {
@@ -184,7 +185,7 @@ func GetTrialAccountData(ctx context.Context, ex Executor, accountID int32) (*Tr
 		return nil, rows.Err()
 	}
 	var t TrialAccountData
-	if err := rows.Scan(&t.UpdateTime, &t.ResetTime, &t.SellGold, &t.TradeGold,
+	if err := rows.Scan(&t.ResetTime, &t.SellGold, &t.TradeGold,
 		&t.DecomposeSum, &t.GatherSum, &t.ExtractGatherSum); err != nil {
 		return nil, err
 	}

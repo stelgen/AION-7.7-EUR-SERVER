@@ -23,6 +23,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -135,15 +136,78 @@ func (r *replayRows) Scan(dest ...any) error {
 	return nil
 }
 
-// replayExec — суррогат db.Executor: честный Scan + фиксация запросов.
+// replayExec — суррогат db.Executor: честный Scan + фиксация запросов +
+// STATEFUL: account_data per-acc (updatetime мутится Exec'ом
+// aion_UpdateHiddenFatigueInfo — как в ориг: после UPDATEHiddenFatigue
+// первый FIRST_LOAD возвращает НОВЫЙ updatetime; capture-факт acc=1010:
+// 0x6AC61FCA до апдейтов, 0x6AC620A3 после).
 type replayExec struct {
 	fakeExec
+	mu    sync.Mutex
+	accs  map[int32]*replayAcc
+	trial map[int32]*replayTrial
+}
+
+type replayAcc struct {
+	point, upd, npckill, limitReset, limitAccum int32
+}
+
+// replayTrial — прод-факты 21.10 (acc=1010): reset=0, sell=917, trade=70,
+// decompose=0, gather=0, extract=0 (SQL AionAccountCacheD_rc.trial_account_data).
+type replayTrial struct {
+	reset, sell, trade, decompose, gather, extract int32
+}
+
+func newReplayExec() *replayExec {
+	return &replayExec{
+		accs: map[int32]*replayAcc{
+			1010: {point: 1, upd: 0x6AC61FCA, npckill: 0, limitReset: 1791352800, limitAccum: 0}, // 1791352800 = 0x6AC5DFE0 (прод: limit_play_reset_time acc=1010)
+			// acc=7 отсутствует в account_data — FIRST_LOAD#3 = пустая строка (golden ts=0)
+		},
+		trial: map[int32]*replayTrial{
+			1010: {reset: 0, sell: 917, trade: 70, decompose: 0, gather: 0, extract: 0},
+		},
+	}
 }
 
 func (f *replayExec) Query(ctx context.Context, q string, args ...any) (db.Rows, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
 	f.queryQ = q
 	f.queryArgs = args
+	if strings.Contains(q, "aion_GetAccountData") && len(args) == 1 {
+		acc := args[0].(int32)
+		if a, ok := f.accs[acc]; ok {
+			return &replayRows{data: [][]any{{a.point, a.upd, a.npckill, a.limitReset, a.limitAccum}}}, nil
+		}
+		return &replayRows{data: nil}, nil // пустой result-set как ориг
+	}
+	if strings.Contains(q, "aion_GetTrialAccountData") && len(args) == 1 {
+		acc := args[0].(int32)
+		if tr, ok := f.trial[acc]; ok {
+			return &replayRows{data: [][]any{{tr.reset, tr.sell, tr.trade, tr.decompose, tr.gather, tr.extract}}}, nil
+		}
+		return &replayRows{data: nil}, nil
+	}
 	return &replayRows{data: f.rows}, nil
+}
+
+func (f *replayExec) Exec(ctx context.Context, q string, args ...any) (db.Result, error) {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	f.execs = append(f.execs, q)
+	f.execArgs = append(f.execArgs, args)
+	// aion_UpdateHiddenFatigueInfo(acc, point, npckill, updatetime, limit_reset, limit_play):
+	// прод-факт — updatetime-колонка = 4-й аргумент (wire-offset16). ТОЛЬКО updatetime:
+	// golden FIRST_LOAD#2 point=1 несмотря на UPDATE point=0 (ACS не зеркалит point
+	// с wire в account_data, либо роли point/npckill иные — журнал теорий).
+	if strings.Contains(q, "aion_UpdateHiddenFatigueInfo") && len(args) >= 4 {
+		acc := args[0].(int32)
+		if a, ok := f.accs[acc]; ok {
+			a.upd = args[3].(int32)
+		}
+	}
+	return fakeResult{}, nil
 }
 
 // splitFrames — режет накопленный S2C-байтовый поток на кадры по [u16 len]
@@ -190,12 +254,10 @@ func TestR4ReplayCapture(t *testing.T) {
 		t.Fatalf("golden corpus пуст: C2S=%d S2C=%d", len(c2s), len(s2c))
 	}
 
-	// 2) Живой сервер с fakeDB. Строка aion_GetAccountData_20170428
-	//    (Point, UpdateTime, NpcKill, LimitReset, LimitAccum) = capture-значения
-	//    point=1, updatetime=0x6AC61FCA, npckill=0, limitReset=0, limitAccum=0.
-	ex := &replayExec{fakeExec{rows: [][]any{
-		{int32(1), int32(0x6AC61FCA), int32(0), int32(0), int32(0)},
-	}}}
+	// 2) Живой сервер с fakeDB. account_data acc=1010 (прод-факт 21.10):
+	//    point=1, updatetime=0x6AC61FCA (до апдейтов), limit_play_reset_time=
+	//    1791352800=0x6AC5DFE0 (= ts в LOAD_LUNA!), acc=7 отсутствует.
+	ex := newReplayExec()
 	addr, srv := startSrv(t, ex)
 	srv.cfg.Server.Verbose = true // чтобы parse.err/unhandled попадали в logBuf
 	c := dial(t, addr)

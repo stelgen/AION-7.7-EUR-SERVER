@@ -157,13 +157,14 @@ func TestFirstLoadEmptyDB(t *testing.T) {
 	if binary.LittleEndian.Uint32(body) != 7 {
 		t.Fatalf("body acc = %d, want 7", binary.LittleEndian.Uint32(body))
 	}
-	if body[4] != 0 {
-		t.Fatalf("body[4] = %d, want 0 (пустой result-set = нули; дефолт point=1 — гипотеза R4)", body[4])
+	if body[4] != 1 {
+		t.Fatalf("body[4] = %d, want 1 (R4 21.10 capture-канон: golden acc=7 — строки account_data НЕТ, ответ point=1; пустой result-set => дефолт point=1)", body[4])
 	}
 }
 
 // TestUpdateFatigueCallsProc — UHF: фейк фиксирует exec aion_UpdateHiddenFatigueInfo_20170428
-// с 6 аргументами (capture-раскладка: accId,0,0,ts,ts2,0), ответа нет (capture).
+// с 6 аргументами (capture-раскладка: accId,0,0,ts,ts2,0 — подтверждена прод-фактами
+// 21.10: hidden_fatigue_updatetime = off12, limit_play_reset_time = off16), ответа нет.
 func TestUpdateFatigueCallsProc(t *testing.T) {
 	ex := &fakeExec{}
 	addr, _ := startSrv(t, ex)
@@ -171,8 +172,8 @@ func TestUpdateFatigueCallsProc(t *testing.T) {
 	defer c.Close()
 	pl := make([]byte, 24)
 	binary.LittleEndian.PutUint32(pl[0:], 1010)
-	binary.LittleEndian.PutUint32(pl[12:], 0x6AC62093)
-	binary.LittleEndian.PutUint32(pl[16:], 0x6AC5DFE0)
+	binary.LittleEndian.PutUint32(pl[12:], 0x6AC62093) // updatetime (прод: колонка = off12)
+	binary.LittleEndian.PutUint32(pl[16:], 0x6AC5DFE0) // limit_reset -> limit_play_reset_time
 	if _, err := c.Write(frame(0x19, pl)); err != nil {
 		t.Fatal(err)
 	}

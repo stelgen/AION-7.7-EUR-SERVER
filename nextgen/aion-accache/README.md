@@ -1,6 +1,6 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-🟢 **~70% · R2.5 ВЫПОЛНЕН (10.10)**: wire-канон снят полностью (len=total, маркеры EB/EC — RESEARCH §11), internal/proto+internal/payload на живых golden-кадрах (тесты зелёные), accmirror v1.1 на стенде (ok=true на всех кадрах live). R3-хвосты: роли полей Fatigue/Trial, push-семантика 13/15/20/21, T2-канал.
+🟢 **~80% · R4-хвосты ВЫПОЛНЕНЫ (21.10): replay 12/16 golden байт-в-байт**: wire-канон снят полностью (len=total, маркеры EB/EC — RESEARCH §11), internal/proto+internal/payload на живых golden-кадрах (тесты зелёные), accmirror v1.1 на стенде (ok=true на всех кадрах live). R3-хвосты: роли полей Fatigue/Trial, push-семантика 13/15/20/21, T2-канал.
 Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-10).
 
 ## Канон (доказано дизasmом, не догадки)

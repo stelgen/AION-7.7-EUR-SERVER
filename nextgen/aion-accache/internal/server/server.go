@@ -260,12 +260,18 @@ func hFirstLoad(s *S, c *Conn, cmd uint16, pl []byte) {
 			fat = &db.Fatigue{Point: e.Fatigue.Point, UpdateTime: e.Fatigue.UpdateTime,
 				NpcKill: e.Fatigue.NpcKill, LimitReset: e.Fatigue.LimitReset, LimitAccum: e.Fatigue.LimitAccum}
 		} else {
-			fat = &db.Fatigue{} // пустой result-set как у ориг при отсутствии записи
+			fat = &db.Fatigue{Point: 1} // R4-хвост 21.10: пустая строка -> point=1
+			// (эмпирика golden acc=7: строки account_data НЕТ, ответ point=1 —
+			// журнал теорий: дефолт ACS RAM-кэша для нового аккаунта)
 		}
 	}
 	resp := payload.BuildFirstLoadResp(req.AccountID,
 		uint32(fat.Point), uint32(fat.NpcKill),
-		byte(fat.LimitReset), uint32(fat.UpdateTime), uint16(fat.LimitAccum))
+		// R4-хвост 21.10: u8@12 и u16@17 НЕ byte(limit_play_reset_time) —
+		// прод limit_reset=0x6AC5DFE0 дал бы 0xE0, а golden везде 0x00.
+		// Гипотеза (журнал теорий): X/Y = производные limit_play_accum_time
+		// (для acc=1010 accum=0 → 0/0 — все golden байт-паритетны).
+		byte(fat.LimitAccum), uint32(fat.UpdateTime), uint16(fat.LimitAccum>>16))
 	s.respond(c, cmd, resp)
 	s.logf("firstload acc=%d point=%d npckill=%d upd=%d reset=%d accum=%d",
 		req.AccountID, fat.Point, fat.NpcKill, fat.UpdateTime, fat.LimitReset, fat.LimitAccum)
@@ -294,6 +300,11 @@ func hLoadBMPack(s *S, c *Conn, cmd uint16, pl []byte) {
 		}
 	}
 	s.respond(c, cmd, payload.BuildBMPackResp(req.AccountID, count))
+	// R4-хвост (21.10, capture ×2): после LOAD_BM_PACK-ответа ориг пушит ACP_21
+	// (cmd 0x15, payload 14Б: [accId][02][01][8×00]) — байты идентичны в обеих
+	// сессиях. Доставка асинхронная (в сессии-1 пришёл после следующего батча
+	// запросов — ACS многопоточен, numberOfDBThreads=10), но пара доказана.
+	s.respond(c, 0x15, payload.BuildBM21Push(req.AccountID))
 }
 
 // 0x07 LOAD_TRIAL: C2S [accId][charRef] -> тишина (в capture ответа нет).
@@ -304,15 +315,25 @@ func hLoadTrial(s *S, c *Conn, cmd uint16, pl []byte) {
 		s.logf("loadtrial parse.err %v", err)
 		return
 	}
+	xEcho := uint32(0)
+	if len(pl) >= 8 {
+		xEcho = binary.LittleEndian.Uint32(pl[4:]) // второй dword C2S (эхо в ответе)
+	}
+	reset, sell, trade, decompose, gather, extract := uint32(0), uint32(0), uint32(0), uint32(0), uint32(0), uint32(0)
 	if s.exec != nil {
 		t, err := db.GetTrialAccountData(context.Background(), s.exec, int32(acc))
 		if err != nil {
 			s.logf("loadtrial db.err acc=%d err=%v", acc, err)
 		} else if t != nil {
-			s.logf("loadtrial acc=%d upd=%d reset=%d sell=%d trade=%d dec=%d gath=%d ext=%d",
-				acc, t.UpdateTime, t.ResetTime, t.SellGold, t.TradeGold, t.DecomposeSum, t.GatherSum, t.ExtractGatherSum)
+			reset, sell, trade = uint32(t.ResetTime), uint32(t.SellGold), uint32(t.TradeGold)
+			decompose, gather, extract = uint32(t.DecomposeSum), uint32(t.GatherSum), uint32(t.ExtractGatherSum)
+			s.logf("loadtrial acc=%d reset=%d sell=%d trade=%d dec=%d gath=%d ext=%d",
+				acc, t.ResetTime, t.SellGold, t.TradeGold, t.DecomposeSum, t.GatherSum, t.ExtractGatherSum)
 		}
 	}
+	// R4-хвост 21.10: C2S 0x07 -> S2C 0x06 (capture-канон: кадр после batch1,
+	// payload содержит sell=917/trade=70 из trial_account_data acc=1010).
+	s.respond(c, 0x06, payload.BuildTrialResp(acc, xEcho, reset, sell, trade, decompose, gather, extract))
 }
 
 // 0x08 UPDATE_TRIAL: C2S [accId][P1..P9] -> тишина. SQL: aion_SetTrialAccountData
@@ -401,15 +422,24 @@ func hLoadLuna(s *S, c *Conn, cmd uint16, pl []byte) {
 		s.logf("loadluna parse.err %v", err)
 		return
 	}
+	ts := uint32(0)
 	if s.exec != nil {
 		if l, err := db.GetLuna(context.Background(), s.exec, int32(req.AccountID)); err != nil {
 			s.logf("loadluna db.err acc=%d err=%v", req.AccountID, err)
 		} else {
 			s.logf("loadluna acc=%d luna=%d", req.AccountID, l)
 		}
+		// R4-хвост (21.10, ПРОД-ФАКТ acc=1010): ts в ответе = limit_play_reset_time
+		// из account_data — capture 0x6AC5DFE0 совпал с колонкой байт-в-байт;
+		// НЕ account_luna.updatedate (строки может не быть) и НЕ time.Now().
+		if f, err := db.GetAccountData(context.Background(), s.exec, int32(req.AccountID)); err != nil {
+			s.logf("loadluna accountdata db.err acc=%d err=%v", req.AccountID, err)
+		} else if f != nil {
+			ts = uint32(f.LimitReset)
+		}
 	}
 	s.respond(c, 0x1b, payload.BuildLunaUpdateResp(req.AccountID))
-	s.respond(c, cmd, payload.BuildLunaLoadResp(req.AccountID, uint32(time.Now().Unix())))
+	s.respond(c, cmd, payload.BuildLunaLoadResp(req.AccountID, ts))
 }
 
 // 0x1f ASK_CAN_MAKE_JUMPING_CHARACTER: [u8 01][accId][u16 0001] -> тишина (capture).

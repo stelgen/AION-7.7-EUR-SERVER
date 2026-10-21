@@ -38,3 +38,21 @@
 
 - R5-свитч: schtasks /change /tn AionAcc /tr обратно (C:\Temp\acc.bat) + /run
 - Бекапы: ориг-каталог D:\AION_LIVE_SERVER\AccountCacheServer НЕ трогается
+
+## 🧪 Журнал теорий (R4-хвосты, 21.10)
+
+| # | Гипотеза | Статус |
+|---|---|---|
+| Т1 | LOAD_LUNA reply ts = limit_play_reset_time (account_data) | ✅ ПРОД-ФАКТ: acc=1010 колонка = 0x6AC5DFE0 == capture ts байт-в-байт. Реализовано |
+| Т2 | ACP_21 (S2C 0x15) = push после LOAD_BM_PACK [acc][02][01][8×0] | ✅ capture ×2, байты идентичны. Реализовано (позиция async) |
+| Т3 | S2C 0x06 = ответ на LOAD_TRIAL (НЕ UPDATE_BM_PACK!): payload содержит sell=917/trade=70 из trial_account_data acc=1010 (прод-факт) | ✅ Реализовано: [acc][X echo][reset][sell][CONST0][trade][decompose][gather][extract][pad]; dword3=CONST0 (роль TBD, единственный кадр) |
+| Т4 | FIRST_LOAD при пустой строке account_data → point=1 | ⚠ эмпирика golden acc=7 (строки нет, ответ point=1); альтернатива — строка существовала и удалена после capture. Реализовано как capture-канон |
+| Т5 | FIRST_LOAD u8@12/u16@17 = производные limit_play_accum_time | ⚠ гипотеза (все golden = 0; byte(limit_play_reset_time)=0xE0 исключён). Реализовано accum-based |
+| Т6 | UPDATE_HIDDEN_FATIGUE point НЕ зеркалится ACS в account_data | ⚠ golden#2 point=1 несмотря на UPDATE point=0; prod сейчас point=0 (пост-capture активность). Fake replay не мутирует point |
+| Т7 | ACP_13 (S2C 0x0d, 4Б ts 0x640831AE=2023-03-05) | ❌ значения НЕТ ни в одной таблице prod-БД; отправлен 1 раз за capture; триггер неизвестен. НЕ реализовано (риск для A/B) |
+| Т8 | Logout-кластер S2C 0x0f+0x14+0x1c = отложенный flush CHAR_LOGOUT (пришёл через 13 мин, вместе с reply на следующий FIRST_LOAD) | ⚠ данные частично необъяснимы: 0x14 содержит level=80 (=global_user_data.user_level прод ✓) и ts 0x6AC7E7B9 (источник не найден); 0x0f содержит 0x000A07EA (657386с?) без источника. НЕ реализовано до живого capture |
+| Т9 | CHAR_LOGIN reply приходит РАНЬШЕ replies на предыдущий батч (UPDATE_LUNA/LOAD_LUNA после CHAR_LOGIN) | ✅ ACS многопоточен (numberOfDBThreads=10) — порядок replies недетерминирован; выравнивание по cmd |
+
+## R4 итог 21.10
+
+**12/16 golden S2C (75%) байт-в-байт.** Реализованы: ts-фикс LOAD_LUNA (Т1), ACP_21 push (Т2), trial-ответ S2C 0x06 (Т3), point=1 дефолт (Т4), accum-based X/Y (Т5), stateful replayExec (updatetime мутится Exec'ом, trial-row 917/70). Остаток = 4 кадра с непроверенными данными (Т7/Т8) — эмитить до живого capture опасно для Server64.

@@ -144,6 +144,10 @@ func ParseFatigueReq(p []byte) (*FatigueReq, error) {
 	if len(p) < 24 {
 		return nil, ErrShort
 	}
+	// R4 21.10: раскладка R2.5 ПОДТВЕРЖДЕНА прод-фактами (acc=1010): колонка
+	// hidden_fatigue_updatetime = wire-off12 (0x6AC62093/0x6AC620A3 — записывается
+	// каждым UPDATE), limit_play_reset_time = wire-off16 (0x6AC5DFE0),
+	// limit_play_accum_time = wire-off20 (0). Роли НЕ трогать.
 	return &FatigueReq{
 		AccountID:  binary.LittleEndian.Uint32(p),
 		Point:      binary.LittleEndian.Uint32(p[4:]),
@@ -288,4 +292,34 @@ func decodeUTF16(b []byte) string {
 // Debug — строка для лога (не для прод-путей).
 func (r *CharSessionReq) Debug() string {
 	return fmt.Sprintf("charRef=%#x accId=%d stamp=%q tail=%x", r.CharRef, r.AccountID, r.Stamp, r.Tail)
+}
+
+// BuildBM21Push (S2C cmd 0x15, push после LOAD_BM_PACK): [accId u32][0x02][0x01][8×0x00] = 14Б.
+// R4-хвост 21.10: capture-канон — payload идентичен в обеих сессиях (acc=1010),
+// байты 0x02/0x01 = константы (семантика неясна — журнал теорий ROADMAP).
+func BuildBM21Push(acc uint32) []byte {
+	b := make([]byte, 14)
+	binary.LittleEndian.PutUint32(b[0:], acc)
+	b[4], b[5] = 0x02, 0x01
+	return b
+}
+
+// BuildTrialResp (S2C cmd 0x06, ответ на C2S LOAD_TRIAL 0x07): 10×u32 = 40Б:
+// [accId][X echo][resetTime][sellGold][CONST0][tradeGold][decompose][gather][extract][pad].
+// R4-хвост 21.10 capture-канон (acc=1010, прод sell=917/trade=70):
+// golden dwords после acc+X = [0][917][0][70][0][0][0][0] — dword3 = 0 (константа
+// в единственном наблюдённом кадре, роль неясна — журнал теорий), dword4 = tradeGold.
+func BuildTrialResp(acc, xEcho uint32, reset, sell, trade, decompose, gather, extract uint32) []byte {
+	b := make([]byte, 40)
+	binary.LittleEndian.PutUint32(b[0:], acc)
+	binary.LittleEndian.PutUint32(b[4:], xEcho)
+	binary.LittleEndian.PutUint32(b[8:], reset)
+	binary.LittleEndian.PutUint32(b[12:], sell)
+	binary.LittleEndian.PutUint32(b[16:], 0) // CONST0 (capture dword3, роль TBD)
+	binary.LittleEndian.PutUint32(b[20:], trade)
+	binary.LittleEndian.PutUint32(b[24:], decompose)
+	binary.LittleEndian.PutUint32(b[28:], gather)
+	binary.LittleEndian.PutUint32(b[32:], extract)
+	// b[36:] = pad 0
+	return b
 }
