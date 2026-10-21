@@ -23,6 +23,7 @@ import (
 	"aion-accache/internal/payload"
 	"aion-accache/internal/proto"
 	"aion-accache/internal/ship"
+	"encoding/binary"
 )
 
 // Handler — обработчик команды.
@@ -68,6 +69,12 @@ func (s *S) registerDefaults() {
 	s.SetHandler(0x1a, hLoadLuna)        // ACQ_LOAD_LUNA
 	s.SetHandler(0x1f, hAskJumping)      // ACQ_ASK_CAN_MAKE_JUMPING_CHARACTER
 	s.SetHandler(0x25, hTransform)       // ACQ_TRANSFORM_OPERATION
+	// R3-хвост (кросс-пульс 21.10): хендлеры с proc-параметрами из accountcache-ref/db-procs-77-ref58.rpt.
+	s.SetHandler(0x06, hUpdateBMPack)        // ACQ_UPDATE_BM_PACK -> aion_SetAccountPack (3 int, 1 tinyint)
+	s.SetHandler(0x0f, hCharCreated)         // ACQ_CHAR_CREATED -> aion_SetCreateUser_20121206 (7 int, 1 datetime)
+	s.SetHandler(0x12, hCharDelete)          // ACQ_CHAR_DELETE -> aion_SetDeleteUser_20120703 (4 int)
+	s.SetHandler(0x13, hCharDeleteCompleted) // ACQ_CHAR_DELETE_COMPLETED -> aion_SetDeleteCompletedUser_20120703 (4 int)
+	s.SetHandler(0x15, hCharLevelChanged)    // ACQ_CHAR_LEVEL_CHANGED -> aion_SetUserLevelChanged (3 int, 1 bigint)
 }
 
 func (s *S) send(ev, svc, msg string) {
@@ -401,6 +408,117 @@ func hAskJumping(s *S, c *Conn, cmd uint16, pl []byte) {
 		return
 	}
 	s.logf("jumping flag=%d acc=%d val=%d", r.Flag, r.AccountID, r.Value)
+}
+
+// --- R3-хвост: зарегистрированные по proc-телам REF58 ---
+
+// 0x06 UPDATE_BM_PACK -> aion_SetAccountPack(accountId INT, charId INT, itemPackId INT, active TINYINT)
+// C2S [accId][charId][packId][active u8]. Ответ не требуется (capture: тишина).
+func hUpdateBMPack(s *S, c *Conn, cmd uint16, pl []byte) {
+	if len(pl) < 13 { // 4+4+4+1
+		s.logf("bmpack parse.err len=%d", len(pl))
+		return
+	}
+	acc := int32(binary.LittleEndian.Uint32(pl[0:]))
+	charId := int32(binary.LittleEndian.Uint32(pl[4:]))
+	packId := int32(binary.LittleEndian.Uint32(pl[8:]))
+	active := int32(pl[12])
+	if s.exec != nil {
+		_, _, err := db.CallProc(context.Background(), s.exec, "aion_SetAccountPack", acc, charId, packId, active)
+		if err != nil {
+			s.logf("bmpack db.err acc=%d char=%d err=%v", acc, charId, err)
+			s.send("db.err", "accache", err.Error())
+		}
+	}
+	s.logf("bmpack acc=%d char=%d pack=%d active=%d", acc, charId, packId, active)
+}
+
+// 0x0f CHAR_CREATED -> aion_SetCreateUser_20121206(accountId, charId, slot, level, gender, race, class INT, createDate DATETIME)
+// C2S [accId][charId][slot][level][gender][race][class][createDate u64 unix]. Ответ: тишина.
+func hCharCreated(s *S, c *Conn, cmd uint16, pl []byte) {
+	if len(pl) < 32 { // 7*4+8
+		s.logf("charcreated parse.err len=%d", len(pl))
+		return
+	}
+	acc := int32(binary.LittleEndian.Uint32(pl[0:]))
+	charId := int32(binary.LittleEndian.Uint32(pl[4:]))
+	slot := int32(binary.LittleEndian.Uint32(pl[8:]))
+	level := int32(binary.LittleEndian.Uint32(pl[12:]))
+	gender := int32(binary.LittleEndian.Uint32(pl[16:]))
+	race := int32(binary.LittleEndian.Uint32(pl[20:]))
+	class := int32(binary.LittleEndian.Uint32(pl[24:]))
+	createDate := time.Unix(int64(binary.LittleEndian.Uint64(pl[28:])), 0)
+	if s.exec != nil {
+		_, _, err := db.CallProc(context.Background(), s.exec, "aion_SetCreateUser_20121206", acc, charId, slot, level, gender, race, class, createDate)
+		if err != nil {
+			s.logf("charcreated db.err acc=%d char=%d err=%v", acc, charId, err)
+			s.send("db.err", "accache", err.Error())
+		}
+	}
+	s.logf("charcreated acc=%d char=%d slot=%d level=%d", acc, charId, slot, level)
+}
+
+// 0x12 CHAR_DELETE -> aion_SetDeleteUser_20120703(accountId, charId, deleteTime, flag INT)
+// C2S [accId][charId][deleteTime][flag]. Ответ: тишина.
+func hCharDelete(s *S, c *Conn, cmd uint16, pl []byte) {
+	if len(pl) < 16 {
+		s.logf("chardelete parse.err len=%d", len(pl))
+		return
+	}
+	acc := int32(binary.LittleEndian.Uint32(pl[0:]))
+	charId := int32(binary.LittleEndian.Uint32(pl[4:]))
+	deleteTime := int32(binary.LittleEndian.Uint32(pl[8:]))
+	flag := int32(binary.LittleEndian.Uint32(pl[12:]))
+	if s.exec != nil {
+		_, _, err := db.CallProc(context.Background(), s.exec, "aion_SetDeleteUser_20120703", acc, charId, deleteTime, flag)
+		if err != nil {
+			s.logf("chardelete db.err acc=%d char=%d err=%v", acc, charId, err)
+			s.send("db.err", "accache", err.Error())
+		}
+	}
+	s.logf("chardelete acc=%d char=%d time=%d flag=%d", acc, charId, deleteTime, flag)
+}
+
+// 0x13 CHAR_DELETE_COMPLETED -> aion_SetDeleteCompletedUser_20120703(accountId, charId, completeTime, flag INT)
+// C2S [accId][charId][completeTime][flag]. Ответ: тишина.
+func hCharDeleteCompleted(s *S, c *Conn, cmd uint16, pl []byte) {
+	if len(pl) < 16 {
+		s.logf("chardeletecompleted parse.err len=%d", len(pl))
+		return
+	}
+	acc := int32(binary.LittleEndian.Uint32(pl[0:]))
+	charId := int32(binary.LittleEndian.Uint32(pl[4:]))
+	completeTime := int32(binary.LittleEndian.Uint32(pl[8:]))
+	flag := int32(binary.LittleEndian.Uint32(pl[12:]))
+	if s.exec != nil {
+		_, _, err := db.CallProc(context.Background(), s.exec, "aion_SetDeleteCompletedUser_20120703", acc, charId, completeTime, flag)
+		if err != nil {
+			s.logf("chardeletecompleted db.err acc=%d char=%d err=%v", acc, charId, err)
+			s.send("db.err", "accache", err.Error())
+		}
+	}
+	s.logf("chardeletecompleted acc=%d char=%d time=%d flag=%d", acc, charId, completeTime, flag)
+}
+
+// 0x15 CHAR_LEVEL_CHANGED -> aion_SetUserLevelChanged(accountId, charId, level INT, exp BIGINT)
+// C2S [accId][charId][level][exp u64]. Ответ: тишина.
+func hCharLevelChanged(s *S, c *Conn, cmd uint16, pl []byte) {
+	if len(pl) < 20 { // 3*4+8
+		s.logf("charlevelchanged parse.err len=%d", len(pl))
+		return
+	}
+	acc := int32(binary.LittleEndian.Uint32(pl[0:]))
+	charId := int32(binary.LittleEndian.Uint32(pl[4:]))
+	level := int32(binary.LittleEndian.Uint32(pl[8:]))
+	exp := int64(binary.LittleEndian.Uint64(pl[12:]))
+	if s.exec != nil {
+		_, _, err := db.CallProc(context.Background(), s.exec, "aion_SetUserLevelChanged", acc, charId, level, exp)
+		if err != nil {
+			s.logf("charlevelchanged db.err acc=%d char=%d err=%v", acc, charId, err)
+			s.send("db.err", "accache", err.Error())
+		}
+	}
+	s.logf("charlevelchanged acc=%d char=%d level=%d exp=%d", acc, charId, level, exp)
 }
 
 // 0x25 TRANSFORM_OPERATION: [u32 subtype][accId][u8] -> тишина (capture).
