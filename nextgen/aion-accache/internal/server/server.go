@@ -75,6 +75,19 @@ func (s *S) registerDefaults() {
 	s.SetHandler(0x12, hCharDelete)          // ACQ_CHAR_DELETE -> aion_SetDeleteUser_20120703 (4 int)
 	s.SetHandler(0x13, hCharDeleteCompleted) // ACQ_CHAR_DELETE_COMPLETED -> aion_SetDeleteCompletedUser_20120703 (4 int)
 	s.SetHandler(0x15, hCharLevelChanged)    // ACQ_CHAR_LEVEL_CHANGED -> aion_SetUserLevelChanged (3 int, 1 bigint)
+	// R3.6 — луна/борд/опросы/монстркоры/логин-евенты (handlers_r3x.go, тишина: пары не доказаны capture):
+	s.SetHandler(0x17, hUpdateLoginEventRecord)  // ACQ_UPDATE_LOGIN_EVENT_RECORD -> aion_UpdateLoginEventInfo
+	s.SetHandler(0x18, hDeleteLoginEventRecord)  // ACQ_DELETE_LOGIN_EVENT_RECORD -> aion_DeleteLoginEventInfo
+	s.SetHandler(0x1c, hConfirmLunaReward)       // ACQ_CONFIRM_LUNA_REWARD -> aion_ConfirmLunaReward
+	s.SetHandler(0x1d, hDecreaseLunaKey)         // ACQ_DECREASE_LUNA_KEY -> aion_DecreaseLunaKey
+	s.SetHandler(0x1e, hUpdateBoardBMState)      // ACQ_UPDATE_BOARD_BM_STATE -> aion_UpdateBoardBMState_2017
+	s.SetHandler(0x20, hLoadPlayTimesForPolls)   // ACQ_LOAD_PREVIOUS_PLAYTIMES_FOR_POLLS -> aion_GetPlayTimesForPolls
+	s.SetHandler(0x21, hLoadPlayTimeForOnePoll)  // ACQ_LOAD_PREVIOUS_PLAYTIME_FOR_ONE_POLL -> aion_GetPlayTimeForPoll
+	s.SetHandler(0x22, hUpdatePlayTimeForOnePoll)// ACQ_UPDATE_PREVIOUS_PLAYTIME_FOR_ONE_POLL -> aion_UpdatePlayTimeForPoll
+	s.SetHandler(0x23, hUpdatePlayTimesForPolls) // ACQ_UPDATE_PREVIOUS_PLAYTIMES_FOR_POLLS -> aion_UpdatePlayTimesForPolls
+	s.SetHandler(0x24, hResetLunaReward)         // ACQ_RESET_LUNA_REWARD -> aion_ResetLunaReward
+	s.SetHandler(0x26, hMonsterCoreUpdate)       // ACQ_MONSTER_CORE_UPDATE_VALUE -> aion_MonsterCoreUpdate
+	s.SetHandler(0x27, hMonsterCoreUpgrade)      // ACQ_MONSTER_CORE_UPGRADE -> aion_MonsterCoreUpgradeAndDecreaseCount
 }
 
 func (s *S) send(ev, svc, msg string) {
