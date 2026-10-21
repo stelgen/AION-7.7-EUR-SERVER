@@ -7,13 +7,17 @@ func TestLoadRealConfig(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load: %v", err)
 	}
-	if len(c.Services) != 16 {
-		t.Fatalf("services: %d, want 16", len(c.Services))
+	if len(c.Services) != 21 { // 20 + authdprod (OP-1, R6-конфиг)
+		t.Fatalf("services: %d, want 21", len(c.Services))
 	}
-	if c.WorldPair.ExpectedConns != 16 || c.WorldPair.NPCPort != 2002 {
+	ap, ok := c.ByID("authdprod")
+	if !ok || ap.Task != "AionAuthdProd" || len(ap.Ports) != 2 {
+		t.Fatalf("authdprod: %+v", ap)
+	}
+	if c.WorldPair.ExpectedConns != 8 || c.WorldPair.NPCPort != 2002 { // 8 = fix FALSE ALERT 07.10
 		t.Fatalf("world_pair: %+v", c.WorldPair)
 	}
-	if c.Operator.Mode != "observe" || c.VM.Mode != "mock" {
+	if c.Operator.Mode != "operate" || c.VM.Mode != "local" { // Phase 1: прод-конфиг в бою
 		t.Fatalf("modes: op=%s vm=%s", c.Operator.Mode, c.VM.Mode)
 	}
 	main, ok := c.ByID("main")
@@ -23,14 +27,20 @@ func TestLoadRealConfig(t *testing.T) {
 	if _, ok := c.Groups["heavy"]; !ok {
 		t.Fatal("нет группы heavy")
 	}
-	locked := 0
+	locked, expectedDown := 0, 0
 	for _, s := range c.Services {
 		if s.Locked {
 			locked++
 		}
+		if s.ExpectedDown {
+			expectedDown++
+		}
 	}
-	if locked != 5 {
-		t.Fatalf("locked: %d, want 5", locked)
+	if locked != 6 { // 5 + logsrv (R5-конфиг)
+		t.Fatalf("locked: %d, want 6", locked)
+	}
+	if expectedDown != 2 { // authd + gateorig (OP-3)
+		t.Fatalf("expected_down: %d, want 2", expectedDown)
 	}
 }
 

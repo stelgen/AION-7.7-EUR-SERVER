@@ -32,23 +32,24 @@ func (s State) Severity() int {
 }
 
 type SvcStatus struct {
-	ID          string   `json:"id"`
-	Group       string   `json:"group"`
-	Display     string   `json:"display"`
-	Task        string   `json:"task"`
-	KillTask    string   `json:"kill_task"`
-	State       State    `json:"state"`
-	ProcCount   int      `json:"proc_count"`
-	PIDs        []string `json:"pids"`
-	MemMB       uint64   `json:"mem_mb"`
-	PortsOK     []int    `json:"ports_ok"`
-	PortsBad    []int    `json:"ports_bad"`
-	Detail      string   `json:"detail"`
-	Interactive bool     `json:"interactive"`
-	Heavy       bool     `json:"heavy"`
-	ObserveOnly bool     `json:"observe_only"`
-	Locked      bool     `json:"locked"`
-	Order       int      `json:"order"`
+	ID           string   `json:"id"`
+	Group        string   `json:"group"`
+	Display      string   `json:"display"`
+	Task         string   `json:"task"`
+	KillTask     string   `json:"kill_task"`
+	State        State    `json:"state"`
+	ProcCount    int      `json:"proc_count"`
+	PIDs         []string `json:"pids"`
+	MemMB        uint64   `json:"mem_mb"`
+	PortsOK      []int    `json:"ports_ok"`
+	PortsBad     []int    `json:"ports_bad"`
+	Detail       string   `json:"detail"`
+	Interactive  bool     `json:"interactive"`
+	Heavy        bool     `json:"heavy"`
+	ObserveOnly  bool     `json:"observe_only"`
+	Locked       bool     `json:"locked"`
+	ExpectedDown bool     `json:"expected_down"` // OP-3
+	Order        int      `json:"order"`
 }
 
 // EvalService — чистая функция: срез + сервис → статус.
@@ -56,7 +57,7 @@ func EvalService(s config.Service, snap probe.Snapshot, wp config.WorldPair) Svc
 	st := SvcStatus{
 		ID: s.ID, Group: s.Group, Display: s.Display, Task: s.Task, KillTask: s.KillTask,
 		Interactive: s.Interactive, Heavy: s.Heavy,
-		ObserveOnly: s.ObserveOnly, Locked: s.Locked, Order: s.Order,
+		ObserveOnly: s.ObserveOnly, Locked: s.Locked, ExpectedDown: s.ExpectedDown, Order: s.Order,
 		PortsOK: []int{}, PortsBad: []int{}, PIDs: []string{},
 	}
 	if snap.Err != "" {
@@ -78,6 +79,11 @@ func EvalService(s config.Service, snap probe.Snapshot, wp config.WorldPair) Svc
 		return st
 	}
 	if st.ProcCount == 0 {
+		if s.ExpectedDown { // OP-3: ориг остановлен намеренно (замена живёт)
+			st.State = StateStopped
+			st.Detail = "остановлен НАМЕРЕННО (expected-down, замена живёт) — не алерт"
+			return st
+		}
 		st.State = StateStopped
 		switch s.ID {
 		case "main":

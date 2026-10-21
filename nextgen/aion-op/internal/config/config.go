@@ -30,20 +30,21 @@ type Group struct {
 }
 
 type Service struct {
-	ID          string `yaml:"id"`
-	Group       string `yaml:"group"`
-	Display     string `yaml:"display"`
-	Exe         string `yaml:"exe"`
-	Task        string `yaml:"task"`
-	KillTask    string `yaml:"kill_task"` // /IT-задача-киллер (обязательна для interactive/heavy)
-	Ports       []int  `yaml:"ports"`
-	Order       int    `yaml:"order"`
-	Interactive bool   `yaml:"interactive"`
-	Heavy       bool   `yaml:"heavy"`
-	ObserveOnly bool   `yaml:"observe_only"`
-	Locked      bool   `yaml:"locked"`
-	Pair        string `yaml:"pair"`
-	PairMaster  bool   `yaml:"pair_master"`
+	ID           string `yaml:"id"`
+	Group        string `yaml:"group"`
+	Display      string `yaml:"display"`
+	Exe          string `yaml:"exe"`
+	Task         string `yaml:"task"`
+	KillTask     string `yaml:"kill_task"` // /IT-задача-киллер (обязательна для interactive/heavy)
+	Ports        []int  `yaml:"ports"`
+	Order        int    `yaml:"order"`
+	Interactive  bool   `yaml:"interactive"`
+	Heavy        bool   `yaml:"heavy"`
+	ObserveOnly  bool   `yaml:"observe_only"`
+	Locked       bool   `yaml:"locked"`
+	Pair         string `yaml:"pair"`
+	PairMaster   bool   `yaml:"pair_master"`
+	ExpectedDown bool   `yaml:"expected_down"` // OP-3: ориг остановлен НАМЕРЕННО (замена живёт) — не алертить
 }
 
 type WorldPair struct {
@@ -84,7 +85,7 @@ type SqlCfg struct {
 
 type AgentCfg struct {
 	Enabled    bool   `yaml:"enabled"`
-	Token      string `yaml:"token"`      // или env AIONOP_AGENT_TOKEN
+	Token      string `yaml:"token"`       // или env AIONOP_AGENT_TOKEN
 	TimeoutSec int    `yaml:"timeout_sec"` // дефолт для /run
 	MaxOutMB   int    `yaml:"max_out_mb"`  // капа stdout/stderr
 }

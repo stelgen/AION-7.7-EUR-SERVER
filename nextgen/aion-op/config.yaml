@@ -67,13 +67,21 @@ services:
 
   - id: authd
     group: auth
-    display: L2Authd (orig 2104/2110)
+    display: L2Authd (orig 2104/2110, zamenen nashim authdprod)
     exe: L2Authd.exe
     task: AionAuthOnly
     kill_task: AionKickAuth
     ports: [2104, 2110]
     order: 6
     interactive: true
+    expected_down: true
+  - id: authdprod
+    group: auth
+    display: aion-authd (prod 2110+2104, LIVE)
+    exe: aion-authd.exe
+    task: AionAuthdProd
+    ports: [2110, 2104]
+    order: 6
   - id: gate
     group: auth
     display: aion-gate (nash 2106)
@@ -91,6 +99,7 @@ services:
     ports: [2109]
     order: 11
     interactive: true
+    expected_down: true
 
   - id: cache
     group: heavy
@@ -191,7 +200,7 @@ groups:
   light: { title: "Lekkie (SYSTEM/session-0; orig NC = /IT)", icon: "L" }
   auth:  { title: "Auth (/IT, session-1)", icon: "A" }
   heavy: { title: "Tyazhelye: CacheD + para NPC+MAIN", icon: "H" }
-  fork:  { title: "R5 fork-stend: 2116 front -> orig 2110 + shadow aion-authd 2117", icon: "F" }
+  fork:  { title: "Fork-otkat: shadow 2117 + forkauthd 2116 (zhivoy put R6 = authdprod 2110)", icon: "F" }
   sql:   { title: "SQL (monitoring)", icon: "S" }
   svc:   { title: "Mertvye servisy 7.7-kita (locked)", icon: "X" }
 

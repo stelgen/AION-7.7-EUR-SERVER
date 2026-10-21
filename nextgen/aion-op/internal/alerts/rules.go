@@ -103,7 +103,7 @@ func (e *Engine) Tick(statuses []core.SvcStatus, probeErr string, pairBroken boo
 
 	// 3. Сервисы: down / degraded / loading
 	for _, st := range statuses {
-		if st.Locked {
+		if st.Locked || st.ExpectedDown { // OP-3: locked и expected-down не алертим
 			continue
 		}
 		switch st.State {
