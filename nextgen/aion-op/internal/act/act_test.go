@@ -118,3 +118,32 @@ func TestRestartIndividualButtons(t *testing.T) {
 		t.Fatal("npc-рестарт в окне загрузки должен быть отвергнут")
 	}
 }
+
+// OP-2 (21.10): kill-коллизия aion-authd.exe — prod + тень делят один exe.
+// stopStep обязан: kill_task → приоритет; при общей exe — schtasks /end по
+// запуск-задаче (точечный стоп, НЕ /IM); уникальный exe → классический /IM.
+func TestStopStepCollision(t *testing.T) {
+	cfg := testCfg()
+	cfg.Services = append(cfg.Services,
+		config.Service{ID: "authdprod", Exe: "aion-authd.exe", Task: "AionAuthdProd", Ports: []int{2110, 2104}},
+		config.Service{ID: "authdn", Exe: "aion-authd.exe", Task: "AionAuthdShadow", Ports: []int{2117}},
+	)
+	e := New(cfg, nil, nil)
+
+	// коллизия без kill_task → /end по запуск-задаче (НЕ /IM!)
+	step, ok := e.stopStep(cfg.Services[len(cfg.Services)-1])
+	if !ok || step != "schtasks /end /tn AionAuthdShadow" {
+		t.Fatalf("authdn: %q ok=%v", step, ok)
+	}
+
+	// kill_task имеет приоритет даже при коллизии
+	cfg.Services[len(cfg.Services)-1].KillTask = "AionKickShadow"
+	if step, _ := e.stopStep(cfg.Services[len(cfg.Services)-1]); step != "schtasks /run /tn AionKickShadow" {
+		t.Fatalf("kill_task: %q", step)
+	}
+
+	// уникальный exe → классический /IM
+	if step, ok := e.stopStep(cfg.Services[0]); !ok || step != "taskkill /F /IM AccountCacheServer.exe" {
+		t.Fatalf("acc: %q ok=%v", step, ok)
+	}
+}

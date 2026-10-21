@@ -23,8 +23,11 @@ read-only пробы + лог-парсер + метрики + SQLite + алер�
   AionAuthOnly = ОТКАТ, expected-down)/gate/gateorig(2109, expected-down)/cache/npc/main/
   authdn(2117 = тень)/forkd(2116) + группа fork. ⚠ **authdprod НЕ в конфиге** — живой наш authd
   (задача AionAuthdProd, порты 2110+2104) op'ом не контролируется: добавить сервис (см. §R6 ниже).
-- ⚠ **kill-коллизия**: `stop authdn` бьёт `taskkill /F /IM aion-authd.exe` = УБИВАЕТ и ПРОД
-  (одно имя exe у prod и тени). До фикса НЕ жать stop authdn (OP-2, [ROADMAP.md](ROADMAP.md) §6).
+- ✅ **kill-коллизия OP-2 РЕШЕНА 21.10**: stopStep при общей exe теперь даёт точечный
+  `schtasks /end /tn <запуск-задача>` (убивает только процесс этой задачи) вместо
+  `taskkill /F /IM` — stop authdn больше НЕ бьёт ПРОД. Тест TestStopStepCollision PASS.
+  ⏳ бинарь `aionop-win-1022` (MD5 7191a5ba) ждёт деплоя на VM (текущий прод 1021); до
+  деплоя правило «не жать stop authdn» ещё в силе (ROADMAP §6).
 - **PA обязателен** (кнопка pa разблокирована: без PA = SYSTEM_ERROR(20)); старт-порядок PA ДО authd.
 - Критерий мира = 8 коннектов на :2002 (`expected_conns: 8`, было 16 netstat-строк = FALSE ALERT).
 Прод-деплой: `C:\aionop\` + задача AionOp — см. [DEPLOY.md](DEPLOY.md).

@@ -1,7 +1,9 @@
 // Package act — Phase 1: действия (start/stop/restart) с безопасностью best-practice:
 // план → проверки → confirm для danger → исполнение → audit. Windows-канон:
 // запуск = schtasks /run по задачам; стоп юзер-сессии = /IT kill-задачи
-// (taskkill из SYSTEM/SSH по юзер-сессии молча не работает); стоп session-0 = taskkill /IM.
+// (taskkill из SYSTEM/SSH по юзер-сессии молча не работает); стоп session-0:
+// /IM для уникальных exe; при общей exe (kill-коллизия, OP-2 21.10) — точечный
+// schtasks /end по запуск-задаче (убивает только процесс этой задачи).
 package act
 
 import (
@@ -181,10 +183,31 @@ func (e *Executor) stopStep(s config.Service) (string, bool) {
 	if s.Interactive || s.Heavy {
 		return "", false // юзер-сессия: голый taskkill не работает
 	}
-	if s.Exe != "" {
-		return "taskkill /F /IM " + s.Exe, true // session-0 (SYSTEM-контекст)
+	if s.Exe == "" {
+		return "", false
 	}
-	return "", false
+	// OP-2 (21.10): kill-коллизия — exe общий у нескольких сервисов конфига
+	// (aion-authd.exe = prod AionAuthdProd 2110/2104 + тень AionAuthdShadow 2117):
+	// taskkill /F /IM убивает ОБА процесса. Точечный стоп = schtasks /end
+	// /tn <запуск-задача>: Task Scheduler убивает только процесс этой задачи.
+	if e.exeShared(s.Exe) {
+		if s.Task == "" {
+			return "", false // коллизия без задачи: /IM нельзя (убьёт соседа)
+		}
+		return "schtasks /end /tn " + s.Task, true
+	}
+	return "taskkill /F /IM " + s.Exe, true // session-0, exe уникальный (SYSTEM-контекст)
+}
+
+// exeShared — exe используется несколькими сервисами конфига (kill-коллизия, OP-2).
+func (e *Executor) exeShared(exe string) bool {
+	n := 0
+	for _, s := range e.cfg.Services {
+		if s.Exe == exe {
+			n++
+		}
+	}
+	return n > 1
 }
 
 // Execute — confirm-гейт → исполнение шагов → audit. При dry_run шаги НЕ исполняются.
