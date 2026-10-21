@@ -28,3 +28,24 @@
 - ✅ Wire-канон `len=total`
 - ✅ Коммит + логирование шагов
 - ✅ Отсутствие секретов в коде (conn string = плейсхолдер)
+
+## 🔄 ПУЛЬС-2 (21.10 вечер): CacheD64 R1 + op Phase 1.5 + accache R4
+
+| Ветка | Коммит | Суть |
+|---|---|---|
+| accache R4 | `249a421` | replay-тест на golden capture: 6/16 S2C байт-в-байт, XFAIL-диффы по позициям |
+| aion-cached R1 | `537552f` | каркас wire (Reader/Encoder/DummyCrypt rolling-key, csum-хвост), 3 канала 2006/2007/2009, 9/9 PASS |
+| op Phase 1.5 | `83da87f` | OP-5 await + OP-6 watchdog (эскалация/halt/nightly/NPC-lock, audit source=watchdog), enabled: false дефолт |
+| Хаб-доки | этот коммит | README стек-таблица (accache ~75%, cached ~40%, op Phase 1.5 код готов) + ROADMAP §1/§2 |
+
+### Кросс-пульсы соседям
+- **aion-accache**: replayRows-урок — fakeRows без deref указателей даёт нулевые колонки; push-кадры ACP_13/15/20/21 не эмитятся наш ACC до реализации push-семантики (важно для их A/B).
+- **aion-cache**: каркас переехал в `aion-cached/` (НЕ трогаем заготовку aion-cache/); DummyCrypt = XOR(key+i) гипотеза до R2-дизasmа.
+- **aion-op**: watchdog добавлен в main с safe-default; включение = правка config-vm.yaml на VM + рестарт op (по «го»).
+- **aion-logd/captcha**: 514/UDP по-прежнему заблокирован NAT — ship file-fallback остаётся живым путём.
+
+### Критерии следующего пульса
+- [ ] op Phase 1.5: веб-эндпоинт watchdog-статуса + ResetHalt (в работе)
+- [ ] op Phase 1.5: деплой на VM по «го»
+- [ ] accache: ts из БД в LOAD_LUNA, push-кадры
+- [ ] cached: R2 дизasm DummyCrypt

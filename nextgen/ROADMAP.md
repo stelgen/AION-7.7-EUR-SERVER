@@ -3,7 +3,7 @@
 > **Последнее обновление: 10.10.2026.** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
 > Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
 > authd ✅ R6 В БОЮ 09.10 (живой путь 2110+2104; fork 2116/тень 2117 = откат); accache 🟡 R2.5 ✅ 10.10 (capture + wire-канон len=total + раскладки; R3 SQLStore = следующий чат); CacheD64 🔬 R0 закрыт (R1 wire из log/*.log — pktmon-2006 loopback-блокер доказан); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него — старое «SKIP» исправлено везде).
-> Следующие чаты: 1) accache R3 SQLStore [aion-accache/PROMPT.md] 2) cache R1 wire из логов [aion-cache/PROMPT.md] 3) authd R6-хвосты (наблюдение 24ч, pk1-эхо A/B) 4) op Phase 1.5 + R6-конфиг (OP-1..OP-6); гейт = ФИНАЛ (остался опц. T2-а, T6 тег ✅).
+> Следующие чаты: 1) accache R4-финал на живом стенд-трафике + R5 свитч по «го» [aion-accache/PROMPT.md] 2) cached R2 (дизasm DummyCrypt точной формы + семантика) [aion-cached/ROADMAP.md] 3) op Phase 1.5 деплой на VM + включение watchdog по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ (остался опц. T2-а, T6 тег ✅).
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где — 10.10; свод с % — [README.md §2.5](README.md))
 
@@ -16,7 +16,7 @@
 | Authd (наш) | ✅ **R6 В БОЮ 09.10**: живой путь (2110+2104), полный цикл юзера + мгновенный перелогин + pk1-эхо + квитанции; наблюдение 24ч |
 | aion-accache | 🟡 R0/R0.5/R1/R2/R2.5 ✅ (10.10: accmirror v1.1 стенд, wire-канон len=total — офф-бай-2 исправлен, EB/EC, internal/payload на golden-кадрах); R3 SQLStore = следующий |
 | CacheD64 ресёрч | 🔬 R0 ✅ 08.10 (PDB 106МБ/14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, 781/789 procs, 356МБ готовых логов); кода нет; шанс ~85% |
-| aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12): управляет стеком (start/stop/restart/restart_pair, группы fork: authdn/forkd), SQL/CCU-вкладки, алерты, kick-задачи (AionKickGate = /IM aion-gate.exe точно); expected_conns=8 (16 netstat-строк); канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)); Phase 1.5 НЕ начата; ⏳ R6-конфиг OP-1..OP-6 ([docs/tech-debt-stack-20261010.md](../docs/tech-debt-stack-20261010.md)) |
+| aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12) + **Phase 1.5 код готов 21.10** (OP-5 await + OP-6 watchdog, `enabled: false` — задеплоить по «го»; [ROADMAP](aion-op/ROADMAP.md) §6); kick-задачи, expected_conns=8; канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)) |
 | Батники | ✅ `AION-START-ALL-v6.bat` (десктоп, всё в session 1) = канон; `C:\Temp\auth.bat = call start-all.bat` — НЕ трогать как кнопку (это старт ВСЕГО стека); изолированный L2Authd = `auth-only.bat`/AionAuthOnly; откат v5 рядом |
 | Феномен «задачи сами Disabled» | ⚠ следить (смягчено pre-check в op + enable-all) |
 
@@ -24,13 +24,13 @@
 
 | # | Пункт | Где | Оценка |
 |---|---|---|---|
-| 1 | **accache R3 SQLStore**: go-mssqldb + полный хендлер-набор по телам 101 procs; хвосты R2.5 (поля Fatigue/Trial, push 13/15/20/21, T2-канал); дозахват = логин юзера (стенд жив). Capture/wire/раскладки ✅ 10.10 | aion-accache/PROMPT.md | 1–2 дня |
-| 2 | **CacheD64 R1**: wire 2006 из готовых log/*.log (171 файл, 356МБ) + capture через fork-копию :2016 (go) / тест-мир LAN (pktmon-2006 = loopback-блокер доказан 10.10) → wire 2006 | aion-cache/RESEARCH.md §MVP | 1–2 дня |
+| 1 | **accache R4-финал**: replay 6/16 golden байт-в-байт (21.10); осталось — ts в LOAD_LUNA из БД вместо time.Now(), push-кадры ACP_13/15/20/21/UPDATE_BM_PACK/CONFIRM_LUNA_REWARD, затем A/B на живом трафике + R5 свитч по «го» | aion-accache/ROADMAP.md | 1–2 дня |
+| 2 | **CacheD64 R2**: дизasm DummyCrypt точной формы (верификация XOR(key+i) гипотезы) + семантика; R1 wire-каркас ✅ 21.10 в aion-cached (9/9 тестов) | aion-cached/ROADMAP.md | 1–2 дня |
 | 3 | **authd R6-хвосты**: завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 | aion-authd/ROADMAP.md | 1–2 дня |
 | 4 | **Гейт** — ЗАВЕРШЁН live 10.10: T3 ✅ (перелогин после kill чистый, 0x08 клиент не шлёт), T4 ✅ (2 параллельны чисто, одновременный play-ok обоим), T5 ✅ (exe f146a415 задеплоен); остался опц. T2-а. ⚠ Мир-хвост → aion-main: 2-й параллельный клиент виснет на GS-входе (гвард клиента или Server64) | aion-gate/README §T2/T3 | — |
 | 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах | TELEMETRY-SPEC §2 | полдня |
 | 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | [aion-logd/SNAPSHOT.md](aion-logd/SNAPSHOT.md) | 1 день |
-| 7 | op Phase 1.5: событийный watchdog (ночной рестарт пары = тумблер юзера), async-ожидания маркеров + **R6-конфиг**: сервис authdprod, expected-down, kill-коллизия aion-authd.exe (OP-1..OP-6) | aion-op/ROADMAP.md §6 | 1–2 дня |
+| 7 | **op Phase 1.5 — КОД ГОТОВ 21.10** (не задеплоен): OP-5 await (waitForPort/waitForLogMarker; план гейта [check,kill,start,await-port]), OP-6 watchdog (эскалация 60/300/1800с, halt→ResetHalt, NPC-окно lock, ночное окно 04:00–05:00, audit source=watchdog); `watchdog.enabled: false` дефолт | aion-op/ROADMAP.md §6 | деплой 1 день |
 | 8 | Ghidra-патчи: матчмейкер #108 (JZ→JNZ), манастоны #111 (перенос в копию #180) — только в MainServer_backup-копии | fixes-pending/ | дни, стенд |
 | 9 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr (~600k блоков/сессия → ночной рестарт), RESOURCE_SEMAPHORE | docs/app-architecture.md §7 | пассивно |
 | 10 | Уборка: тестовые probe-акки probetest1-14 в AionAccounts (мусор от probe, uid ~1007-1018) — удалить по «го» | VM SQL | 5 мин |
