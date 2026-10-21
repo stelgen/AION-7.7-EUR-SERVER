@@ -1,13 +1,22 @@
-// Package wire — L2 C1 CacheD wire-канон из CServerSocket.cpp (read-only ref: nextgen/cached-ref/l2-c1-cached).
+// Package wire — CacheD wire-канон из CServerSocket.cpp (read-only ref: nextgen/cached-ref/l2-c1-cached).
 //
 // Фрейм: [u16 LE self-inclusive len][opcode][payload...][2Б csum].
 //
 //	Canon (L2CacheD 0x0043C2E0):
 //	  m_packetSize = (buf[off+1]<<8) + buf[off] - 2   // размер тела ПОСЛЕ len-филда
-//	  DummyCrypt::Decrypt(payload, m_key, m_packetSize) // XOR-стрим, rolling key
-//	  m_key += m_packetSize                              // rolling
+//	  DummyCrypt::Decrypt(payload, m_key, m_packetSize) // NO-OP (см. DummyCrypt ниже)
+//	  m_key += m_packetSize                              // rolling (vestigial)
 //	  checkSumm = (preLastByte + (lastByte<<8)) - 2 == m_packetSize
 //	  → u16 LE двух последних байт тела = m_packetSize + 2 = полная wire-длина кадра.
+//
+// R2 ВЕРДИКТ (21.10, доказано двумя независимыми источниками):
+//  1. L2 C1 (сурсы MasterToma): L2Core/src/crypt/DummyCrypt.cpp — тело Decrypt
+//     ПУСТОЕ (UNUSED(data/key/length)) — «Dummy» в буквальном смысле, RPC без крипты.
+//  2. Aion 7.7 CacheD64.exe (дизasm): крипто-фэмили Utils.obj —
+//     Decrypt @0x1401b0360 / Encrypt @0x1401b03e0 / Encrypt @0x1401b0440 /
+//     Decrypt2 @0x1401b04c0 / Encrypt2 @0x1401b0570 — НОЛЬ ссылок в бинаре
+//     (E8/E9/FF15/lea/ptr-скан пуст, incl. полный .data 19МБ) = мёртвый код.
+//     ВЫВОД: wire CacheD64 2006 = plaintext, единственная защита = csum-хвост.
 package wire
 
 import (
@@ -37,13 +46,19 @@ var (
 	ErrUnknownProto = errors.New("wire: unknown protocol opcode")
 )
 
-// DummyCrypt — XOR-стрим L2 C1 (симметричная операция): payload[i] ^= byte(key + i).
-// Rolling: seed += m_packetSize ПОСЛЕ каждого пакета.
-// R2 TODO: дизasm DummyCrypt для подтверждения точной формы (усечение ключа/порядок).
+// DummyCrypt — NO-OP (R2 вердикт 21.10).
+//
+// Доказательства:
+//  - L2 C1 MasterToma сурсы: L2Core/src/crypt/DummyCrypt.cpp (0x00435050) — тело
+//    функции ПУСТОЕ: UNUSED(data); UNUSED(key); UNUSED(length); — декрипта нет.
+//  - Aion 7.7 CacheD64.exe: семейство Utils.obj Decrypt/Encrypt/Decrypt2/Encrypt2
+//    (map: 0x1401b0360/0x1401b03e0/0x1401b0440/0x1401b04c0/0x1401b0570) не имеет
+//    НИ ОДНОЙ ссылки в бинаре — мёртвый код; алгоритм семейства снят (XOR-цепочка
+//    со staticTable 64Б @0x1402dccb0 и key[i&7]) — но он НЕ В WIRE-ПУТИ.
+//
+// Функция сохранена (API-стабильность + vestigial rolling-key канона).
 func DummyCrypt(data []byte, key uint32) {
-	for i := range data {
-		data[i] ^= byte(key + uint32(i))
-	}
+	_, _ = data, key // NO-OP: payload идёт в хандлер как есть (plaintext)
 }
 
 // Frame — разобранный кадр канала.

@@ -35,3 +35,35 @@
 ## Следующий шаг
 
 R2 — дизasm DummyCrypt из `generated/Cached.c` / PDB publics, сверка с формулой `payload[i] ^= byte((m_key + uint32(i)) & 0xFF)`.
+
+## R2 ЗАКРЫТ (21.10): DummyCrypt = NO-OP, wire = plaintext ✅
+
+**Два независимых доказательства:**
+
+1. **L2 C1 сурсы (MasterToma)** — `L2Core/src/crypt/DummyCrypt.cpp` (символ L2CacheD 0x00435050):
+   тело `Decrypt(uint8_t* data, uint64_t key, int length)` **ПОЛНОСТЬЮ ПУСТОЕ**
+   (`UNUSED(data); UNUSED(key); UNUSED(length);`) — «Dummy» в буквальном смысле.
+
+2. **Aion 7.7 CacheD64.exe (дизasm по .map, exe+pdb локально)** — крипто-фэмили Utils.obj:
+   | Символ | VA | |
+   |---|---|---|
+   | ?Decrypt@@YAXPEAEPEBKH@Z | 0x1401b0360 | Decrypt(uint8_t*, const uint32_t* key, int) |
+   | ?Encrypt@@YAXPEAEPEBKH@Z | 0x1401b03e0 | |
+   | ?Encrypt@@YAXPEAEPEBEPEBKH@Z | 0x1401b0440 | Encrypt(uint8_t*, const uint8_t*, const uint32_t*, int) |
+   | ?Decrypt2@@YAXPEAEPEBKH@Z | 0x1401b04c0 | |
+   | ?Encrypt2@@YAXPEAEPEBKH@Z | 0x1401b0570 | |
+
+   **Ноль ссылок** на всю семью в бинаре (сканы: E8 rel32, E9 thunks, FF15 call [rip],
+   lea rip-rel, ptr VA в .rdata+полный .data 19МБ) = **мёртвый код, не в wire-пути**.
+
+**Бонус-факт (алгоритм мёртвой семьи, на случай реанимации в будущих версиях):**
+дизasm Decrypt показал XOR-цепочку: `data[i] = staticTable[i&0x3F] ^ key[i&0x7] ^ data[i] ^ data[i-1]`
+(staticTable 64Б ASCII-алфавит "nKO/WctQ0AVLbpzf...?3iI9" @0x1402dccb0; i=0 — только key[0]).
+Связь с m_key (scalar в L2) НЕ найдена — Aion Decrypt берёт key-УКАЗАТЕЛЬ.
+
+**Вывод для aion-cached:** wire 2006/2007/2009 = plaintext; единственная защита кадра =
+csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохранён, seed = vestigial).
+Конфиг seed теперь не влияет на провод — ОСТАВИТЬ (не ломать канон L2-эталона).
+
+**Открытое:** позиция rolling m_key += m_packetSize в Aion OnRead не проверялась
+(нет decrypt-вызова → вероятно rolling тоже отсутствует) — непринципиально (key не используется).

@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-// buildEncrypted — симуляция клиента: собирает L2 C1-кадр, шифрует XOR rolling-ключом.
-// csum = u16 LE от (packetSize + 2) = полной wire-длины (инвариант канона).
-func buildEncrypted(t *testing.T, seed uint32, opcode uint16, payload []byte) []byte {
+// buildFrame — симуляция клиента: собирает кадр канона (plaintext — крипты НЕТ,
+// R2 вердикт 21.10: DummyCrypt no-op). csum = u16 LE от (packetSize + 2) = wireLen.
+func buildFrame(t *testing.T, seed uint32, opcode uint16, payload []byte) []byte {
 	t.Helper()
 	body := append([]byte{byte(opcode)}, payload...)
 	ps := len(body)                                          // opcode + payload
@@ -19,20 +19,20 @@ func buildEncrypted(t *testing.T, seed uint32, opcode uint16, payload []byte) []
 	binary.LittleEndian.PutUint16(out, uint16(HeaderSize+len(body)))
 	copy(out[HeaderSize:], body)
 
-	// шифруем тело тем же DummyCrypt с seed'ом клиента
-	DummyCrypt(out[HeaderSize:], seed)
+	// КРИПТЫ НЕТ (DummyCrypt = no-op, R2 вердикт) — тело идёт как есть.
+	_ = seed // seed остаётся в API для совместимости (vestigial)
 	return out
 }
 
-// TestRoundtrip — build → read → payload равен.
+// TestRoundtrip — build → read → payload равен (plaintext: rolling key vestigial).
 func TestRoundtrip(t *testing.T) {
 	seed := uint32(0x5F3A7C21)
 	payload := []byte("builder:Admin;char:TestChar;skill:105;")
 
-	// несколько пакетов подряд — проверяем rolling key
+	// несколько пакетов подряд — rolling key ведётся как vestigial канона
 	frames := [][]byte{
-		buildEncrypted(t, seed, 0x01, payload),
-		buildEncrypted(t, seed+uint32(1+HeaderSize+len(payload)), 0x02, []byte("second")),
+		buildFrame(t, seed, 0x01, payload),
+		buildFrame(t, seed, 0x02, []byte("second")),
 	}
 
 	dec := NewDecoder(seed)
@@ -51,7 +51,7 @@ func TestRoundtrip(t *testing.T) {
 		t.Fatalf("roundtrip mismatch: op=%d payload=%q", got[0].Opcode, got[0].Payload)
 	}
 	if got[1].Opcode != 0x02 || string(got[1].Payload) != "second" {
-		t.Fatalf("second frame mismatch (rolling key broken?): %+v", got[1])
+		t.Fatalf("second frame mismatch: %+v", got[1])
 	}
 	if consumed != len(frames[0])+len(frames[1]) {
 		t.Fatalf("consumed %d, want %d", consumed, len(frames[0])+len(frames[1]))
@@ -64,10 +64,10 @@ func TestRoundtripEncoder(t *testing.T) {
 	payload := []byte("npc_id=1234;state=alive;")
 	raw := Build(0x02, payload)
 
-	// клиент-сторона шифрует тело для проверки
-	DummyCrypt(raw[HeaderSize:], seed)
+	// КРИПТЫ НЕТ — Encoder уже шлёт каноничный plaintext-кадр.
+	_ = seed
 
-	dec := NewDecoder(seed)
+	dec := NewDecoder(0)
 	n, fr, err := dec.Feed(raw)
 	if err != nil {
 		t.Fatalf("Feed: %v", err)
@@ -82,13 +82,12 @@ func TestRoundtripEncoder(t *testing.T) {
 
 // TestBadChecksumRejected — невалидный csum → reject.
 func TestBadChecksumRejected(t *testing.T) {
-	seed := uint32(42)
-	raw := buildEncrypted(t, seed, 0x01, []byte("data"))
+	raw := buildFrame(t, 42, 0x01, []byte("data"))
 
 	// портим csum (последний байт кадра)
 	raw[len(raw)-1] ^= 0xFF
 
-	dec := NewDecoder(seed)
+	dec := NewDecoder(0)
 	_, _, err := dec.Feed(raw)
 	if !errors.Is(err, ErrBadChecksum) {
 		t.Fatalf("want ErrBadChecksum, got %v", err)
