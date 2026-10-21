@@ -39,7 +39,7 @@
 | **NCoin-релей** | — | `NPRelay64.exe` | [aion-relay/](aion-relay/) | ⬜ **ДЕПРИОРИТ** (исходящий релей, ничего не биндит, логин не блокирует; связка с shopagent); ориг задача DISABLE | не запускать | [README](aion-relay/README.md) |
 | **Веб-рейтинг** | — | `RankingServer.exe` (.NET) | [aion-ranking/](aion-ranking/) | ⬜ **ДЕПРИОРИТ** (config.xml в ките нет — реконструкция; данные = aion_ranking_* уже в ACS-схеме) | ориг наличие проверить R0 | [README](aion-ranking/README.md) |
 | **NPC-сервер (мир-симуляция)** | 2002/:2006/:2051 | `NPCSvr64.exe` (+ScriptDLL64) | [aion-npc/](aion-npc/) | 🔬 **ДЕПРИОРИТ ~15%** (R0 ✅ / R1 ⏸); **R0 ✅ / R1 ⏸ (юзером до прогресса соседей)** / R2 next; эталоны ×7 клонов (7 эталонов AI-модели 2.7–7.8 — [RESEARCH](aion-npc/RESEARCH.md)); ориг в бою (10–15 мин загрузка, утечка → ночной рестарт пары) | пара NPC+MAIN через op restart_pair | [README](aion-npc/README.md) |
-| **Игровое ядро (Main)** | 7777/2002 | `Server64.exe`/MainServer | [aion-main/](aion-main/) | 🟡 **каркас+реестр ~30%: R0–R4 ✅** (08.10: реестр 637 пакетов live, крипта 7.x подтверждена live, Go-каркас тени :7778 с мир-раскладками и tap-режимом; E2E PASS); свитч = гейт после полного MVP-мира (R3.8–R4.4: cached-RPC после aion-cache R1, NPC-пара после aion-npc MVP) | пара через op | [README](aion-main/README.md) |
+| **Игровое ядро (Main)** | 7777/2002 | `Server64.exe`/MainServer | [aion-main/](aion-main/) | 🟡 **каркас+реестр ~35%: R0–R4.5 ✅** (21.10: реестр 637 пакетов live, крипта 7.x live, Go-тень ЖИВА на VM :7778 задача AionMainShadow, smoke E2E SMOKE PASS; pktmon-fed tap при живом мире); свитч = гейт после полного MVP-мира (R3.8–R4.4: cached-RPC после aion-cache R1, NPC-пара после aion-npc MVP) | пара через op | [README](aion-main/README.md) |
 | **Fork-proxy (инструмент)** | любой | — | [fork-proxy/](fork-proxy/README.md) | ✅ живой: первый форк гейта 2106→2109; эволюция = forkauthd в aion-authd | по схеме FORK-SPEC | [README](fork-proxy/README.md) |
 | **.NET-мелочь** | 10100/10254/2107 | ShopAgent/ChannelChat/Petition | exe НЕТ в ките | ⬜ некритично: луперы event-driven, безвредны; Ghidra-silence одним проходом | не запускать | [loops-фикс](../fixes-pending/loops-shopagent-channelchat-petition/) |
 | **NPRelay / Ranking** | — | `NPRelay64.exe` / `RankingServer.exe` | — | ⬜ скип (не биндят портов / config.xml в ките нет) | задачи DISABLE | — |
@@ -63,7 +63,7 @@
 flowchart LR
   C["🎮 Клиент"] --> G["aion-gate :2106<br/>✅ 100% релиз"]
   G --> A["aion-authd :2110<br/>✅ R6 в бою ~90%"]
-  W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
+  W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~35%"] -->|"мир-канал :2104"| A
   W --> ACS["ACS :2220 (ориг, accmirror-стенд)<br/>🟡 aion-accache ~70%"]
   W --> CD["CacheD64 :2006 (ориг)<br/>🔬 aion-cache ~20%"]
   G -. "тень :2117 / fork :2116<br/>= откат одной командой" .-> A

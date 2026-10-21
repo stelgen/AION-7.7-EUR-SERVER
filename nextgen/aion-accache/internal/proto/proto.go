@@ -84,16 +84,30 @@ func BuildLen(wireLen int) uint16 {
 	return uint16(wireLen)
 }
 
-// Build собирает полный кадр на проводе.
+// Build — кадр C2S (маркер 0xEB).
 func Build(cmd uint16, payload []byte) ([]byte, error) {
+	return BuildDir(DirC2S, cmd, payload)
+}
+
+// BuildS2C — кадр ответа ACS (маркер 0xEC, PutCmd_ACP инкрементит маркер).
+func BuildS2C(cmd uint16, payload []byte) ([]byte, error) {
+	return BuildDir(DirS2C, cmd, payload)
+}
+
+// BuildDir — сборка кадра с заданным направлением/маркером.
+func BuildDir(dir Direction, cmd uint16, payload []byte) ([]byte, error) {
 	if int(cmd) > MaxCmd {
 		return nil, ErrCmdRange
 	}
-	body := 2 + 1 + 2 + len(payload) // cmd + EB + ~cmd + payload
+	m := byte(Marker)
+	if dir == DirS2C {
+		m = byte(MarkerS2C)
+	}
+	body := 2 + 1 + 2 + len(payload) // cmd + marker + ~cmd + payload
 	wire := make([]byte, 2+body)
 	binary.LittleEndian.PutUint16(wire[0:], BuildLen(2+body))
 	binary.LittleEndian.PutUint16(wire[2:], cmd)
-	wire[4] = Marker
+	wire[4] = m
 	binary.LittleEndian.PutUint16(wire[5:], ^cmd)
 	copy(wire[7:], payload)
 	return wire, nil
@@ -156,9 +170,19 @@ func (rd *Reader) ReadFrame() (*Frame, error) {
 	return &Frame{Cmd: cmd, Payload: body[5:]}, nil
 }
 
-// WriteFrame шлёт кадр.
+// WriteFrame шлёт кадр C2S.
 func WriteFrame(w io.Writer, cmd uint16, payload []byte) error {
 	b, err := Build(cmd, payload)
+	if err != nil {
+		return err
+	}
+	_, err = w.Write(b)
+	return err
+}
+
+// WriteFrameS2C шлёт кадр ответа (0xEC).
+func WriteFrameS2C(w io.Writer, cmd uint16, payload []byte) error {
+	b, err := BuildS2C(cmd, payload)
 	if err != nil {
 		return err
 	}

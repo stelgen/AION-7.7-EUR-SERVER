@@ -9,6 +9,7 @@ import (
 
 	"aion-accache/internal/cache"
 	"aion-accache/internal/config"
+	"aion-accache/internal/db"
 	"aion-accache/internal/server"
 	"aion-accache/internal/ship"
 )
@@ -33,7 +34,17 @@ func main() {
 	sh.Send(ship.Event{Ev: "start", Svc: "accache", Msg: "version=" + version + " listen=" + cfg.Server.Listen})
 
 	st := cache.New()
-	srv := server.New(cfg, st, nil, sh) // db.Executor = nil до R3 (SQLStore)
+	exec := db.Executor(nil) // SQLStore (R3) или nil (RAM-only)
+	if cfg.DB.Enabled {
+		store, err := db.NewSQLStore(cfg.DB.Conn)
+		if err != nil {
+			sh.Send(ship.Event{Ev: "stop", Svc: "accache", Msg: "db: " + err.Error()})
+			log.Fatalf("db: %v", err)
+		}
+		exec = store
+		log.Printf("aion-accache: SQLStore подключен (procs AionAccountCacheD)")
+	}
+	srv := server.New(cfg, st, exec, sh)
 	if err := srv.Serve(); err != nil {
 		sh.Send(ship.Event{Ev: "stop", Svc: "accache", Msg: "err=" + err.Error()})
 		log.Fatalf("serve: %v", err)

@@ -231,5 +231,8 @@ welcomeTestCC:0, welcomeWaitAuthdMs:2000, serverID:1, smAuthGgWire:42 (live-фо
   запустить более 2 клиентов…» убил оба клиента — гвард в клиенте ЕСТЬ) или Server64 2-й коннект
   с 1 IP. Лог Server64 13:48–13:50: следов 2-го коннекта НЕТ → версия «гвард клиента» основная;
   патч гварда = отдельная клиентская задача.
+  **ОТВЕТ aion-main 21.10**: err-лог Server64 не логирует accept/отказы вовсе — по окну 13:4x
+  только AlivePacket/ChannelChat/petition/shopagent-фоны и DETECT LEAK; отказов GS нет ⇒
+  «гвард клиента» укреплён как основная версия; для окончательного вердикта — pktmon 7777 при живом мире (R4.5 tap готов).
 - **CacheD64 (сосед, R1-prep)**: гейт не касается 2006; спам `proc_missing aion_GetItemCollection*/...`
   в op-алертах = мир-сторона (БД ~85%, см. docs/tech-debt-db-20261008.md), не гейт.

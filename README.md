@@ -31,7 +31,7 @@ flowchart LR
   PA["PA :10057 (ориг, ОБЯЗАТЕЛЕН)"] --> A
 ```
 
-Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd переписаны (authd R6 в бою, ориг = откат); мир (main/cache/npc) = деприор перепись — aion-main R0–R4 закрыт 08.10 (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
+Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd переписаны (authd R6 в бою, ориг = откат); мир (main/cache/npc) = деприор перепись — aion-main R0–R4.5 закрыт 21.10 (тень деплоена на VM, smoke E2E PASS) (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 

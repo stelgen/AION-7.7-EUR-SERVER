@@ -49,3 +49,6 @@ GOOS=windows GOARCH=amd64 go build -o aion-logd.exe .        # кросс-сбо
 
 ## 📊 Сосед узнал (10.10, чат aion-gate T4)
 - Server64 периодически пишет `LogClientSocket::TimerExpired, LogServer didn't respond to an alive packet. intentional close` (~каждые 2–3 мин в 13:47–13:52) — LogClient МИРА не получает alive-ответ от :2051 (наш logd). Для NPCSvr живой факт — alive-ответ НЕ нужен (SNAPSHOT §УРОВНИ-6, флап 153с решён периодикой); для LogClient Server64 — 🧪 теория ⏳: проверить в RESEARCH/дизasm, отвечает ли наш logd на alive-пакет конкретно LogClient Server64 (иначе мир циклично пересоздаёт лог-сокет). Проверка: grep Server64.err/.log на частоту TimerExpired + our rx-дамп.
+
+## 📊 Сосед узнал (21.10, чат aion-main R4.5)
+- ✅ ПРОВЕРКА ЗАВЕРШЕНА (Server64 err 2026-10-08): окно 13:47–13:52 — TimerExpired/didn't respond НЕ найдены; вместо них 1065 строк `LogClientSocket::AlivePacket, LogServer responds to an alive packet.` (интервал ~90с, 08.10→09.10 06:37) ⇒ LogServer (наш logd :2051) ОТВЕЧАЕТ на alive LogClient МИРА — теория ❌ снята, цикличного пересоздания сокета нет. Периодика «didn't respond» из пульса 10.10 = скорее другой интервал/кратковременный морг при рестартах (проверять по свежим логам при живом мире).

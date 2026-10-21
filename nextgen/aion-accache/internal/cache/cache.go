@@ -50,8 +50,9 @@ func (s *Store) Put(e *Entry) {
 	s.accs[e.AccountID] = e
 }
 
-// UpdateFatigue — ACQ_UPDATE_HIDDEN_FATIGUE (3 приращения, каркасная семантика).
-func (s *Store) UpdateFatigue(accountID int, point, upd, npckill int32) {
+// UpdateFatigue — ACQ_UPDATE_HIDDEN_FATIGUE (полная семантика R3:
+// point/npckill/updatetime/limit_reset/limit_play по proc aion_UpdateHiddenFatigueInfo_20170428).
+func (s *Store) UpdateFatigue(accountID int, point, npckill, updatetime, limitReset, limitPlay int32) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	e, ok := s.accs[accountID]
@@ -60,6 +61,8 @@ func (s *Store) UpdateFatigue(accountID int, point, upd, npckill int32) {
 		s.accs[accountID] = e
 	}
 	e.Fatigue.Point = point
-	e.Fatigue.UpdateTime = upd
 	e.Fatigue.NpcKill = npckill
+	e.Fatigue.UpdateTime = updatetime
+	e.Fatigue.LimitReset = limitReset
+	e.Fatigue.LimitAccum = limitPlay
 }

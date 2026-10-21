@@ -20,7 +20,7 @@
 | R4.2 | cached 2006: read-путь (логин-инвентарь из живого кеша) + write-транзит (MVP aion-cache R3) | ⬜ |
 | R4.3 | A/B автоматический: симуляция полного флоу юзера по golden-раскладкам vs ориг-ответы → auto SAME/DIFF | ⬜ |
 | R4.4 | Стабильность: RAM/горутины-планка «чище ориг» (цель <1ГБ vs 10ГБ), долгие прогоны, raw-first на падениях | ⬜ |
-| R4.5 | Деплой тени на VM (D:\SAION\aion-main\ + задача AionMainShadow + pktmon-fed tap) | ⬜ |
+| R4.5 | Деплой тени на VM (D:\SAION\aion-main\ + задача AionMainShadow + pktmon-fed tap) | ✅ 21.10: тень деплоена и жива (:7778, RAM ~9МБ vs 10ГБ ориг), задача AionMainShadow (SYSTEM, onstart), layouts переданы tar-ом на VM (в гит НЕ клались — приватность); SMOKE PASS E2E на VM: SM_KEY → CM_VERSION_CHECK→SM_VERSION_CHECK(0x0000, 127Б) → CM_TIME_CHECK→SM_TIME_CHECK(0x0027, delta=0s) → CM_PING→SM_PONG(0x008E) → CM_LEVEL_READY→SM_FLAG_INFO+мир 9 фреймов; smoke-клиент (Go, D:\SAION\aion-main\smoke.exe) = переиспользуемый артефакт; УРОК: rolling-ключ катится за КАЖДЫЙ пакет (клиент-канон, даже при провале валидации кадра) |
 | R5 | Свитч по «го» (пара NPC+MAIN, op restart_pair); откат = ориг. ⚠ УСЛОВИЕ: только после R3.8–R4.4 (полный MVP-мир: логин→мир→движение→чат→инвентарь на живых данных + NPC-пара) | ⬜ |
 | R6 | Наблюдение (RAM/хендлы — целевая планка ЧИЩЕ ориг: 827k хендлов и утечки недопустимы) | ⬜ |
 
@@ -36,6 +36,7 @@
 | 08.10 | ✅ PDB Server64 скачан (MD5 ok), 74164 publics: RPC-семейства совпадают с cached-ref/npc/ic именами; Matchmaker-миры в бинаре = InterSvrType-канон; SM_/CM_ имён в publics нет (семантика в CPacket-хендлерах) | done (RESEARCH §2) | ✅ |
 | 08.10 | ✅ Encom leak 7.5–7.7 скачан с MEGA (RZ #1196933): CM264/SM347, ServerPacketsOpcodes (база 7.0 KR), Packet Samurai Game_7.5.x.xml = 938 пакетов; крипта 7777 в бинаре = GG+Blowfish+AES ↔ crypt="AionGame7_5_0_0" | done (RESEARCH §4) | ✅ |
 | 08.10 | ✅ Единая таблица опкодов собрана (688 имён, 5 реестров): базовый слой = 7.5 EU (323 тега Java) + 15×«7.7 EU TODO» + 95 новых 7.7/7.8; реестр 7.7 EU закрывается из эталонов ~90%; XML-словарь частично неточен (21 расхождение vs согласованной Java) — арбитраж = Java | [OPCODES.md](OPCODES.md) | ✅ |
+| 21.10 | Тень aion-main standalone-валидна без прод-мира: полный handshake-флоу 7.7 EU проходит на чистой Windows VM (SMOKE PASS) | smoke.exe на VM 21.10 | ✅ канон |
 | 08.10 | Реестр 7.7 EU = superset Java-эталонов подтверждён частично: имена маппятся 1-в-1, численный дрейф 7.5→7.8 закрыт только capture'ом | R1 pktmon | ⏳ |
 | 08.10 | ✅ Крипта 7.7 EU = XOR-схема эталонов (staticKey 64Б + rolling 8Б от SM_KEY falseKey, коды 0x56/0x75, encodeOpcodec) — 0 invalid на 1820 live-пакетах | [OPCODES.md §6](OPCODES.md) | ✅ |
 | 08.10 | S2C 0x0182×151 = SM_STRONGHOLDS (только encom75 — Encom leak уникален); C2S 0x00D4 = 1-байт флаг (payload-разбор, вне реестров — новый для 7.7 EU); диапазон 0x2F2+ у 7.7 EU клиентов существует (CM_PING live) | [OPCODES.md §9](OPCODES.md) | ✅ |

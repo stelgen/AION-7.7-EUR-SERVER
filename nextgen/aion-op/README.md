@@ -26,8 +26,11 @@ read-only пробы + лог-парсер + метрики + SQLite + алер�
 - ✅ **kill-коллизия OP-2 РЕШЕНА 21.10**: stopStep при общей exe теперь даёт точечный
   `schtasks /end /tn <запуск-задача>` (убивает только процесс этой задачи) вместо
   `taskkill /F /IM` — stop authdn больше НЕ бьёт ПРОД. Тест TestStopStepCollision PASS.
-  ⏳ бинарь `aionop-win-1022` (MD5 7191a5ba) ждёт деплоя на VM (текущий прод 1021); до
-  деплоя правило «не жать stop authdn» ещё в силе (ROADMAP §6).
+  ✅ ДЕПЛОЙ 21.10: VM на `aionop-win-1022` (MD5 7191a5ba совпал) + LIVE-VERIFY:
+  stop authdn → точечный `/end AionAuthdShadow`, ПРОД цел (PID 6436), тень стартована обратно.
+  Правило «не жать stop authdn» СНЯТО (ROADMAP §6).
+  ⚙ API-готча: POST /api/action поле `id` (НЕ `target`); curl-тело передавать файлом
+  (`-d @file`, ssh→PowerShell тройное экранирование ломает inline-JSON).
 - **PA обязателен** (кнопка pa разблокирована: без PA = SYSTEM_ERROR(20)); старт-порядок PA ДО authd.
 - Критерий мира = 8 коннектов на :2002 (`expected_conns: 8`, было 16 netstat-строк = FALSE ALERT).
 Прод-деплой: `C:\aionop\` + задача AionOp — см. [DEPLOY.md](DEPLOY.md).
