@@ -30,7 +30,14 @@ config.example.yaml
 ## Тесты
 
 `go vet ./... && go test ./...` — зелёные (proto golden/roundtrip/bad-marker/inv/split;
-server e2e: FIRST_LOAD → 5×int-ответ, unknown → дроп, bad-marker → close).
+server e2e: FIRST_LOAD → 5×int-ответ, unknown → дроп, bad-marker → close;
+wire-regression W2/W3: proc-имена + arg-раскладки + off-by-2 + тишина).
+
+R4 replay (TestR4ReplayCapture в internal/server/replay_r4_test.go): автономный
+реплей golden-корпуса capture-20261007 — все C2S-кадры из frames.txt шлются в
+живой сервер (fakeDB) в одно соединение, ответы байт-в-байт сравниваются с S2C
+последовательностью capture. Расхождение = XFAIL-отчёт (stdout: позиция, байт,
+cmd-имя) — тест НЕ падает, покрытие фиксируется (см. ROADMAP R4).
 
 ## Что осталось
 
