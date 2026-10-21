@@ -79,8 +79,9 @@ func main() {
 	defer cancel()
 
 	// Phase 1.5 (OP-6): событийный watchdog — ТОЛЬКО по явному enabled в конфиге.
+	var wd *watchdog.Watchdog
 	if cfg.Watchdog.Enabled {
-		wd := watchdog.New(cfg, exec, prober, st)
+		wd = watchdog.New(cfg, exec, prober, st)
 		go wd.Run(ctx)
 	}
 
@@ -181,6 +182,9 @@ func main() {
 	}
 
 	srv := web.New(cfg, prober, st, eng, holder, exec, sqlHolder)
+	if wd != nil {
+		srv.SetWatchdog(wd) // /api/watchdog + /api/watchdog/unhalt
+	}
 	log.Printf("aion-op: probe=%s ui=:%d mode=%s dry_run=%t store=%s sql=%t",
 		cfg.VM.Mode, cfg.Operator.UIPort, cfg.Operator.Mode, exec.DryRun(), cfg.Store.Path, cfg.Sql.Enabled)
 	if err := srv.Run(); err != nil {

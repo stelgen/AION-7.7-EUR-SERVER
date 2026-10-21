@@ -289,3 +289,23 @@ func TestDisabledNoop(t *testing.T) {
 }
 
 var _ = core.StateRunning
+
+// Status(): срез состояния (enabled/halted/attempts) — копия map, без утечек мутации.
+func TestStatusSnapshot(t *testing.T) {
+	fa := &fakeActions{}
+	w := newW(t, wdCfg(true), procsDown(), fa)
+	st := w.Status()
+	if !st.Enabled || st.Halted || st.Attempts == nil {
+		t.Fatalf("status: %+v", st)
+	}
+	st.Attempts["gate"] = 99 // мутируем копию
+	if _, leaked := w.Status().Attempts["gate"]; leaked {
+		t.Fatal("Status отдаёт внутреннюю карту — утечка мутации")
+	}
+	w.mu.Lock()
+	w.halted = true
+	w.mu.Unlock()
+	if !w.Status().Halted {
+		t.Fatal("halted не виден в статусе")
+	}
+}

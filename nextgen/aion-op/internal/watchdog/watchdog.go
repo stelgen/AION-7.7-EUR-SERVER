@@ -218,6 +218,31 @@ func (w *Watchdog) loadingWindow(snap probe.Snapshot) bool {
 	return core.EvalService(main, snap, w.wp).State == core.StateLoading
 }
 
+// Status — срез состояния автопилота для веб-API (/api/watchdog).
+type Status struct {
+	Enabled     bool                   `json:"enabled"`
+	Halted      bool                   `json:"halted"`
+	IntervalSec int                    `json:"interval_sec"`
+	EscalateSec []int                  `json:"escalate"`
+	MaxAttempts int                    `json:"max_attempts"`
+	Nightly     config.WatchdogNightly `json:"nightly"`
+	Attempts    map[string]int         `json:"attempts"`
+}
+
+func (w *Watchdog) Status() Status {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	att := make(map[string]int, len(w.attempts))
+	for k, v := range w.attempts {
+		att[k] = v
+	}
+	return Status{
+		Enabled: w.cfg.Enabled, Halted: w.halted, IntervalSec: w.cfg.IntervalSec,
+		EscalateSec: w.cfg.EscalateSec, MaxAttempts: w.cfg.MaxAttempts,
+		Nightly: w.cfg.Nightly, Attempts: att,
+	}
+}
+
 // Run — блокирующий цикл автопилота (goroutine в main). Тик → Tick();
 // после halt-эскалации тишина до ResetHalt (ручное вбитие).
 func (w *Watchdog) Run(ctx context.Context) {

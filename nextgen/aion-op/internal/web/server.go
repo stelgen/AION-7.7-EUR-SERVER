@@ -23,6 +23,7 @@ import (
 	"aion-op/internal/probe"
 	"aion-op/internal/sqlmon"
 	"aion-op/internal/store"
+	"aion-op/internal/watchdog"
 )
 
 //go:embed ui/index.html ui/app.js ui/style.css
@@ -36,6 +37,7 @@ type Server struct {
 	holder    *metrics.Holder
 	exec      *act.Executor
 	sqlHolder *sqlmon.Holder
+	wd        *watchdog.Watchdog // nil если watchdog.enabled=false (Phase 1.5)
 
 	mu   sync.RWMutex
 	snap probe.Snapshot
@@ -65,6 +67,11 @@ func (s *Server) Run() error {
 	mux.HandleFunc("GET /api/metrics", s.handleMetrics)
 	mux.HandleFunc("GET /api/alerts", s.handleAlerts)
 	mux.HandleFunc("GET /api/sql", s.handleSql)
+	// Phase 1.5: статус watchdog + ручное вбитие после halt-эскалации
+	mux.HandleFunc("GET /api/watchdog", s.handleWatchdog)
+	if s.wd != nil {
+		mux.HandleFunc("POST /api/watchdog/unhalt", s.handleWatchdogUnhalt)
+	}
 	// Phase 1: управляющий роут монтируется ТОЛЬКО в operate-режиме;
 	// в observe его физически нет (не disabled — отсутствует).
 	if s.cfg.Operator.Mode == "operate" {
@@ -295,4 +302,34 @@ func writeJSON(w http.ResponseWriter, v any) {
 	enc := json.NewEncoder(w)
 	enc.SetEscapeHTML(false)
 	_ = enc.Encode(v)
+}
+
+// SetWatchdog — инъекция автопилота (Phase 1.5); nil = watchdog выключен.
+func (s *Server) SetWatchdog(w *watchdog.Watchdog) { s.wd = w }
+
+// handleWatchdog — GET /api/watchdog: срез состояния автопилота.
+func (s *Server) handleWatchdog(w http.ResponseWriter, r *http.Request) {
+	if s.wd == nil {
+		writeJSON(w, map[string]any{"enabled": false})
+		return
+	}
+	writeJSON(w, s.wd.Status())
+}
+
+// handleWatchdogUnhalt — POST /api/watchdog/unhalt: ручное вбитие после
+// halt-эскалации (typed-confirm "unhalt", danger-эквивалент).
+func (s *Server) handleWatchdogUnhalt(w http.ResponseWriter, r *http.Request) {
+	if s.wd == nil {
+		http.Error(w, "watchdog выключен", http.StatusConflict)
+		return
+	}
+	var req struct {
+		Confirm string `json:"confirm"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil || req.Confirm != "unhalt" {
+		http.Error(w, `нужен confirm="unhalt" (typed-confirm)`, http.StatusBadRequest)
+		return
+	}
+	s.wd.ResetHalt()
+	writeJSON(w, map[string]any{"ok": true, "detail": "watchdog: halt сброшен, автопилот возобновлён"})
 }
