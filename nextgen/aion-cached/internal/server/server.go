@@ -4,6 +4,7 @@ package server
 
 import (
 	"bufio"
+	"context"
 	"time"
 	"bytes"
 	"fmt"
@@ -23,6 +24,7 @@ type Config struct {
 	AdminPort    int    `json:"admin_port"`
 	NpcDbPort    int    `json:"npcdb_port"`
 	CryptSeedHex string `json:"crypt_seed_hex"`
+	DBConn       string `json:"db_conn"`
 }
 
 // DefaultConfig — канон: 2006/2007/2009, дефолт-seed.
@@ -57,6 +59,8 @@ func (c *Config) Load(path string) error {
 			fmt.Sscanf(v, "%d", &c.NpcDbPort)
 		case "crypt_seed_hex":
 			c.CryptSeedHex = v
+		case "db_conn":
+			c.DBConn = v
 		}
 	}
 	return nil
@@ -78,6 +82,7 @@ const (
 type Server struct {
 	cfg    Config
 	testLn map[Channel]net.Listener
+	SDB    *SettingsDB // DB-персист настроек (nil = RAM-only)
 }
 
 // New — конструктор.
@@ -216,6 +221,9 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 						}
 						if len(pages) > 0 {
 							globalSettings.Put(charIdFromFrame(frame), pages)
+							if s.SDB != nil {
+								s.SDB.SaveToDB(context.Background(), charIdFromFrame(frame), pages)
+							}
 						}
 					}
 					log.Printf("[cached] %s RQ_LOAD → replay %d bytes (read-path, settings seeded)", name, len(resp))
@@ -225,6 +233,9 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 						page = frame.Payload[20]
 					}
 					charId := charIdFromFrame(frame)
+					if !globalSettings.Has(charId) && s.SDB != nil {
+						s.SDB.LoadFromDB(context.Background(), charId)
+					}
 					stored := globalSettings.Get(charId)
 					if len(stored) > 0 {
 						for _, pg := range stored {

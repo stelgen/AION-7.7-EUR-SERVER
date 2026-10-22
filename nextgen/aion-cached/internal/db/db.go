@@ -9,6 +9,7 @@
 package db
 
 import (
+	_ "github.com/microsoft/go-mssqldb"
 	"context"
 	"database/sql"
 	"errors"
