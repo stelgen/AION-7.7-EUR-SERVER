@@ -168,7 +168,7 @@ func hLoadPlayTimesForPolls(s *S, c *Conn, cmd uint16, pl []byte) {
 	csv := strings.Join(ids, ",")
 	if s.exec != nil {
 		rows, err := s.exec.Query(context.Background(),
-			"{call dbo.aion_GetPlayTimesForPolls(?,?)}", csv, acc)
+			"EXEC dbo.aion_GetPlayTimesForPolls @p1, @p2", csv, acc)
 		if err != nil {
 			s.logf("polls load db.err acc=%d err=%v", acc, err)
 			s.send("db.err", "accache", err.Error())
@@ -191,7 +191,7 @@ func hLoadPlayTimeForOnePoll(s *S, c *Conn, cmd uint16, pl []byte) {
 	}
 	if s.exec != nil {
 		rows, err := s.exec.Query(context.Background(),
-			"{call dbo.aion_GetPlayTimeForPoll(?,?)}", poll, acc)
+			"EXEC dbo.aion_GetPlayTimeForPoll @p1, @p2", poll, acc)
 		if err != nil {
 			s.logf("poll load db.err acc=%d poll=%d err=%v", acc, poll, err)
 			s.send("db.err", "accache", err.Error())
@@ -215,7 +215,7 @@ func hUpdatePlayTimeForOnePoll(s *S, c *Conn, cmd uint16, pl []byte) {
 	}
 	if s.exec != nil {
 		rows, err := s.exec.Query(context.Background(),
-			"{call dbo.aion_UpdatePlayTimeForPoll(?,?,?)}", poll, acc, t)
+			"EXEC dbo.aion_UpdatePlayTimeForPoll @p1, @p2, @p3", poll, acc, t)
 		if err != nil {
 			s.logf("poll upd db.err acc=%d poll=%d err=%v", acc, poll, err)
 			s.send("db.err", "accache", err.Error())
@@ -250,7 +250,7 @@ func hUpdatePlayTimesForPolls(s *S, c *Conn, cmd uint16, pl []byte) {
 	idCsv, timeCsv := strings.Join(ids, ","), strings.Join(times, ",")
 	if s.exec != nil {
 		rows, err := s.exec.Query(context.Background(),
-			"{call dbo.aion_UpdatePlayTimesForPolls(?,?,?)}", idCsv, timeCsv, acc)
+			"EXEC dbo.aion_UpdatePlayTimesForPolls @p1, @p2, @p3", idCsv, timeCsv, acc)
 		if err != nil {
 			s.logf("polls upd db.err acc=%d err=%v", acc, err)
 			s.send("db.err", "accache", err.Error())

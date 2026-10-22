@@ -273,8 +273,16 @@ func hFirstLoad(s *S, c *Conn, cmd uint16, pl []byte) {
 			// журнал теорий: дефолт ACS RAM-кэша для нового аккаунта)
 		}
 	}
+	// R4-live 22.10 (Т6 live): point = RAM-sticky (не с DB/wire — ориг ответил 1 при DB 0);
+	// первая наблюдённая точка клампится в 1 (Т4).
+	point := fat.Point
+	if e, ok := s.cache.Get(int(req.AccountID)); ok {
+		point = e.Fatigue.Point
+	} else if point < 1 {
+		point = 1
+	}
 	resp := payload.BuildFirstLoadResp(req.AccountID,
-		uint32(fat.Point), uint32(fat.NpcKill),
+		uint32(point), uint32(fat.NpcKill),
 		// R4-хвост 21.10: u8@12 и u16@17 НЕ byte(limit_play_reset_time) —
 		// прод limit_reset=0x6AC5DFE0 дал бы 0xE0, а golden везде 0x00.
 		// Гипотеза (журнал теорий): X/Y = производные limit_play_accum_time
@@ -308,11 +316,9 @@ func hLoadBMPack(s *S, c *Conn, cmd uint16, pl []byte) {
 		}
 	}
 	s.respond(c, cmd, payload.BuildBMPackResp(req.AccountID, count))
-	// R4-хвост (21.10, capture ×2): после LOAD_BM_PACK-ответа ориг пушит ACP_21
-	// (cmd 0x15, payload 14Б: [accId][02][01][8×00]) — байты идентичны в обеих
-	// сессиях. Доставка асинхронная (в сессии-1 пришёл после следующего батча
-	// запросов — ACS многопоточен, numberOfDBThreads=10), но пара доказана.
-	s.respond(c, 0x15, payload.BuildBM21Push(req.AccountID))
+	// ⚠ Т2 «push 0x15 после BM» ОПРОВЕРЖЕНА live 22.10 (R4 A/B): все 5 кадров O-0x15
+	// идут непосредственно за C-0x1F ASK_JUMPING (5/5), после BM ориг не пушит —
+	// утренняя корреляция была по позиции. Ответ на 0x1F = в hAskJumping.
 }
 
 // 0x07 LOAD_TRIAL: C2S [accId][charRef] -> тишина (в capture ответа нет).
@@ -479,7 +485,7 @@ func hUpdateFatigue(s *S, c *Conn, cmd uint16, pl []byte) {
 			s.send("db.err", "accache", err.Error())
 		}
 	}
-	s.cache.UpdateFatigue(int(r.AccountID), int32(r.Point), int32(r.NpcKill), int32(r.UpdateTime), int32(r.LimitReset), int32(r.LimitPlay))
+	s.cache.UpdateFatigue(int(r.AccountID), int32(r.NpcKill), int32(r.UpdateTime), int32(r.LimitReset), int32(r.LimitPlay))
 	s.logf("fatigue acc=%d point=%d npc=%d upd=%d reset=%d play=%d",
 		r.AccountID, r.Point, r.NpcKill, r.UpdateTime, r.LimitReset, r.LimitPlay)
 }
@@ -520,7 +526,10 @@ func hAskJumping(s *S, c *Conn, cmd uint16, pl []byte) {
 		s.logf("jumping parse.err %v", err)
 		return
 	}
-	s.logf("jumping flag=%d acc=%d val=%d", r.Flag, r.AccountID, r.Value)
+	// R4-live 22.10 канон: C2S 0x1F -> S2C 0x15 [acc][02][01][8×0] (5/5 кадров live,
+	// следующий кадр за запросом).
+	s.respond(c, 0x15, payload.BuildBM21Push(r.AccountID))
+	s.logf("jumping flag=%d acc=%d val=%d -> 0x15", r.Flag, r.AccountID, r.Value)
 }
 
 // --- R3-хвост: зарегистрированные по proc-телам REF58 ---
@@ -546,29 +555,20 @@ func hUpdateBMPack(s *S, c *Conn, cmd uint16, pl []byte) {
 	s.logf("bmpack acc=%d char=%d pack=%d active=%d", acc, charId, packId, active)
 }
 
-// 0x0f CHAR_CREATED -> aion_SetCreateUser_20121206(accountId, charId, slot, level, gender, race, class INT, createDate DATETIME)
-// C2S [accId][charId][slot][level][gender][race][class][createDate u64 unix]. Ответ: тишина.
+// 0x0f CHAR_CREATED (C2S-уведомление Server64 при создании чара) — R4-live 22.10:
+// раскладка = сессионная [u32 1][charRef][utf16z stamp][tail] (как CHAR_LOGOUT).
+// Гипотеза R3.6 [acc][char][slot][level][gender][race][class][date] ОПРОВЕРГНУТА live
+// (парс давал мусор: slot=байты UTF-16). proc aion_SetCreateUser_20121206 требует
+// acc/slot/level/gender/race/class — источник аргументов = другой канал (⏳ Т21):
+// лог + ship, SQL НЕ зовём.
 func hCharCreated(s *S, c *Conn, cmd uint16, pl []byte) {
-	if len(pl) < 32 { // 7*4+8
+	r, err := payload.ParseCharLogoutReq(pl)
+	if err != nil {
 		s.logf("charcreated parse.err len=%d", len(pl))
 		return
 	}
-	acc := int32(binary.LittleEndian.Uint32(pl[0:]))
-	charId := int32(binary.LittleEndian.Uint32(pl[4:]))
-	slot := int32(binary.LittleEndian.Uint32(pl[8:]))
-	level := int32(binary.LittleEndian.Uint32(pl[12:]))
-	gender := int32(binary.LittleEndian.Uint32(pl[16:]))
-	race := int32(binary.LittleEndian.Uint32(pl[20:]))
-	class := int32(binary.LittleEndian.Uint32(pl[24:]))
-	createDate := time.Unix(int64(binary.LittleEndian.Uint64(pl[28:])), 0)
-	if s.exec != nil {
-		_, _, err := db.CallProc(context.Background(), s.exec, "aion_SetCreateUser_20121206", acc, charId, slot, level, gender, race, class, createDate)
-		if err != nil {
-			s.logf("charcreated db.err acc=%d char=%d err=%v", acc, charId, err)
-			s.send("db.err", "accache", err.Error())
-		}
-	}
-	s.logf("charcreated acc=%d char=%d slot=%d level=%d", acc, charId, slot, level)
+	s.logf("charcreated charRef=%#x stamp=%q tail=%x len=%d", r.CharRef, r.Stamp, r.Tail, len(pl))
+	s.send("char.created", "accache", fmt.Sprintf("charRef=%#x stamp=%s", r.CharRef, r.Stamp))
 }
 
 // 0x12 CHAR_DELETE -> aion_SetDeleteUser_20120703(accountId, charId, deleteTime, flag INT)

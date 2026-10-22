@@ -264,3 +264,12 @@ func TestR4PushGoldens(t *testing.T) {
 		t.Fatalf("ACP_28 charB wire = %s", hexStr(w28b))
 	}
 }
+
+// TestLunaUpdateAccLowByte — R4-live 22.10: префикс cmd 27 = [acc&0xFF][00][01][00]
+// (1010→F2, 1023→FF; «константа F2» была артефактом одного аккаунта).
+func TestLunaUpdateAccLowByte(t *testing.T) {
+	w, _ := proto.BuildS2C(27, BuildLunaUpdateResp(1023))
+	if hexStr(w) != "11001b00ece4ffff000100ff0300000000" {
+		t.Fatalf("lunaupdate 1023 wire = %s", hexStr(w))
+	}
+}

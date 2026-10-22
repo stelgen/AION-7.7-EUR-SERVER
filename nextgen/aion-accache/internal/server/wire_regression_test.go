@@ -14,6 +14,7 @@ import (
 	"context"
 	"encoding/binary"
 	"errors"
+	"strings"
 	"testing"
 	"time"
 
@@ -33,7 +34,8 @@ func (f *fakeQErr) Query(ctx context.Context, q string, args ...any) (db.Rows, e
 func callArgs(t *testing.T, f *fakeQErr, procName string) []any {
 	t.Helper()
 	for i, q := range f.execs {
-		if len(q) >= len(procName)+10 && q[:len(procName)+10] == "{call dbo."+procName {
+		// R4-live 22.10: синтаксис = EXEC dbo.<name> @pN (match по имени, не по форме)
+		if strings.Contains(q, "dbo."+procName) {
 			return f.execArgs[i]
 		}
 	}
@@ -94,14 +96,13 @@ func TestW2Handlers(t *testing.T) {
 		t.Fatalf("BM args=%v", a)
 	}
 
-	// 0x0f CREATED: [acc][char][slot][level][gender][race][class][date u64] = 32
+	// 0x0f CREATED: R4-live 22.10 — раскладка сессионная [1][charRef][stamp][tail],
+	// proc aion_SetCreateUser НЕ зовётся (источник args = ⏳ Т21), log-only.
 	sendFrame(t, addr, f, 0x0f, concat(i32(5), i32(6), i32(0), i32(10), i32(1), i32(0), i32(4), i64(1792500000)))
-	a = callArgs(t, f, "aion_SetCreateUser_20121206")
-	if len(a) != 8 {
-		t.Fatalf("CREATED arg count=%d, want 8", len(a))
-	}
-	if a[0] != int32(5) || a[1] != int32(6) || a[6] != int32(4) {
-		t.Fatalf("CREATED args=%v", a)
+	for _, q := range f.execs {
+		if strings.Contains(q, "SetCreateUser") {
+			t.Fatalf("CREATED: SetCreateUser не должен зваться (Т21): %s", q)
+		}
 	}
 
 	// 0x12 DELETE: [acc][char][time][flag] = 16
@@ -203,7 +204,7 @@ func TestW3Handlers(t *testing.T) {
 	// 0x20 POLLS load: [acc][count u16][count × pollId] = 6 + 4n
 	sendFrame(t, addr, f, 0x20, concat(i32(13), []byte{2, 0}, i32(101), i32(102)))
 	// aion_GetPlayTimesForPolls через s.exec.Query — попали в queryArgs, не в execs
-	if f.queryQ == "" || f.queryQ != "{call dbo.aion_GetPlayTimesForPolls(?,?)}" {
+	if f.queryQ == "" || !strings.Contains(f.queryQ, "aion_GetPlayTimesForPolls") {
 		t.Fatalf("POLLS_LOAD q=%q", f.queryQ)
 	}
 	if len(f.queryArgs) != 2 {
@@ -215,7 +216,7 @@ func TestW3Handlers(t *testing.T) {
 
 	// 0x21 ONE_POLL load: [poll][acc] = 8
 	sendFrame(t, addr, f, 0x21, concat(i32(103), i32(14)))
-	if f.queryQ != "{call dbo.aion_GetPlayTimeForPoll(?,?)}" {
+	if !strings.Contains(f.queryQ, "aion_GetPlayTimeForPoll") {
 		t.Fatalf("ONE_POLL_LOAD q=%q", f.queryQ)
 	}
 	if len(f.queryArgs) != 2 {
@@ -227,7 +228,7 @@ func TestW3Handlers(t *testing.T) {
 
 	// 0x22 ONE_POLL upd: [poll][acc][time u64] = 16
 	sendFrame(t, addr, f, 0x22, concat(i32(104), i32(15), i64(999999)))
-	if f.queryQ != "{call dbo.aion_UpdatePlayTimeForPoll(?,?,?)}" {
+	if !strings.Contains(f.queryQ, "aion_UpdatePlayTimeForPoll") {
 		t.Fatalf("ONE_POLL_UPD q=%q", f.queryQ)
 	}
 	if len(f.queryArgs) != 3 {
@@ -239,7 +240,7 @@ func TestW3Handlers(t *testing.T) {
 
 	// 0x23 POLLS upd: [acc][count u16][count × pollId][count × time u64]
 	sendFrame(t, addr, f, 0x23, concat(i32(16), []byte{2, 0}, i32(105), i32(106), i64(1), i64(2)))
-	if f.queryQ != "{call dbo.aion_UpdatePlayTimesForPolls(?,?,?)}" {
+	if !strings.Contains(f.queryQ, "aion_UpdatePlayTimesForPolls") {
 		t.Fatalf("POLLS_UPD q=%q", f.queryQ)
 	}
 	if len(f.queryArgs) != 3 {

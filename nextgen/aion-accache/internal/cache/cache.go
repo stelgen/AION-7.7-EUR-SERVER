@@ -79,17 +79,18 @@ func (s *Store) Put(e *Entry) {
 	s.accs[e.AccountID] = e
 }
 
-// UpdateFatigue — ACQ_UPDATE_HIDDEN_FATIGUE (полная семантика R3:
-// point/npckill/updatetime/limit_reset/limit_play по proc aion_UpdateHiddenFatigueInfo_20170428).
-func (s *Store) UpdateFatigue(accountID int, point, npckill, updatetime, limitReset, limitPlay int32) {
+// UpdateFatigue — ACQ_UPDATE_HIDDEN_FATIGUE (npckill/updatetime/limit_reset/limit_play).
+// R4-live 22.10 (Т6 live-подтверждена): point НЕ зеркалится из wire в RAM — ориг отвечает
+// point=1 при DB point=0. Новый Entry получает Point=1 (RAM-дефолт), существующий — сохраняет.
+func (s *Store) UpdateFatigue(accountID int, npckill, updatetime, limitReset, limitPlay int32) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	e, ok := s.accs[accountID]
 	if !ok {
 		e = &Entry{AccountID: accountID}
+		e.Fatigue.Point = 1 // RAM-дефолт (Т4)
 		s.accs[accountID] = e
 	}
-	e.Fatigue.Point = point
 	e.Fatigue.NpcKill = npckill
 	e.Fatigue.UpdateTime = updatetime
 	e.Fatigue.LimitReset = limitReset

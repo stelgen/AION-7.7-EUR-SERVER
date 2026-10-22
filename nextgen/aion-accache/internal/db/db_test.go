@@ -111,7 +111,7 @@ func TestSetLoginUser(t *testing.T) {
 	if err := SetLoginUser(context.Background(), ex, 1002, 1, 1, lt); err != nil {
 		t.Fatal(err)
 	}
-	if ex.execs[0] != "{call dbo.aion_SetLoginUser_20120703(?,?,?,?)}" {
+	if ex.execs[0] != "EXEC dbo.aion_SetLoginUser_20120703 @char_id=@p1, @server_id=@p2, @cur_server_id=@p3, @login_time=@p4" {
 		t.Fatalf("query = %s", ex.execs[0])
 	}
 	a := ex.eArgs[0]
@@ -127,7 +127,7 @@ func TestSetLogoutUser(t *testing.T) {
 	if err := SetLogoutUser(context.Background(), ex, 1003, 1, 1, lt); err != nil {
 		t.Fatal(err)
 	}
-	if ex.execs[0] != "{call dbo.aion_SetLogoutUser_20120703(?,?,?,?)}" {
+	if ex.execs[0] != "EXEC dbo.aion_SetLogoutUser_20120703 @char_id=@p1, @server_id=@p2, @cur_server_id=@p3, @logout_time=@p4" {
 		t.Fatalf("query = %s", ex.execs[0])
 	}
 	a := ex.eArgs[0]

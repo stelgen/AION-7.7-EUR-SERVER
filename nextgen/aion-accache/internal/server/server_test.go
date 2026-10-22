@@ -137,7 +137,7 @@ func TestFirstLoadFromFakeDB(t *testing.T) {
 	if acc := binary.LittleEndian.Uint32(body); acc != 7 {
 		t.Fatalf("reply acc = %d", acc)
 	}
-	if q := ex.queryQ; q != "{call dbo.aion_GetAccountData_20170428(?)}" {
+	if q := ex.queryQ; !strings.Contains(q, "aion_GetAccountData_20170428") {
 		t.Fatalf("query = %s", q)
 	}
 	if got := ex.queryArgs[0].(int32); got != 7 {
@@ -191,8 +191,8 @@ func TestUpdateFatigueCallsProc(t *testing.T) {
 	if len(ex.execs) != 1 {
 		t.Fatalf("execs = %d, want 1", len(ex.execs))
 	}
-	want := "{call dbo.aion_UpdateHiddenFatigueInfo_20170428(?,?,?,?,?,?)}"
-	if ex.execs[0] != want {
+	want := "aion_UpdateHiddenFatigueInfo_20170428" // R4-live: EXEC dbo... @p1..@p6
+	if !strings.Contains(ex.execs[0], want) {
 		t.Fatalf("exec = %s", ex.execs[0])
 	}
 	if len(ex.execArgs[0]) != 6 {

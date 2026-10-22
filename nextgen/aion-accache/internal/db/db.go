@@ -92,12 +92,16 @@ func NewReadOnly(ex Executor) Executor { return readOnly{ex} }
 // CallProc — универсальный вызов процедуры: CallProc(ex, "aion_loadLuna", accId).
 // Если proc без result-set — возвращается Result (rows=nil).
 func CallProc(ctx context.Context, ex Executor, name string, args ...any) (Rows, Result, error) {
-	q := "{call dbo." + name
+	// R4-live 22.10: go-mssqldb НЕ поддерживает ODBC-эскейп {call ...} (mssql: Incorrect
+	// syntax near '{') — эталон синтаксиса = aion-authd internal/store/mssql.go (EXEC).
+	// Позиционные @p1..@pN — драйвер биндит по порядку.
+	q := "EXEC dbo." + name
 	if len(args) > 0 {
-		q += "(" + strings.Repeat("?,", len(args))
-		q = q[:len(q)-1] + ")}"
-	} else {
-		q += ")}"
+		parts := make([]string, len(args))
+		for i := range args {
+			parts[i] = fmt.Sprintf("@p%d", i+1)
+		}
+		q += " " + strings.Join(parts, ", ")
 	}
 	rows, err := ex.Query(ctx, q, args...)
 	if err != nil {
@@ -119,7 +123,7 @@ type Fatigue struct {
 //        limit_play_reset_time, limit_play_accum_time FROM account_data WHERE account_id=?
 // Пустой result-set = аккаунта нет (nil, nil).
 func GetAccountData(ctx context.Context, ex Executor, accountID int32) (*Fatigue, error) {
-	rows, err := ex.Query(ctx, "{call dbo.aion_GetAccountData_20170428(?)}", accountID)
+	rows, err := ex.Query(ctx, "EXEC dbo.aion_GetAccountData_20170428 @accountId=@p1", accountID)
 	if err != nil {
 		return nil, fmt.Errorf("accache db GetAccountData: %w", err)
 	}
@@ -139,7 +143,7 @@ func GetAccountData(ctx context.Context, ex Executor, accountID int32) (*Fatigue
 //  limit_reset_time, limit_play_time).
 func UpdateHiddenFatigueInfo(ctx context.Context, ex Executor, accID, point, npckill, updatetime, limitReset, limitPlay int32) error {
 	_, err := ex.Exec(ctx,
-		"{call dbo.aion_UpdateHiddenFatigueInfo_20170428(?,?,?,?,?,?)}",
+		"EXEC dbo.aion_UpdateHiddenFatigueInfo_20170428 @p1, @p2, @p3, @p4, @p5, @p6",
 		accID, point, npckill, updatetime, limitReset, limitPlay)
 	if err != nil {
 		return fmt.Errorf("accache db UpdateHiddenFatigueInfo: %w", err)
@@ -154,7 +158,7 @@ type PackRow struct {
 }
 
 func GetAccountPackList(ctx context.Context, ex Executor, accountID int32) ([]PackRow, error) {
-	rows, err := ex.Query(ctx, "{call dbo.aion_GetAccountPackList(?)}", accountID)
+	rows, err := ex.Query(ctx, "EXEC dbo.aion_GetAccountPackList @accountId=@p1", accountID)
 	if err != nil {
 		return nil, fmt.Errorf("accache db GetAccountPackList: %w", err)
 	}
@@ -173,7 +177,7 @@ func GetAccountPackList(ctx context.Context, ex Executor, accountID int32) ([]Pa
 // GetLuna — proc aion_loadLuna(accid): SELECT luna FROM account_luna WHERE accountId=?.
 // Нет строки = 0 (луна по умолчанию).
 func GetLuna(ctx context.Context, ex Executor, accountID int32) (int64, error) {
-	rows, err := ex.Query(ctx, "{call dbo.aion_loadLuna(?)}", accountID)
+	rows, err := ex.Query(ctx, "EXEC dbo.aion_loadLuna @p1", accountID)
 	if err != nil {
 		return 0, fmt.Errorf("accache db GetLuna: %w", err)
 	}
@@ -218,7 +222,7 @@ func GetTrialAccountData(ctx context.Context, ex Executor, accountID int32) (*Tr
 // Раскладка C2S cmd 8 = гипотеза (см. payload.UpdateTrialReq), арбитр R4.
 func SetTrialAccountData(ctx context.Context, ex Executor, accID int32, p *UpdateTrialArgs) error {
 	_, err := ex.Exec(ctx,
-		"{call dbo.aion_SetTrialAccountData(?,?,?,?,?,?,?,?)}",
+		"EXEC dbo.aion_SetTrialAccountData @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8",
 		accID, p.UpdateTime, p.ResetTime, p.SellGold, p.TradeGold, p.DecomposeSum, p.GatherSum, p.ExtractGatherSum)
 	if err != nil {
 		return fmt.Errorf("accache db SetTrialAccountData: %w", err)
@@ -249,10 +253,11 @@ type UserInfo struct {
 // last_login_time возвращается как DATEDIFF(s,'1970-01-01',...) — unix-секунды, скан int64.
 // Пустой result-set = ok=false (строки нет — эмиттер берёт RAM-кэш/нули; кэш НЕ перезаписываем).
 func GetUserInfo(ctx context.Context, ex Executor, accID, charID int32) (UserInfo, bool, error) {
+	// R4-live: именованные @p1..@p3 (go-mssqldb; '?' без перезаписи = syntax err).
 	q := "SELECT DATEDIFF(s,'1970-01-01',g.last_login_time)," +
-		" (SELECT ISNULL(MAX(user_level),0) FROM global_user_data WITH (NOLOCK) WHERE account_id = ? AND is_special_server = 0 AND delete_date = 0)" +
+		" (SELECT ISNULL(MAX(user_level),0) FROM global_user_data WITH (NOLOCK) WHERE account_id = @p1 AND is_special_server = 0 AND delete_date = 0)" +
 		" FROM global_user_data g WITH (NOLOCK)" +
-		" WHERE g.account_id = ? AND g.char_id = ? AND g.delete_date = 0"
+		" WHERE g.account_id = @p2 AND g.char_id = @p3 AND g.delete_date = 0"
 	rows, err := ex.Query(ctx, q, accID, accID, charID)
 	if err != nil {
 		return UserInfo{}, false, fmt.Errorf("accache db GetUserInfo: %w", err)
@@ -274,7 +279,7 @@ func GetUserInfo(ctx context.Context, ex Executor, accID, charID int32) (UserInf
 // Варианты 20121120/20121206 (глобальный global_char_id/class_type/race_type) = Т15 ⏳
 // (источник аргументов не доказан; 20120703 не портит колонки, арбитр = live A/B SQL-дифф).
 func SetLoginUser(ctx context.Context, ex Executor, charID, serverID, curServerID int32, loginTime time.Time) error {
-	_, err := ex.Exec(ctx, "{call dbo.aion_SetLoginUser_20120703(?,?,?,?)}",
+	_, err := ex.Exec(ctx, "EXEC dbo.aion_SetLoginUser_20120703 @char_id=@p1, @server_id=@p2, @cur_server_id=@p3, @login_time=@p4",
 		charID, serverID, curServerID, loginTime)
 	if err != nil {
 		return fmt.Errorf("accache db SetLoginUser: %w", err)
@@ -286,7 +291,7 @@ func SetLoginUser(ctx context.Context, ex Executor, charID, serverID, curServerI
 // logout_time datetime): UPDATE last_logout_time=@logout_time, cur_server_id=@cur
 // WHERE char_id AND server_id. Вариант 20121206 (+class/race) = Т15 ⏳.
 func SetLogoutUser(ctx context.Context, ex Executor, charID, serverID, curServerID int32, logoutTime time.Time) error {
-	_, err := ex.Exec(ctx, "{call dbo.aion_SetLogoutUser_20120703(?,?,?,?)}",
+	_, err := ex.Exec(ctx, "EXEC dbo.aion_SetLogoutUser_20120703 @char_id=@p1, @server_id=@p2, @cur_server_id=@p3, @logout_time=@p4",
 		charID, serverID, curServerID, logoutTime)
 	if err != nil {
 		return fmt.Errorf("accache db SetLogoutUser: %w", err)

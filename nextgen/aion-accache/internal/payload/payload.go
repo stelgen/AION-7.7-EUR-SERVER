@@ -259,14 +259,13 @@ func BuildCharLoginResp(acc uint32) []byte {
 	return b
 }
 
-// LunaUpdatePrefix — фиксированный префикс cmd 27 S2C из capture (f2 00 01 00).
-// Семантика TBD R4 (не accId, не timestamp; вероятнее luna-дескриптор).
-var LunaUpdatePrefix = []byte{0xF2, 0x00, 0x01, 0x00}
-
-// BuildLunaUpdateResp (cmd 27 S2C): [F2 00 01 00][accId][u16 0] = 10Б.
+// BuildLunaUpdateResp (cmd 27 S2C): [acc&0xFF][0x00][0x01][0x00][accId][u16 0] = 10Б.
+// R4-live 22.10: первый байт = accId&0xFF (1010→0xF2, 1023→0xFF) — «константа F2» из
+// capture-20261007 была артефактом одного аккаунта. Остальные 3 байта префикса константы.
 func BuildLunaUpdateResp(acc uint32) []byte {
 	b := make([]byte, 10)
-	copy(b, LunaUpdatePrefix)
+	b[0] = byte(acc & 0xFF)
+	b[2] = 0x01
 	binary.LittleEndian.PutUint32(b[4:], acc)
 	return b
 }
@@ -294,9 +293,10 @@ func (r *CharSessionReq) Debug() string {
 	return fmt.Sprintf("charRef=%#x accId=%d stamp=%q tail=%x", r.CharRef, r.AccountID, r.Stamp, r.Tail)
 }
 
-// BuildBM21Push (S2C cmd 0x15, push после LOAD_BM_PACK): [accId u32][0x02][0x01][8×0x00] = 14Б.
-// R4-хвост 21.10: capture-канон — payload идентичен в обеих сессиях (acc=1010),
-// байты 0x02/0x01 = константы (семантика неясна — журнал теорий ROADMAP).
+// BuildBM21Push (S2C cmd 0x15 = ОТВЕТ НА ASK_CAN_MAKE_JUMPING 0x1F — канон R4-live 22.10:
+// все 5 кадров O-0x15 идут непосредственно за C-0x1F (5/5); после LOAD_BM_PACK ориг НЕ пушит
+// — «push после BM» (Т2) = ложная корреляция по позиции, опровергнута live):
+// [accId u32][0x02][0x01][8×0x00] = 14Б; байты 0x02/0x01 = константы.
 func BuildBM21Push(acc uint32) []byte {
 	b := make([]byte, 14)
 	binary.LittleEndian.PutUint32(b[0:], acc)
