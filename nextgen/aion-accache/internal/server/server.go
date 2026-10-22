@@ -2,7 +2,11 @@
 // + dispatch по T1. R3 (21.10): хендлеры наблюдённых cmds с раскладками payload
 // (internal/payload) + SQL-вызовы по proc-телам (internal/db).
 // Политика ответов (capture-канон): ответ ТОЛЬКО там, где пара доказана capture
-// (1↔1, 4↔4, 5↔5, 16↔16, 26↔26+27); остальные — тишина (как ориг).
+// (1↔1, 4↔4, 5↔5, 16↔16, 26↔26+27); R4-финал 22.10: добавлены ПУШИ ориг
+// (0x0D после VERSION; 0x0F/0x14/0x1C при CHAR_LOGIN — capture-20261022,
+// 2 чара × 3 логина: триггеры однозначны, порядок в кластере = 15→20→28, между
+// ними ответы 16/27 — ACS многопоточен, наш порядок детерминированный).
+// Остальные — тишина (как ориг).
 // Ненаблюдённые cmds — дроп+лог (дефолт-хендлер 0x14006c050 у ориг тоже дропает).
 package server
 
@@ -204,12 +208,16 @@ func (s *S) respond(c *Conn, cmd uint16, pl []byte) {
 
 // --- хендлеры R3 (раскладки = capture-канон; SQL = proc-тела REF58) ---
 
-// 0x01 VERSION: C2S {3,1} -> S2C {3}. Пара доказана capture.
+// 0x01 VERSION: C2S {3,1} -> S2C {3} + ПУШ ACP_13 (R4-финал 22.10).
+// Пара доказана capture В ОБОИХ corpus 1:1:1 (10.07: 1 VERSION → 1+1;
+// 22.10: оба соединения c VERSION получили VERSION+ACP_13; соединения без
+// VERSION — без пуша). payload = [ts] = константа 0x640831AE (Т7 ⏳).
 func hVersion(s *S, c *Conn, cmd uint16, pl []byte) {
 	if r, err := payload.ParseVersionReq(pl); err == nil {
 		s.logf("version A=%d B=%d", r.A, r.B)
 	}
 	s.respond(c, cmd, payload.BuildVersionResp())
+	s.respond(c, 0x0d, payload.BuildCharCustomSavedPush(payload.CharCustomSavedTsDefault))
 }
 
 // 0x02/0x03 TEST_INSERT/SELECT: aion_insert_test / aion_select_test (тела REF58).
@@ -368,16 +376,27 @@ func hLogInfo(s *S, c *Conn, cmd uint16, pl []byte) {
 	s.logf("loginfo len=%d hex=%s", len(pl), hex.EncodeToString(pl))
 }
 
-// 0x10 CHAR_LOGIN: C2S -> S2C [accId][8×FF][12×0] (пара доказана capture).
-// SQL (SetLoginUser_20121206) — R4: раскладка аргументов proc не доказана.
+// 0x10 CHAR_LOGIN: C2S -> S2C [accId][8×FF][12×0] + ТРИ ПУША ориг (R4-финал 22.10,
+// capture-20261022: кластер при каждом логине ×3, оба чара):
+//   0x0F CHAR_CREATED [charRef][0x000A07EA][3];
+//   0x14 CHAR_INFO_REFRESH [charRef][..][lastLogin][..][1][..][flag][maxLevel];
+//   0x1C CONFIRM_LUNA_REWARD [accId][charId=charRef&0xFFFF][u16 0].
+// SQL (SetLoginUser_20121206) — R3: раскладка аргументов proc не доказана.
 func hCharLogin(s *S, c *Conn, cmd uint16, pl []byte) {
 	r, err := payload.ParseCharLoginReq(pl)
 	if err != nil {
 		s.logf("charlogin parse.err %v", err)
 		return
 	}
+	lastLogin, maxLevel := uint32(0), uint32(0)
+	if ui, ok := s.cache.UserInfo(int(r.AccountID)); ok {
+		lastLogin, maxLevel = ui.LastLogin, ui.MaxLevel
+	}
 	s.respond(c, cmd, payload.BuildCharLoginResp(r.AccountID))
-	s.logf("charlogin %s", r.Debug())
+	s.respond(c, 0x0f, payload.BuildCharCreatedPush(r.CharRef))
+	s.respond(c, 0x14, payload.BuildCharInfoRefreshPush(r.CharRef, lastLogin, 0, maxLevel))
+	s.respond(c, 0x1c, payload.BuildConfirmLunaRewardPush(r.AccountID, uint32(r.CharRef&0xFFFF)))
+	s.logf("charlogin %s lastLogin=%d maxLevel=%d", r.Debug(), lastLogin, maxLevel)
 	s.send("char.login", "accache", fmt.Sprintf("acc=%d charRef=%#x stamp=%s", r.AccountID, r.CharRef, r.Stamp))
 }
 

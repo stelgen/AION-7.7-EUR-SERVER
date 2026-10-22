@@ -1,11 +1,11 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-🟢 **~80% · R4: replay 12/16 (75%), новый corpus capture-20261022 (254КБ, 104 кадра, 31 cmd, 2 чара) — 4 XFAIL раскладки выводимы**: wire-канон снят полностью (len=total, маркеры EB/EC — RESEARCH §11), internal/proto+internal/payload на живых golden-кадрах (тесты зелёные), accmirror v1.1 на стенде (ok=true на всех кадрах live). R3-хвосты: роли полей Fatigue/Trial, push-семантика 13/15/20/21, T2-канал.
-Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-10).
+🟢 **~85% · R4 offline ЗАКРЫТ 22.10: replay 16/16 (100%)** — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
+Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-11).
 
 ## Канон (доказано дизasmом, не догадки)
 
-- **Wire**: `[u16 lenMinus2 LE][u16 cmd LE][u8 0xEB][u16 ~cmd LE][payload]`; лимит 0x2000; cmd ≥ 0x6C reject.
+- **Wire**: `[u16 N LE][u16 cmd LE][u8 0xEB][u16 ~cmd LE][payload]`, N = ПОЛНАЯ длина кадра вкл. len-поле (тело = N-2; «lenMinus2» = артефакт R1, исправлено дизasmом OnRead в R2.5); лимит 0x2000; cmd ≥ 0x6C reject.
 - **Dispatch**: `handler = table[cmd]` (ctor VA 0x140078B40), cmd 22 = НЕ ЗАНЯТ.
 - **T1** (Server64→ACS): cmds 0..39 (см. dispatch/dispatch.go) — VERSION, FIRST_LOAD_ACCOUNT_INFO (4),
   CHAR_*-цикл 15..21, LUNA 26..29+36, TRIAL 7/8, CUSTOM 10..13, PLAYTIME_POLLS 32..35, MONSTER_CORE 38/39.
@@ -35,17 +35,19 @@ wire-regression W2/W3: proc-имена + arg-раскладки + off-by-2 + т�
 
 R4 replay (TestR4ReplayCapture в internal/server/replay_r4_test.go): автономный
 реплей golden-корпуса capture-20261007 — все C2S-кадры из frames.txt шлются в
-живой сервер (fakeDB) в одно соединение, ответы байт-в-байт сравниваются с S2C
-последовательностью capture. Расхождение = XFAIL-отчёт (stdout: позиция, байт,
-cmd-имя) — тест НЕ падает, покрытие фиксируется (см. ROADMAP R4).
+живой сервер (fakeDB + RAM-срез global_user_data) в одно соединение, ответы
+байт-в-байт сравниваются с S2C-последовательностью capture.
+**R4-финал 22.10: 16/16 (100%) байт-в-байт.** Golden-пуши дополнительно
+закреплены тестом TestR4PushGoldens (internal/payload) — обе сессии, оба чара.
+Расхождение = XFAIL-отчёт — тест НЕ падает, покрытие фиксируется (см. ROADMAP R4).
 
 ## Что осталось
 
 | Фаза | Что |
 |---|---|
-| R1 | fork-proxy :2220 (невидим) + capture при логинах юзера → payload-раскладки + ACP-номера + семантика T2 |
-| R3 | SQLStore (go-mssqldb) + полный хендлер-набор по proc-телам |
-| R4 | A/B fork-прогон, diff байт-в-байт с оригом |
+| R1 ✅ | capture-стенд accmirror :2220→:2221 + раскладки (10.10, 22.10 ×2 corpus) |
+| R3 | SQLStore (go-mssqldb) + полный хендлер-набор по proc-телам + UserInfo из global_user_data |
+| R4 | live A/B fork-прогон с оригом (offline 16/16 ✅ 22.10); опц. дозахват T2-канала |
 | R5 | свитч по «го» (откат = retarget задачи AionAcc) |
 
 ## 📦 Артефакты

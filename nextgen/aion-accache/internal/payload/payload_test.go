@@ -223,3 +223,44 @@ func TestLunaRespGoldens(t *testing.T) {
 		t.Fatalf("lunaload resp wire = %s", hexStr(w2))
 	}
 }
+
+// TestR4PushGoldens — пуши ориг R4-ФИНАЛ (22.10, capture-20261022 + capture-20261007):
+// полные S2C-кадры байт-в-байт с golden. Константы (0x640831AE, 0x000A07EA) и
+// lastLogin=0x6AC5E7B9/maxLevel=80 — прод-факты (см. journal теорий ROADMAP Т7/Т8).
+func TestR4PushGoldens(t *testing.T) {
+	// ACP_13 (0x0D, после VERSION): [ts] — константа в обоих corpus.
+	w, err := proto.BuildS2C(0x0d, BuildCharCustomSavedPush(CharCustomSavedTsDefault))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hexStr(w) != "0b000d00ecf2ffae310864" {
+		t.Fatalf("ACP_13 wire = %s", hexStr(w))
+	}
+	// ACP_15 (0x0F, при CHAR_LOGIN): [charRef][0x000A07EA][3].
+	w15, _ := proto.BuildS2C(0x0f, BuildCharCreatedPush(0x020003EA))
+	if hexStr(w15) != "13000f00ecf0ffea030002ea070a0003000000" {
+		t.Fatalf("ACP_15 wire = %s", hexStr(w15))
+	}
+	// ACP_20 (0x14, при CHAR_LOGIN): [charRef][16×0][lastLogin][12×0][1][8×0][flag][maxLevel].
+	w20, _ := proto.BuildS2C(0x14, BuildCharInfoRefreshPush(0x020003EA, 0x6AC5E7B9, 0, 80))
+	want20 := "3f001400ecebff" +
+		"ea030002" + "00000000000000000000000000000000" + "b9e7c56a" +
+		"000000000000000000000000" + "01000000" + "000000000000000000000000" + "50000000"
+	if hexStr(w20) != want20 {
+		t.Fatalf("ACP_20 wire = %s", hexStr(w20))
+	}
+	// CONFIRM_LUNA_REWARD (0x1C, при CHAR_LOGIN): [accId][charId][u16 0].
+	w28, _ := proto.BuildS2C(0x1c, BuildConfirmLunaRewardPush(1010, 1002))
+	if hexStr(w28) != "11001c00ece3fff2030000ea0300000000" {
+		t.Fatalf("ACP_28 wire = %s", hexStr(w28))
+	}
+	// Кросс-чар: charB (0x020003EB → charId 1003) из capture-20261022 @423/@486.
+	w15b, _ := proto.BuildS2C(0x0f, BuildCharCreatedPush(0x020003EB))
+	if hexStr(w15b) != "13000f00ecf0ffeb030002ea070a0003000000" {
+		t.Fatalf("ACP_15 charB wire = %s", hexStr(w15b))
+	}
+	w28b, _ := proto.BuildS2C(0x1c, BuildConfirmLunaRewardPush(1010, 1003))
+	if hexStr(w28b) != "11001c00ece3fff2030000eb0300000000" {
+		t.Fatalf("ACP_28 charB wire = %s", hexStr(w28b))
+	}
+}

@@ -14,10 +14,18 @@
 | R1 | ✅ | **capture + wire-канон 10.10**: accmirror v1.1 (:2220→:2221) + копия ACS-2221; 2 логина; дизasm OnRead/GetCmd_ACQ → **len=total** (офф-бай-2 в v1.0/каркасе исправлен), маркеры EB/EC, 0 bad frames на всём capture (RESEARCH §11). Стенд ОСТАВЛЕН работать (дозахват) |
 | R2.5 | ✅ | **Раскладки 10.10**: internal/payload (Version/FirstLoad/BM/Luna/CharLogin/Logout/Fatigue с UTF-16 stamp) на живых golden-кадрах, тесты зелёные; tools/accparse.py v2; frames.txt в capture-артефактах. Хвосты в R3: роли полей Fatigue/Trial (PDB I,H,I,I,I), push 13/15/20/21, T2-канал |
 | R3 | ⏳ | SQLStore (go-mssqldb) + полный хендлер-набор по телам procs (заглушки по мере наблюдения) |
-| R4 | ⏳ | **частично**: replay-корпус готов (TestR4ReplayCapture — автономный прогон capture C2S → fakeDB-сервер → байт-дифф с S2C, XFAIL-отчёты, % покрытия), фулл A/B fork-прогон с оригом — дальше |
+| R4 | ✅ offline 22.10 | **replay 16/16 (100%) байт-в-байт** (TestR4ReplayCapture на capture-20261007): 4 XFAIL-пуша реализованы и закреплены TestR4PushGoldens (обе сессии, оба чара). Live A/B fork-прогон с оригом — после R3 SQLStore |
 | R5 | ⏳ | Свитч по «го» (задача AionAcc retarget на D:\SAION\aion-accache\run.cmd; откат = retarget обратно) |
 
-## R1-детали (следующий чат)
+## ⏭️ Следующий шаг (R3 SQLStore)
+
+SQLStore на go-mssqldb (connStr — секрет на VM/env; гранты по образцу logdb) + чтение
+UserInfo из global_user_data (SELECT last_login_time + MAX(user_level) WHERE account_id=?
+AND is_special_server=0 AND delete_date=0) в cache.Store при FIRST_LOAD/CHAR_LOGIN;
+SetLoginUser/SetLogoutUser-раскладки аргументов (арбитр = тела procs REF58) → затем
+live A/B fork-прогон → R5 свитч по «го».
+
+## R1-детали (архив 10.10 — выполнено)
 
 1. fork-proxy Go (паттерн forkauthd): front :2220 → ориг-порт... ⚠ прод-ACS слушает 2220 НАПРЯМУЮ;
    схема = копия ACS на :2221 (байтовая правка common.xml serverPort, паттерн captcha-mirror) +
@@ -49,8 +57,13 @@
 | Т4 | FIRST_LOAD при пустой строке account_data → point=1 | ⚠ эмпирика golden acc=7 (строки нет, ответ point=1); альтернатива — строка существовала и удалена после capture. Реализовано как capture-канон |
 | Т5 | FIRST_LOAD u8@12/u16@17 = производные limit_play_accum_time | ⚠ гипотеза (все golden = 0; byte(limit_play_reset_time)=0xE0 исключён). Реализовано accum-based |
 | Т6 | UPDATE_HIDDEN_FATIGUE point НЕ зеркалится ACS в account_data | ⚠ golden#2 point=1 несмотря на UPDATE point=0; prod сейчас point=0 (пост-capture активность). Fake replay не мутирует point |
-| Т7 | ACP_13 (S2C 0x0d, 4Б ts 0x640831AE=2023-03-05) | ❌ значения НЕТ ни в одной таблице prod-БД; отправлен 1 раз за capture; триггер неизвестен. НЕ реализовано (риск для A/B) |
-| Т8 | Logout-кластер S2C 0x0f+0x14+0x1c = отложенный flush CHAR_LOGOUT (пришёл через 13 мин, вместе с reply на следующий FIRST_LOAD) | ⚠ данные частично необъяснимы: 0x14 содержит level=80 (=global_user_data.user_level прод ✓) и ts 0x6AC7E7B9 (источник не найден); 0x0f содержит 0x000A07EA (657386с?) без источника. НЕ реализовано до живого capture |
+| Т7 | ACP_13 (S2C 0x0d, 4Б) — значение-константа | ✅ РЕШЁН 22.10: payload = [ts u32] = 0x640831AE = 2023-03-08 06:56:46 UTC — КОНСТАНТА в обоих corpus (10.07 + 22.10, 2 чара, 4 логина). Триггер = VERSION (1:1:1: каждый VERSION C2S получает VERSION-ответ + ACP_13; соединения без VERSION — без пуша). Роль ts ⏳ (Т13) |
+| Т8 | Logout-кластер S2C 0x0f+0x14+0x1c | ✅ РЕШЁН 22.10 (corpus ×2 чара × 3 логина): НЕ logout — кластер ПРИ CHAR_LOGIN (порядок 15→20→28, между ними ответы 16/27 — ACS многопоточен). Раскладки: 0x0F = [charRef][0x000A07EA][3]; 0x14 = 56Б [charRef][16×0][lastLogin][12×0][1][8×0][flag][maxLevel]; 0x1C = [accId][charId=charRef&0xFFFF][u16 0]. Реализовано (16/16) |
+| Т10 | ACP_20[5] = global_user_data.last_login_time (RAM-момент ориг) | ✅ источник: SQL AionAccountCacheD_rc.global_user_data (колонки char_id/account_id/create_date/last_login_time/last_logout_time/delete_date/delete_completed_date/user_level/server_id/cur_server_id/global_char_id/uid/class_type/race_type/is_special_server/is_jumping_character): 0x6AC5E7B9 = 10.07 06:33:29Z (логин#1 после старта ACS), 0x6AD988A7 = 06:53:11Z = секунда-в-секунду логин#1 (у логинов #2/#3) — RAM-race ориг. Точное правило обновления RAM ⏳ |
+| Т11 | ACP_20[13] = maxLevel аккаунта (не per-char level) | ✅ 0x50=80 у ОБОИХ чаров, при user_level=1 у чара 1003 в БД — паттерн maxLevAmongNormalServers из proc user_board_bm (SELECT MAX(user_level) FROM global_user_data WHERE account_id=@a AND is_special_server=0 AND delete_date=0) |
+| Т12 | ACP_20[12] (flag): наблюдения 0(10.07)/1/1/0(22.10) | ⏳ гипотезы: «уровень изменился с прошлого refresh» (CHAR_LEVEL_CHANGED ×5 в 22.10) / «pending luna reward». Арбитр = следующий capture с level-up |
+| Т13 | ACP_13 ts 0x640831AE = 2023-03-08 06:56:46Z | ⏳ константа (вероятно sentinel/дата сборки 7.7); на паритет не влияет |
+| Т14 | ACP_15[4] = 0x000A07EA (657386) | ⏳ константа во всех кадрах; не acc/char/ts. На паритет не влияет |
 | Т9 | CHAR_LOGIN reply приходит РАНЬШЕ replies на предыдущий батч (UPDATE_LUNA/LOAD_LUNA после CHAR_LOGIN) | ✅ ACS многопоточен (numberOfDBThreads=10) — порядок replies недетерминирован; выравнивание по cmd |
 
 ## R4 итог 21.10
@@ -70,8 +83,24 @@
 | ACP_20 (0x14) | ❌ ts 0x6AC7E7B9 | **×3, level=80** | ⏳ раскладка |
 | CONFIRM_LUNA_REWARD (0x1C) | ❌ | **×3, 2 чара** | ⏳ раскладка |
 
-**R4 replay текущий: 12/16 (75%)** — следующий чат `WORKFLOW: accache` распарсит 4 XFAIL
-из нового corpus (два чара = сравнение полей) → 16/16 → R5 свитч по «го».
+*(история, утро 22.10)* **R4 replay был 12/16 (75%)** — план «распарсить 4 XFAIL из нового
+corpus (два чара = сравнение полей) → 16/16» ВЫПОЛНЕН В ЭТОМ ЖЕ ДНЕ (см. ниже).
 
 **Capture живёт бесконечно:** accmirror пишет каждый кадр; юзер ходит на разных чарах.
 Следующий repl забор = по требованию (aiongetb64 accmirror.log).
+
+## R4 OFFLINE ЗАКРЫТ (22.10, вечер): 16/16 = 100% ✅
+
+**Раскладки 4 XFAIL выведены из capture-20261022 (2 чара × 3 логина, сравнение полей)**
+и закреплены golden-тестами (TestR4PushGoldens — оба чара, обе сессии):
+
+| Пуш | Триггер | Payload |
+|---|---|---|
+| ACP_13 (0x0D) | VERSION (1:1:1 оба corpus) | `[ts]` = 0x640831AE константа |
+| ACP_15 (0x0F) | CHAR_LOGIN (кластер 15→20→28) | `[charRef][0x000A07EA][3]` |
+| ACP_20 (0x14) | CHAR_LOGIN | 56Б `[charRef][16×0][lastLogin][12×0][1][8×0][flag][maxLevel]` |
+| ACP_28 (0x1C) | CHAR_LOGIN | `[accId][charId=charRef&0xFFFF][u16 0]` |
+
+- Эмиттеры: payload.go (BuildCharCustomSavedPush/BuildCharCreatedPush/BuildCharInfoRefreshPush/BuildConfirmLunaRewardPush) + хендлеры hVersion/hCharLogin (server.go) + cache.UserInfo (RAM-срез global_user_data: lastLogin/maxLevel; SQLStore R3 — SELECT из global_user_data).
+- Тесты: payload + server — все зелёные, vet чисто; **TestR4ReplayCapture: our=16 frames, matched 16/16 (100%)**.
+- Остаток R4 (live): fork A/B с живым оригом (после R3 SQLStore) + T2-канал (опц.).

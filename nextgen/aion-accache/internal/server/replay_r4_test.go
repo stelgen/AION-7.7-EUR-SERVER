@@ -27,6 +27,7 @@ import (
 	"testing"
 	"time"
 
+	"aion-accache/internal/cache"
 	"aion-accache/internal/db"
 	"aion-accache/internal/dispatch"
 )
@@ -260,6 +261,12 @@ func TestR4ReplayCapture(t *testing.T) {
 	ex := newReplayExec()
 	addr, srv := startSrv(t, ex)
 	srv.cfg.Server.Verbose = true // чтобы parse.err/unhandled попадали в logBuf
+	// R4-финал 22.10: RAM-срез global_user_data для пуша CHAR_INFO_REFRESH
+	// (прод-факт SQL AionAccountCacheD_rc): last_login на момент capture-20261007
+	// = 0x6AC5E7B9 (10.07 06:33:29 UTC — значение прочитал ориг при логине 13:35),
+	// maxLevel = 80 (0x50; MAX(user_level) аккаунта — у чара 1003 в БД level=1,
+	// а в пушах обоих чаров 0x50).
+	srv.cache.SetUserInfo(1010, cache.UserInfo{LastLogin: 0x6AC5E7B9, MaxLevel: 80})
 	c := dial(t, addr)
 	defer c.Close()
 

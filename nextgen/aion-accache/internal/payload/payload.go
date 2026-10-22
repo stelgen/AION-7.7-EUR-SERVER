@@ -304,6 +304,66 @@ func BuildBM21Push(acc uint32) []byte {
 	return b
 }
 
+// --- S2C-пуши R4-ФИНАЛ (22.10, capture-20261022: 2 чара × 3 логина + logout-кластер) ---
+// Раскладки выведены сравнением полей между чарами (charRef 0x020003EA/0x020003EB)
+// и логинами; константы подтверждены в ОБОИХ corpus (capture-20261007 + capture-20261022).
+
+// CharCustomSavedTsDefault — константа ACP_13 (S2C 0x0D, пуш сразу после VERSION-ответа):
+// 0x640831AE = 2023-03-08 06:56:46 UTC. Одинакова в обоих corpus и для обоих чаров.
+// Роль поля ⏳ (журнал теорий Т7): не время события (2023 год); вероятно sentinel/
+// дата сборки 7.7. Эмитим константой — capture-канон байт-в-байт.
+const CharCustomSavedTsDefault uint32 = 0x640831AE
+
+// BuildCharCustomSavedPush (S2C 0x0D): [ts u32] = 4Б.
+func BuildCharCustomSavedPush(ts uint32) []byte {
+	b := make([]byte, 4)
+	binary.LittleEndian.PutUint32(b, ts)
+	return b
+}
+
+// CharCreatedConst — константа ACP_15 (S2C 0x0F): 0x000A07EA = 657386.
+// Одинакова во всех кадрах обоих corpus (2 чара). Роль ⏳ (Т8): не acc/char/ts
+// (657386с от эпохи ≈ 1970-01-08). Эмитим константой — capture-канон.
+const CharCreatedConst uint32 = 0x000A07EA
+
+// BuildCharCreatedPush (S2C 0x0F, пуш при CHAR_LOGIN): [charRef][const][3] = 12Б.
+// charRef = эхо charRef из C2S CHAR_LOGIN (0x020003EA/0x020003EB — 2 чара capture).
+func BuildCharCreatedPush(charRef uint32) []byte {
+	b := make([]byte, 12)
+	binary.LittleEndian.PutUint32(b[0:], charRef)
+	binary.LittleEndian.PutUint32(b[4:], CharCreatedConst)
+	binary.LittleEndian.PutUint32(b[8:], 3)
+	return b
+}
+
+// BuildCharInfoRefreshPush (S2C 0x14, пуш при CHAR_LOGIN): 14×u32 = 56Б:
+// [charRef][16×0][lastLogin][12×0][1][8×0][flag][maxLevel].
+//   lastLogin = global_user_data.last_login_time (прод-факты SQL AionAccountCacheD_rc:
+//   колонки char_id/account_id/create_date/last_login_time/last_logout_time/delete_date/
+//   delete_completed_date/user_level/server_id/...; 0x6AC5E7B9 у логина#1 после старта ACS,
+//   0x6AD988A7 = секунда-в-секунду предыдущего логина у #2/#3 — RAM-race ориг, Т8);
+//   maxLevel  = MAX(user_level) по норм-серверам аккаунта (0x50=80 у ОБОИХ чаров —
+//   паттерн maxLevAmongNormalServers из proc user_board_bm; у чара 1003 в БД level=1);
+//   flag (dword12): наблюдения 0(10.07)/1/1/0(22.10) — ⏳, в реплее/дефолте 0.
+func BuildCharInfoRefreshPush(charRef, lastLogin, flag, maxLevel uint32) []byte {
+	b := make([]byte, 56)
+	binary.LittleEndian.PutUint32(b[0:], charRef)
+	binary.LittleEndian.PutUint32(b[20:], lastLogin)
+	binary.LittleEndian.PutUint32(b[36:], 1)
+	binary.LittleEndian.PutUint32(b[48:], flag)
+	binary.LittleEndian.PutUint32(b[52:], maxLevel)
+	return b
+}
+
+// BuildConfirmLunaRewardPush (S2C 0x1C, пуш при CHAR_LOGIN): [accId][charId][u16 0] = 10Б.
+// charId = младшее слово charRef (0x020003EA → 1002, 0x020003EB → 1003 — capture ×3+×3).
+func BuildConfirmLunaRewardPush(acc, charId uint32) []byte {
+	b := make([]byte, 10)
+	binary.LittleEndian.PutUint32(b[0:], acc)
+	binary.LittleEndian.PutUint32(b[4:], charId)
+	return b
+}
+
 // BuildTrialResp (S2C cmd 0x06, ответ на C2S LOAD_TRIAL 0x07): 10×u32 = 40Б:
 // [accId][X echo][resetTime][sellGold][CONST0][tradeGold][decompose][gather][extract][pad].
 // R4-хвост 21.10 capture-канон (acc=1010, прод sell=917/trade=70):
