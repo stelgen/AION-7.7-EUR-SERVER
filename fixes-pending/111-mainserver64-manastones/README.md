@@ -1,3 +1,5 @@
+> ❄️ **ЗАМОРОЖЕНО (22.10) до aion-main MVP** — финальный вердикт, карта реверса и инструменты: [ISSUE-111-manastones-FROZEN.md](../../nextgen/aion-binpatch/docs/ISSUE-111-manastones-FROZEN.md) · labels: `заморожено-до-aion-main-MVP` `verdict-final`
+
 # #111 — Mainserver64 «Fix Manastones, Stats, Arenas, Server time» (Ghidra-референс)
 
 **Статус: РЕФЕРЕНС. В прод НЕ деплоить (чужой бинарь, сломан матчмейкер).**
