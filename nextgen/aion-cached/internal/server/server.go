@@ -170,6 +170,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	var sess rpc.Session // R4.5: сессионные поля из cmd=288 (X/a/accId)
 	sessSet := false
 	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
+	var worldInitReplay *rpc.WorldInitReplay // R5: мир-init replay (per-conn)
 
 	for {
 		n, err := conn.Read(buf)
@@ -250,6 +251,16 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 						if r := npcReplay.EmitNpcSrv(frame.Cmd); len(r) > 0 {
 							resp = append(resp, r...)
 						}
+					}
+				}
+				// R5: мир-init replay — для cmds с captured-цепочками, не покрытых login-path/NPCSvr
+				if resp == nil || len(resp) == 0 {
+					if worldInitReplay == nil {
+						worldInitReplay = rpc.NewWorldInitReplay()
+					}
+					if r := worldInitReplay.EmitWorldInit(frame.Cmd); len(r) > 0 {
+						resp = append(resp, r...)
+						log.Printf("[cached] %s world-init cmd=%d → replay %dB", name, frame.Cmd, len(r))
 					}
 				}
 			}
