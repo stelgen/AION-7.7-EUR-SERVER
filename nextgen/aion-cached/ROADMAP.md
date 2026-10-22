@@ -209,3 +209,23 @@ R4-раскладки: capture ЖИВОЙ, ждём логин юзера → р
 
 ### Вывод
 Read-путь логина = RQ_VERSION → 288/175 (сессия) → CharacterList(90) → RQ_LOAD → RP cmd=1 (1156Б) → RQ_LOAD_ITEM ×2 (кат 2/3) → item-пачки (zlib!) → enter world (cmd=21) → фоновый тикер 179/277 → U_SAVE → LEAVE_WORLD. Этого достаточно для Go-хендлеров read-пути MVP (кроме полного RP cmd=1/109-полей — детальный разбор = следующий шаг, ZLIB-пачки распаковывать zlib-ом).
+
+## R4 OFFLINE-РАЗБОР RP cmd=1/0x0E/109 (22.10, zlib+структура — материал в гите) 🔥🔥🔥
+
+### RP cmd=1 (RP_LOAD, 1156Б) — ответ на RQ_LOAD:
+[X=0x06f38f70 echo][a=4][01][ff40529f][159][charRef 0x20003ea][позиция e7096e15][...][level=0x50=80 @off48][...] —
+структура чара 1149Б (полный разбор полей = следующий шаг). X ЭХО-ИТСЯ обратно — сессия подтверждается.
+
+### RP cmd=0x0E (RP_LOAD_ITEM_DATA) ×3 — **item XML ZLIB!**:
+- page 00: compressed 7160Б → decompressed **28578Б** (ratio 4.0x) — **UTF-16LE XML** `<?xml version="1.0" encoding="UTF-16"?>`
+- page 01: compressed 7160Б → decompressed **3098Б** (ratio 0.4x — иного характера)
+- page 02: compressed 7160Б → decompressed **744Б**
+- Префикс перед zlib (27Б): [page u8][X][a=4][charRef 0x20003ea][03][0000][1c1112/2f02/e700][counts]
+- **Item/скилл-данные Server64 жат ZLIB → XML UTF-16LE** — Server64 читает XML-конфиг чара через CacheD!
+
+### RP cmd=109 (item-блоки) ×12 по 8021Б = ~96КБ item-данных:
+[charRef echo][X][a=4][03][1100 flag][0x197=407 count][0134df0a][12504b44 binary...] — бинарные item-записи БЕЗ zlib.
+
+### Вывод для MVP
+Read-путь Server64: RQ_VERSION → 288/175 (сессия) → cmd=90 (CharacterList) → RQ_LOAD → **RP cmd=1 (char struct)** → RQ_LOAD_ITEM ×2 → **RP cmd=0x0E ×3 (zlib XML page 0/1/2)** → **RP cmd=109 ×12 (binary items)** → enter world.
+Наш MVP: эмиттеры RP cmd=1 (скелет [X][a][01][...][charRef][позиция][level]) + RP cmd=0x0E (zlib XML из БД/кэша) + RP cmd=109 (item-блоки из БД) → A/B.
