@@ -46,7 +46,7 @@ func BuildAcks(cmds []uint16, s Session) []byte {
 		copy(p, pl)
 		binary.LittleEndian.PutUint32(p[0:4], s.X)
 		p[4] = s.A
-		out = append(out, wire.BuildS2C(c, p)...)
+		out = append(out, wire.BuildS2CCached(c, p)...) // Т40: marker 0xAF (cached-канал), НЕ 0xBB — поймано живым A/B
 	}
 	return out
 }
