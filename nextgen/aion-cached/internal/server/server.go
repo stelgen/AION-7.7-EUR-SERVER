@@ -11,6 +11,7 @@ import (
 	"net"
 	"os"
 
+	"aion-cached/internal/rpc"
 	"aion-cached/internal/wire"
 )
 
@@ -159,6 +160,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	dec := wire.NewDecoder()
 	buf := make([]byte, wire.MaxPayload+wire.HeaderWire)
 	var pending []byte
+	mode := modeServer // Server64 по умолчанию; NPRelay64 переключает handshake'ом
 
 	for {
 		n, err := conn.Read(buf)
@@ -178,6 +180,13 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				return
 			}
 			pending = pending[consumed:]
+
+			// R3 GQ/GP: NPRelay64 handshake переключает conn в relay-режим
+			if ch == ChanServer && maybeRelayHandshake(&mode, frame.Cmd) {
+				name := rpc.Name(6, frame.Cmd) // GQ-имя из .profile (idx 6)
+				_ = relayGQDispatch(&mode, ch, frame.Cmd, frame.Payload, name)
+				continue // pending уже съеден выше
+			}
 
 			resp := Route(ch, frame)
 			if len(resp) > 0 {

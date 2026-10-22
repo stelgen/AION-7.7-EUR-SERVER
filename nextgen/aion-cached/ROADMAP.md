@@ -112,3 +112,20 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 | серверные тест-хуки: SetListenerForTest/ServeOnTest(ch) | ✅ |
 | GQ/GP бинарный NPRelay-канал (порт из конфига NPCRelay — TBD) | ⬜ |
 | Текстовые ответы interactive (Send("0%d",3)-формы) | ⏳ capture |
+
+## R3 GQ/GP NPRelay-канал (22.10, часть 4) — АРХИТЕКТУРА РАСКРЫТА
+
+**КАНОН (прод-факты):**
+- NPRelay64 common.xml: `cacheServerPort=2006` — релей подключается к **ТОМУ ЖЕ 2006**, что и Server64 (второй тип клиента, НЕ отдельный порт)
+- NPRelay64.exe = protobuf к MainServer (`NpRelayToMainProtocol.pb.cc`) + GQ/GP к CacheD
+- CacheD64: `Listener<RelaySocket>` (`ProtocolVersion@0x14008d940` = **xor eax,eax; ret** — NO-OP заглушка)
+- id-пространства RQ/GQ ПЕРЕСЕКАЮТСЯ (RQ_U_UPDATE_COUNT=2 = GQ_LOGON=2) ⇒ **per-conn режим**: NPRelay64 handshake GQ_LOGON(2)/GQ_KICKOFF(1) переключает соединение в relay-диспетчер
+
+| Кусок | Статус |
+|---|---|
+| relay_handlers.go: per-conn mode (modeServer/modeRelay), maybeRelayHandshake, relayGQDispatch (silent MVP, GQ-имена из профиля) | ✅ |
+| handleConn: relay-ветка (Server64-путь не меняется — NPRelay64 первым кадром шлёт GQ_LOGON(2), не RQ_TEST) | ✅ |
+| e2e: TestRelayGQHandshakeE2E (handshake → relay-режим → silent, conn жив) | ✅ |
+| Гоча: double-consume pending[consumed:] (panic [15:0]) — фикс | ✅ |
+| GQ-раскладки payload (54 ops) | ⏳ capture R4 |
+| GP-ответы | ⏳ capture R4 |

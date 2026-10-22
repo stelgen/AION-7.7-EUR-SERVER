@@ -150,3 +150,42 @@ func readFull(c net.Conn, buf []byte) (int, error) {
 	}
 	return total, nil
 }
+// e2e: GQ/GP MVP — NPRelay64 handshake GQ_LOGON(2) переключает conn в relay-режим,
+// далее cmd=2 трактуется как GQ (silent, имя из .profile idx 6), без ответа.
+func TestRelayGQHandshakeE2E(t *testing.T) {
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	srv := New(Config{ServerPort: 0, AdminPort: 0, NpcDbPort: 0})
+	srv.SetListenerForTest(ln, ChanServer)
+	go func() { _ = srv.ServeOnTest(ChanServer) }()
+
+	c, err := net.Dial("tcp", ln.Addr().String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer c.Close()
+	_ = c.SetDeadline(time.Now().Add(3 * time.Second))
+
+	// 1) handshake: GQ_LOGON(2)
+	if _, err := c.Write(buildTestFrame(2, make([]byte, 8))); err != nil {
+		t.Fatal(err)
+	}
+	expectSilence(t, c)
+
+	// 2) в relay-режиме cmd=2 = GQ_LOGON-семейство (silent, conn жив)
+	if _, err := c.Write(buildTestFrame(2, make([]byte, 8))); err != nil {
+		t.Fatalf("conn closed in relay mode: %v", err)
+	}
+	expectSilence(t, c)
+}
+
+func expectSilence(t *testing.T, c net.Conn) {
+	t.Helper()
+	buf := make([]byte, 64)
+	_ = c.SetReadDeadline(time.Now().Add(300 * time.Millisecond))
+	if n, err := c.Read(buf); err == nil && n > 0 {
+		t.Fatalf("ожидалась тишина, пришло % x", buf[:n])
+	}
+}
