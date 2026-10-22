@@ -167,7 +167,8 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	buf := make([]byte, wire.MaxPayload+wire.HeaderWire)
 	var pending []byte
 	mode := modeServer // Server64 по умолчанию; NPRelay64 переключает handshake'ом
-	var sessX uint32   // R4: сессионный хендл из cmd=288 (0 если ещё не установлен)
+	var sess rpc.Session // R4.5: сессионные поля из cmd=288 (X/a/accId)
+	sessSet := false
 
 	for {
 		n, err := conn.Read(buf)
@@ -195,31 +196,45 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				continue // pending уже съеден выше
 			}
 
-			// R4: сессионный хендл из cmd=288 (первый кадр)
+			// R4.5: сессионные поля из cmd=288 (первый кадр): [X u32][a u32][accId u16]
 			if frame.Cmd == 288 && len(frame.Payload) >= 12 {
-				sessX = binary.LittleEndian.Uint32(frame.Payload[0:4])
+				sess = rpc.Session{
+					X:     binary.LittleEndian.Uint32(frame.Payload[0:4]),
+					A:     frame.Payload[4], // Т38: варьируется (3/4) по сессии
+					AccID: binary.LittleEndian.Uint16(frame.Payload[8:10]),
+				}
+				sessSet = true
+				log.Printf("[cached] session captured X=%#x a=%d acc=%d", sess.X, sess.A, sess.AccID)
 			}
 
 			resp := Route(ch, frame)
-			// R4: read-path emission (replay) после обычного dispatch
-			if ch == ChanServer && sessX != 0 {
+			// R4/R4.5: read-path emission (chain + session-подстановки + acks Т39)
+			if ch == ChanServer && sessSet {
 				switch frame.Cmd {
-				case 11: // RQ_LOAD → ChainReplay (RP cmd=1 char struct)
-					loadChain := rpc.GetLoadChain()
+				case 11: // RQ_LOAD → ChainReplay (RP cmd=1) + session-подстановки
+					loadChain := rpc.ApplySessionToChain(rpc.GetLoadChain(), sess)
 					if len(loadChain) > 0 {
 						resp = append(resp, loadChain...)
 					}
-					log.Printf("[cached] %s RQ_LOAD → chain replay %d bytes", name, len(loadChain))
-				case 14: // RQ_LOAD_ITEM → ChainReplay (page=00 echo, page=01 data)
+					log.Printf("[cached] %s RQ_LOAD → chain replay %d bytes (session-applied)", name, len(loadChain))
+				case 14: // RQ_LOAD_ITEM → ChainReplay (page=00 echo, page=01 data) + acks (Т39)
 					page := byte(0)
 					if len(frame.Payload) > 20 {
 						page = frame.Payload[20]
 					}
-					chain := rpc.GetItemChain(page)
+					chain := rpc.ApplySessionToChain(rpc.GetItemChain(page), sess)
 					if len(chain) > 0 {
 						resp = append(resp, chain...)
+					}
+					if page == 1 { // Т39: RP-подтверждения после data-цепочки (живой порядок)
+						resp = append(resp, rpc.BuildAcks(rpc.AcksAfterItemData, sess)...)
+						log.Printf("[cached] %s RQ_LOAD_ITEM page=1 → chain %d bytes + %d acks", name, len(chain), len(rpc.AcksAfterItemData))
+					} else {
 						log.Printf("[cached] %s RQ_LOAD_ITEM page=%d → chain replay %d bytes", name, page, len(chain))
 					}
+				case 278: // C> 0x116 (world-ready) → вторая пачка RP-подтверждений (Т39)
+					resp = append(resp, rpc.BuildAcks(rpc.AcksAfterWorldReady, sess)...)
+					log.Printf("[cached] %s world-ready → %d acks", name, len(rpc.AcksAfterWorldReady))
 				}
 			}
 			if len(resp) > 0 {
