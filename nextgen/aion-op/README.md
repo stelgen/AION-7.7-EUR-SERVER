@@ -1,6 +1,6 @@
 # aion-op — оператор стека AION 7.7 (Phase 1: РЕАЛЬНОЕ УПРАВЛЕНИЕ стеком на проде)
 
-> ✅ **Phase 1 в бою · ~70% · 10.10** — управление стеком живое; **Phase 1.5 КОД ГОТОВ 21.10** (OP-5 await + OP-6 watchdog + веб-API, `enabled: false` дефолт — деплой на VM по «го»); R6-конфиг OP-1..OP-6 = [docs/tech-debt-stack-20261010.md](../../docs/tech-debt-stack-20261010.md).
+> 🟢 **~100% · 22.10** — Phase 1 в бою + **Phase 1.5 ДЕПЛОЙ ✅ 22.10** (exe MD5 `1ddf7260`, задача AionOp): OP-5 await + OP-6 watchdog + веб-API (`GET /api/watchdog` live → `{"enabled":false}`); автопилот выключен тумблером (`watchdog.enabled: true` = «го» юзера на автодействия). R6-конфиг OP-1..OP-6 закрыт.
 
 Единый Go-бинарь. **Фаза 1 живёт на VM с 05.10, управляет стеком с 07.10** (`operate`, dry_run=false):
 read-only пробы + лог-парсер + метрики + SQLite + алерты + CCU/SQL-waits + POST /api/action

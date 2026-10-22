@@ -8,8 +8,8 @@
 | Патч | Статус | Артефакты |
 |---|---|---|
 | **#180** date-bypass (RunAsDate-зависимость) | ✅ УЖЕ В БИНАРЕ (доказано SHA256); RunAsDate = страховка | root README «Уже в binary» |
-| **#108** матчмейкер арен (IsEventServer=true + JZ→JNZ; НЕ трогать логин-ветку) | 📋 план готов | fixes-pending/108-matchmaker-arenas/ |
-| **#111** манастоны (перенос хака из чужого exe в копию #180-бинаря через дифф aion_SetItemMatterOption/user_item_option) | 📋 план готов (ENIGMA-сборки НЕ деплоить — риск бэкдора) | fixes-pending/111-mainserver64-manastones/ |
+| **#108** матчмейкер арен (IsEventServer=true + JZ→JNZ; НЕ трогать логин-ветку) | 🔍 **РЕКОН ✅ 22.10** — якоря найдены ([docs/recon-108-111-20261022.md](docs/recon-108-111-20261022.md): глобал 0x142bc9158, маска 0x142bc88c8/бит 0x2000, геттер 0x1400b4d10, CEventServerMgr в PDB); ветка JZ→JNZ = Ghidra-сессия + стенд-тест | fixes-pending/108-matchmaker-arenas/ + docs/recon |
+| **#111** манастоны | 🧊 **БЛОКЕР 22.10**: чужой exe 31.9МБ ≠ наш 45.5МБ (разные сборки) — байт-дифф невалиден; путь = Ghidra-дифф по функциям (наш PDB + locate-by-prologue в чужом) ([docs/recon-108-111-20261022.md](docs/recon-108-111-20261022.md)); ENIGMA НЕ деплоить | fixes-pending/111-mainserver64-manastones/ + docs/recon |
 | **Ghidra-silence** луперов 10100/10254/2107 (NOP условного перехода у «Can't connect» строк — ОДИН проход закроет все три) | 📋 исследовано | fixes-pending/loops-shopagent-channelchat-petition/ |
 | Порог CheckIOThreadDeadlock / authorization-time (уйти от RunAsDate окончательно) | ⬜ идея PLAN §6.1 | — |
 

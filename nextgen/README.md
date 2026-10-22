@@ -34,7 +34,7 @@
 | **Магазин** | 10100 | ShopAgent (.NET) | [aion-shopagent/](aion-shopagent/) | ⬜ не начат, низший (exe нет; бизнес-вопрос юзеру) | не запускать | [README](aion-shopagent/README.md) |
 | **GM-панель** | — | GMServer-семейство | [aion-gm/](aion-gm/) | ⬜ вероятно НЕ нужен (GM = builder в SQL; op+SQL покрывают 90%); старт = вопрос юзеру | — | [README](aion-gm/README.md) |
 | **Патчи мира (тактика)** | — | Server64+NPCSvr64 (Ghidra, метод #180) | [aion-binpatch/](aion-binpatch/) | ⬜ тактический трек ПОВЕРХ стратегии переписи (aion-npc/aion-main — деприор): #180 ✅ (уже в бинаре), #108/#111/silence = планы готовы (стенд) | fixes-pending/ | [README](aion-binpatch/README.md) |
-| **Оператор** | 10200 | — | [aion-op/](aion-op/) | ✅ **Phase 1 в бою + Phase 1.5 код готов 21.10 (не задеплоен)**: OP-5 await-хелперы (waitForPort/waitForLogMarker, план гейта [check,kill,start,await-port]); OP-6 watchdog — авторестарт с эскалацией 60/300/1800с, halt после 3 попыток до ResetHalt, NPC-окно lock, ночное окно 04:00-05:00 + restart_pair тумблер, audit source=watchdog; `watchdog.enabled: false` — безопасный дефолт; R6-конфиг OP-1..OP-4 частично (authdprod сервис, expected_down, OP-2 kill-коллизия ✅) | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [aion-op/ROADMAP.md](aion-op/ROADMAP.md), [DEPLOY](aion-op/DEPLOY.md) |
+| **Оператор** | 10200 | — | [aion-op/](aion-op/) | 🟢 **~100%: Phase 1 в бою + Phase 1.5 ДЕПЛОЙ ✅ 22.10** (exe `1ddf7260`, `/api/watchdog` live): OP-5 await-хелперы (waitForPort/waitForLogMarker, план гейта [check,kill,start,await-port]); OP-6 watchdog — авторестарт с эскалацией 60/300/1800с, halt после 3 попыток до ResetHalt, NPC-окно lock, ночное окно 04:00-05:00 + restart_pair тумблер, audit source=watchdog; `watchdog.enabled: false` — безопасный дефолт; R6-конфиг OP-1..OP-4 частично (authdprod сервис, expected_down, OP-2 kill-коллизия ✅) | `C:\aionop\`, задача AionOp (старт ТОЛЬКО `schtasks /run AionOp`) | [README](aion-op/README.md), [aion-op/ROADMAP.md](aion-op/ROADMAP.md), [DEPLOY](aion-op/DEPLOY.md) |
 | **PortalAuth (PA)** | 10057 | `01-PAServer7.7.exe` | [aion-pa/](aion-pa/) | ✅ **ориг ОБЯЗАТЕЛЕН в бою** (SYSTEM_ERROR(20) без него; старт ДО authd); наш эмулятор = адаптация **pae** (единственный публичный, доказанно рабочий) — **НЕ писать с нуля**: 🔬 ресёрч закрыт 08.10, R1 = скачать аттачи/интеграция (деприор) | op-кнопка `pa`; откат = ориг exe | [README](aion-pa/README.md), [RESEARCH](aion-pa/docs/pa-binaries-research-20261007.md) |
 | **NCoin-релей** | — | `NPRelay64.exe` | [aion-relay/](aion-relay/) | ⬜ **ДЕПРИОРИТ** (исходящий релей, ничего не биндит, логин не блокирует; связка с shopagent); ориг задача DISABLE | не запускать | [README](aion-relay/README.md) |
 | **Веб-рейтинг** | — | `RankingServer.exe` (.NET) | [aion-ranking/](aion-ranking/) | ⬜ **ДЕПРИОРИТ** (config.xml в ките нет — реконструкция; данные = aion_ranking_* уже в ACS-схеме) | ориг наличие проверить R0 | [README](aion-ranking/README.md) |
@@ -49,12 +49,12 @@
 | Блок | Компоненты (символ · %) | Прогресс блока | Вердикт |
 |---|---|---|---|
 | 🔐 **Auth-цепочка** | gate ✅ 100 · authd ✅ 90 | **~95%** | ✅ ЖИВОЙ ПУТЬ — юзер играет |
-| 🖥 **Обвязка** | logd ✅ 95 · captcha ✅ 95 · op ✅ 80 | **~90%** | ✅ в бою (op Phase 1.5 код готов, деплой по «го») |
+| 🖥 **Обвязка** | logd ✅ 95 · captcha ✅ 95 · op 🟢 100 | **~97%** | ✅ в бою (op 100: Phase 1.5 деплой 22.10; автопилот тумблером по «го») |
 | 🗄 **Кэши** | accache 🟡 80 · cache 🟡 55 | **~62%** | 🟡 фронт работ (R2 закрыт: wire = plaintext) |
 | 🌍 **Мир** | ic 🔬 10 · npc 🔬 15 · main 🟡 35 | **~23%** | 🔬 деприор (в плане — «бескомпромиссно») |
 | 🧰 **Деприор-хвост** | pa ⬜ 10 · binpatch ⬜ 10 · chat/petition/shop/gm/relay/ranking ⬜ 0 | **~5%** | ⬜ план, не отмена |
 
-**ВЕСЬ ТРЕК B: ≈ 56%** (взвешенно по трудоёмкости; пересчёт 22.10 после R4-хвостов accache + R1-каркаса/R2-closure cached + op Phase 1.5 код). Ядро «логин+мир живы» — сделано; фронт = cached R3 (Go MVP read-путь) → main/npc мир. Остаток до 100%: см. ROADMAP §2.
+**ВЕСЬ ТРЕК B: ≈ 57%** (взвешенно по трудоёмкости; пересчёт 22.10 после R4-хвостов accache + R1-каркаса/R2-closure cached + op Phase 1.5 код). Ядро «логин+мир живы» — сделано; фронт = cached R3 (Go MVP read-путь) → main/npc мир. Остаток до 100%: см. ROADMAP §2.
 *Методика:* % компонента = закрытые фазы его R0..R6 ROADMAP (честно, не «почти готово»); вес = доля трудоёмкости (cache 20% · main 15% · npc 15% · authd 10% · gate/accache 8% · op/ic/logd ~5% · прочее ≤4%); пересчёт при каждом статус-сдвиге. Цвета: 🟢 просто · 🟡 каркас · 🟠 средне · 🔴 тяжело; статусы: ✅ бой · 🔬 ресёрч · ⬜ не начат · ⏳ ждёт «го».
 
 ### 2.6 🗺 ЖИВАЯ ТОПОЛОГИЯ ПРОДА (R6) И МЕТОД-ЦИКЛ
