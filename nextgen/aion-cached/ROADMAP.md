@@ -152,3 +152,32 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 (fork-сдвиг 2006→2016 по «го» / pktmon). Семантика-порядок = Т24 (канон выше).
 Мир при тестах юзера сыпет proc_missing (ItemCollection*/LoadFameInfo/LoadReinventInfo) —
 exe-only procs подтверждены живьём (теория #13).
+
+## R4 FORK-СДВИГ ВЫПОЛНЕН (22.10 ~08:43-09:00) — канон 2006 снят живьём 🔥
+
+Схема (accache-паттерн): копия CacheServer-2016 (ports 2016/2017, common.xml правлен байтово)
++ cdmirror (accmirror v1.3: front :2006 → back :2016, shadow-tap → тень aion-cached :2018)
++ рестарт пары (Server64 умер от потери 2006 — ожидаемо; NPCSvr пережил; мир собран 8/8 через
+mirror→копия). Замечания: копия висит при живом ориг (single-instance как ACS — стартовать соло);
+NPCSvr тоже клиент 2006 (поправка R0 «единственный Server64»).
+
+### Т26 — КАНОН 2006 (Server64→CacheD) ✅ live (332 C-кадра)
+`[u16 len total][cmd u16 LE][marker 0xAE C2S / 0xAF S2C][~cmd u16 = ^cmd][payload]` — plaintext.
+Маркер-пара = ПО КАНАЛУ: accache EB/EC, cached AE/AF (канон-каркас един: len/cmd/marker/~cmd,
+инверсия ✓ на 100% кадров). Опкод-пространство u16 (теория #8 подтверждена: RQ_VERSION=215,
+cmd=282 и пр.). DummyCrypt отсутствует. RQ_VERSION-хендшейк в потоке ✓ (cmd=215, len=17).
+
+### Т27 — NPCSvr = второй клиент 2006 ✅ (469 кадров, свой поток)
+cmd=170 ×261: UTF-16 строки `tl_dp_id:NNN, calc_prob:...`, `tl_abyss_id:1014` (drop/abyss-статы);
+cmd=200 ×32: UTF-16 `[SAVE]v01/ctrl`; cmd=179/224/106/299... Marker тот же 0xAE. NPCSvr и Server64
+РАЗДЕЛЯЮТ порт 2006 и маркер-пару — РАЗЛИЧЕНИЕ = по первому кадру/содержимому (⏳ фингерпринт).
+
+### Т28 — Server64 фоновый тикер ✅
+cmd=179 (0xB3) ×147 (~6с период): [0000][accId=1010][0000][01000000][zeros][0x89][0x02] — статус-тикер;
+cmd=277 (0x115) ×150: короткие [03 06 e9 03 0000 02]. Раскладки логина (RQ_LOAD=11/LOAD_ITEM=14/
+U_SAVE=16) в этот capture НЕ попали (юзер был уже в мире) — СЛЕДУЮЩИЙ ЛОГИН ЮЗЕРА их снимет
+(capture пишется непрерывно: D:\SAION\aion-cached-capture\cdmirror.log).
+
+### Статус
+R4-раскладки: capture ЖИВОЙ, ждём логин юзера → раскладки → Go-хендлеры → RAM-модели → A/B.
+Тень (aion-cached MVP) режет 0xAE-кадры (bad marker) — доработка wire маркеров = следующий код-шаг.
