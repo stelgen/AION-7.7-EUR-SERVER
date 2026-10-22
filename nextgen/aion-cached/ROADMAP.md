@@ -67,3 +67,21 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 
 **Открытое:** позиция rolling m_key += m_packetSize в Aion OnRead не проверялась
 (нет decrypt-вызова → вероятно rolling тоже отсутствует) — непринципиально (key не используется).
+
+| 8 | Opcode на проводе Aion может быть 2 байта: Server2DB = 381 ops > 255 (1-байт не влезает) | live capture 2006 (R4); в wire.go добавлен флаг OpcodeWidth (1=L2-канон дефолт / 2=LE) + BuildW + Decoder.SetOpcodeWidth + тесты | ⏳ |
+| 9 | RQ_VERSION: S2C-форма "cd" доказана L2 C1 (packet000: Send("cd", op, isEqual)), но cachedProtocolVersion Aion НЕизвестна ($Revision: 311 = L2) | live capture первого version-обмена | ⏳ — наш hVersion отвечает ТИШИНОЙ (не рискуем isEqual) |
+| 10 | RQ_PING (108) → RP_PING (45) not-found форма "cdddddddd" = L2 C1 packet144 канон: Send("cdddddddd", PingTest, p2,p3,p4,p1,ts,0,0,0) | live capture | ✅ реализовано (MVP, not-found ветка — штатная у ориг) |
+| 11 | NPC-DB (2009) словаря опкодов в .profile НЕТ — только 8 каналов (2006×2/2051×2/2305×2/2007×2) | живой capture 2009 | ⏳ |
+
+## R3 ПРОГРЕСС (22.10): MVP-диспетчер ✅, read-путь раскладок = R4/capture
+
+| Кусок | Статус |
+|---|---|
+| internal/rpc/opcodes.go — 765 опкодов, 8 протоколов (генератор tools/analysis/gen_cached_opcodes.py из profile-opcode-map.md) | ✅ |
+| Route(): имя из профиля на каждый кадр + ship-события (raw-first) | ✅ |
+| hPing: RP_PING not-found форма (L2 C1 канон packet144) | ✅ |
+| hVersion: лог, тишина (теория #9) | ✅ |
+| Топ-путь silent: RQ_LOAD(11)/RQ_LOAD_ITEM(14)/RQ_LEAVE_WORLD(15)/RQ_U_SAVE(16) | ✅ лог, ⏳ раскладки |
+| wire OpcodeWidth 1/2 (теория #8) | ✅ флаг+тесты |
+| DB-слой 781 procs + RAM-модели User/Item | ⬜ (после capture-раскладок R4) |
+| GQ/GP MVP (2007 admin) | ⬜ |

@@ -70,13 +70,24 @@ type Frame struct {
 
 // Build — каноничный сборщик кадра (VAssemble-аналог): [u16 LE len][opcode][payload][csum].
 // csum = u16 LE от (packetSize + 2) = полной wire-длины.
-// Возвращает НЕзашифрованный wire-блоб (L2 C1 Send не шифрует ответы — канон CServerSocket::Send).
+// Возвращает НЕзашифрованный wire-блоб (plaintext — R2 вердикт).
+// OpcodeWidth = 1 (L2 C1 канон); 2-байтовая форма = BuildW (журнал теорий #8:
+// RQ 381 > 255 у Aion — ширина НЕПОДТВЕРЖДЕНА, арбитр = live capture).
 func Build(opcode uint16, payload []byte) []byte {
-	ps := 1 + len(payload) // opcode(1Б на проводе) + payload = размер тела без csum
+	return BuildW(Opcode1Byte, opcode, payload)
+}
+
+// BuildW — сборщик с явной шириной опкода на проводе.
+func BuildW(width OpcodeWidth, opcode uint16, payload []byte) []byte {
+	ps := int(width) + len(payload) // opcode + payload = размер тела без csum
 	wireLen := HeaderSize + ps + ChecksumSize
 
 	body := make([]byte, 0, ps+ChecksumSize)
-	body = append(body, byte(opcode)) // канон L2 C1: opcode 1 байт
+	if width == Opcode2ByteLE {
+		body = append(body, byte(opcode&0xFF), byte(opcode>>8))
+	} else {
+		body = append(body, byte(opcode)) // канон L2 C1: opcode 1 байт
+	}
 	body = append(body, payload...)
 	// csum: (preLast + last<<8) - 2 == packetSize → u16 LE = packetSize + 2 = wireLen
 	csum := uint32(ps + ChecksumSize + 2)
@@ -97,11 +108,24 @@ func (Encoder) Encode(opcode uint16, payload []byte) []byte { return Build(opcod
 
 // Decoder — состояние соединения: rolling key (m_key).
 type Decoder struct {
-	key uint32
+	key         uint32
+	opcodeWidth OpcodeWidth
 }
 
+// OpcodeWidth — ширина опкода на проводе. Дефолт 1 = L2 C1 канон.
+type OpcodeWidth int
+
+const (
+	Opcode1Byte   OpcodeWidth = 1
+	Opcode2ByteLE OpcodeWidth = 2
+)
+
 // NewDecoder создаёт декодер с seed-ключом из конфига.
-func NewDecoder(seed uint32) *Decoder { return &Decoder{key: seed} }
+func NewDecoder(seed uint32) *Decoder { return &Decoder{key: seed, opcodeWidth: Opcode1Byte} }
+
+// SetOpcodeWidth — переключение ширины опкода (R3: RQ 381 > 255 ⇒ Aion может
+// использовать 2-байтовые опкоды; арбитр = live capture, журнал теорий #8).
+func (d *Decoder) SetOpcodeWidth(w OpcodeWidth) { d.opcodeWidth = w }
 
 // Decrypt расшифровывает payload на месте (DummyCrypt).
 func (d *Decoder) Decrypt(payload []byte) { DummyCrypt(payload, d.key) }
@@ -139,5 +163,17 @@ func (d *Decoder) Feed(buf []byte) (int, *Frame, error) {
 			ErrBadChecksum, frame[0], packetSize, checkSum)
 	}
 
-	return packetSize + HeaderSize, &Frame{Opcode: uint16(frame[0]), Payload: frame[1 : packetSize-ChecksumSize]}, nil
+	var op uint16
+	var pl []byte
+	if d.opcodeWidth == Opcode2ByteLE {
+		if packetSize < 2+ChecksumSize {
+			return packetSize + HeaderSize, nil, fmt.Errorf("%w: 2-byte opcode in tiny frame", ErrBadSize)
+		}
+		op = binary.LittleEndian.Uint16(frame[0:2])
+		pl = frame[2 : packetSize-ChecksumSize]
+	} else {
+		op = uint16(frame[0])
+		pl = frame[1 : packetSize-ChecksumSize]
+	}
+	return packetSize + HeaderSize, &Frame{Opcode: op, Payload: pl}, nil
 }
