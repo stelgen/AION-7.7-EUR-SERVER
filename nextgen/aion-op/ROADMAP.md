@@ -99,3 +99,12 @@ Go 1.2x (`~/STELGEN/go-dist`) · embedded HTML без зависимостей �
 | OP-4 | Заголовок группы fork → «Fork-откат» (R6) | config line 194 (шаблон+VM) | 5 мин | ⬜ (вместе с OP-1) |
 | OP-5 | Async-ожидания маркеров в act-шагах (гонка старта гейта: пауза 5с мала) | деплой R6 authd 09.10 | Phase 1.5 | ✅ КОД+ДЕПЛОЙ 22.10 (exe `1ddf7260`): `internal/act/await.go` — waitForPort/waitForLogMarker (poll 500мс, таймаут 2мин, portCheckFn-инъекция для тестов); план рестарта гейта = [check,kill,start,await-port]; await-шаги исполняются Execute'ом (parseAwaitStep), не как команды; тесты TestWaitForPortOpens/Timeout/TestExecuteRunsAwaitPortStep PASS |
 | OP-6 | **Phase 1.5 watchdog**: событийный автопилот (ночной рестарт пары = тумблер юзера, эскалации) | ROADMAP §3 | 1-2 дня | ✅ КОД 21.10: `internal/watchdog/` — Tick(): svc DOWN (не expected_down/locked) → авторестарт с эскалацией 60/300/1800с; max_attempts=3 → halted до ResetHalt(); NPC-окно lock; ночное окно 04:00-05:00 + restart_pair; audit source=watchdog; Run(ctx) ticker в main при `watchdog.enabled`; веб: GET /api/watchdog (Status) + POST /api/watchdog/unhalt (typed-confirm "unhalt"); config.yaml секция (enabled: false дефолт); 8 тестов PASS. ДЕПЛОЙ ✅ 22.10 (включение автопилота = тумблер `watchdog.enabled: true` по «го» юзера) |
+
+## OP-7 ✅ 22.10: дашборд правды после R5-свитча accache
+
+config-vm.yaml (+шаблон config.yaml): добавлен сервис **accache** (task AionAccacheProd,
+kill_task AionKickAccache, ports [2220], light, order 1); старая **acc**-строка →
+`expected_down: true` (ориг отведён, копия-2221 жива как артефакт стенда — не алерт),
+display помечен «(orig, replaced by accache)». op рестартнут через ssh-канал
+(C:/aionop/restart-op.ps1: /end+/run AionOp — Agent API умирает с op, рестарт только по ssh).
+LIVE-верификация: accache RUNNING ports[2220] PID 2780; acc expected_down, alerts=[].

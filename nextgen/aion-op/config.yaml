@@ -21,13 +21,22 @@ operator:
   dry_run: false
 
 services:
+  - id: accache
+    group: light
+    display: aion-accache (prod 2220, R5)
+    exe: aion-accache.exe
+    task: AionAccacheProd
+    kill_task: AionKickAccache
+    ports: [2220]
+    order: 1
   - id: acc
     group: light
-    display: AccountCacheServer
+    display: AccountCacheServer (orig, replaced by accache)
     exe: AccountCacheServer.exe
     task: AionAcc
     ports: [2220]
-    order: 1
+    expected_down: true
+    order: 15
   - id: logd
     group: light
     display: aion-logd (nash)
