@@ -3,8 +3,8 @@
 //
 //	[u16 LE totalLen][u16 LE cmd][u8 marker][u16 LE ~cmd][payload][u16 LE totalLen]
 //
-//	marker: C2S=0xEB (Server64→CacheD), S2C=0xEC (CacheD→Server64; PutCmd_ACP
-//	инкрементит маркер — та же схема что AccountCacheServer).
+//	marker: МАРКЕР-ПАРА ПО КАНАЛУ (Т26, live 22.10): accache EB/EC,
+//	cached (Server64↔CacheD) AE/AF. Каркас кадра един для всех каналов.
 //	~cmd = побитовая инверсия cmd (u16). totalLen = ПОЛНАЯ длина кадра включая оба len-поля.
 //	Хвост-сумма = u16 LE totalLen (accache: checkSumm == packetSize+2 == полная длина).
 //
@@ -21,10 +21,14 @@ import (
 )
 
 const (
-	// MarkerC2S — Server64→CacheD.
+	// MarkerC2S — Server64→AccountCache (accache-канон, EB/EC).
 	MarkerC2S = 0xEB
-	// MarkerS2C — CacheD→Server64 (PutCmd_ACP инкремент — accache-канон).
+	// MarkerS2C — AccountCache→Server64 (PutCmd_ACP инкремент).
 	MarkerS2C = 0xEC
+	// MarkerCachedC2S — Server64→CacheD 2006 (Т26, live 22.10: все 332 C-кадра).
+	MarkerCachedC2S = 0xAE
+	// MarkerCachedS2C — CacheD→Server64 2006 (пара к 0xAE).
+	MarkerCachedS2C = 0xAF
 	// HeaderWire — len(2) + cmd(2) + marker(1) + ~cmd(2).
 	HeaderWire = 7
 	// MaxPayload — лимит тела (accache OnRead: cmp 0x2000).
@@ -64,13 +68,21 @@ func build(marker byte, cmd uint16, payload []byte) []byte {
 }
 
 // Validate — проверка тела (buf = кадр БЕЗ первого len-поля, как accache Validate):
-// buf[0:2]=cmd, buf[2]=marker, buf[3:5]=~cmd; возвращает cmd.
-func Validate(buf []byte, wantMarker byte) (uint16, error) {
+// buf[0:2]=cmd, buf[2]=marker, buf[3:5]=~cmd; возвращает cmd. Допустим ЛЮБОЙ маркер
+// из markers (Т26: каналы EB и AE — каркас кадра един).
+func Validate(buf []byte, markers ...byte) (uint16, error) {
 	if len(buf) < 5 {
 		return 0, ErrShort
 	}
 	cmd := binary.LittleEndian.Uint16(buf[0:2])
-	if buf[2] != wantMarker {
+	okMarker := false
+	for _, m := range markers {
+		if buf[2] == m {
+			okMarker = true
+			break
+		}
+	}
+	if !okMarker {
 		return 0, ErrBadMarker
 	}
 	if inv := binary.LittleEndian.Uint16(buf[3:5]); inv != ^cmd {
@@ -79,13 +91,16 @@ func Validate(buf []byte, wantMarker byte) (uint16, error) {
 	return cmd, nil
 }
 
+// BuildS2CCached — ответ CacheD→Server64 на 2006 (маркер 0xAF, пара к 0xAE — Т26).
+func BuildS2CCached(cmd uint16, payload []byte) []byte { return build(MarkerCachedS2C, cmd, payload) }
+
 // Decoder — state-машина разбора потока (порт accache OnRead).
 type Decoder struct {
-	Marker byte // ожидаемый маркер входящих кадров (C2S-сторона: 0xEB)
+	Markers []byte // допустимые маркеры входящих кадров (Т26: EB+AE на server-канале)
 }
 
-// NewDecoder — C2S-декодер (наш сервер читает 0xEB от Server64).
-func NewDecoder() *Decoder { return &Decoder{Marker: MarkerC2S} }
+// NewDecoder — C2S-декодер: принимает EB (accache) И AE (cached live, Т26).
+func NewDecoder() *Decoder { return &Decoder{Markers: []byte{MarkerC2S, MarkerCachedC2S}} }
 
 // Feed — разбор ОДНОГО кадра из buf.
 // Возвращает число съеденных байт, кадр или ошибку.
@@ -103,7 +118,7 @@ func (d *Decoder) Feed(buf []byte) (int, *Frame, error) {
 	if len(buf) < total {
 		return 0, nil, ErrShort
 	}
-	cmd, err := Validate(buf[2:total-2], d.Marker)
+	cmd, err := Validate(buf[2:total-2], d.Markers...)
 	if err != nil {
 		return total, nil, err
 	}

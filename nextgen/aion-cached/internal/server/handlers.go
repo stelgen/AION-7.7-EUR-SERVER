@@ -37,14 +37,16 @@ const (
 )
 
 var (
-	// serverHandlers — 2006: RQ (ServerToDb). MVP-хендлеры R3.
+	// serverHandlers — 2006: RQ (ServerToDb). MVP-хендлеры R3/R4.
 	serverHandlers = map[uint16]Handler{
 		rqPing:    hPing,    // доказанная форма (L2 C1 packet144)
 		rqVersion: hVersion, // лог без ответа (форма доказана, значение — нет)
-		rqLoad:    silent("RQ_LOAD"),           // char login — раскладки R4 (логи)
-		rqLoadIte: silent("RQ_LOAD_ITEM"),      // item load — итерации
-		rqLeaveW:  silent("RQ_LEAVE_WORLD"),
-		rqUSave:   silent("RQ_U_SAVE"),
+		rqLoad:    hRQLoad,           // R4 22.10: [X][a][charId][accId] (live capture)
+		rqLoadIte: hRQLoadItem,      // R4 22.10: [X][a][charId][кат][accId][page]
+		rqLeaveW:  hRQLeaveWorld,     // R4 22.10: [acc][char][pos×4][pad]
+		rqUSave:   hRQUSave,          // R4 22.10: [acc][char][сейв...]
+		rqSessionOpen: hSessionOpen,  // R4 22.10: первый кадр сессии [X][a][accId]
+		rqSessionAcc:  hSessionAcc,   // R4 22.10: [X][a][accId][01 01 00]
 	}
 
 	// adminHandlers — 2007: GQ (interactive). Заглушки silent до capture.
