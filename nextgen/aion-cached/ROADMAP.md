@@ -229,3 +229,41 @@ Read-путь логина = RQ_VERSION → 288/175 (сессия) → Character
 ### Вывод для MVP
 Read-путь Server64: RQ_VERSION → 288/175 (сессия) → cmd=90 (CharacterList) → RQ_LOAD → **RP cmd=1 (char struct)** → RQ_LOAD_ITEM ×2 → **RP cmd=0x0E ×3 (zlib XML page 0/1/2)** → **RP cmd=109 ×12 (binary items)** → enter world.
 Наш MVP: эмиттеры RP cmd=1 (скелет [X][a][01][...][charRef][позиция][level]) + RP cmd=0x0E (zlib XML из БД/кэша) + RP cmd=109 (item-блоки из БД) → A/B.
+
+## R4 DEEP ANALYSIS: RP cmd=0x0E = CHARACTER SETTINGS XML STORE (22.10) 🔥🔥🔥
+
+**ЗАПРОС-ОТВЕТ ПОДТВЕРЖДЁН РАСПАКОВКОЙ:** RP cmd=0x0E (RQ_LOAD_ITEM по словарю) содержит
+НЕ items, а **НАСТРОЙКИ КЛИЕНТА** — zlib-сжатый UTF-16LE XML! Три страницы:
+
+| Page | Decompressed | Содержимое |
+|---|---|---|
+| 0 | 28578Б | `<options>`: abyss_fort_info_pos, auto_use_*_item, boost_weapon, cam_*, ch_emotion_history, and more |
+| 1 | 3098Б | `<options>`: botting, chainskill, custom_chainskill, devanion_skill_setting, **quickbar (qb ×9)** |
+| 2 | 744Б | `<options>`: favorite_monster_achievement, housing_favorite_buddy_list, indun_cooltime_favorite_list, item_collection_favorite_list, title_favorite_list |
+
+**CacheD = RAM-кэш аккаунтов + ХРАНИЛИЩЕ НАСТРОЕК КЛИЕНТА (XML) + item-инвентарь.**
+Это объясняет почему AccountCacheServer существует: клиент сохраняет свои настройки
+(chainskills, quickbars, UI options) через Server64→CacheD, а при следующем логине
+CacheD возвращает их. XML генерируется КЛИЕНТОМ и хранится CacheD'ом в RAM (потом в БД).
+
+Для нашего MVP: **кэшировать zlib-XML per-charId** (принять от клиента при сейве,
+отдавать при логине). Простейший подход: capture-replay per-charId + БД-персист.
+
+### Полная карта опкодов из capture (block#0=Server64 ticker, block#1=Server64+NPCSvr)
+
+Block#0 (первое соединение): cmd=277 ×150 + cmd=179 ×147 (тикер), RQ_VERSION ×1.
+Block#1 (второе соединение): cmd=170 ×301 (tl_ строки), RQ_LOAD ×4, LOAD_ITEM ×8, 
+U_SAVE ×8, LEAVE ×8, cmd=135 ×16, RP cmd=61 ×175, cmd=109 ×22, cmd=14 ×12.
+
+ДВА соединения на :2006: Server64 (логин+тикер) и NPCSvr (tl_ строки+метрики).
+Marker един (0xAE/0xAF), канон един. РАЗЛИЧЕНИЕ по первому кадру/содержимому (⏳).
+
+### RP cmd=1 (1156Б) — CHARACTER STATE DUMP (полная карта non-zero блоков)
+
+[X@a echo][01][ff40529f][159] → [charRef][позиция e7096e15] → [979a2402][02] →
+[level=80][02] → [counters e35d/c72b] → [0x3C=60][0x16=22] → [1000 + "DVM-<hash>" UTF-16]
+→ [второе имя] → [координаты ×3] → [timestamps] → [назад: "SteLGeN-<hash>" UTF-16] →
+[статы/данные 0x30-0x4D счётчики] → [timestamps] → ...
+
+Это ПОЛНОЕ СОСТОЯНИЕ ЧАРА: identity + position + level + имя + статы + тайминги.
+1156Б = сериализованный объект чара для быстрой загрузки (CacheD держит его в RAM).
