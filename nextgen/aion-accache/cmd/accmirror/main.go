@@ -1,8 +1,11 @@
-// accmirror v1.1 — R1 capture-прокси aion-accache (паттерн FORK-SPEC §2 "Mirror-копия").
+// accmirror v1.2 — R1 capture-прокси aion-accache (паттерн FORK-SPEC §2 "Mirror-копия")
+// + SHADOW-TAP (R4 live A/B): опциональный -shadow addr — на КАЖДОГО клиента открывается
+// парная тень-коннект, копия каждого C> кадра уходит в тень (aion-accache :2222), ответы
+// тени читаются и логируются тегом S> (в ОДНОМ логе с C>/O> — арбитраж диффа по позициям).
 // front :2220 (настоящий порт ориг-ACS) -> back :2221 (копия ACS с байтовой правкой порта).
 // Лог raw-first (LOGGING-SPEC): каждый ФРЕЙМ [u16 len][u16 cmd][m][u16 ~cmd][payload]
 // (len = ПОЛНАЯ длина кадра, вкл. len-поле; m: C2S=0xEB, S2C=0xEC) целиком hex'ом с
-// направлением C> / O> + разбор заголовка. v1.0 имел офф-бай-2 (total=len+2) — кадры
+// направлением C> / O> / S> + разбор заголовка. v1.0 имел офф-бай-2 (total=len+2) — кадры
 // неправильно резались (байты в логе при этом НЕ терялись). Если фрейминг не сходится —
 // пишем чанк RAW> целиком и продолжаем (никаких молчаливых съеданий).
 package main
@@ -21,18 +24,19 @@ import (
 	"time"
 )
 
-const banner = "accmirror v1.1 (aion-accache R1, len=total)"
+const banner = "accmirror v1.2 (aion-accache R1, len=total, shadow-tap)"
 
 var (
 	lg    *log.Logger
 	mu    sync.Mutex
 	stats struct {
-		framesC, framesO, rawChunks uint64
+		framesC, framesO, framesS, rawChunks uint64
 	}
 )
 
 // feed разбирает поток и логирует полные фреймы; возвращает нераспарсенный хвост.
-func feed(dst net.Conn, buf []byte, tag string, forward bool) []byte {
+// taps — доп. получатели каждого распарсенного кадра (shadow-tap); forward=false = dst не трогаем.
+func feed(dst net.Conn, taps []net.Conn, buf []byte, tag string, forward bool) []byte {
 	for {
 		if len(buf) < 2 {
 			return buf
@@ -59,8 +63,10 @@ func feed(dst net.Conn, buf []byte, tag string, forward bool) []byte {
 		mu.Lock()
 		if tag == "C" {
 			stats.framesC++
-		} else {
+		} else if tag == "O" {
 			stats.framesO++
+		} else {
+			stats.framesS++
 		}
 		lg.Printf("%s> frame len=%d %s hex=%s", tag, total, line, hex.EncodeToString(fr))
 		mu.Unlock()
@@ -68,6 +74,12 @@ func feed(dst net.Conn, buf []byte, tag string, forward bool) []byte {
 			_ = dst.SetWriteDeadline(time.Now().Add(30 * time.Second))
 			if _, err := dst.Write(fr); err != nil {
 				lg.Printf("%s WRITE FAIL: %v", tag, err)
+			}
+		}
+		for i, tap := range taps {
+			_ = tap.SetWriteDeadline(time.Now().Add(30 * time.Second))
+			if _, err := tap.Write(fr); err != nil {
+				lg.Printf("SHADOW%d WRITE FAIL: %v", i, err)
 			}
 		}
 		buf = buf[total:]
@@ -86,7 +98,7 @@ func headLine(fr []byte) string {
 	return fmt.Sprintf("cmd=0x%02X(~0x%04X marker=0x%02X ok=%v) payload=%d", cmd, xcmd, marker, ok, len(fr)-7)
 }
 
-func pump(dst net.Conn, src net.Conn, tag string, forward bool, wg *sync.WaitGroup) {
+func pump(dst net.Conn, src net.Conn, tag string, forward bool, wg *sync.WaitGroup, taps ...net.Conn) {
 	defer wg.Done()
 	defer func() {
 		if r := recover(); r != nil {
@@ -110,7 +122,7 @@ func pump(dst net.Conn, src net.Conn, tag string, forward bool, wg *sync.WaitGro
 				}
 				buf = nil
 			} else {
-				buf = feed(dst, buf, tag, forward)
+				buf = feed(dst, taps, buf, tag, forward)
 			}
 		}
 		if err != nil {
@@ -128,7 +140,7 @@ func pump(dst net.Conn, src net.Conn, tag string, forward bool, wg *sync.WaitGro
 	}
 }
 
-func handle(cl net.Conn, backAddr string) {
+func handle(cl net.Conn, backAddr, shadowAddr string) {
 	defer cl.Close()
 	peer := cl.RemoteAddr().String()
 	lg.Printf("=== CLIENT %s", peer)
@@ -139,10 +151,29 @@ func handle(cl net.Conn, backAddr string) {
 	}
 	defer back.Close()
 	lg.Printf("BACK UP %s", backAddr)
+	var shadow net.Conn
+	if shadowAddr != "" {
+		sh, err := net.Dial("tcp", shadowAddr)
+		if err != nil {
+			lg.Printf("SHADOW DIAL FAIL: %v (продолжаю без тени)", err)
+		} else {
+			shadow = sh
+			defer shadow.Close()
+			lg.Printf("SHADOW UP %s", shadowAddr)
+		}
+	}
+	var taps []net.Conn
+	if shadow != nil {
+		taps = []net.Conn{shadow}
+	}
 	var wg sync.WaitGroup
 	wg.Add(2)
-	go pump(back, cl, "C", true, &wg)
+	go pump(back, cl, "C", true, &wg, taps...)
 	go pump(cl, back, "O", true, &wg)
+	if shadow != nil {
+		wg.Add(1)
+		go pump(nil, shadow, "S", false, &wg) // ответы тени — только в лог
+	}
 	wg.Wait()
 	lg.Printf("=== SESSION END %s", peer)
 }
@@ -150,6 +181,7 @@ func handle(cl net.Conn, backAddr string) {
 func main() {
 	listen := flag.String("listen", "0.0.0.0:2220", "")
 	backAddr := flag.String("back", "127.0.0.1:2221", "")
+	shadowAddr := flag.String("shadow", "", "shadow-tap (A/B тень aion-accache), пусто = выкл")
 	logPath := flag.String("log", "accmirror.log", "")
 	flag.Parse()
 	_ = os.MkdirAll(filepath.Dir(*logPath), 0755)
@@ -158,7 +190,7 @@ func main() {
 		log.Fatal(err)
 	}
 	lg = log.New(io.MultiWriter(f, os.Stderr), "", log.LstdFlags)
-	lg.Printf("BANNER: %s listen=%s back=%s log=%s", banner, *listen, *backAddr, *logPath)
+	lg.Printf("BANNER: %s listen=%s back=%s shadow=%s log=%s", banner, *listen, *backAddr, *shadowAddr, *logPath)
 	ln, err := net.Listen("tcp", *listen)
 	if err != nil {
 		lg.Printf("LISTEN FAIL: %v", err)
@@ -168,7 +200,7 @@ func main() {
 	go func() { // сводка раз в 60с
 		for range time.Tick(60 * time.Second) {
 			mu.Lock()
-			lg.Printf("STATS framesC=%d framesO=%d rawChunks=%d", stats.framesC, stats.framesO, stats.rawChunks)
+			lg.Printf("STATS framesC=%d framesO=%d framesS=%d rawChunks=%d", stats.framesC, stats.framesO, stats.framesS, stats.rawChunks)
 			mu.Unlock()
 		}
 	}()
@@ -178,6 +210,6 @@ func main() {
 			lg.Printf("ACCEPT ERR: %v", err)
 			continue
 		}
-		go handle(cl, *backAddr)
+		go handle(cl, *backAddr, *shadowAddr)
 	}
 }

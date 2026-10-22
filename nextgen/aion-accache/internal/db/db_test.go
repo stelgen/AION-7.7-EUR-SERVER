@@ -135,3 +135,23 @@ func TestSetLogoutUser(t *testing.T) {
 		t.Fatalf("args = %v", a)
 	}
 }
+
+// TestReadOnly — обёртка тени A/B: Exec глушится (nop, без ошибки), Query проходит.
+func TestReadOnly(t *testing.T) {
+	ex := &capExec{rows: [][]any{{int64(1), int32(80)}}}
+	ro := NewReadOnly(ex)
+	res, err := ro.Exec(context.Background(), "{call dbo.aion_SetLoginUser_20120703(?,?,?,?)}", 1, 1, 1, time.Now())
+	if err != nil || res == nil {
+		t.Fatalf("ro Exec: err=%v res=%v", err, res)
+	}
+	if len(ex.execs) != 0 {
+		t.Fatalf("Exec просочился в нижний слой: %v", ex.execs)
+	}
+	rows, err := ro.Query(context.Background(), "SELECT 1")
+	if err != nil || rows == nil {
+		t.Fatalf("ro Query: %v", err)
+	}
+	if len(ex.queries) != 1 || ex.queries[0] != "SELECT 1" {
+		t.Fatalf("queries = %v", ex.queries)
+	}
+}

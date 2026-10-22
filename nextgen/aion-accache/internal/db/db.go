@@ -69,6 +69,26 @@ func (s *SQLStore) Query(ctx context.Context, q string, args ...any) (Rows, erro
 	return sqlRows{r}, err
 }
 
+// readOnly — обёртка Executor для тени A/B (FORK-SPEC): Query проходит (чтение —
+// включая UserInfo для байт-паритета пушей), Exec (пись в БД) ГЛУШИТСЯ — прод-БД
+// не получает непроверенные раскладки. Включается конфигом db.read_only.
+type readOnly struct{ ex Executor }
+
+type nopResult struct{}
+
+func (nopResult) RowsAffected() (int64, error) { return 0, nil }
+
+func (r readOnly) Exec(ctx context.Context, q string, args ...any) (Result, error) {
+	return nopResult{}, nil
+}
+
+func (r readOnly) Query(ctx context.Context, q string, args ...any) (Rows, error) {
+	return r.ex.Query(ctx, q, args...)
+}
+
+// NewReadOnly — глушит записи, чтения — как есть.
+func NewReadOnly(ex Executor) Executor { return readOnly{ex} }
+
 // CallProc — универсальный вызов процедуры: CallProc(ex, "aion_loadLuna", accId).
 // Если proc без result-set — возвращается Result (rows=nil).
 func CallProc(ctx context.Context, ex Executor, name string, args ...any) (Rows, Result, error) {

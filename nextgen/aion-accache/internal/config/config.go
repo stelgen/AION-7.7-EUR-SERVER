@@ -13,6 +13,7 @@ type DB struct {
 	Enabled  bool   `yaml:"enabled"`
 	Conn     string `yaml:"conn"`      // СЕКРЕТ: только на VM/env
 	ServerID int    `yaml:"server_id"` // global_user_data.server_id / cur_server_id (дефолт 1 кодом)
+	ReadOnly bool   `yaml:"read_only"` // тень A/B: SELECT идут, Exec (пись в БД) глушится (FORK-SPEC)
 }
 
 type Server struct {

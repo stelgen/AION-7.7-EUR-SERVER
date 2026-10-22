@@ -4,6 +4,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
 
@@ -30,7 +31,9 @@ func main() {
 	}
 
 	sh := ship.New(cfg.Ship)
-	go sh.Run(nil)
+	// ГОТЧА (22.10, live-деплой): Run(nil) паниковал на ctx.Done() — nil-интерфейс;
+	// всегда context.Background().
+	go sh.Run(context.Background())
 	sh.Send(ship.Event{Ev: "start", Svc: "accache", Msg: "version=" + version + " listen=" + cfg.Server.Listen})
 
 	st := cache.New()
@@ -42,7 +45,12 @@ func main() {
 			log.Fatalf("db: %v", err)
 		}
 		exec = store
-		log.Printf("aion-accache: SQLStore подключен (procs AionAccountCacheD)")
+		if cfg.DB.ReadOnly {
+			exec = db.NewReadOnly(exec)
+			log.Printf("aion-accache: SQLStore READ-ONLY (тень A/B: SELECT идут, Exec глушится)")
+		} else {
+			log.Printf("aion-accache: SQLStore подключен (procs AionAccountCacheD)")
+		}
 	}
 	srv := server.New(cfg, st, exec, sh)
 	if err := srv.Serve(); err != nil {
