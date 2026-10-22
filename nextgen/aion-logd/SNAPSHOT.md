@@ -11,7 +11,8 @@
 - **REF58 SQL ЗАКРЫТ** (инвентарь 22.10): обе процы (UpdateTotalMainStatus + InsertServerinfo) НА ПРОДЕ
   с 21.10 08:09 + **EXECUTE GRANT aionop_ro на все 6 Log_проц** (verified). Остаток = Т25-маппинг
   metric1-4 → активация вызова UpdateMainStatus (арбитр = svcNNN-файлы/дизasm ориг LogServer64).
-- Остаток до 100%: Т25 маппинг + активация вызова (микродифф) — единственный открытый пункт.
+- **Т25 ВЕРДИКТ 22.10 (арбитр: map-символы LogServer64 + дизasm + capture 1738 кадров)**: UpdateMainStatus/UpdateTotalMainstatus/InsertServerinfo в 7.7 МЁРТВЫ — единственный их источник = LogMainStatusPacket (map: ?LogMainStatusPacket@@YAH@0x1400120e0; тело [u16 count][N×16Б: u32@0=zone, u16@4=total, u16@6=light, u32@8=npc, u16@12=pcL]), который клиентами 7.7 НЕ ПРИСЫЛАЕТСЯ (capture: только type 0/3/5/9-юзер; 194Б type-5 питает CSV/GUI, не SQL). Маппинг metric1-4 НЕ СУЩЕСТВУЕТ. Вердикт: вызов НЕ активировать, методы = референс (раскладка закомментирована в logdb.go). Serverinfo-путь (type-9 svc 1601-1608 → mapped 1-9 → cpu/mem@4/8/12) в capture отсутствует.
+- **logd = 100% ФИНАЛ**: Л1–Л4 + ship + REF58-SQL + Т25 — открытых пунктов НЕТ.
 
 ## ✅ ОБНОВЛЕНИЕ 05.10 (вечер): Л1–Л4 ЗАКРЫТЫ И ПОДМЕНЕНЫ НА ПРОДЕ
 

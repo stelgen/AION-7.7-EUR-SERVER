@@ -93,8 +93,13 @@ func (d *DB) InitializeCount(ctx context.Context) error {
 
 // UpdateMainStatus — Л2: зона-агрегат оригинала (свет/тьма/NPC/СТОРО по зоне).
 // ПОЗИЦИОННЫЙ {call} — имена параметров не завязаны на sp_helptext.
-// СЕМАНТИКА АРГУМЕНТОВ (какой metric type-5 = light/dark/npc) — после DB-сверки;
-// вызывать только при включённом mainstatus_sec и подтверждённом маппинге.
+// Т25 ВЕРДИКТ (22.10, арбитр = дизasm LogServer64.exe + map-символы + живой capture 1738 кадров):
+// UpdateMainStatus/UpdateTotalMainStatus в 7.7 НЕ ЗОВУТСЯ — единственный вызов внутри
+// LogMainStatusPacket (map: ?LogMainStatusPacket@@YAH @0x1400120e0), который клиентами 7.7
+// НЕ ПРИСЫЛАЕТСЯ (capture: только type 0/3/5; 194-байтовый type-5 питает CSV/GUI, не SQL).
+// Референс-раскладка 16Б-записи LogMainStatusPacket: light=u16@6, dark=u16@4−u16@6,
+// npc=u32@8, pcL=u16@12, world=[sock+0x304], zone=u32@0 (MainStatus) / zone=0 (Total).
+// НЕ АКТИВИРОВАТЬ (вызов без живого источника = запись мусора). Методы — референс.
 func (d *DB) UpdateMainStatus(ctx context.Context, light, dark, npc, pcL, pcD, world, zone int) error {
 	q := fmt.Sprintf("{call Aion_log.dbo.Log_TblGameWorldInfo_UpdateMainStatus(%d,%d,%d,%d,%d,%d,%d)}",
 		light, dark, npc, pcL, pcD, world, zone)
@@ -103,6 +108,7 @@ func (d *DB) UpdateMainStatus(ctx context.Context, light, dark, npc, pcL, pcD, w
 }
 
 // UpdateTotalMainStatus — Л2: тотал-строка зоны 0 (SET БЕЗ PC_STORE_DARK_USERS, REF58).
+// Т25: в 7.7 мёртвый (см. вердикт над UpdateMainStatus); референс.
 func (d *DB) UpdateTotalMainStatus(ctx context.Context, light, dark, npc, pcL, world, zone int) error {
 	q := fmt.Sprintf("{call Aion_log.dbo.Log_TblGameWorldInfo_UpdateTotalMainStatus(%d,%d,%d,%d,%d,%d)}",
 		light, dark, npc, pcL, world, zone)

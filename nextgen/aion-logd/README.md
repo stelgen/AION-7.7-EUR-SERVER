@@ -27,7 +27,7 @@ GOOS=windows GOARCH=amd64 go build -o aion-logd.exe .        # кросс-сбо
 
 1. Подмена exe на проде новым (staged: `C:\Temp\logd-staged\aion-logd.exe`, MD5 89254d1b):
    `schtasks /end AionLogCap` → копировать в `D:\SAION\aion-logd\` → `schtasks /run AionLogCap` (откат — старый exe там же в bak);
-2. Л2-добой: ~~деплой 2 REF58-проц~~ **ЗАКРЫТО 22.10** (procs на проде с 21.10 + гранты verified); остался маппинг metric1-4 → mainstatus (Т25) + активация вызова
+2. Л2-добой: ~~деплой 2 REF58-проц~~ **ЗАКРЫТО 22.10**; ~~маппинг metric1-4~~ **Т25 ЗАКРЫТ ВЕРДИКТОМ 22.10**: UpdateMainStatus/TotalMainstatus/InsertServerinfo в 7.7 мёртвы — их источник LogMainStatusPacket (16Б-записи) клиентами 7.7 не присылается (capture 1738 кадров: только type 0/3/5/9-юзер); 194Б type-5 питает CSV/GUI, не SQL. Методы = референс, вызов НЕ активировать
 3. Приёмник на Linux (rsyslog) → включить `ship.enabled` в прод-конфиге;
 4. Опц.: дизasm хвоста type-9 (tick/coords/flags) — в raw уже всё есть.
 
