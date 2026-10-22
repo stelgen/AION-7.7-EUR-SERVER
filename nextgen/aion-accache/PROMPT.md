@@ -8,10 +8,13 @@ AION aion-accache — ПРОДОЛЖЕНИЕ (прочитай память STEL
 ⚡ АКТУАЛЬНО (22.10 вечер, супersedes R1-цель ниже): R4 ЗАКРЫТ — offline replay 16/16 +
 LIVE A/B VERDICT байт-в-байт (канал = accmirror v1.3 shadow-tap :2220→:2221 + тень :2222
 read-only, задача AionAccShadow; каноны в README VERDICT-таблица + ROADMAP Т1-Т22).
-СЛЕДУЮЩИЙ ШАГ = writes-enable SQL-дифф: на тени :2222 config-shadow.yaml
-db.read_only=false (по «го») → логин юзера → SQL-дифф записей (Т15: вариант
-SetLoginUser — снять global_char_id/class_type/race_type ДО/ПОСЛЕ; Т17 ll/lo) →
-R5 свитч по «го» (retarget задачи AionAcc на run.cmd тени; откат = retarget обратно).
+⚡⚡ АКТУАЛЬНО-2 (22.10 ночь, supersedes выше): R5 СВИТЧ ВЫПОЛНЕН — ПРОД = aion-accache :2220
+(задача AionAccacheProd, ориг отведён: AionAccMirror/AionAcc = откат одной командой
+`schtasks /end /tn AionAccacheProd; schtasks /run /tn AionAccMirror`). Контрольные логины
+чистые (0 db.err); Т16/Т17 ✅ на наших записях (ll/lo = сек-в-сек штампов); Т23 пойман/исправлен
+(trade 70→0→восстановлен→подтверждён). СЛЕДУЮЩИЙ ШАГ = R6 наблюдение 24ч + op-конфиг
+(сервис accache в config-vm.yaml; старую acc-строку → expected_down). Открытые ⏳: Т10-М2,
+Т15 (вариант SetLoginUser ориг), Т19 (ACP_15 dword3 3/22), Т23-нотка (P6=70 decompose ⏳).
 Инфра-готчи: рестарт тени НЕ рвёт тап (accmirror v1.3 auto-reconnect); большой exe =
 JSON+curl --data-binary; прод-действия только по «го».
 

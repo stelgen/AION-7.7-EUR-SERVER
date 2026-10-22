@@ -1,6 +1,6 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-🟢 **~90% · R4 live A/B ✅ 22.10: VERDICT — все наблюдаемые cmds байт-в-байт** (3 раунда на accmirror-стенде, тень :2222 read-only; единственный байт-дифф = ACP_20[5] lastLogin — структурный Т10-М2, механизм freeze совпадает) · R3 SQLStore ✅ (EXEC @pN, живой прогон read-пути) · R4 offline ✅ 22.10: replay 16/16 (100%) — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
+✅ **R5 СВИТЧ ✅ 22.10: ПРОД = aion-accache :2220** (задача AionAccacheProd, ориг AccountCacheServer отведён; контрольный логин чист: 0 db.err, ll/lo = сек-в-сек штампов НАШИХ записей — Т16/Т17 ✅, trade=70 сохранён — Т23 ✅) · R4 live A/B ✅ (VERDICT байт-в-байт, 3 раунда) · R4 offline ✅ replay 16/16 (100%) · R3 SQLStore ✅ (EXEC @pN) — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
 Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-11).
 
 ## Канон (доказано дизasmом, не догадки)
@@ -62,6 +62,13 @@ R4 replay (TestR4ReplayCapture в internal/server/replay_r4_test.go): автон
 | Записи в БД | ⏸ read_only | Exec глушится (Т15 SQL-дифф = следующий этап по «го»); Т17 ll/lo подтверждена телом proc + живой БД (ll=штамп логина, lo=штамп логаута) |
 
 Инфраструктура A/B: accmirror v1.3 (front :2220 → copy :2221, shadow-tap с авто-реконнектом, кадры тени = S> в общем логе), тень aion-accache :2222 (задача AionAccShadow, db.read_only=true, aionop_ro гранты: EXEC ×4 + SELECT global_user_data). Откат: bak-v11 exe/run.cmd; тень независима.
+
+## 🚢 R5-свитч (22.10) — сделано/откат
+
+- Прод: `D:\SAION\aion-accache\aion-accache.exe` (v4 `82779ab6`) + `config-prod.yaml` (:2220, write-SQL, server_id 1); задачи `AionAccacheProd` (+`AionKickAccache`); Server64 переподключился сам (~8с), VERSION-хендшейк ✓.
+- **Откат одной командой:** `schtasks /end /tn AionAccacheProd; schtasks /run /tn AionAccMirror` (стенд v1.3+копия-2221 целы).
+- Стенд-наследие: accmirror v1.3 + копия-2221 остановлены как путь (живы для отката); тень :2222 остановлена (accstop).
+- Write-урок (Т23): первый прод-логин поймал затёртый trade 70→0 → канон cmd 8 исправлен, БД восстановлена UPDATE-ом, повторный логин подтвердил.
 
 ## Что осталось
 

@@ -15,15 +15,21 @@
 | R2.5 | ✅ | **Раскладки 10.10**: internal/payload (Version/FirstLoad/BM/Luna/CharLogin/Logout/Fatigue с UTF-16 stamp) на живых golden-кадрах, тесты зелёные; tools/accparse.py v2; frames.txt в capture-артефактах. Хвосты в R3: роли полей Fatigue/Trial (PDB I,H,I,I,I), push 13/15/20/21, T2-канал |
 | R3 | ✅ код 22.10 | SQLStore-каркас (go-mssqldb, MaxOpenConns=10); R3 22.10: db.GetUserInfo (SELECT last_login_time + MAX(user_level) FROM global_user_data — read-proc в 101 procs REF58 НЕТ, проверено; DATEDIFF → int64), db.SetLoginUser/SetLogoutUser_20120703 (char_id, server_id, cur_server_id, login/logout_time datetime — тела REF58), config db.server_id (дефолт 1 кодом); хендлеры: hCharLogin = GetUserInfo (pre-login значение) → resp+пуши → SetLoginUser; hCharLogout → SetLogoutUser; тесты db (формы/аргументы) + e2e login/logout SQL. Живой прогон на AionAccountCacheD_rc = вместе с live A/B (деплой по «го») |
 | R4 | ✅ offline + live 22.10 | **offline: replay 16/16 (100%)**; **live A/B (3 раунда на стенде :2220→:2221, тень :2222 read-only): VERDICT — все наблюдаемые cmds байт-в-байт** (таблица в README); единственный байт-дифф = ACP_20[5] lastLogin — структурный (Т10-М2, механизм freeze совпадает, значения = возраст entry) |
-| R5 | ⏳ | Свитч по «го» (задача AionAcc retarget на D:\SAION\aion-accache\run.cmd; откат = retarget обратно) |
+| R5 | ✅ 22.10 | **СВИТЧ ВЫПОЛНЕН**: прод = aion-accache :2220 (задача AionAccacheProd + AionKickAccache), ориг отведён (AionAccMirror/AionAcc = откат); Server64 переподключился сам (~8с), VERSION ✓; контрольный прод-логин чист (0 db.err); write-урок Т23 (trade затёрт→восстановлен→исправлен→подтверждён). Откат = `/end AionAccacheProd; /run AionAccMirror` |
+| R6 | ⏳ | Наблюдение 24ч (логины/relogin/ночные циклы/мир 8/8) + op-конфиг: сервис accache в config-vm.yaml (замена acc-строки на наш exe+задачу) |
 
-## ⏭️ Следующий шаг (writes-enable SQL-дифф → R5)
+## ⏭️ Следующий шаг (R6 наблюдение)
 
-1. **Writes-enable на тени** (по «го»): db.read_only=false на стенде :2222 → логин юзера →
-   SQL-дифф записей (account_data/global_user_data: наши SetLoginUser/SetLogoutUser_20120703
-   эффекты vs ориг; Т15-вариант proc — снять global_char_id/class_type/race_type до/после).
-2. R5 свитч по «го»: retarget задачи AionAcc на D:\SAION\aion-accache\run.cmd (откат = retarget обратно);
-   конфиг прод (connStr, server_id) из тени; наблюдение 24ч.
+R5 свитч выполнен (22.10): прод = наш aion-accache :2220, ориг отведён, контрольный логин
+чист (0 db.err; ll/lo = сек-в-сек штампов наших записей; trade=70 сохранён после Т23-фикса).
+Дальше:
+1. R6 наблюдение 24ч: логины/перелогины/ночной цикл, мир 8/8, ошибки .err/логов тени.
+2. op-конфиг: сервис accache в config-vm.yaml (task AionAccacheProd, порт 2220; старую acc-строку
+   пометить expected_down) — чтобы op-дашборд не врал.
+3. Открытые ⏳: Т10-М2 точное правило RAM-freeze (дизasm), Т15 вариант SetLoginUser ориг
+   (20120703 у нас; глобал-колонки ориг не переписывал — следить), Т19 (ACP_15 dword3 3/22),
+   Т23-нотка (P6=70 в последнем логине — decompose семантика ⏳).
+4. Мусор: probe-акки probetest1-14 (uid ~1007-1018) — удалить по «го».
 
 ## R1-детали (архив 10.10 — выполнено)
 
