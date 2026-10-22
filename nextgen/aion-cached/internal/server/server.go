@@ -201,18 +201,45 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			if ch == ChanServer && sessX != 0 {
 				switch frame.Cmd {
 				case 11: // RQ_LOAD → CharacterList + RP cmd=1 + item pages + blocks
-					for _, f := range rpc.EmitReadPath(rpc.SessionContext{X: sessX}) {
-						resp = append(resp, f...)
-					}
-					log.Printf("[cached] %s RQ_LOAD → replay %d bytes (read-path)", name, len(resp))
-				case 14: // RQ_LOAD_ITEM → item pages + blocks
-					var frames [][]byte
-					frames = append(frames, rpc.GetRPLoadItemPages(sessX)...)
-					frames = append(frames, rpc.GetRPItemBlocks(sessX)...)
+					frames := rpc.EmitReadPath(rpc.SessionContext{X: sessX, AccID: 1010, CharID: charIdFromFrame(frame)})
 					for _, f := range frames {
 						resp = append(resp, f...)
 					}
-					log.Printf("[cached] %s RQ_LOAD_ITEM → replay %d bytes (items)", name, len(resp))
+					// seed settings store: pages 2-4 (RP cmd=0x0E) из emission
+					if !globalSettings.Has(charIdFromFrame(frame)) && len(frames) > 3 {
+						var pages [][]byte
+						for _, f := range frames {
+							cmd16 := binary.LittleEndian.Uint16(f[2:4])
+							if cmd16 == 14 && len(f) > 5000 { // RP cmd=0x0E zlib page
+								pages = append(pages, f)
+							}
+						}
+						if len(pages) > 0 {
+							globalSettings.Put(charIdFromFrame(frame), pages)
+						}
+					}
+					log.Printf("[cached] %s RQ_LOAD → replay %d bytes (read-path, settings seeded)", name, len(resp))
+				case 14: // RQ_LOAD_ITEM → settings store или replay
+					page := byte(0)
+					if len(frame.Payload) > 20 {
+						page = frame.Payload[20]
+					}
+					charId := charIdFromFrame(frame)
+					stored := globalSettings.Get(charId)
+					if len(stored) > 0 {
+						for _, pg := range stored {
+							resp = append(resp, pg...)
+						}
+						log.Printf("[cached] %s RQ_LOAD_ITEM → settings store %d bytes (page=%d)", name, len(resp), page)
+					} else {
+						var frames [][]byte
+						frames = append(frames, rpc.GetRPLoadItemPages(sessX)...)
+						frames = append(frames, rpc.GetRPItemBlocks(sessX)...)
+						for _, f := range frames {
+							resp = append(resp, f...)
+						}
+						log.Printf("[cached] %s RQ_LOAD_ITEM → replay %d bytes (items)", name, len(resp))
+					}
 				}
 			}
 			if len(resp) > 0 {
@@ -260,4 +287,13 @@ func readFileLines(path string) ([]string, error) {
 		}
 	}
 	return lines, nil
+}
+
+// charIdFromFrame — извлекает charId из RQ_LOAD(11)/RQ_LOAD_ITEM(14)/U_SAVE(16) payload.
+// Раскладка: [X][a][charId][accId] — charId на offset 8.
+func charIdFromFrame(frame *wire.Frame) uint32 {
+	if len(frame.Payload) >= 12 {
+		return binary.LittleEndian.Uint32(frame.Payload[8:12])
+	}
+	return 0
 }
