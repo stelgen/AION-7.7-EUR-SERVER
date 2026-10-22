@@ -3,7 +3,7 @@
 > **Последнее обновление: 10.10.2026.** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
 > Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
 > authd ✅ R6 В БОЮ 09.10 (живой путь 2110+2104; fork 2116/тень 2117 = откат); accache 🟡 R2.5 ✅ 10.10 (capture + wire-канон len=total + раскладки; R3 SQLStore = следующий чат); CacheD64 🔬 R0 закрыт (R1 wire из log/*.log — pktmon-2006 loopback-блокер доказан); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него — старое «SKIP» исправлено везде).
-> Следующие чаты: 1) **cached R3** — Go MVP read-путь (char login/item load, ~590 RPC, 781 procs) [aion-cached/ROADMAP.md] 2) accache живой capture (юзер логин ×1-2 → закрывает Т7/Т8 → 16/16) + R5 свитч по «го» 3) op Phase 1.5 деплой на VM + включение watchdog по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ. **ТРЕК B ≈ 56%**.
+> Следующие чаты: 1) **cached R3** — Go MVP read-путь (char login/item load, ~590 RPC, 781 procs) [aion-cached/ROADMAP.md] 2) accache живой capture (юзер логин ×1-2 → закрывает Т7/Т8 → 16/16) + R5 свитч по «го» 3) op Phase 1.5 деплой на VM + включение watchdog по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ. **ТРЕК B ≈ 58%** (binpatch 60: #108 артефакт готов — стенд-тест, #111 ❄️ заморожен до aion-main).
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где — 10.10; свод с % — [README.md §2.5](README.md))
 
@@ -31,7 +31,7 @@
 | 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах | TELEMETRY-SPEC §2 | полдня |
 | 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | [aion-logd/SNAPSHOT.md](aion-logd/SNAPSHOT.md) | 1 день |
 | 7 | **op Phase 1.5 — КОД ГОТОВ 21.10** (не задеплоен): OP-5 await (waitForPort/waitForLogMarker; план гейта [check,kill,start,await-port]), OP-6 watchdog (эскалация 60/300/1800с, halt→ResetHalt, NPC-окно lock, ночное окно 04:00–05:00, audit source=watchdog); `watchdog.enabled: false` дефолт | aion-op/ROADMAP.md §6 | деплой 1 день |
-| 8 | Ghidra-патчи: матчмейкер #108 (JZ→JNZ), манастоны #111 (перенос в копию #180) — только в MainServer_backup-копии | fixes-pending/ | дни, стенд |
+| 8 | **Бинпатч-хвост**: #108 — стенд-тест патч-артефакта (копия MainServer_backup + патч @0x30157D → клиент логин + арена-заявка); silence-луперы 10100/10254/2107 (один проход); **#111 ❄️ FROZEN до aion-main MVP** ([ISSUE](aion-binpatch/docs/ISSUE-111-manastones-FROZEN.md), тег `freeze/111-manastones-until-aion-main-mvp`) | fixes-pending/ + [ISSUE](aion-binpatch/docs/ISSUE-111-manastones-FROZEN.md) | стенд-тест 1 день |
 | 9 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr (~600k блоков/сессия → ночной рестарт), RESOURCE_SEMAPHORE | docs/app-architecture.md §7 | пассивно |
 | 10 | Уборка: тестовые probe-акки probetest1-14 в AionAccounts (мусор от probe, uid ~1007-1018) — удалить по «го» | VM SQL | 5 мин |
 | 11 | ICServer/ChannelChat/Petition/ShopAgent/GM — папки-заготовки созданы (README+ROADMAP+PROMPT в каждой), к работе не запланированы | aion-ic/, aion-chat/, aion-petition/, aion-shopagent/, aion-gm/ | — |
