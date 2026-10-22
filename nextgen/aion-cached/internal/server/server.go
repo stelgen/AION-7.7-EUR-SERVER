@@ -11,6 +11,8 @@ import (
 	"net"
 	"os"
 
+	"encoding/binary"
+
 	"aion-cached/internal/rpc"
 	"aion-cached/internal/wire"
 )
@@ -161,6 +163,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	buf := make([]byte, wire.MaxPayload+wire.HeaderWire)
 	var pending []byte
 	mode := modeServer // Server64 по умолчанию; NPRelay64 переключает handshake'ом
+	var sessX uint32   // R4: сессионный хендл из cmd=288 (0 если ещё не установлен)
 
 	for {
 		n, err := conn.Read(buf)
@@ -188,7 +191,30 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				continue // pending уже съеден выше
 			}
 
+			// R4: сессионный хендл из cmd=288 (первый кадр)
+			if frame.Cmd == 288 && len(frame.Payload) >= 12 {
+				sessX = binary.LittleEndian.Uint32(frame.Payload[0:4])
+			}
+
 			resp := Route(ch, frame)
+			// R4: read-path emission (replay) после обычного dispatch
+			if ch == ChanServer && sessX != 0 {
+				switch frame.Cmd {
+				case 11: // RQ_LOAD → CharacterList + RP cmd=1 + item pages + blocks
+					for _, f := range rpc.EmitReadPath(rpc.SessionContext{X: sessX}) {
+						resp = append(resp, f...)
+					}
+					log.Printf("[cached] %s RQ_LOAD → replay %d bytes (read-path)", name, len(resp))
+				case 14: // RQ_LOAD_ITEM → item pages + blocks
+					var frames [][]byte
+					frames = append(frames, rpc.GetRPLoadItemPages(sessX)...)
+					frames = append(frames, rpc.GetRPItemBlocks(sessX)...)
+					for _, f := range frames {
+						resp = append(resp, f...)
+					}
+					log.Printf("[cached] %s RQ_LOAD_ITEM → replay %d bytes (items)", name, len(resp))
+				}
+			}
 			if len(resp) > 0 {
 				if _, werr := conn.Write(resp); werr != nil {
 					log.Printf("[cached] %s write error: %v", name, werr)
