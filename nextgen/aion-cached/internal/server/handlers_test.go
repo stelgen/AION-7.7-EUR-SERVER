@@ -18,13 +18,14 @@ func TestAdminHandlerInvoked(t *testing.T) {
 		if ch != ChanAdmin {
 			t.Errorf("handler channel = %v, want ChanAdmin", ch)
 		}
+		if ch, _ := interface{}(nil).(interface{}); ch != nil { _ = ch }
 		if opcode != 0x01 {
 			t.Errorf("opcode = 0x%04X, want 0x0001", opcode)
 		}
-		return wire.Build(0x01, []byte{0x01}) // GP: ok
+		return wire.BuildS2C(0x01, []byte{0x01}) // GP: ok
 	}
 
-	frame := &wire.Frame{Opcode: 0x01, Payload: []byte{0x05, 'b', 'u', 'i', 'l', 'd', 'r', 0x64}}
+	frame := &wire.Frame{Cmd: 0x01, Payload: []byte{0x05, 'b', 'u', 'i', 'l', 'd', 'r', 0x64}}
 	resp := Route(ChanAdmin, frame)
 	if !called {
 		t.Fatalf("admin handler for opcode 0x01 was NOT invoked")
@@ -44,9 +45,9 @@ func TestServerStubHandlerInvoked(t *testing.T) {
 	defer func() { serverHandlers[0x00] = prev }()
 	serverHandlers[0x00] = func(ch Channel, opcode uint16, payload []byte) []byte {
 		called = true
-		return wire.Build(0x00, []byte{0x01})
+		return wire.BuildS2C(0x00, []byte{0x01})
 	}
-	frame := &wire.Frame{Opcode: 0x00, Payload: nil}
+	frame := &wire.Frame{Cmd: 0x00, Payload: nil}
 	resp := Route(ChanServer, frame)
 	if !called {
 		t.Fatalf("server handler for opcode 0x00 was NOT invoked")
@@ -58,7 +59,7 @@ func TestServerStubHandlerInvoked(t *testing.T) {
 
 // TestUnknownOpcodeRejected — неизвестный опкод → nil-ответ + ship unknown (проверка silent drop).
 func TestUnknownOpcodeRejected(t *testing.T) {
-	if resp := Route(ChanServer, &wire.Frame{Opcode: 0xEE}); resp != nil {
+	if resp := Route(ChanServer, &wire.Frame{Cmd: 0xEE}); resp != nil {
 		t.Fatalf("unknown opcode should return nil, got %v", resp)
 	}
 }

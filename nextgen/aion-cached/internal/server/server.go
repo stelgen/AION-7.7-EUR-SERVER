@@ -3,6 +3,8 @@
 package server
 
 import (
+	"bufio"
+	"time"
 	"bytes"
 	"fmt"
 	"log"
@@ -71,7 +73,8 @@ const (
 
 // Server — набор листенеров.
 type Server struct {
-	cfg Config
+	cfg    Config
+	testLn map[Channel]net.Listener
 }
 
 // New — конструктор.
@@ -110,12 +113,51 @@ func (s *Server) acceptLoop(ln net.Listener, ch Channel, name string) {
 	}
 }
 
+// SetListenerForTest — тестовый вход: подмена listener канала.
+func (s *Server) SetListenerForTest(ln net.Listener, ch Channel) {
+	if s.testLn == nil {
+		s.testLn = map[Channel]net.Listener{}
+	}
+	s.testLn[ch] = ln
+}
+
+// ServeOnTest — тестовый прогон accept-loop одного канала (блокирует).
+func (s *Server) ServeOnTest(ch Channel) error {
+	name := map[Channel]string{ChanServer: "server", ChanAdmin: "admin", ChanNpcDb: "npcDb"}[ch]
+	ln, ok := s.testLn[ch]
+	if !ok {
+		ln2, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			return err
+		}
+		ln = ln2
+		s.testLn[ch] = ln
+	}
+	s.acceptLoop(ln, ch, name)
+	return nil
+}
+
 // handleConn — конвейер: приём кадра → wire.Feed → Route → ответ.
 // Канон L2 C1: reject при bad size / bad csum → socket Close.
 func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	defer conn.Close()
-	dec := wire.NewDecoder(s.cfg.Seed())
-	buf := make([]byte, wire.MaxPacketSize+wire.HeaderSize)
+	if ch == ChanAdmin {
+		// 2007 interactive = ТЕКСТОВЫЙ протокол (L2 C1 CAdminSocket.cpp канон:
+		// строки до '\n', packetId первым полем) — НЕ бинарный wire.
+		r := bufio.NewReader(conn)
+		_ = conn.SetReadDeadline(time.Time{})
+		lineFn := func() (string, error) {
+			return r.ReadString('\n')
+		}
+		handleAdminText(ch, name, lineFn, func(out string) {
+			if out != "" {
+				_, _ = conn.Write([]byte(out + "\n"))
+			}
+		})
+		return
+	}
+	dec := wire.NewDecoder()
+	buf := make([]byte, wire.MaxPayload+wire.HeaderWire)
 	var pending []byte
 
 	for {
@@ -125,7 +167,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 		}
 		pending = append(pending, buf[:n]...)
 
-		for len(pending) >= wire.HeaderSize {
+		for len(pending) >= wire.HeaderWire {
 			consumed, frame, ferr := dec.Feed(pending)
 			if ferr != nil {
 				if isErrShort(ferr) {
@@ -145,7 +187,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				}
 			}
 		}
-		if len(pending) > wire.MaxPacketSize+wire.HeaderSize {
+		if len(pending) > wire.MaxPayload+wire.HeaderWire {
 			log.Printf("[cached] %s buffer overflow, closing", name)
 			return
 		}

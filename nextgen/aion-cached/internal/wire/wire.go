@@ -1,22 +1,17 @@
-// Package wire — CacheD wire-канон из CServerSocket.cpp (read-only ref: nextgen/cached-ref/l2-c1-cached).
+// Package wire — CacheD64 wire-канон = ACCACHE-ФОРМАТ (доказан golden-кадрами
+// server_test.go 0f000100ebfeff... и accache R2.5, "len=total" канон 10.10):
 //
-// Фрейм: [u16 LE self-inclusive len][opcode][payload...][2Б csum].
+//	[u16 LE totalLen][u16 LE cmd][u8 marker][u16 LE ~cmd][payload][u16 LE totalLen]
 //
-//	Canon (L2CacheD 0x0043C2E0):
-//	  m_packetSize = (buf[off+1]<<8) + buf[off] - 2   // размер тела ПОСЛЕ len-филда
-//	  DummyCrypt::Decrypt(payload, m_key, m_packetSize) // NO-OP (см. DummyCrypt ниже)
-//	  m_key += m_packetSize                              // rolling (vestigial)
-//	  checkSumm = (preLastByte + (lastByte<<8)) - 2 == m_packetSize
-//	  → u16 LE двух последних байт тела = m_packetSize + 2 = полная wire-длина кадра.
+//	marker: C2S=0xEB (Server64→CacheD), S2C=0xEC (CacheD→Server64; PutCmd_ACP
+//	инкрементит маркер — та же схема что AccountCacheServer).
+//	~cmd = побитовая инверсия cmd (u16). totalLen = ПОЛНАЯ длина кадра включая оба len-поля.
+//	Хвост-сумма = u16 LE totalLen (accache: checkSumm == packetSize+2 == полная длина).
 //
-// R2 ВЕРДИКТ (21.10, доказано двумя независимыми источниками):
-//  1. L2 C1 (сурсы MasterToma): L2Core/src/crypt/DummyCrypt.cpp — тело Decrypt
-//     ПУСТОЕ (UNUSED(data/key/length)) — «Dummy» в буквальном смысле, RPC без крипты.
-//  2. Aion 7.7 CacheD64.exe (дизasm): крипто-фэмили Utils.obj —
-//     Decrypt @0x1401b0360 / Encrypt @0x1401b03e0 / Encrypt @0x1401b0440 /
-//     Decrypt2 @0x1401b04c0 / Encrypt2 @0x1401b0570 — НОЛЬ ссылок в бинаре
-//     (E8/E9/FF15/lea/ptr-скан пуст, incl. полный .data 19МБ) = мёртвый код.
-//     ВЫВОД: wire CacheD64 2006 = plaintext, единственная защита = csum-хвост.
+// ⚠ ИСТОРИЯ (не повторять): R1-каркас был построен по L2 C1-канону (op 1 байт,
+// без маркера) — НЕСОВМЕСТИМ с golden-кадрами Aion. R3 (22.10) унифицировано
+// на accache-канон: u16-opcode закрывает и 381 RQ > 255 (теория #8 ЗАКРЫТА —
+// 2-байтовый опкод доказан golden-кадрами, не нужен «флаг ширины»).
 package wire
 
 import (
@@ -26,154 +21,91 @@ import (
 )
 
 const (
-	// HeaderSize — размер u16 LE len-филда.
-	HeaderSize = 2
-	// ChecksumSize — хвост [preLast][last] (u16 LE wireLen).
-	ChecksumSize = 2
-	// MaxPacketSize — BUFFER_SIZE L2 (8192); L2 rejects packetSize > 8192 (canon: m_packetSize > BUFFER_SIZE).
-	MaxPacketSize = 8192
+	// MarkerC2S — Server64→CacheD.
+	MarkerC2S = 0xEB
+	// MarkerS2C — CacheD→Server64 (PutCmd_ACP инкремент — accache-канон).
+	MarkerS2C = 0xEC
+	// HeaderWire — len(2) + cmd(2) + marker(1) + ~cmd(2).
+	HeaderWire = 7
+	// MaxPayload — лимит тела (accache OnRead: cmp 0x2000).
+	MaxPayload = 0x2000
 )
 
 // Ошибки парсинга кадра.
 var (
-	// ErrShort — вход недостаточен даже для чтения len-филда (или len указывает больше, чем есть).
-	ErrShort = errors.New("wire: short frame")
-	// ErrBadSize — packetSize <= 0 или > MaxPacketSize (L2: «bad packet size» → Close).
-	ErrBadSize = errors.New("wire: bad packet size")
-	// ErrBadChecksum — контрольная сумма не совпала (L2: «Packet checksum is different» → Close).
-	ErrBadChecksum = errors.New("wire: packet checksum is different")
-	// ErrUnknownProto — opcode за пределами таблицы хандлеров (L2: «unknown protocol» → Close).
-	ErrUnknownProto = errors.New("wire: unknown protocol opcode")
+	ErrShort       = errors.New("wire: short frame")
+	ErrBadSize     = errors.New("wire: bad packet size")
+	ErrBadChecksum = errors.New("wire: packet checksum different")
+	ErrBadMarker   = errors.New("wire: bad marker")
 )
 
-// DummyCrypt — NO-OP (R2 вердикт 21.10).
-//
-// Доказательства:
-//  - L2 C1 MasterToma сурсы: L2Core/src/crypt/DummyCrypt.cpp (0x00435050) — тело
-//    функции ПУСТОЕ: UNUSED(data); UNUSED(key); UNUSED(length); — декрипта нет.
-//  - Aion 7.7 CacheD64.exe: семейство Utils.obj Decrypt/Encrypt/Decrypt2/Encrypt2
-//    (map: 0x1401b0360/0x1401b03e0/0x1401b0440/0x1401b04c0/0x1401b0570) не имеет
-//    НИ ОДНОЙ ссылки в бинаре — мёртвый код; алгоритм семейства снят (XOR-цепочка
-//    со staticTable 64Б @0x1402dccb0 и key[i&7]) — но он НЕ В WIRE-ПУТИ.
-//
-// Функция сохранена (API-стабильность + vestigial rolling-key канона).
-func DummyCrypt(data []byte, key uint32) {
-	_, _ = data, key // NO-OP: payload идёт в хандлер как есть (plaintext)
-}
-
-// Frame — разобранный кадр канала.
-// Opcode — uint16 (ТЗ map[uint16]Handler); на проводе — L2 C1 canon, 1 байт.
+// Frame — разобранный кадр.
 type Frame struct {
-	Opcode  uint16
-	Payload []byte // без opcode и без csum-хвоста
+	Cmd     uint16
+	Payload []byte // без cmd/marker/~cmd/csum
 }
 
-// Build — каноничный сборщик кадра (VAssemble-аналог): [u16 LE len][opcode][payload][csum].
-// csum = u16 LE от (packetSize + 2) = полной wire-длины.
-// Возвращает НЕзашифрованный wire-блоб (plaintext — R2 вердикт).
-// OpcodeWidth = 1 (L2 C1 канон); 2-байтовая форма = BuildW (журнал теорий #8:
-// RQ 381 > 255 у Aion — ширина НЕПОДТВЕРЖДЕНА, арбитр = live capture).
-func Build(opcode uint16, payload []byte) []byte {
-	return BuildW(Opcode1Byte, opcode, payload)
-}
+// BuildC2S — сборка кадра Server64→CacheD (маркер 0xEB).
+func BuildC2S(cmd uint16, payload []byte) []byte { return build(MarkerC2S, cmd, payload) }
 
-// BuildW — сборщик с явной шириной опкода на проводе.
-func BuildW(width OpcodeWidth, opcode uint16, payload []byte) []byte {
-	ps := int(width) + len(payload) // opcode + payload = размер тела без csum
-	wireLen := HeaderSize + ps + ChecksumSize
+// BuildS2C — сборка ответа CacheD→Server64 (маркер 0xEC, accache PutCmd_ACP).
+func BuildS2C(cmd uint16, payload []byte) []byte { return build(MarkerS2C, cmd, payload) }
 
-	body := make([]byte, 0, ps+ChecksumSize)
-	if width == Opcode2ByteLE {
-		body = append(body, byte(opcode&0xFF), byte(opcode>>8))
-	} else {
-		body = append(body, byte(opcode)) // канон L2 C1: opcode 1 байт
-	}
-	body = append(body, payload...)
-	// csum: (preLast + last<<8) - 2 == packetSize → u16 LE = packetSize + 2 = wireLen
-	csum := uint32(ps + ChecksumSize + 2)
-	body = append(body, byte(csum&0xFF), byte((csum>>8)&0xFF))
-
-	out := make([]byte, wireLen)
-	binary.LittleEndian.PutUint16(out, uint16(wireLen))
-	copy(out[HeaderSize:], body)
+func build(marker byte, cmd uint16, payload []byte) []byte {
+	total := HeaderWire + len(payload)
+	out := make([]byte, total)
+	binary.LittleEndian.PutUint16(out[0:], uint16(total)) // len = ПОЛНАЯ длина (и есть контроль — отдельного хвоста НЕТ, golden 0f000100ebfeff... = 15 без хвоста)
+	binary.LittleEndian.PutUint16(out[2:], cmd)           // cmd u16 LE
+	out[4] = marker                                       // 0xEB / 0xEC
+	inv := ^cmd                                           // ~cmd u16
+	binary.LittleEndian.PutUint16(out[5:], inv)           // ~cmd
+	copy(out[HeaderWire:], payload)                       // payload
 	return out
 }
 
-// Encoder — stateless-сборщик исходящих кадров (инварианты канона: len, csum-хвост).
-// L2 C1 Send НЕ шифрует — крипта outbound отсутствует (см. CServerSocket::Send).
-type Encoder struct{}
-
-// Encode собирает кадр канона.
-func (Encoder) Encode(opcode uint16, payload []byte) []byte { return Build(opcode, payload) }
-
-// Decoder — состояние соединения: rolling key (m_key).
-type Decoder struct {
-	key         uint32
-	opcodeWidth OpcodeWidth
+// Validate — проверка тела (buf = кадр БЕЗ первого len-поля, как accache Validate):
+// buf[0:2]=cmd, buf[2]=marker, buf[3:5]=~cmd; возвращает cmd.
+func Validate(buf []byte, wantMarker byte) (uint16, error) {
+	if len(buf) < 5 {
+		return 0, ErrShort
+	}
+	cmd := binary.LittleEndian.Uint16(buf[0:2])
+	if buf[2] != wantMarker {
+		return 0, ErrBadMarker
+	}
+	if inv := binary.LittleEndian.Uint16(buf[3:5]); inv != ^cmd {
+		return 0, fmt.Errorf("%w: cmd=%#x inv=%#x", ErrBadMarker, cmd, inv)
+	}
+	return cmd, nil
 }
 
-// OpcodeWidth — ширина опкода на проводе. Дефолт 1 = L2 C1 канон.
-type OpcodeWidth int
+// Decoder — state-машина разбора потока (порт accache OnRead).
+type Decoder struct {
+	Marker byte // ожидаемый маркер входящих кадров (C2S-сторона: 0xEB)
+}
 
-const (
-	Opcode1Byte   OpcodeWidth = 1
-	Opcode2ByteLE OpcodeWidth = 2
-)
+// NewDecoder — C2S-декодер (наш сервер читает 0xEB от Server64).
+func NewDecoder() *Decoder { return &Decoder{Marker: MarkerC2S} }
 
-// NewDecoder создаёт декодер с seed-ключом из конфига.
-func NewDecoder(seed uint32) *Decoder { return &Decoder{key: seed, opcodeWidth: Opcode1Byte} }
-
-// SetOpcodeWidth — переключение ширины опкода (R3: RQ 381 > 255 ⇒ Aion может
-// использовать 2-байтовые опкоды; арбитр = live capture, журнал теорий #8).
-func (d *Decoder) SetOpcodeWidth(w OpcodeWidth) { d.opcodeWidth = w }
-
-// Decrypt расшифровывает payload на месте (DummyCrypt).
-func (d *Decoder) Decrypt(payload []byte) { DummyCrypt(payload, d.key) }
-
-// Roll продвигает rolling key: m_key += m_packetSize.
-func (d *Decoder) Roll(packetSize int) { d.key += uint32(packetSize) }
-
-// Feed — state-машина разбора ОДНОГО полного кадра из buf:
-// [u16 LE self-len][зашифрованное тело].
-// Возвращает число съеденных байт (может быть 0 при ErrShort/ErrBadSize — буфер не трогаем)
-// или ошибку. Rolling key катится при УСПЕХЕ и при браке csum (как в ориге — m_key += m_packetSize
-// выполняется ДО проверки csum).
+// Feed — разбор ОДНОГО кадра из buf.
+// Возвращает число съеденных байт, кадр или ошибку.
 func (d *Decoder) Feed(buf []byte) (int, *Frame, error) {
-	if len(buf) < HeaderSize {
+	if len(buf) < 2 {
 		return 0, nil, ErrShort
 	}
-	packetSize := int(binary.LittleEndian.Uint16(buf)) - HeaderSize
-	if packetSize <= 0 || packetSize > MaxPacketSize {
-		// L2 canon: bad size → socket Close; R1: дропаем соединение на стороне вызывателя.
-		return 0, nil, fmt.Errorf("%w: %d", ErrBadSize, packetSize)
+	total := int(binary.LittleEndian.Uint16(buf[0:2])) // ПОЛНАЯ длина кадра
+	if total < HeaderWire {                            // минимум: заголовок
+		return 0, nil, fmt.Errorf("%w: total=%d", ErrBadSize, total)
 	}
-	if len(buf) < HeaderSize+packetSize {
+	if total > MaxPayload+HeaderWire {
+		return 0, nil, fmt.Errorf("%w: total=%d > max", ErrBadSize, total)
+	}
+	if len(buf) < total {
 		return 0, nil, ErrShort
 	}
-	frame := buf[HeaderSize : HeaderSize+packetSize]
-
-	d.Decrypt(frame)
-	d.Roll(packetSize) // канон: m_key += m_packetSize — до csum-проверки
-
-	last := int(frame[packetSize-1])
-	preLast := int(frame[packetSize-2])
-	checkSum := (preLast + (last << 8)) - 2
-	if checkSum != packetSize {
-		return packetSize + HeaderSize, nil, fmt.Errorf("%w: proto=%d len=%d check=%d",
-			ErrBadChecksum, frame[0], packetSize, checkSum)
+	cmd, err := Validate(buf[2:total-2], d.Marker)
+	if err != nil {
+		return total, nil, err
 	}
-
-	var op uint16
-	var pl []byte
-	if d.opcodeWidth == Opcode2ByteLE {
-		if packetSize < 2+ChecksumSize {
-			return packetSize + HeaderSize, nil, fmt.Errorf("%w: 2-byte opcode in tiny frame", ErrBadSize)
-		}
-		op = binary.LittleEndian.Uint16(frame[0:2])
-		pl = frame[2 : packetSize-ChecksumSize]
-	} else {
-		op = uint16(frame[0])
-		pl = frame[1 : packetSize-ChecksumSize]
-	}
-	return packetSize + HeaderSize, &Frame{Opcode: op, Payload: pl}, nil
+	return total, &Frame{Cmd: cmd, Payload: buf[HeaderWire:total]}, nil
 }

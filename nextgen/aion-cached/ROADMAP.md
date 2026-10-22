@@ -98,3 +98,17 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 | CallWorldProc: ErrProcMissing ДО SQL (exe-only 140) / ErrProcUnknown / {call dbo.<name>(?,...)} / Query→Exec-фолбэк | ✅ |
 | SQLStore (sql.Open, MaxOpenConns=10 = numberOfDBThreads) — заготовка под connStr с VM | ✅ каркас |
 | db_test: 781/155-versioned/140/132 инвентарные + QueryForm + ExecFallback | ✅ 6/6 |
+
+| 14 | **2007 interactive = ТЕКСТОВЫЙ протокол** (L2 C1 CAdminSocket.cpp: строки до '\n', packetId первым полем через ReadSocketArgs "dsss", текстовые ответы Send("0%d",3)) — НЕ бинарный GQ/GP! GQ/GP-опкоды из .profile = канал NPRelay (отдельный) | capture 2007 | ✅ реализовано: admin_text.go textline-ридер + dispatch по packetId → GQ-имена (теория-приближение), silent-ответы (формы = capture) |
+| 15 | **КАНОН-WIRE РЕВОЛЮЦИЯ**: R1-каркас был по L2 C1 (op 1Б, без маркера) — НЕСОВМЕСТИМ с golden-кадрами Aion. Правильный канон = ACCACHE-ФОРМАТ [len u16 total][cmd u16 LE][EB/EC][~cmd u16][payload] БЕЗ хвост-суммы (golden 0f000100ebfeff... = 15Б ровно, len-поле = контроль). u16-cmd закрывает теорию #8 (381>255 влезает) | golden-кадры (доказано) | ✅ **wire.go переписан 22.10**: BuildC2S/BuildS2C/Feed/Validate + TestGoldenAccacheFrame |
+
+## R3 GQ/GP + 2007 (22.10, часть 3)
+
+| Кусок | Статус |
+|---|---|
+| 2007 = текстовый interactive (L2 C1 канон): admin_text.go textline + packetId-dispatch (GQ-имена, теория #14) | ✅ MVP |
+| e2e-тесты: TestAdminServerPingE2E (бинарный ping), TestAdminTextE2E (2007 textline), TestServerUnknownSilent | ✅ 3/3 |
+| wire-канон РЕВОЛЮЦИЯ → accache-формат (теория #15): wire.go переписан, golden-кадр тест | ✅ |
+| серверные тест-хуки: SetListenerForTest/ServeOnTest(ch) | ✅ |
+| GQ/GP бинарный NPRelay-канал (порт из конфига NPCRelay — TBD) | ⬜ |
+| Текстовые ответы interactive (Send("0%d",3)-формы) | ⏳ capture |

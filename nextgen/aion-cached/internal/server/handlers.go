@@ -71,20 +71,20 @@ func Route(ch Channel, frame *wire.Frame) []byte {
 		return nil
 	}
 
-	name := rpc.Name(protoIdx, frame.Opcode)
-	h, ok := table[frame.Opcode]
+	name := rpc.Name(protoIdx, frame.Cmd)
+	h, ok := table[frame.Cmd]
 	if !ok {
 		log.Printf("[cached] %s unhandled %s (op=%d) len=%d — dropped (silent policy)",
-			chanName, name, frame.Opcode, len(frame.Payload))
-		ship.Emit(ship.Event{Channel: chanName, Opcode: frame.Opcode, Name: name,
+			chanName, name, frame.Cmd, len(frame.Payload))
+		ship.Emit(ship.Event{Channel: chanName, Opcode: frame.Cmd, Name: name,
 			Bytes: len(frame.Payload), Status: "unhandled"})
 		return nil
 	}
 	log.Printf("[cached] %s dispatch %s (op=%d, %d bytes payload)",
-		chanName, name, frame.Opcode, len(frame.Payload))
-	ship.Emit(ship.Event{Channel: chanName, Opcode: frame.Opcode, Name: name,
+		chanName, name, frame.Cmd, len(frame.Payload))
+	ship.Emit(ship.Event{Channel: chanName, Opcode: frame.Cmd, Name: name,
 		Bytes: len(frame.Payload), Status: "dispatched"})
-	return h(ch, frame.Opcode, frame.Payload)
+	return h(ch, frame.Cmd, frame.Payload)
 }
 
 // hPing — RP_PING (not-found форма, L2 C1 packet144_RequestPing.cpp канон):
@@ -104,18 +104,17 @@ func hPing(ch Channel, opcode uint16, payload []byte) []byte {
 	p3 := le32(payload[12:16])
 	p4 := le32(payload[16:20])
 	// RAM-модели юзеров нет (R4) — always not-found ветка (штатная у ориг).
-	resp := make([]byte, 33) // 1 + 8*4
-	resp[0] = byte(rpPing)
-	put32(resp[1:], p2)
-	put32(resp[5:], p3)
-	put32(resp[9:], p4)
-	put32(resp[13:], p1)
-	put32(resp[17:], uint32(time.Now().Unix())) // pingReceivedTimestamp
-	// [21:33] = нули
+	resp33 := make([]byte, 32) // 8 dwords: [p2][p3][p4][p1][ts][0][0][0]
+	put32(resp33[0:], p2)
+	put32(resp33[4:], p3)
+	put32(resp33[8:], p4)
+	put32(resp33[12:], p1)
+	put32(resp33[16:], uint32(time.Now().Unix())) // pingReceivedTimestamp
+	// [20:32] = нули
 	log.Printf("[cached] ping char=%d (not-found form, L2 C1 canon)", charId)
 	ship.Emit(ship.Event{Channel: chanName(ch), Opcode: opcode, Name: "RP_PING",
 		Bytes: len(payload), Status: "notfound"})
-	return wire.Build(rpPing, resp[1:])
+	return wire.BuildS2C(rpPing, resp33)
 }
 
 // hVersion — C2S "d" [clientProtocolVersion]; S2C форма "cd" доказана L2 C1
