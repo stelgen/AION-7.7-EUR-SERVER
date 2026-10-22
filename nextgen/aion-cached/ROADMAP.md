@@ -129,3 +129,4 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 | Гоча: double-consume pending[consumed:] (panic [15:0]) — фикс | ✅ |
 | GQ-раскладки payload (54 ops) | ⏳ capture R4 |
 | GP-ответы | ⏳ capture R4 |
+| 17 | **ГОТЧА-канон e2e**: `body = frame[2:]` ⇒ payload@body[**5**] (HeaderWire=7, минус len-поле 2 = 5; НЕ body[7]!). ts в p[16:20], нули p[20:32]. Поймано e2e-пингом (echo-поля сдвигались на 2) | любой S2C-парсинг в тестах | ✅ закодировано в TestAdminServerPingE2E (+комментарий) |
