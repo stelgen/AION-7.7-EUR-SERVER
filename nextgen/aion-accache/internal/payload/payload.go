@@ -158,12 +158,11 @@ func ParseFatigueReq(p []byte) (*FatigueReq, error) {
 	}, nil
 }
 
-// UpdateTrialReq (cmd 8 C2S): [accId] + 9 u32.
-// Capture: accId, ts(0x6AC620A3), 0, 0x395(917), 0, 0x46(70), 0, 0, 0, 0.
-// Гипотеза ролей по aion_SetTrialAccountData(accId, updateTime, resetTime, sellGold,
-// tradeGold, decomposeSum, gatherSum, extractGatherSum): updateTime=P1, resetTime=P2,
-// sellGold=P3(917), tradeGold=P4, decomposeSum=P5(70), gatherSum=P6, extractGatherSum=P7,
-// P8/P9 = pad — ЖУРНАЛ теорий, арбитр R4.
+// UpdateTrialReq (cmd 8 C2S): [accId] + 9 u32 (канон R5-live 22.10, Т23 — прод-факт):
+// [accId][P1=updateTime][P2=resetTime][P3=sellGold][P4=РЕЗЕРВ=0][P5=tradeGold]
+// [P6=decomposeSum][P7=gatherSum][P8=extractGatherSum][P9=pad=0].
+// P4 = тот самый CONST0 из trial-ответа (S2C 0x06 dword4). Роль «P4=tradeGold»
+// опровергнута прод-записью (затёрла trade 70→0). Проц-вызов пропускает P4/P9.
 type UpdateTrialReq struct {
 	AccountID                        uint32
 	P1, P2, P3, P4, P5, P6, P7, P8, P9 uint32

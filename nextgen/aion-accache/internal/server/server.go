@@ -359,10 +359,13 @@ func hUpdateTrial(s *S, c *Conn, cmd uint16, pl []byte) {
 		return
 	}
 	if s.exec != nil {
+		// R5-live 22.10 (Т23, прод-факт затёртого trade): C2S = [acc][P1 upd][P2 reset][P3 sell]
+		// [P4 РЕЗЕРВ=0][P5 trade][P6 decompose][P7 gather][P8 extract][P9 pad] — P4/P9 в SQL
+		// НЕ идут (P4 = тот самый CONST0 из trial-ответа). Роль P4=tradeGold была ОШИБОЧНОЙ.
 		args := &db.UpdateTrialArgs{
 			UpdateTime: int32(r.P1), ResetTime: int32(r.P2),
-			SellGold: int64(r.P3), TradeGold: int64(r.P4),
-			DecomposeSum: int32(r.P5), GatherSum: int32(r.P6), ExtractGatherSum: int32(r.P7),
+			SellGold: int64(r.P3), TradeGold: int64(r.P5),
+			DecomposeSum: int32(r.P6), GatherSum: int32(r.P7), ExtractGatherSum: int32(r.P8),
 		}
 		if err := db.SetTrialAccountData(context.Background(), s.exec, int32(r.AccountID), args); err != nil {
 			s.logf("updatetrial db.err acc=%d err=%v", r.AccountID, err)
