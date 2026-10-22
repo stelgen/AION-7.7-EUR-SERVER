@@ -169,6 +169,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	mode := modeServer // Server64 по умолчанию; NPRelay64 переключает handshake'ом
 	var sess rpc.Session // R4.5: сессионные поля из cmd=288 (X/a/accId)
 	sessSet := false
+	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
 
 	for {
 		n, err := conn.Read(buf)
@@ -232,9 +233,24 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 					} else {
 						log.Printf("[cached] %s RQ_LOAD_ITEM page=%d → chain replay %d bytes", name, page, len(chain))
 					}
+				case 201: // R4.7.1: NPCSvr-коннект (0x0C9) — переключение в NPCSvr-replay
+					if npcReplay == nil {
+						npcReplay = rpc.NewNpcSrvReplay()
+						log.Printf("[cached] %s NPCSvr-коннект обнаружен (cmd=201) — NPCSvr-режим ВКЛ", name)
+					}
+					resp = append(resp, npcReplay.EmitNpcSrv(frame.Cmd)...)
 				case 278: // C> 0x116 (world-ready) → вторая пачка RP-подтверждений (Т39)
 					resp = append(resp, rpc.BuildAcks(rpc.AcksAfterWorldReady, sess)...)
 					log.Printf("[cached] %s world-ready → %d acks", name, len(rpc.AcksAfterWorldReady))
+				}
+				// R4.7.1: NPCSvr-кадры (после session-блока) — replay цепочек
+				if npcReplay != nil {
+					switch frame.Cmd {
+					case 161, 211, 248, 215, 178, 325, 326, 311:
+						if r := npcReplay.EmitNpcSrv(frame.Cmd); len(r) > 0 {
+							resp = append(resp, r...)
+						}
+					}
 				}
 			}
 			if len(resp) > 0 {
