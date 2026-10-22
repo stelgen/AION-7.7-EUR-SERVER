@@ -5,6 +5,16 @@
 AION aion-accache — ПРОДОЛЖЕНИЕ (прочитай память STELGEN/projects/aion_server_2026-10-02
 + ROADMAP.md + RESEARCH.md + README.md).
 
+⚡ АКТУАЛЬНО (22.10 вечер, супersedes R1-цель ниже): R4 ЗАКРЫТ — offline replay 16/16 +
+LIVE A/B VERDICT байт-в-байт (канал = accmirror v1.3 shadow-tap :2220→:2221 + тень :2222
+read-only, задача AionAccShadow; каноны в README VERDICT-таблица + ROADMAP Т1-Т22).
+СЛЕДУЮЩИЙ ШАГ = writes-enable SQL-дифф: на тени :2222 config-shadow.yaml
+db.read_only=false (по «го») → логин юзера → SQL-дифф записей (Т15: вариант
+SetLoginUser — снять global_char_id/class_type/race_type ДО/ПОСЛЕ; Т17 ll/lo) →
+R5 свитч по «го» (retarget задачи AionAcc на run.cmd тени; откат = retarget обратно).
+Инфра-готчи: рестарт тени НЕ рвёт тап (accmirror v1.3 auto-reconnect); большой exe =
+JSON+curl --data-binary; прод-действия только по «го».
+
 ГДЕ МЫ: каркас R2 готов и запушен (nextgen/aion-accache, Go: proto [u16 len-2][u16 cmd][0xEB][~cmd]
 лимит 0x2000/cmd≥0x6C reject; dispatch T1 cmds 0..39 (cmd 22 не занят) + T2 0-7; RAM-кэш;
 db-интерфейс {call}-обёртки; server с state-машиной OnRead; ship 2220; тесты зелёные).

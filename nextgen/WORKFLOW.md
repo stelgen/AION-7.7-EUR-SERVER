@@ -17,7 +17,7 @@
 | captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | aion-captcha/SNAPSHOT.md | ✅ в бою (~95%) |
 | op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | 🟢 100% (Phase 1 + 1.5 ДЕПЛОЙ 22.10: await + watchdog, `watchdog.enabled:false` — вкл. по «го») |
 | authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | ✅ R6 в бою ~90% (свитч 09.10, хвосты R6) |
-| accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | 🟢 ~88% (R4 offline 16/16 + R3 SQLStore ✅ 22.10; live A/B = деплой по «го») |
+| accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | 🟢 ~90% (R4 ✅ offline+live A/B VERDICT 22.10; остаток = writes-дифф Т15 → R5 по «го») |
 | cache / CacheD64 / 2006 | CacheD64.exe | [aion-cache/](aion-cache/) | ROADMAP.md / PROMPT.md | 🔬 ~20% (R0+R1-prep ✅, кода нет) |
 | ic / ICServer / 2005/2305 | ICServer.exe | [aion-ic/](aion-ic/) | ROADMAP.md / PROMPT.md | ⬜ не начат |
 | chat / ChannelChat / 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ROADMAP.md / PROMPT.md | ⬜ не начат (низший) |

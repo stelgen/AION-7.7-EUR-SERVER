@@ -1,6 +1,6 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-🟢 **~88% · R3 SQLStore ✅ 22.10 (код+тесты; живой прогон = с live A/B) · R4 offline ЗАКРЫТ 22.10: replay 16/16 (100%)** — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
+🟢 **~90% · R4 live A/B ✅ 22.10: VERDICT — все наблюдаемые cmds байт-в-байт** (3 раунда на accmirror-стенде, тень :2222 read-only; единственный байт-дифф = ACP_20[5] lastLogin — структурный Т10-М2, механизм freeze совпадает) · R3 SQLStore ✅ (EXEC @pN, живой прогон read-пути) · R4 offline ✅ 22.10: replay 16/16 (100%) — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
 Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-11).
 
 ## Канон (доказано дизasmом, не догадки)
@@ -44,6 +44,24 @@ R4 replay (TestR4ReplayCapture в internal/server/replay_r4_test.go): автон
 **R4-финал 22.10: 16/16 (100%) байт-в-байт.** Golden-пуши дополнительно
 закреплены тестом TestR4PushGoldens (internal/payload) — обе сессии, оба чара.
 Расхождение = XFAIL-отчёт — тест НЕ падает, покрытие фиксируется (см. ROADMAP R4).
+
+## 🧾 VERDICT live A/B (22.10, accmirror v1.3 + тень :2222 read-only)
+
+| cmd | Вердикт | Примечание |
+|---|---|---|
+| VERSION (1) + ACP_13 (0x0D) | ✅ SAME (3 раунда) | ACP_13 = [ts] константа 0x640831AE после VERSION-ответа (1:1:1) |
+| FIRST_LOAD (4) | ✅ SAME | ts = hidden_fatigue_updatetime из БД; point=1 clamp (Т4/Т6 live) |
+| LOAD_BM_PACK (5) | ✅ SAME | count=0 |
+| S2C 0x15 (ответ на ASK_JUMPING 0x1F) | ✅ SAME | канон переехал с «пуша после BM» (Т2 опровергнута live 5/5) |
+| trial-ответ (S2C 0x06 на LOAD_TRIAL) | ✅ SAME | sell=917/trade=70 из БД; C2S UPDATE_TRIAL несёт те же поля (Т3 live) |
+| UPDATE_LUNA (27) | ✅ SAME | префикс = [acc&0xFF][00][01][00] (F2/FF — Т20) |
+| LOAD_LUNA (26) | ✅ SAME | ts = limit_play_reset_time (Т1 live) |
+| CHAR_LOGIN (16) + ACP_15 (0x0F) + CONFIRM_LUNA (0x1C) | ✅ SAME | кластер 15→20→28; ACP_15 dword3: 3 (существующие) vs 22 (новый чар) = Т19 ⏳ |
+| ACP_20 (0x14) | 🟡 СТРУКТУРНЫЙ | [13]=maxLevel SAME, [12]=flag SAME; [5]=lastLogin: значения различаются возрастом entry (ориг заморожен с 06:53, наш с создания entry) — механизм Т10-М2 совпадает, арбитр = дизasm |
+| CHAR_LEVEL_CHANGED / UHF / LOGOUT / JUMPING / TRANSFORM (C2S) | ✅ тишина | совпадает с ориг |
+| Записи в БД | ⏸ read_only | Exec глушится (Т15 SQL-дифф = следующий этап по «го»); Т17 ll/lo подтверждена телом proc + живой БД (ll=штамп логина, lo=штамп логаута) |
+
+Инфраструктура A/B: accmirror v1.3 (front :2220 → copy :2221, shadow-tap с авто-реконнектом, кадры тени = S> в общем логе), тень aion-accache :2222 (задача AionAccShadow, db.read_only=true, aionop_ro гранты: EXEC ×4 + SELECT global_user_data). Откат: bak-v11 exe/run.cmd; тень независима.
 
 ## Что осталось
 

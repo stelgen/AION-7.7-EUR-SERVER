@@ -73,7 +73,7 @@ flowchart LR
 | Капча | CAPTCHAImageServer `:22206` | `nextgen/aion-captcha` (Go) | ✅ ~95% в бою 05.10 (буфер 10000 за ~4с против 6.4 мин); ship file-фолбэк 21.10, ждёт порт 514/UDP |
 | Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ **100% РЕЛИЗ** (`b363dda`, exe `f146a415` 10.10): авт-хвосты закрыты live (T3/T4/T5 ✅), остался опц. T2-а; ⚠ мир-хвост 2-го параллельного клиента (GS-вход) → aion-main |
 | Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | ✅ **R6 В БОЮ ~90% (09.10)**: живой путь 2110+2104; полный цикл юзера + мгновенный перелогин; наблюдение 24ч |
-| Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟢 ~88%: **R4 offline ✅ 22.10 (replay 16/16) + R3 SQLStore ✅ 22.10** (GetUserInfo + SetLogin/SetLogout по телам REF58); живой A/B = деплой по «го» |
+| Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | 🟢 ~90%: **R4 ✅ 22.10 — offline (replay 16/16) + LIVE A/B VERDICT байт-в-байт** (accmirror v1.3 shadow-tap + тень :2222 read-only); остаток = writes-дифф (Т15) → R5 по «го» |
 | Кэш мира | CacheD64 `:2006/2007/2009` | `nextgen/aion-cached` (Go) | 🟢 ~80%: R1 wire-каркас + R2 (DummyCrypt = NO-OP, wire = plaintext) + R3 MVP-диспетчер (765 опкодов/8 протоколов) + DB-слой 781 procs + 2007 текстовый + GQ/GP NPRelay per-conn ✅ 21–22.10; остаток = read-раскладки (capture R4) → A/B → свитч |
 | Interchange | ICServer `:2005/2305` | `nextgen/aion-ic` | 🔬 ~10%: ресёрч закрыт 07.10 (IC опционален); R0 ждёт |
 | Мир-симуляция | NPCSvr64 | `nextgen/aion-npc` | 🔬 ~15% деприор: R0 ✅, R1 ⏸ (до прогресса соседей) |
@@ -106,7 +106,7 @@ flowchart LR
 |---|---|---|---|---|
 | 1 | Телеметрия rsyslog→Loki→Grafana + `ship.enabled: true` в прод-конфигах | 🟢 полдня | 🟢 ~90% | nextgen/TELEMETRY-SPEC.md |
 | 2 | Деплой 2 REF58-проц (UpdateTotalMainStatus/InsertServerinfo) + metric1-4 → logdb | 🟢 1 день | 🟢 ~80% | scripts/sql/ref58-logprocs-pending-20261005.sql |
-| 3 | **nextgen главный поток**: accache live A/B (деплой стенд-сборки по «го») → cached R3-хвосты (read-раскладки; R1/R2/R3-MVP ✅ 21–22.10) → authd R6-хвосты → op watchdog вкл. по «го» (гейт = финал) | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
+| 3 | **nextgen главный поток**: accache writes-дифф (Т15, по «го») → R5 → cached R3-хвосты (read-раскладки; R1/R2/R3-MVP ✅ 21–22.10) → authd R6-хвосты → op watchdog вкл. по «го» (гейт = финал) | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
 | 4 | Ghidra-silence луперов 10100/10254/2107 (один проход закроет все три) | 🟡 1–2 дня | 🟡 ~60% | fixes-pending/loops-shopagent-channelchat-petition |
 | 5 | Матчмейкер арен на одном MainServer (JZ→JNZ на IsEventServer, AKllX) | 🟡 дни | 🟡 ~50% | fixes-pending/108-matchmaker-arenas |
 | 6 | Manastone-стек фикс MainServer64 (только чистый exe, ENIGMA = риск бэкдора) | 🟠 нед | 🟡 ~50% | fixes-pending/111-mainserver64-manastones |

@@ -14,16 +14,16 @@
 | R1 | ✅ | **capture + wire-канон 10.10**: accmirror v1.1 (:2220→:2221) + копия ACS-2221; 2 логина; дизasm OnRead/GetCmd_ACQ → **len=total** (офф-бай-2 в v1.0/каркасе исправлен), маркеры EB/EC, 0 bad frames на всём capture (RESEARCH §11). Стенд ОСТАВЛЕН работать (дозахват) |
 | R2.5 | ✅ | **Раскладки 10.10**: internal/payload (Version/FirstLoad/BM/Luna/CharLogin/Logout/Fatigue с UTF-16 stamp) на живых golden-кадрах, тесты зелёные; tools/accparse.py v2; frames.txt в capture-артефактах. Хвосты в R3: роли полей Fatigue/Trial (PDB I,H,I,I,I), push 13/15/20/21, T2-канал |
 | R3 | ✅ код 22.10 | SQLStore-каркас (go-mssqldb, MaxOpenConns=10); R3 22.10: db.GetUserInfo (SELECT last_login_time + MAX(user_level) FROM global_user_data — read-proc в 101 procs REF58 НЕТ, проверено; DATEDIFF → int64), db.SetLoginUser/SetLogoutUser_20120703 (char_id, server_id, cur_server_id, login/logout_time datetime — тела REF58), config db.server_id (дефолт 1 кодом); хендлеры: hCharLogin = GetUserInfo (pre-login значение) → resp+пуши → SetLoginUser; hCharLogout → SetLogoutUser; тесты db (формы/аргументы) + e2e login/logout SQL. Живой прогон на AionAccountCacheD_rc = вместе с live A/B (деплой по «го») |
-| R4 | ✅ offline 22.10 | **replay 16/16 (100%) байт-в-байт** (TestR4ReplayCapture на capture-20261007): 4 XFAIL-пуша реализованы и закреплены TestR4PushGoldens (обе сессии, оба чара). Live A/B fork-прогон с оригом — после R3 SQLStore |
+| R4 | ✅ offline + live 22.10 | **offline: replay 16/16 (100%)**; **live A/B (3 раунда на стенде :2220→:2221, тень :2222 read-only): VERDICT — все наблюдаемые cmds байт-в-байт** (таблица в README); единственный байт-дифф = ACP_20[5] lastLogin — структурный (Т10-М2, механизм freeze совпадает, значения = возраст entry) |
 | R5 | ⏳ | Свитч по «го» (задача AionAcc retarget на D:\SAION\aion-accache\run.cmd; откат = retarget обратно) |
 
-## ⏭️ Следующий шаг (R4 live A/B)
+## ⏭️ Следующий шаг (writes-enable SQL-дифф → R5)
 
-Деплой стенд-сборки aion-accache с SQLStore (connStr AionAccountCacheD_rc — секрет на VM;
-гранты aionop_ro по образцу logdb) на accmirror-стенд (:2221-копия БЕЗ свитча прод) →
-живой логин юзера → байт-дифф пушей + SQL-дифф (account_data/global_user_data:
-SetLoginUser/SetLogoutUser эффекты, Т15-вариант proc, таймзона Т16) → R5 свитч по «го».
-ДЕПЛОЙ НА СТЕНД = прод-действие — по «го» юзера (ACS-2221 в Console-сессии юзера).
+1. **Writes-enable на тени** (по «го»): db.read_only=false на стенде :2222 → логин юзера →
+   SQL-дифф записей (account_data/global_user_data: наши SetLoginUser/SetLogoutUser_20120703
+   эффекты vs ориг; Т15-вариант proc — снять global_char_id/class_type/race_type до/после).
+2. R5 свитч по «го»: retarget задачи AionAcc на D:\SAION\aion-accache\run.cmd (откат = retarget обратно);
+   конфиг прод (connStr, server_id) из тени; наблюдение 24ч.
 
 ## R1-детали (архив 10.10 — выполнено)
 
@@ -66,7 +66,12 @@ SetLoginUser/SetLogoutUser эффекты, Т15-вариант proc, таймз�
 | Т14 | ACP_15[4] = 0x000A07EA (657386) | ⏳ константа во всех кадрах; не acc/char/ts. На паритет не влияет |
 | Т15 | Какой вариант SetLoginUser зовёт ориг: 20120703 (4 арг) vs 20121120/20121206 (+global_char_id/class_type/race_type; 20121206 ещё и delete_date=0) | ⏳ арбитр = live A/B SQL-дифф: наши 20120703-вызовы НЕ трогают global_char_id/class/race — если у ориг после логина они меняются, variant = 20121206 (тогда источники аргументов = RAM-модель ACS) |
 | Т16 | Таймзона штампа Server64 в C2S CHAR_LOGIN/LOGOUT («2026-10-22T06:53:11.620») | ⏳ парсим как UTC (time.Parse без зоны); арбитр = live A/B SQL-дифф last_login_time vs штамп |
-| Т17 | SetLoginUser ставит last_logout_time = @login_time (тело 20120703/20121206!) — инвариант ll==lo после логина | ✅ из тела proc; объясняет часть RAM-race наблюдений Т10 (значение ll после логина = время логина, lo = то же до SetLogoutUser) |
+| Т17 | SetLoginUser ставит last_logout_time = @login_time (тело 20120703/20121206!) — инвариант ll==lo после логина | ✅ из тела proc + LIVE-БД (22.10): ll = секунда-в-секунду штамп логина, lo = штамп логаута (после выхода ll≠lo — как и должно) |
+| Т18 | FIRST_LOAD point = RAM-sticky/clamp(1) | ✅ live 22.10: DB point=0 → ориг отвечает 1 (3 раунда); реализовано (clamp+RAM) |
+| Т19 | ACP_15[2] (dword3): 3 (существующие чары) vs 22 (новосозданный чар 1005) | ⏳ роль неизвестна (не acc/char/ts/level); арбитр = следующий capture с созданием чара / дизasm |
+| Т20 | UPDATE_LUNA-префикс = [acc&0xFF][00][01][00] | ✅ live (1010→F2, 1023→FF); «константа F2» из capture-20261007 = артефакт одного аккаунта |
+| Т21 | C2S CHAR_CREATED (0x0F) = сессионная раскладка [1][charRef][stamp][tail] | ✅ live (новый акк 1023/чар 1005); proc SetCreateUser-аргументы = другой канал ⏳; старый парс дал бы мусорную запись — read_only спас прод |
+| Т22 | go-mssqldb НЕ поддерживает ODBC {call ...} | ✅ live-инцидент (Incorrect syntax near '{'); эталон синтаксиса = aion-authd (EXEC dbo.proc @pN) |
 | Т9 | CHAR_LOGIN reply приходит РАНЬШЕ replies на предыдущий батч (UPDATE_LUNA/LOAD_LUNA после CHAR_LOGIN) | ✅ ACS многопоточен (numberOfDBThreads=10) — порядок replies недетерминирован; выравнивание по cmd |
 
 ## R4 итог 21.10
