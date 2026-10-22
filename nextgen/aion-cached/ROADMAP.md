@@ -132,3 +132,23 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 | 17 | **ГОТЧА-канон e2e**: `body = frame[2:]` ⇒ payload@body[**5**] (HeaderWire=7, минус len-поле 2 = 5; НЕ body[7]!). ts в p[16:20], нули p[20:32]. Поймано e2e-пингом (echo-поля сдвигались на 2) | любой S2C-парсинг в тестах | ✅ закодировано в TestAdminServerPingE2E (+комментарий) |
 
 📊 сосед узнал (22.10, от accache R5/live A/B): (1) accache СВИТЧЕН В ПРОД — :2220 теперь наш aion-accache (ориг отведён); для cached это значит: common.xml accountCachedPort=2220 ведёт к НАШЕМУ сервису, его wire/SQL-паттерны (EXEC dbo.proc @pN — Т22 go-mssqldb) переиспользуем в aion-cached DB-слое; (2) op-events proc_missing у CacheD64 (aion_GetItemCollection*/aion_GetItemCollectionExpiredList/aion_GetItemCollectionComplete*/aion_LoadFameInfo/aion_LoadReinventInfo/aion_GetItemCollectionLevelList/aion_getItemAttributeDeltaListAll_20190919/aion_GetItemAttributeDeltaListAllVendorDark|Light_20190919/aion_DeleteItemByDate_20191206) — живое подтверждение exe-only procs из инвентаря 140 (теория #13: ErrProcMissing как A/B-маркер верна); (3) accache lesson: write-раскладки не проверяются read-only тенью — для cached R5 ставить A/B на живые WRITE тоже (или стенд с write).
+
+## R3-семантика из hourly-логов (22.10, Т24) — read-only, без «го»
+
+**ПОПРАВКА R0-факта:** «log/*.log = RPC-строки с параметрами» — НЕподтвердилось: hourly .log
+маленькие (10-14КБ/час), RPC-трассировки НЕ содержат; .err = ODBC-диагностика/сироты/AlivePacket
+(RQ_ строк: 0). Ценность другая — СЕМАНТИЧЕСКИЕ СЛЕДЫ хендлеров (см. cached-ref/logs-hourly/):
+
+| След | Канон |
+|---|---|
+| `[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)` | на КАЖДЫЙ чар-селект (после logout-флоу ACS); charID в логе = последний контекст ⏳ |
+| `[char]enter world 1010/1002 lev80 110010000(pos)` / `[char]leave world ...` | вход/выход из мира; ID+позиция = персистентные из БД (последнего выхода) |
+| `LoadClientQuickBar ::== characterId(100X)` | quickbar-загрузка |
+| `thahn client setting:RP_LOAD_SKILL_COOLTIME...` | RP-имена сверяются со словарём .profile ✓ |
+| Старт-цепочка | CheckDatabase → CleanUp ×13 → VendorDb::CreateIndex → Poll → IOThread → 2007/2009 ready → 2006 ready → log server |
+| Память | VendorDb.cpp pool ≈90% TOTAL RAM — вендор-данные в RAM (для RAM-моделей R3) |
+
+**ВЫВОД:** wire-раскладки read-пути из логов НЕ выводятся — ТОЛЬКО live capture
+(fork-сдвиг 2006→2016 по «го» / pktmon). Семантика-порядок = Т24 (канон выше).
+Мир при тестах юзера сыпет proc_missing (ItemCollection*/LoadFameInfo/LoadReinventInfo) —
+exe-only procs подтверждены живьём (теория #13).

@@ -1,0 +1,356 @@
+26-10-22 06:05:34:AION CacheServer64 77.20.0604.15625 (2020-06-04 16:25:41)
+26-10-22 06:05:34:Loading Item Info
+26-10-22 06:05:54:CheckDatabase() success.
+26-10-22 06:05:54:CheckDatabaseSettings() succeed
+26-10-22 06:05:54:Preparing DBTable
+26-10-22 06:05:54:Load Ignore List All
+26-10-22 06:05:54:CleanUp Dispersed Guild
+26-10-22 06:05:54:CleanUp Invalid Guild
+26-10-22 06:05:54:CleanUp Deleted Item
+26-10-22 06:05:54:CleanUp SellToNpc Item
+26-10-22 06:05:54:CleanUp Extracted Item
+26-10-22 06:05:54:CleanUp delete by DB_operator
+26-10-22 06:05:54:CleanUp delte by Authoriz Fail
+26-10-22 06:05:54:CleanUp delete by used Item Upgrade
+26-10-22 06:05:54:CleanUp items deleted by buy recovery
+26-10-22 06:05:54:CleanUp Deleted Enslave Stone
+26-10-22 06:05:55:CleanUp Expired OfflineBuddy Request
+26-10-22 06:05:55:CleanUp UserUsedItemOnTrading
+26-10-22 06:05:55:Fix remote Buddy to Local Buddy
+26-10-22 06:05:55:CleanUp Old limitedSales history
+26-10-22 06:05:55:Initializing Vendor DB
+26-10-22 06:05:55:VendorDb::CreateIndex(),Loading vendor database...
+26-10-22 06:05:55:VendorDb::CreateIndex(),Loading vendor database...
+26-10-22 06:05:55:Initializing Poll
+26-10-22 06:05:55:Creating IOThread
+26-10-22 06:05:55:*interactive socket ready on port 2007
+26-10-22 06:05:55:*interactive socket ready on port 2009
+26-10-22 06:05:55:*cache server ready on port 2006
+26-10-22 06:05:55:Connected to log server
+26-10-22 06:05:55:Time difference with the Log-Server is 0.00 seconds
+26-10-22 06:05:55:*socket create 7a0(281974e0)
+26-10-22 06:05:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.06.05.58.profile
+26-10-22 06:05:58:-------------------------------------------------------------------------------------------------
+26-10-22 06:05:58: TOP 50  Memory eater list
+26-10-22 06:05:58:-------------------------------------------------------------------------------------------------
+26-10-22 06:05:58:percent ;    total size    ;	count ;  avg size  ; type ; place 
+26-10-22 06:05:58:-------------------------------------------------------------------------------------------------
+26-10-22 06:05:58: 96.5%  ;        196706144 ;  1400302 ;        140 ; POOL ; VendorDb.cpp(33) 
+26-10-22 06:05:58: 02.2%  ;          4474736 ;      380 ;      11775 ; POOL ; d:\_build\src\shared\MemoryMan.h(686) 
+26-10-22 06:05:58: 01.1%  ;          2280960 ;      891 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4889) 
+26-10-22 06:05:58: 00.1%  ;           197568 ;     1281 ;        154 ; POOL ; Main.cpp(1644) 
+26-10-22 06:05:58: 00.0%  ;            85632 ;      328 ;        261 ; POOL ; LogSystem.cpp(559) 
+26-10-22 06:05:58: 00.0%  ;            71680 ;        7 ;      10240 ; POOL ; ..\..\Shared\IoCompletion.cpp(2439) 
+26-10-22 06:05:58: 00.0%  ;            23040 ;        9 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4853) 
+26-10-22 06:05:58: 00.0%  ;            19872 ;      111 ;        179 ; POOL ; ..\..\SHARED\ServerNameManager.cpp(17) 
+26-10-22 06:05:58: 00.0%  ;             3584 ;        1 ;       3584 ; POOL ; LogSystem.cpp(420) 
+26-10-22 06:05:58: 00.0%  ;             2240 ;        7 ;        320 ; POOL ; DBConn.cpp(784) 
+26-10-22 06:05:58: 00.0%  ;             1680 ;        6 ;        280 ; POOL ; ..\..\SHARED\ServerReport.cpp(16) 
+26-10-22 06:05:58: 00.0%  ;             1280 ;        1 ;       1280 ; POOL ; ..\..\Shared\Perfmon.cpp(156) 
+26-10-22 06:05:58: 00.0%  ;             1024 ;        1 ;       1024 ; POOL ; ICClient.cpp(106) 
+26-10-22 06:05:58: 00.0%  ;              640 ;        1 ;        640 ; POOL ; ..\..\Shared\LogClient.cpp(88) 
+26-10-22 06:05:58: 00.0%  ;              560 ;        7 ;         80 ; POOL ; d:\_build\src\shared\IoCompletion.h(1250) 
+26-10-22 06:05:58: 00.0%  ;              480 ;        3 ;        160 ; POOL ; LogSystem.cpp(118) 
+26-10-22 06:05:58: 00.0%  ;              384 ;        1 ;        384 ; POOL ; ..\..\Shared\LogClientSocket.cpp(31) 
+26-10-22 06:05:58: 00.0%  ;              256 ;        1 ;        256 ; POOL ; ..\..\Shared\IoCompletion.cpp(3889) 
+26-10-22 06:05:58: 00.0%  ;              240 ;        2 ;        120 ; POOL ; VendorDb.cpp(714) 
+26-10-22 06:05:58: 00.0%  ;              192 ;        2 ;         96 ; POOL ; (null)(0) 
+26-10-22 06:05:58: 00.0%  ;              192 ;        2 ;         96 ; POOL ; ..\..\SHARED\FileLog.cpp(254) 
+26-10-22 06:05:58: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(542) 
+26-10-22 06:05:58: 00.0%  ;              192 ;        2 ;         96 ; POOL ; ..\..\Shared\IoCompletion.cpp(650) 
+26-10-22 06:05:58: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1531) 
+26-10-22 06:05:58: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1536) 
+26-10-22 06:05:58: 00.0%  ;               96 ;        1 ;         96 ; POOL ; ICClient.cpp(66) 
+26-10-22 06:05:58: 00.0%  ;               80 ;        1 ;         80 ; POOL ; ..\..\Shared\Perfmon.cpp(137) 
+26-10-22 06:05:58:-------------------------------------------------------------------------------------------------
+26-10-22 06:05:58:TOTAL MEMORY SIZE     :        203873328 
+26-10-22 06:05:58:TOP 50 MEMORY PERCENT := 100.0% 
+26-10-22 06:05:58:detailed informations are stored in log directory
+26-10-22 06:05:58:-------------------------------------------------------------------------------------------------
+26-10-22 06:08:08:*socket create 378(281978f0)
+26-10-22 06:13:40:*socket create aec(28199150)
+26-10-22 06:15:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.06.15.58.profile
+26-10-22 06:25:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.06.25.58.profile
+26-10-22 06:35:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.06.35.58.profile
+26-10-22 06:36:01:-------------------------------------------------------------------------------------------------
+26-10-22 06:36:01: TOP 50  Memory eater list
+26-10-22 06:36:01:-------------------------------------------------------------------------------------------------
+26-10-22 06:36:01:percent ;    total size    ;	count ;  avg size  ; type ; place 
+26-10-22 06:36:01:-------------------------------------------------------------------------------------------------
+26-10-22 06:36:01: 93.9%  ;        196636032 ;  1400100 ;        140 ; POOL ; VendorDb.cpp(33) 
+26-10-22 06:36:01: 03.5%  ;          7349760 ;     2871 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4889) 
+26-10-22 06:36:01: 02.1%  ;          4474832 ;      381 ;      11744 ; POOL ; d:\_build\src\shared\MemoryMan.h(686) 
+26-10-22 06:36:01: 00.2%  ;           440320 ;       43 ;      10240 ; POOL ; ..\..\Shared\IoCompletion.cpp(2439) 
+26-10-22 06:36:01: 00.1%  ;           186112 ;     1210 ;        153 ; POOL ; Main.cpp(1644) 
+26-10-22 06:36:01: 00.1%  ;           139936 ;      413 ;        338 ; POOL ; LogSystem.cpp(559) 
+26-10-22 06:36:01: 00.0%  ;            79936 ;        9 ;       8881 ; POOL ; HousingDb.cpp(22) 
+26-10-22 06:36:01: 00.0%  ;            74240 ;       29 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4853) 
+26-10-22 06:36:01: 00.0%  ;            38400 ;      150 ;        256 ; POOL ; ..\..\Shared\IoCompletion.cpp(3889) 
+26-10-22 06:36:01: 00.0%  ;            19872 ;      111 ;        179 ; POOL ; ..\..\SHARED\ServerNameManager.cpp(17) 
+26-10-22 06:36:01: 00.0%  ;             5824 ;       52 ;        112 ; POOL ; ObjectCountViewer.cpp(130) 
+26-10-22 06:36:01: 00.0%  ;             3584 ;        1 ;       3584 ; POOL ; LogSystem.cpp(420) 
+26-10-22 06:36:01: 00.0%  ;             2240 ;        7 ;        320 ; POOL ; DBConn.cpp(784) 
+26-10-22 06:36:01: 00.0%  ;             2048 ;        2 ;       1024 ; POOL ; Socket.cpp(18879) 
+26-10-22 06:36:01: 00.0%  ;             1680 ;        6 ;        280 ; POOL ; ..\..\SHARED\ServerReport.cpp(16) 
+26-10-22 06:36:01: 00.0%  ;             1440 ;       18 ;         80 ; POOL ; d:\_build\src\shared\IoCompletion.h(1250) 
+26-10-22 06:36:01: 00.0%  ;             1280 ;        1 ;       1280 ; POOL ; ..\..\Shared\Perfmon.cpp(156) 
+26-10-22 06:36:01: 00.0%  ;             1024 ;        1 ;       1024 ; POOL ; ICClient.cpp(106) 
+26-10-22 06:36:01: 00.0%  ;              960 ;       10 ;         96 ; POOL ; (null)(0) 
+26-10-22 06:36:01: 00.0%  ;              640 ;        1 ;        640 ; POOL ; ..\..\Shared\LogClient.cpp(88) 
+26-10-22 06:36:01: 00.0%  ;              480 ;        3 ;        160 ; POOL ; LogSystem.cpp(118) 
+26-10-22 06:36:01: 00.0%  ;              384 ;        1 ;        384 ; POOL ; ..\..\Shared\LogClientSocket.cpp(31) 
+26-10-22 06:36:01: 00.0%  ;              384 ;        4 ;         96 ; POOL ; ..\..\SHARED\FileLog.cpp(254) 
+26-10-22 06:36:01: 00.0%  ;              224 ;        2 ;        112 ; POOL ; Server.cpp(97) 
+26-10-22 06:36:01: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(542) 
+26-10-22 06:36:01: 00.0%  ;              192 ;        2 ;         96 ; POOL ; ..\..\Shared\IoCompletion.cpp(650) 
+26-10-22 06:36:01: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1531) 
+26-10-22 06:36:01: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1536) 
+26-10-22 06:36:01: 00.0%  ;              192 ;        2 ;         96 ; POOL ; Socket.cpp(18878) 
+26-10-22 06:36:01: 00.0%  ;              128 ;        1 ;        128 ; POOL ; VendorDb.cpp(714) 
+26-10-22 06:36:01: 00.0%  ;              112 ;        1 ;        112 ; POOL ; Socket.cpp(19311) 
+26-10-22 06:36:01: 00.0%  ;               96 ;        1 ;         96 ; POOL ; ICClient.cpp(66) 
+26-10-22 06:36:01: 00.0%  ;               80 ;        1 ;         80 ; POOL ; ..\..\Shared\Perfmon.cpp(137) 
+26-10-22 06:36:01:-------------------------------------------------------------------------------------------------
+26-10-22 06:36:01:TOTAL MEMORY SIZE     :        209463008 
+26-10-22 06:36:01:TOP 50 MEMORY PERCENT := 100.0% 
+26-10-22 06:36:01:detailed informations are stored in log directory
+26-10-22 06:36:01:-------------------------------------------------------------------------------------------------
+26-10-22 06:45:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.06.45.58.profile
+26-10-22 06:53:06:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 06:53:11:[char]enter world 1010/1002 lev80 700010000(1213.852905,1910.751709,95.052261)
+26-10-22 06:53:47:[char]leave world 1010/1002 700010000(1206.695190, 1908.316162, 94.979485)
+26-10-22 06:53:48:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 06:53:54:[char]enter world 1010/1003 lev1 210010000(871.293091,1187.880371,111.595161)
+26-10-22 06:54:17:[char]leave world 1010/1003 210010000(871.293091, 1187.880371, 111.595161)
+26-10-22 06:54:17:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 06:54:23:[char]enter world 1010/1002 lev80 700010000(1206.695190,1908.316162,94.979485)
+26-10-22 06:55:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.06.55.58.profile
+26-10-22 06:56:17:[char]leave world 1010/1002 110010000(1398.005615, 1512.052856, 572.994263)
+26-10-22 06:56:18:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 07:05:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.07.05.58.profile
+26-10-22 07:06:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:06:02: TOP 50  Memory eater list
+26-10-22 07:06:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:06:02:percent ;    total size    ;	count ;  avg size  ; type ; place 
+26-10-22 07:06:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:06:02: 91.2%  ;        196597760 ;  1399999 ;        140 ; POOL ; VendorDb.cpp(33) 
+26-10-22 07:06:02: 06.2%  ;         13432320 ;     5247 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4889) 
+26-10-22 07:06:02: 02.1%  ;          4474832 ;      381 ;      11744 ; POOL ; d:\_build\src\shared\MemoryMan.h(686) 
+26-10-22 07:06:02: 00.2%  ;           440320 ;       43 ;      10240 ; POOL ; ..\..\Shared\IoCompletion.cpp(2439) 
+26-10-22 07:06:02: 00.1%  ;           169968 ;     1189 ;        142 ; POOL ; Main.cpp(1644) 
+26-10-22 07:06:02: 00.1%  ;           154912 ;      457 ;        338 ; POOL ; LogSystem.cpp(559) 
+26-10-22 07:06:02: 00.1%  ;           135680 ;       53 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4853) 
+26-10-22 07:06:02: 00.0%  ;            65664 ;       10 ;       6566 ; POOL ; ItemDb.cpp(493) 
+26-10-22 07:06:02: 00.0%  ;            38400 ;      150 ;        256 ; POOL ; ..\..\Shared\IoCompletion.cpp(3889) 
+26-10-22 07:06:02: 00.0%  ;            36160 ;        3 ;      12053 ; POOL ; HousingDb.cpp(22) 
+26-10-22 07:06:02: 00.0%  ;            19872 ;      111 ;        179 ; POOL ; ..\..\SHARED\ServerNameManager.cpp(17) 
+26-10-22 07:06:02: 00.0%  ;            19456 ;        1 ;      19456 ; POOL ; GuildDb.cpp(365) 
+26-10-22 07:06:02: 00.0%  ;            17280 ;       45 ;        384 ; POOL ; ItemDb.cpp(1671) 
+26-10-22 07:06:02: 00.0%  ;             5376 ;       48 ;        112 ; POOL ; ObjectCountViewer.cpp(130) 
+26-10-22 07:06:02: 00.0%  ;             4096 ;        1 ;       4096 ; POOL ; d:\_build\src\shared\DBProtocol.inl(11174) 
+26-10-22 07:06:02: 00.0%  ;             3584 ;        1 ;       3584 ; POOL ; LogSystem.cpp(420) 
+26-10-22 07:06:02: 00.0%  ;             3072 ;        2 ;       1536 ; POOL ; UserDb.cpp(220) 
+26-10-22 07:06:02: 00.0%  ;             2624 ;        8 ;        328 ; POOL ; DBConn.cpp(784) 
+26-10-22 07:06:02: 00.0%  ;             2048 ;        2 ;       1024 ; POOL ; Socket.cpp(18879) 
+26-10-22 07:06:02: 00.0%  ;             1680 ;        6 ;        280 ; POOL ; ..\..\SHARED\ServerReport.cpp(16) 
+26-10-22 07:06:02: 00.0%  ;             1600 ;       20 ;         80 ; POOL ; d:\_build\src\shared\IoCompletion.h(1250) 
+26-10-22 07:06:02: 00.0%  ;             1280 ;        1 ;       1280 ; POOL ; ..\..\Shared\Perfmon.cpp(156) 
+26-10-22 07:06:02: 00.0%  ;             1024 ;        1 ;       1024 ; POOL ; ICClient.cpp(106) 
+26-10-22 07:06:02: 00.0%  ;              960 ;       10 ;         96 ; POOL ; (null)(0) 
+26-10-22 07:06:02: 00.0%  ;              960 ;        7 ;        137 ; POOL ; UserDb.cpp(208) 
+26-10-22 07:06:02: 00.0%  ;              896 ;        1 ;        896 ; POOL ; AccountDb.cpp(58) 
+26-10-22 07:06:02: 00.0%  ;              704 ;        6 ;        117 ; POOL ; Socket.cpp(4171) 
+26-10-22 07:06:02: 00.0%  ;              640 ;        1 ;        640 ; POOL ; ..\..\Shared\LogClient.cpp(88) 
+26-10-22 07:06:02: 00.0%  ;              576 ;        6 ;         96 ; POOL ; ..\..\SHARED\FileLog.cpp(254) 
+26-10-22 07:06:02: 00.0%  ;              480 ;        3 ;        160 ; POOL ; LogSystem.cpp(118) 
+26-10-22 07:06:02: 00.0%  ;              384 ;        1 ;        384 ; POOL ; ..\..\Shared\LogClientSocket.cpp(31) 
+26-10-22 07:06:02: 00.0%  ;              336 ;        3 ;        112 ; POOL ; Socket.cpp(3888) 
+26-10-22 07:06:02: 00.0%  ;              320 ;        2 ;        160 ; POOL ; User.cpp(125) 
+26-10-22 07:06:02: 00.0%  ;              320 ;        2 ;        160 ; POOL ; UserDb.cpp(1973) 
+26-10-22 07:06:02: 00.0%  ;              224 ;        2 ;        112 ; POOL ; Server.cpp(97) 
+26-10-22 07:06:02: 00.0%  ;              224 ;        2 ;        112 ; POOL ; UserDb.cpp(1965) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; UserDb.cpp(355) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; UserDb.cpp(360) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(542) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; ..\..\Shared\IoCompletion.cpp(650) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1531) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1536) 
+26-10-22 07:06:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; Socket.cpp(18878) 
+26-10-22 07:06:02: 00.0%  ;              112 ;        1 ;        112 ; POOL ; AccountDb.cpp(40) 
+26-10-22 07:06:02: 00.0%  ;              112 ;        1 ;        112 ; POOL ; GuildDb.cpp(549) 
+26-10-22 07:06:02: 00.0%  ;              112 ;        1 ;        112 ; POOL ; Socket.cpp(19311) 
+26-10-22 07:06:02: 00.0%  ;               96 ;        1 ;         96 ; POOL ; ICClient.cpp(66) 
+26-10-22 07:06:02: 00.0%  ;               80 ;        1 ;         80 ; POOL ; ..\..\Shared\Perfmon.cpp(137) 
+26-10-22 07:06:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:06:02:TOTAL MEMORY SIZE     :        215637888 
+26-10-22 07:06:02:TOP 50 MEMORY PERCENT := 100.0% 
+26-10-22 07:06:02:detailed informations are stored in log directory
+26-10-22 07:06:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:15:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.07.15.58.profile
+26-10-22 07:25:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.07.25.58.profile
+26-10-22 07:35:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.07.35.58.profile
+26-10-22 07:36:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:36:02: TOP 50  Memory eater list
+26-10-22 07:36:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:36:02:percent ;    total size    ;	count ;  avg size  ; type ; place 
+26-10-22 07:36:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:36:02: 90.5%  ;        196597760 ;  1399999 ;        140 ; POOL ; VendorDb.cpp(33) 
+26-10-22 07:36:02: 06.9%  ;         14952960 ;     5841 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4889) 
+26-10-22 07:36:02: 02.1%  ;          4474832 ;      381 ;      11744 ; POOL ; d:\_build\src\shared\MemoryMan.h(686) 
+26-10-22 07:36:02: 00.2%  ;           440320 ;       43 ;      10240 ; POOL ; ..\..\Shared\IoCompletion.cpp(2439) 
+26-10-22 07:36:02: 00.1%  ;           167504 ;     1167 ;        143 ; POOL ; Main.cpp(1644) 
+26-10-22 07:36:02: 00.1%  ;           154912 ;      457 ;        338 ; POOL ; LogSystem.cpp(559) 
+26-10-22 07:36:02: 00.1%  ;           151040 ;       59 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4853) 
+26-10-22 07:36:02: 00.0%  ;            65664 ;       10 ;       6566 ; POOL ; ItemDb.cpp(493) 
+26-10-22 07:36:02: 00.0%  ;            38400 ;      150 ;        256 ; POOL ; ..\..\Shared\IoCompletion.cpp(3889) 
+26-10-22 07:36:02: 00.0%  ;            36160 ;        3 ;      12053 ; POOL ; HousingDb.cpp(22) 
+26-10-22 07:36:02: 00.0%  ;            19872 ;      111 ;        179 ; POOL ; ..\..\SHARED\ServerNameManager.cpp(17) 
+26-10-22 07:36:02: 00.0%  ;            19456 ;        1 ;      19456 ; POOL ; GuildDb.cpp(365) 
+26-10-22 07:36:02: 00.0%  ;            17280 ;       45 ;        384 ; POOL ; ItemDb.cpp(1671) 
+26-10-22 07:36:02: 00.0%  ;             8512 ;       76 ;        112 ; POOL ; ObjectCountViewer.cpp(130) 
+26-10-22 07:36:02: 00.0%  ;             4096 ;        1 ;       4096 ; POOL ; d:\_build\src\shared\DBProtocol.inl(11174) 
+26-10-22 07:36:02: 00.0%  ;             3584 ;        1 ;       3584 ; POOL ; LogSystem.cpp(420) 
+26-10-22 07:36:02: 00.0%  ;             3072 ;        2 ;       1536 ; POOL ; UserDb.cpp(220) 
+26-10-22 07:36:02: 00.0%  ;             2624 ;        8 ;        328 ; POOL ; DBConn.cpp(784) 
+26-10-22 07:36:02: 00.0%  ;             2048 ;        2 ;       1024 ; POOL ; Socket.cpp(18879) 
+26-10-22 07:36:02: 00.0%  ;             1680 ;        6 ;        280 ; POOL ; ..\..\SHARED\ServerReport.cpp(16) 
+26-10-22 07:36:02: 00.0%  ;             1600 ;       20 ;         80 ; POOL ; d:\_build\src\shared\IoCompletion.h(1250) 
+26-10-22 07:36:02: 00.0%  ;             1280 ;        1 ;       1280 ; POOL ; ..\..\Shared\Perfmon.cpp(156) 
+26-10-22 07:36:02: 00.0%  ;             1024 ;        1 ;       1024 ; POOL ; ICClient.cpp(106) 
+26-10-22 07:36:02: 00.0%  ;              960 ;       10 ;         96 ; POOL ; (null)(0) 
+26-10-22 07:36:02: 00.0%  ;              960 ;        7 ;        137 ; POOL ; UserDb.cpp(208) 
+26-10-22 07:36:02: 00.0%  ;              896 ;        1 ;        896 ; POOL ; AccountDb.cpp(58) 
+26-10-22 07:36:02: 00.0%  ;              640 ;        1 ;        640 ; POOL ; ..\..\Shared\LogClient.cpp(88) 
+26-10-22 07:36:02: 00.0%  ;              576 ;        6 ;         96 ; POOL ; ..\..\SHARED\FileLog.cpp(254) 
+26-10-22 07:36:02: 00.0%  ;              480 ;        3 ;        160 ; POOL ; LogSystem.cpp(118) 
+26-10-22 07:36:02: 00.0%  ;              384 ;        1 ;        384 ; POOL ; ..\..\Shared\LogClientSocket.cpp(31) 
+26-10-22 07:36:02: 00.0%  ;              368 ;        3 ;        122 ; POOL ; Socket.cpp(4171) 
+26-10-22 07:36:02: 00.0%  ;              320 ;        2 ;        160 ; POOL ; User.cpp(125) 
+26-10-22 07:36:02: 00.0%  ;              320 ;        2 ;        160 ; POOL ; UserDb.cpp(1973) 
+26-10-22 07:36:02: 00.0%  ;              224 ;        2 ;        112 ; POOL ; Server.cpp(97) 
+26-10-22 07:36:02: 00.0%  ;              224 ;        2 ;        112 ; POOL ; UserDb.cpp(1965) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; UserDb.cpp(355) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; UserDb.cpp(360) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(542) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; ..\..\Shared\IoCompletion.cpp(650) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1531) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1536) 
+26-10-22 07:36:02: 00.0%  ;              192 ;        2 ;         96 ; POOL ; Socket.cpp(18878) 
+26-10-22 07:36:02: 00.0%  ;              112 ;        1 ;        112 ; POOL ; AccountDb.cpp(40) 
+26-10-22 07:36:02: 00.0%  ;              112 ;        1 ;        112 ; POOL ; GuildDb.cpp(549) 
+26-10-22 07:36:02: 00.0%  ;              112 ;        1 ;        112 ; POOL ; Socket.cpp(19311) 
+26-10-22 07:36:02: 00.0%  ;               96 ;        1 ;         96 ; POOL ; ICClient.cpp(66) 
+26-10-22 07:36:02: 00.0%  ;               80 ;        1 ;         80 ; POOL ; ..\..\Shared\Perfmon.cpp(137) 
+26-10-22 07:36:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:36:02:TOTAL MEMORY SIZE     :        217173888 
+26-10-22 07:36:02:TOP 50 MEMORY PERCENT := 100.0% 
+26-10-22 07:36:02:detailed informations are stored in log directory
+26-10-22 07:36:02:-------------------------------------------------------------------------------------------------
+26-10-22 07:45:58:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.07.45.58.profile
+26-10-22 07:49:39:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 07:49:41:[char]enter world 1010/1002 lev80 110010000(1398.005615,1512.052856,572.994263)
+26-10-22 07:50:10:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 07:50:11:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 07:51:49:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 07:51:52:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 07:52:11:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 07:52:12:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 07:52:30:[char]enter world 1010/1003 lev1 210010000(871.293091,1187.880371,111.595161)
+26-10-22 07:52:55:[char]leave world 1010/1003 210010000(871.293091, 1187.880371, 111.595161)
+26-10-22 07:54:30:[CharacterList] ServerId:1 (AccID:1023) (charID:0) (charCount:0)
+26-10-22 07:54:50:[char]create 1005 account 1023 gender 1 class 340
+26-10-22 07:54:52:[char]enter world 1023/1005 lev1 220010000(595.350281,2465.401855,279.646759)
+26-10-22 07:54:52:LoadClientQuickBar ::==  characterId(1005) doesn't have data
+26-10-22 07:54:52:LoadClientQuickBar ::==  characterId(1005) doesn't have data
+26-10-22 07:54:52:LoadClientQuickBar ::==  characterId(1005) doesn't have data
+26-10-22 07:54:52:thahn client setting:RP_LOAD_SKILL_COOLTIME characterId:1005 not fetched
+26-10-22 07:55:18:[char]leave world 1023/1005 220010000(595.350281, 2465.401855, 279.646759)
+26-10-22 07:55:59:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.07.55.59.profile
+26-10-22 08:02:33:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:02:37:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:02:59:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 08:03:00:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:05:59:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.08.05.59.profile
+26-10-22 08:06:03:-------------------------------------------------------------------------------------------------
+26-10-22 08:06:03: TOP 50  Memory eater list
+26-10-22 08:06:03:-------------------------------------------------------------------------------------------------
+26-10-22 08:06:03:percent ;    total size    ;	count ;  avg size  ; type ; place 
+26-10-22 08:06:03:-------------------------------------------------------------------------------------------------
+26-10-22 08:06:03: 90.1%  ;        196586624 ;  1399969 ;        140 ; POOL ; VendorDb.cpp(33) 
+26-10-22 08:06:03: 07.3%  ;         15966720 ;     6237 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4889) 
+26-10-22 08:06:03: 02.1%  ;          4474832 ;      381 ;      11744 ; POOL ; d:\_build\src\shared\MemoryMan.h(686) 
+26-10-22 08:06:03: 00.2%  ;           440320 ;       43 ;      10240 ; POOL ; ..\..\Shared\IoCompletion.cpp(2439) 
+26-10-22 08:06:03: 00.1%  ;           167120 ;     1163 ;        143 ; POOL ; Main.cpp(1644) 
+26-10-22 08:06:03: 00.1%  ;           161280 ;       63 ;       2560 ; POOL ; ..\..\Shared\IoCompletion.cpp(4853) 
+26-10-22 08:06:03: 00.1%  ;           160608 ;      475 ;        338 ; POOL ; LogSystem.cpp(559) 
+26-10-22 08:06:03: 00.0%  ;            65664 ;       10 ;       6566 ; POOL ; ItemDb.cpp(493) 
+26-10-22 08:06:03: 00.0%  ;            38400 ;      150 ;        256 ; POOL ; ..\..\Shared\IoCompletion.cpp(3889) 
+26-10-22 08:06:03: 00.0%  ;            36160 ;        3 ;      12053 ; POOL ; HousingDb.cpp(22) 
+26-10-22 08:06:03: 00.0%  ;            19872 ;      111 ;        179 ; POOL ; ..\..\SHARED\ServerNameManager.cpp(17) 
+26-10-22 08:06:03: 00.0%  ;            19456 ;        1 ;      19456 ; POOL ; GuildDb.cpp(365) 
+26-10-22 08:06:03: 00.0%  ;            19200 ;       50 ;        384 ; POOL ; ItemDb.cpp(1671) 
+26-10-22 08:06:03: 00.0%  ;             7392 ;       66 ;        112 ; POOL ; ObjectCountViewer.cpp(130) 
+26-10-22 08:06:03: 00.0%  ;             4096 ;        1 ;       4096 ; POOL ; d:\_build\src\shared\DBProtocol.inl(11174) 
+26-10-22 08:06:03: 00.0%  ;             3584 ;        1 ;       3584 ; POOL ; LogSystem.cpp(420) 
+26-10-22 08:06:03: 00.0%  ;             3072 ;        2 ;       1536 ; POOL ; UserDb.cpp(220) 
+26-10-22 08:06:03: 00.0%  ;             2624 ;        8 ;        328 ; POOL ; DBConn.cpp(784) 
+26-10-22 08:06:03: 00.0%  ;             2048 ;        2 ;       1024 ; POOL ; Socket.cpp(18879) 
+26-10-22 08:06:03: 00.0%  ;             1792 ;        2 ;        896 ; POOL ; AccountDb.cpp(58) 
+26-10-22 08:06:03: 00.0%  ;             1760 ;       22 ;         80 ; POOL ; d:\_build\src\shared\IoCompletion.h(1250) 
+26-10-22 08:06:03: 00.0%  ;             1680 ;        6 ;        280 ; POOL ; ..\..\SHARED\ServerReport.cpp(16) 
+26-10-22 08:06:03: 00.0%  ;             1536 ;        1 ;       1536 ; POOL ; UserDb.cpp(160) 
+26-10-22 08:06:03: 00.0%  ;             1424 ;        9 ;        158 ; POOL ; Socket.cpp(4171) 
+26-10-22 08:06:03: 00.0%  ;             1280 ;        1 ;       1280 ; POOL ; ..\..\Shared\Perfmon.cpp(156) 
+26-10-22 08:06:03: 00.0%  ;             1024 ;        1 ;       1024 ; POOL ; ICClient.cpp(106) 
+26-10-22 08:06:03: 00.0%  ;              960 ;       10 ;         96 ; POOL ; (null)(0) 
+26-10-22 08:06:03: 00.0%  ;              960 ;        7 ;        137 ; POOL ; UserDb.cpp(208) 
+26-10-22 08:06:03: 00.0%  ;              768 ;        8 ;         96 ; POOL ; ..\..\SHARED\FileLog.cpp(254) 
+26-10-22 08:06:03: 00.0%  ;              640 ;        1 ;        640 ; POOL ; ..\..\Shared\LogClient.cpp(88) 
+26-10-22 08:06:03: 00.0%  ;              480 ;        3 ;        160 ; POOL ; LogSystem.cpp(118) 
+26-10-22 08:06:03: 00.0%  ;              480 ;        3 ;        160 ; POOL ; UserDb.cpp(1973) 
+26-10-22 08:06:03: 00.0%  ;              432 ;        3 ;        144 ; POOL ; UserDb.cpp(48) 
+26-10-22 08:06:03: 00.0%  ;              384 ;        1 ;        384 ; POOL ; ..\..\Shared\LogClientSocket.cpp(31) 
+26-10-22 08:06:03: 00.0%  ;              336 ;        3 ;        112 ; POOL ; UserDb.cpp(1965) 
+26-10-22 08:06:03: 00.0%  ;              336 ;        3 ;        112 ; POOL ; Socket.cpp(3888) 
+26-10-22 08:06:03: 00.0%  ;              320 ;        2 ;        160 ; POOL ; User.cpp(125) 
+26-10-22 08:06:03: 00.0%  ;              288 ;        3 ;         96 ; POOL ; UserDb.cpp(355) 
+26-10-22 08:06:03: 00.0%  ;              288 ;        3 ;         96 ; POOL ; UserDb.cpp(360) 
+26-10-22 08:06:03: 00.0%  ;              224 ;        2 ;        112 ; POOL ; AccountDb.cpp(40) 
+26-10-22 08:06:03: 00.0%  ;              224 ;        2 ;        112 ; POOL ; Server.cpp(97) 
+26-10-22 08:06:03: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(542) 
+26-10-22 08:06:03: 00.0%  ;              192 ;        2 ;         96 ; POOL ; ..\..\Shared\IoCompletion.cpp(650) 
+26-10-22 08:06:03: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1531) 
+26-10-22 08:06:03: 00.0%  ;              192 ;        1 ;        192 ; POOL ; ..\..\Shared\IoCompletion.cpp(1536) 
+26-10-22 08:06:03: 00.0%  ;              192 ;        2 ;         96 ; POOL ; Socket.cpp(18878) 
+26-10-22 08:06:03: 00.0%  ;              112 ;        1 ;        112 ; POOL ; GuildDb.cpp(549) 
+26-10-22 08:06:03: 00.0%  ;              112 ;        1 ;        112 ; POOL ; Socket.cpp(19311) 
+26-10-22 08:06:03: 00.0%  ;               96 ;        1 ;         96 ; POOL ; ICClient.cpp(66) 
+26-10-22 08:06:03: 00.0%  ;               80 ;        1 ;         80 ; POOL ; ..\..\Shared\Perfmon.cpp(137) 
+26-10-22 08:06:03:-------------------------------------------------------------------------------------------------
+26-10-22 08:06:03:TOTAL MEMORY SIZE     :        218198048 
+26-10-22 08:06:03:TOP 50 MEMORY PERCENT := 100.0% 
+26-10-22 08:06:03:detailed informations are stored in log directory
+26-10-22 08:06:03:-------------------------------------------------------------------------------------------------
+26-10-22 08:06:13:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:06:16:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:06:38:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 08:06:38:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:09:33:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:09:36:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:09:54:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 08:09:55:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:14:59:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:15:02:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:15:21:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 08:15:22:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:15:59:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.08.15.59.profile
+26-10-22 08:17:28:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:17:32:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:17:52:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 08:17:53:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:20:45:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:20:48:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:21:05:[char]leave world 1010/1002 110010000(1399.414917, 1512.775513, 572.994263)
+26-10-22 08:23:55:[CharacterList] ServerId:1 (AccID:1010) (charID:1003) (charCount:2)
+26-10-22 08:23:57:[char]enter world 1010/1002 lev80 110010000(1399.414917,1512.775513,572.994263)
+26-10-22 08:25:59:Profile report has been written to the file, D:\AION_LIVE_SERVER\CacheServer\log\\perf\2026-10-22.08.25.59.profile

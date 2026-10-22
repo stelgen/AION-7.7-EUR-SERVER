@@ -9,60 +9,37 @@
 
 | Фаза | Статус | Что сделано |
 |---|---|---|
-| R1 — Go-каркас wire-фреймворка | ✅ | `wire.go` (Reader/Encoder, канон CServerSocket.cpp), `handlers.go` (map[uint16]Handler), `ship.go`, `server.go` (TCP 2006/2007/2009), конфиг |
-| R2 — дизasm DummyCrypt | ⏳ | Требуется точная форма XOR-стрима (обрезка ключа/порядок), сверка с L2 C1 |
-| R3 — Go MVP (реальные хандлеры) | ⬜ | Замена `stub` на рабочие RQ/RP, GQ/GP, NPC-DB |
-| R4 — A/B тест с Live CacheD64 | ⬜ | Захват и сравнение пакетов |
-| R5 — свитч (замена бинарника) | ⬜ | Полная замена CacheD64.exe |
+| R1 — Go-каркас wire-фреймворка | ✅ | 3 листенера 2006/2007/2009, ship, конфиг (каркас ПЕРЕПИСАН на accache-канон — теория #15) |
+| R2 — крипта | ✅ 21.10 | DummyCrypt = NO-OP, wire = plaintext (L2 C1 сурсы + дизasm Aion крипто-фэмили = мёртвый код) |
+| R3 — Go MVP | ✅ 22.10 | MVP-диспетчер (765 опкодов/8 протоколов из .profile), DB-слой (781/140/132 procs, CallWorldProc, ErrProcMissing A/B-маркер), 2007 текстовый interactive, GQ/GP NPRelay per-conn, wire accache-канон + ping/версия-каноны |
+| R4 — A/B с Live CacheD64 | ⬜ | Живой capture (fork-сдвиг 2006→2016 по «го» / pktmon) → раскладки read-пути → A/B |
+| R5 — свитч | ⬜ | Замена CacheD64.exe (common.xml cacheServerPort) |
 
-**Блокеры:** нет. `go vet` и `go test ./...` зелёные.
+**Блокеры:** нет. `go vet`/`go test ./...` зелёные; подробности фаз/теорий — [ROADMAP.md](ROADMAP.md) (Т1-Т24).
 
-## 📟 Канон протокола
+## 📟 Канон протокола (R2/R3, 22.10 — только проверенное)
 
-Канон из `nextgen/cached-ref/l2-c1-cached/src/network/CServerSocket.cpp` (L2 C1 CacheD — единственный публичный reversed CacheD).
-
-### Wire-формат кадра
+### Wire (accache-формат — теория #15, РЕВОЛЮЦИЯ: L2 C1 канон НЕсовместим с golden-кадрами Aion)
 
 ```
-[u16 LE self-inclusive len][opcode][payload...][2Б csum]
+[u16 len total][cmd u16 LE][0xEB C2S / 0xEC S2C][~cmd u16 = ^cmd][payload]  БЕЗ хвост-суммы
 ```
+- len = ПОЛНАЯ длина кадра вкл. len-поле; golden-кадр: `0f000100ebfeff0300000001000000`.
+- Крипты НЕТ (R2: DummyCrypt = NO-OP — L2 C1 сурсы пустое тело; крипто-фэмили Aion = мёртвый код).
+- 2007 = ТЕКСТОВЫЙ interactive (строки до \n, packetId первым полем, теория #14).
+- 2006 per-conn режим: Server64 (RQ_VERSION/RQ_TEST первый кадр) vs NPRelay64 (GQ_LOGON(2)/GQ_KICKOFF(1) → relay-диспетчер; RQ/GQ id-пространства ПЕРЕСЕКАЮТСЯ).
 
-| Элемент | Формат | Описание |
-|---|---|---|
-| len | u16 LE, self-inclusive | Размер всего кадра (включая сам len-филд 2Б) |
-| opcode | 1Б на проводе, `uint16` в Go | Тип пакета (map[uint16]Handler для future-proofing) |
-| payload | переменная | Тело пакета |
-| csum | 2Б хвост [preLast][last] | u16 LE от (packetSize + 2) = wireLen |
+### Ключевые ID
 
-### State-машина Reader (canon CServerSocket.cpp)
+RQ_LOAD=11, RQ_LOAD_ITEM=14, RQ_LEAVE_WORLD=15, RQ_U_SAVE=16, RQ_PING=108, RQ_VERSION=215; RP_PING=45 (not-found форма L2 packet144: `cdddddddd`); GQ_ITEMADD=3, GQ_MAKEBUILDER=7, GQ_CHECK_CHAR=20, GQ_SET_BUILDER_CHAR=22, GQ_KICK_CHAR=24, GQ_MAIL_SEND=34, GQ_BUILD_COMMAND=43.
 
-```go
-// Канон: m_packetSize = (buf[off+1]<<8) + buf[off] - 2
-packetSize := int(binary.LittleEndian.Uint16(buf)) - 2
+### Семантика (hourly-логи, Т24 — cached-ref/logs-hourly/)
 
-// DummyCrypt XOR-стрим, rolling key
-for i := range data {
-    data[i] ^= byte(key + uint32(i))
-}
-// rolling: m_key += m_packetSize (выполняется ДО csum-проверки, как в ориге)
+`[CharacterList]` на каждый чар-селект · `[char]enter/leave world` с персистентной позицией · LoadClientQuickBar · RP_LOAD_SKILL_COOLTIME (RP-словарь сверяется) · старт-цепочка 13 CleanUp-ов · VendorDb pool ≈90% RAM.
 
-// checkSumm = (preLastByte + (lastByte<<8)) - 2 == m_packetSize
-// → u16 LE двух последних байт тела = packetSize + 2 = полная wire-длина
-```
+### ГОТЧА e2e (теория #17)
 
-### Отклонения от канона (R1, осознанные)
-
-- **L2 canon**: `reject при bad size / bad csum` → socket Close. **R1**: то же самое (canon соблюдён).
-- **L2 canon**: `Send` НЕ шифрует ответы. **R1**: то же (outbound крипта отсутствует).
-- **`Frame.Opcode` uint16 в Go** при 1 байте на проводе: канон соблюде, Go-тип расширен под `map[uint16]Handler`.
-
-### Каналы
-
-| Порт | Канон L2 C1 | Наши типы | Примеры opcodes |
-|---|---|---|---|
-| 2006 | `serverHandlers/` | RQ/RP (ServerToDb/DbToServer) | 0x00 CacheVersion, 0x01 LoadCharacter, 0x09 SaveCharacter |
-| 2007 | `adminHandlers/` | GQ/GP (AdminToCache/CacheToAdmin) | 0x01 GQ_MAKEBUILDER, 0x12 GQ_ITEMADD |
-| 2009 | `npcDbHandlers/` | NPC-DB (NPCSvr64) | 0x01 Version, 0x02 LoadNpc, 0x03 SaveNpc, 0x04 UpdateBoss |
+`body = frame[2:]` ⇒ payload@body[**5**] (HeaderWire=7 − len-поле 2 = 5; НЕ body[7]!); ts в p[16:20], нули p[20:32].
 
 ## 🧱 Структура / сборка
 
@@ -140,4 +117,4 @@ crypt_seed_hex 5F3A7C21
 
 ## ⏭️ Следующий шаг
 
-R2 — дизasm DummyCrypt из `generated/Cached.c` / PDB publics, сверка с формулой `payload[i] ^= byte((m_key + uint32(i)) & 0xFF)`.
+R4-read-раскладки: живой capture 2006 — (а) fork-сдвиг common.xml cacheServerPort 2006→2016 + cdmirror (по «го» — рестарт CacheD), или (б) pktmon filter port 2006 (без рестарта); раскладки RQ_LOAD(11)/RQ_LOAD_ITEM(14)/RQ_U_SAVE(16) → Go-хендлеры → RAM-модели → A/B → R5. Текстовые ответы 2007 (`Send("0%d",3)`) и GQ/GP payload — из того же capture. Семантику порядка — из cached-ref/logs-hourly/ (Т24).
