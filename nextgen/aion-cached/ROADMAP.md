@@ -267,3 +267,41 @@ Marker един (0xAE/0xAF), канон един. РАЗЛИЧЕНИЕ по пе
 
 Это ПОЛНОЕ СОСТОЯНИЕ ЧАРА: identity + position + level + имя + статы + тайминги.
 1156Б = сериализованный объект чара для быстрой загрузки (CacheD держит его в RAM).
+
+## Т31 — RP cmd=1 ПОЛНЫЙ БАЙТОВЫЙ РАЗБОР (22.10, offline из capture 1.5МБ) 🔥
+
+1156Б frame, payload 1149Б. Byte-level map (не dword-aligned!):
+
+| Offset(payload) | Size | Content | DB Source |
+|---|---|---|---|
+| 0-3 | 4 | X (session handle echo) | session |
+| 4-7 | 4 | a=4 | constant |
+| 8-9 | 2 | 01 | constant |
+| 12 | 1 | 00 | separator (НЕ dword!) |
+| 13-16 | 4 | ff40529f | hash/unknown |
+| 17-20 | 4 | zeros | |
+| 21-24 | 4 | charRef [charId u16][slot u16] | char_id |
+| 25-28 | 4 | e7096e15 | position/timestamp |
+| 29-40 | 12 | zeros | |
+| 41-44 | 4 | 979a2402 | counter |
+| 49 | 1 | 0x50 = LEVEL! | user_level (single byte!) |
+| 55-56 | 2 | 02 | |
+| 63-64 | 2 | e35d = 23995 | stat |
+| 67-68 | 2 | c72b = 11207 | stat |
+| 75-76 | 2 | 3c = 60 | stat |
+| 83-84 | 2 | 16 = 22 | stat |
+| 130-149 | 20 | 1000 + charRef byte + "DVM-" + hash (UTF-16 internal name) | |
+| 317-327 | 10 | "DVM-" + hash (repeat) | |
+| 399-460 | 62 | coordinates ×3 (position trail) | position |
+| 468-477 | 9 | timestamps | |
+| 903-927 | 25 | **"SteLGeN-" + hash UTF-16** = FULL CHARACTER NAME | char full name |
+| 955-958 | 4 | timestamp 0x6AD99F0A | |
+| 963-1003 | 41 | stat bytes | |
+| 1005-1035 | 30 | binary data | |
+| 1036-1119 | 84 | timestamps/values | |
+
+**Character full name найден!** offset 903-927: UTF-16LE "SteLGeN-" + binary hash = полное
+внутреннее имя чара (account-prefix + server-hash suffix). "DVM-" на 133-149 и 317-327 =
+внутренние идентификаторы (⏳ роль).
+
+Level = SINGLE BYTE at payload[49] (frame[56]) — не dword! Fix в GenerateRPLoadDB: out[56].

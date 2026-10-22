@@ -79,9 +79,9 @@ func (g *DBGen) GenerateRPLoadDB(ctx context.Context, sessionX uint32, charId, a
 		if err != nil {
 			log.Printf("[cached] dbgen GetCharInfo err: %v — использую шаблон", err)
 		} else if info.Exists {
-			// level: payload[47] (frame[54]) — 0x50 = 80 в capture
-			if len(out) > 54 {
-				out[54] = byte(info.Level)
+			// level: payload[49] (frame[56]) — 0x50 = 80 в capture (byte-level map Т31)
+			if len(out) > 56 {
+				out[56] = byte(info.Level)
 				log.Printf("[cached] dbgen level=%d из БД (char=%d)", info.Level, charId)
 			}
 		}
