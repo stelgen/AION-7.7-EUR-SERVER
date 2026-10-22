@@ -149,10 +149,11 @@ services:
     order: 1
   - id: forkd
     group: fork
-    display: forkauthd (front 2116)
+    display: forkauthd (front 2116, otkat-kontur)
     exe: forkauthd.exe
     task: AionForkAuthd
     ports: [2116]
+    expected_down: true
     order: 2
 
   - id: sql
