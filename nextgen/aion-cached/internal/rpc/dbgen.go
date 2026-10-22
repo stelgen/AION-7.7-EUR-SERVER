@@ -1,5 +1,5 @@
 // Package rpc — DB-генератор read-пути (R4→R5): RP cmd=1 из global_user_data
-// + item XML кэш (capture-данные, общие для всех чаров) + item blocks (replay).
+// (Т31 byte-level map) + charName + item XML кэш + item blocks (replay).
 // Эволюция от capture-replay к DB-генерации: RP cmd=1 первым (критический путь).
 package rpc
 
@@ -19,13 +19,13 @@ type DBGen struct {
 
 // CharDBInfo — данные чара из global_user_data.
 type CharDBInfo struct {
-	CharID   uint32
-	AccID    uint32
-	Level    uint32
-	ServerID uint32
+	CharID    uint32
+	AccID     uint32
+	Level     uint32
+	ServerID  uint32
 	ClassType uint32
 	RaceType  uint32
-	Exists   bool
+	Exists    bool
 }
 
 // GetCharInfo — SELECT из global_user_data.
@@ -40,10 +40,9 @@ func GetCharInfo(ctx context.Context, ex db.Executor, accID, charID uint32) (Cha
 	}
 	defer rows.Close()
 	if !rows.Next() {
-		return info, nil // нет строки = Exists=false
+		return info, nil
 	}
-	var level, serverID int32
-	var classType, raceType int32
+	var level, serverID, classType, raceType int32
 	if err := rows.Scan(&level, &serverID, &classType, &raceType); err != nil {
 		return info, fmt.Errorf("GetCharInfo scan: %w", err)
 	}
@@ -55,43 +54,67 @@ func GetCharInfo(ctx context.Context, ex db.Executor, accID, charID uint32) (Cha
 	return info, nil
 }
 
-// GenerateRPLoadDB — строит RP cmd=1 из captured-шаблона + DB-подстановкой
-// (level, charRef, position). Неизвестные поля сохраняются из шаблона.
-func (g *DBGen) GenerateRPLoadDB(ctx context.Context, sessionX uint32, charId, accId uint32) []byte {
+// buildCharRef — Т31: charRef = [charId u16 LE][0x00][0x02] → u32 = charId | 0x02000000.
+func buildCharRef(charId uint32) uint32 {
+	return charId | 0x02000000
+}
+
+// GenerateRPLoadFull — RP cmd=1 из captured-шаблона с ПОЛНОЙ DB-подстановкой (Т31):
+// [0:4]=X, [21:25]=charRef, [49]=level (single byte!), [903:928]=charName UTF-16.
+// Остальные поля из шаблона (неизвестные сохраняются).
+func (g *DBGen) GenerateRPLoadFull(ctx context.Context, sessionX uint32, charId, accId uint32, charName string) []byte {
 	tpl := loadTemplate("rp1_char_struct.bin")
 	if tpl == nil {
 		log.Printf("[cached] dbgen: RP cmd=1 template missing")
-		return GetRPLoad(sessionX) // фолбэк на чистый replay
+		return GetRPLoad(sessionX)
 	}
 	out := make([]byte, len(tpl))
 	copy(out, tpl)
 
-	// X (payload[0:4] = frame[7:11])
+	// [0:4] = X (payload offset 0 = frame offset 7)
 	binary.LittleEndian.PutUint32(out[7:11], sessionX)
 
-	// charRef (payload[21:25] = frame[28:32]) — [charId u16][slot u16]
-	charRef := charId | 0x0002<<16 // slot=2 (из capture; слот ⏳)
+	// [21:25] = charRef (frame[28:32]) — ИСПРАВЛЕНО: charId | 0x02000000
+	charRef := buildCharRef(charId)
 	binary.LittleEndian.PutUint32(out[28:32], charRef)
 
-	// Если Executor доступен — подставить level из БД
+	// DB-подстановка (level + доп. поля из БД)
 	if g.Ex != nil {
 		info, err := GetCharInfo(ctx, g.Ex, accId, charId)
 		if err != nil {
-			log.Printf("[cached] dbgen GetCharInfo err: %v — использую шаблон", err)
+			log.Printf("[cached] dbgen GetCharInfo err: %v — шаблон", err)
 		} else if info.Exists {
-			// level: payload[49] (frame[56]) — 0x50 = 80 в capture (byte-level map Т31)
+			// [49] = level (SINGLE BYTE! frame[7+49]=frame[56])
 			if len(out) > 56 {
 				out[56] = byte(info.Level)
-				log.Printf("[cached] dbgen level=%d из БД (char=%d)", info.Level, charId)
+				log.Printf("[cached] dbgen level=%d char=%d из БД", info.Level, charId)
 			}
 		}
 	}
+
+	// [903:928] = charName UTF-16LE (если предоставлен)
+	if charName != "" && len(out) > 928 {
+		// кодировать charName в UTF-16LE + хэш-суффикс из шаблона
+		// шаблон: [name UTF-16][- UTF-16][hash binary]
+		// MVP: подставить только имя, хэш оставить из шаблона
+		nameBytes := []byte(charName)
+		u16 := make([]byte, 0, len(nameBytes)*2)
+		for _, b := range nameBytes {
+			u16 = append(u16, b, 0x00)
+		}
+		// перезаписать имя в шаблоне (начиная с offset 903 payload = 910 frame)
+		nameStart := 7 + 903 // frame offset
+		for i := 0; i < len(u16) && nameStart+i < len(out); i++ {
+			out[nameStart+i] = u16[i]
+		}
+		log.Printf("[cached] dbgen charName='%s' подставлен @payload[903]", charName)
+	}
+
 	return out
 }
 
-// GenerateCharListDB — RP cmd=90 (CharacterList) из шаблона + DB.
-// MVP: замена X только (полный charCount/charName генератор = следующий шаг).
-func (g *DBGen) GenerateCharListDB(sessionX uint32) []byte {
+// GenerateCharListFull — RP cmd=90 (CharacterList) из шаблона + X.
+func (g *DBGen) GenerateCharListFull(sessionX uint32) []byte {
 	tpl := loadTemplate("rp90_charlist.bin")
 	if tpl == nil {
 		return GetRPCharList(sessionX)
@@ -102,31 +125,30 @@ func (g *DBGen) GenerateCharListDB(sessionX uint32) []byte {
 	return out
 }
 
-// GenerateItemPages — RP cmd=0x0E ×3 (zlib XML): ШТАТНЫЕ данные сервера (общие для
-// всех чаров — item/skill определения), кэшируются из capture.
-func (g *DBGen) GenerateItemPages(sessionX uint32) [][]byte {
+// GenerateItemPagesFull — RP cmd=0x0E ×3 (zlib XML settings store).
+// Общие для всех чаров (серверные определения) — replay из capture.
+func (g *DBGen) GenerateItemPagesFull(sessionX uint32) [][]byte {
 	return GetRPLoadItemPages(sessionX)
 }
 
-// GenerateItemBlocks — RP cmd=109 ×12 (per-char items): replay из capture.
-// Полный DB-генератор item-инвентаря = следующий шаг (бинарный формат item-записей).
-func (g *DBGen) GenerateItemBlocks(sessionX uint32) [][]byte {
+// GenerateItemBlocksFull — RP cmd=109 ×12 (per-char items): replay из capture.
+func (g *DBGen) GenerateItemBlocksFull(sessionX uint32) [][]byte {
 	return GetRPItemBlocks(sessionX)
 }
 
-// EmitReadPathDB — полная цепочка read-пути с DB-генерацией.
-func (g *DBGen) EmitReadPathDB(ctx context.Context, sc SessionContext) [][]byte {
+// EmitReadPathFull — полная цепочка read-пути с DB-генерацией + charName.
+func (g *DBGen) EmitReadPathFull(ctx context.Context, sc SessionContext, charName string) [][]byte {
 	var frames [][]byte
-	if cl := g.GenerateCharListDB(sc.X); cl != nil {
+	if cl := g.GenerateCharListFull(sc.X); cl != nil {
 		frames = append(frames, cl)
 	}
-	if rp := g.GenerateRPLoadDB(ctx, sc.X, sc.CharID, sc.AccID); rp != nil {
+	if rp := g.GenerateRPLoadFull(ctx, sc.X, sc.CharID, sc.AccID, charName); rp != nil {
 		frames = append(frames, rp)
 	}
-	for _, pg := range g.GenerateItemPages(sc.X) {
+	for _, pg := range g.GenerateItemPagesFull(sc.X) {
 		frames = append(frames, pg)
 	}
-	for _, blk := range g.GenerateItemBlocks(sc.X) {
+	for _, blk := range g.GenerateItemBlocksFull(sc.X) {
 		frames = append(frames, blk)
 	}
 	return frames
