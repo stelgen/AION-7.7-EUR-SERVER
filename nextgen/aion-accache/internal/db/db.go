@@ -201,7 +201,7 @@ type TrialAccountData struct {
 }
 
 func GetTrialAccountData(ctx context.Context, ex Executor, accountID int32) (*TrialAccountData, error) {
-	rows, err := ex.Query(ctx, "{call dbo.aion_GetTrialAccountData(?)}", accountID)
+	rows, err := ex.Query(ctx, "EXEC dbo.aion_GetTrialAccountData @accountId=@p1", accountID)
 	if err != nil {
 		return nil, fmt.Errorf("accache db GetTrialAccountData: %w", err)
 	}

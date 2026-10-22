@@ -37,13 +37,52 @@ type UserInfo struct {
 
 // Store — потокобезопасный RAM-кэш.
 type Store struct {
-	mu    sync.RWMutex
-	accs  map[int]*Entry
-	users map[int]UserInfo
+	mu       sync.RWMutex
+	accs     map[int]*Entry
+	users    map[int]UserInfo
+	frozenLL map[int]uint32 // Т10-М2: RAM-lastLogin после первого SetLoginUser (фриз)
 }
 
 func New() *Store {
-	return &Store{accs: map[int]*Entry{}, users: map[int]UserInfo{}}
+	return &Store{accs: map[int]*Entry{}, users: map[int]UserInfo{}, frozenLL: map[int]uint32{}}
+}
+
+// SetUserInfoIfAbsent — посев только при отсутствии записи (true = посеяли).
+func (s *Store) SetUserInfoIfAbsent(accountID int, u UserInfo) bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.users == nil {
+		s.users = map[int]UserInfo{}
+	}
+	if _, ok := s.users[accountID]; ok {
+		return false
+	}
+	s.users[accountID] = u
+	return true
+}
+
+// FreezeLastLogin — Т10-М2 (live 22.10): RAM-lastLogin ориг обновляется РОВНО ОДИН раз
+// после создания entry (первым SetLoginUser; наблюдения: 10.07 06:33Z → 06:53:11Z →
+// заморожено на 4+ логина при живых DB-апдейтах). Вызывается после УСПЕШНОГО первого
+// SetLoginUser аккаунта в жизни процесса.
+func (s *Store) FreezeLastLogin(accountID int, loginTime uint32) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.frozenLL == nil {
+		s.frozenLL = map[int]uint32{}
+	}
+	if _, ok := s.frozenLL[accountID]; ok {
+		return // уже заморожено
+	}
+	s.frozenLL[accountID] = loginTime
+}
+
+// FrozenLastLogin — замороженное значение (ok=false = ещё не фризилось).
+func (s *Store) FrozenLastLogin(accountID int) (uint32, bool) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	v, ok := s.frozenLL[accountID]
+	return v, ok
 }
 
 // SetUserInfo — посев RAM-среза global_user_data (SQLStore R3: SELECT из

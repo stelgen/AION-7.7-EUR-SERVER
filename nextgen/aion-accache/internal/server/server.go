@@ -398,18 +398,20 @@ func hCharLogin(s *S, c *Conn, cmd uint16, pl []byte) {
 	// pre-login значение — наблюдение Т10; SetLoginUser идёт ПОСЛЕ пушей).
 	charID := int32(r.CharRef & 0xFFFF)
 	lastLogin, maxLevel := uint32(0), uint32(0)
-	if ui, ok := s.cache.UserInfo(int(r.AccountID)); ok {
-		lastLogin, maxLevel = ui.LastLogin, ui.MaxLevel
-	}
 	if s.exec != nil {
 		if ui, ok, err := db.GetUserInfo(context.Background(), s.exec, int32(r.AccountID), charID); err != nil {
 			s.logf("charlogin userinfo db.err acc=%d err=%v", r.AccountID, err)
 			s.send("db.err", "accache", err.Error())
 		} else if ok {
-			// строка есть — RAM-кэш обновляем (пустой result-set кэш НЕ трогает)
-			s.cache.SetUserInfo(int(r.AccountID), cache.UserInfo{LastLogin: uint32(ui.LastLogin), MaxLevel: uint32(ui.MaxLevel)})
-			lastLogin, maxLevel = uint32(ui.LastLogin), uint32(ui.MaxLevel)
+			// Т10-М2: посев ТОЛЬКО при отсутствии записи (значение = DB pre-login)
+			s.cache.SetUserInfoIfAbsent(int(r.AccountID), cache.UserInfo{LastLogin: uint32(ui.LastLogin), MaxLevel: uint32(ui.MaxLevel)})
 		}
+	}
+	if ui, ok := s.cache.UserInfo(int(r.AccountID)); ok {
+		lastLogin, maxLevel = ui.LastLogin, ui.MaxLevel
+	}
+	if frozen, ok := s.cache.FrozenLastLogin(int(r.AccountID)); ok {
+		lastLogin = frozen // Т10-М2: замороженное значение сильнее свежего DB
 	}
 	s.respond(c, cmd, payload.BuildCharLoginResp(r.AccountID))
 	s.respond(c, 0x0f, payload.BuildCharCreatedPush(r.CharRef))
@@ -424,7 +426,8 @@ func hCharLogin(s *S, c *Conn, cmd uint16, pl []byte) {
 			s.logf("charlogin setlogin db.err acc=%d err=%v", r.AccountID, err)
 			s.send("db.err", "accache", err.Error())
 		} else {
-			s.logf("charlogin setlogin char=%d server=%d t=%s", charID, s.cfg.DB.ServerID, lt.Format(time.RFC3339))
+			s.logf("charlogin setlogin char=%d server=%d t=%s", charID, s.dbServerID(), lt.Format(time.RFC3339))
+			s.cache.FreezeLastLogin(int(r.AccountID), uint32(lt.Unix())) // Т10-М2: фриз один раз
 		}
 	}
 }
