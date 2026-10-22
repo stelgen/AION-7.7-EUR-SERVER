@@ -23,6 +23,8 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"path/filepath"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -74,6 +76,8 @@ type FileCfg struct {
 
 type Cfg struct {
 	Enabled bool      `yaml:"enabled"` // мастер сетевых синков (syslog+http)
+	App     string    `yaml:"app"`     // RFC5424 APP-NAME (имя сервиса, дефолт = basename argv0)
+	ProcID  string    `yaml:"procid"`  // RFC5424 PROCID (дефолт "-")
 	Syslog  SyslogCfg `yaml:"syslog"`
 	HTTP    HTTPCfg   `yaml:"http"`
 	File    FileCfg   `yaml:"file"`
@@ -95,6 +99,8 @@ type S struct {
 	errFile       atomic.Uint64
 	syslogOK      atomic.Uint64
 	httpOK        atomic.Uint64
+	app           string
+	procid        string
 
 	smu   sync.Mutex
 	tcp   net.Conn
@@ -123,7 +129,14 @@ func New(cfg Cfg) *S {
 		cfg.HTTP.Timeout = 3
 	}
 	host, _ := os.Hostname()
-	return &S{cfg: cfg, ch: make(chan Event, cfg.Queue), host: host,
+	app := cfg.App
+	if app == "" { // RFC5424 APP-NAME: имя сервиса, не хардкод
+		app = strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe")
+	}
+	if cfg.ProcID == "" {
+		cfg.ProcID = "-"
+	}
+	return &S{cfg: cfg, ch: make(chan Event, cfg.Queue), host: host, app: app, procid: cfg.ProcID,
 		hc: &http.Client{Timeout: time.Duration(cfg.HTTP.Timeout) * time.Second}, start: time.Now()}
 }
 
@@ -230,8 +243,8 @@ func (s *S) syslogSend(ev Event, payload []byte, ts time.Time) bool {
 	case EvSelf, EvStop:
 		pri = f<<3 | 4 // notice
 	}
-	hdr := fmt.Sprintf("<%d>1 %s %s aion-logd 2051 %s - - ",
-		pri, ts.Format("2006-01-02T15:04:05.000000Z07:00"), s.host, ev.Ev)
+	hdr := fmt.Sprintf("<%d>1 %s %s %s %s %s - - ",
+		pri, ts.Format("2006-01-02T15:04:05.000000Z07:00"), s.host, s.app, s.procid, ev.Ev)
 	full := append([]byte(hdr), payload...)
 	if s.cfg.Syslog.Net == "udp" {
 		if len(full) > 1400 { // одна датаграмма: трюк — режем payload, шапка цела

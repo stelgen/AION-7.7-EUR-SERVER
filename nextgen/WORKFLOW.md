@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | gate / AuthGateD / 2106 | AuthGateD.exe | [aion-gate/](aion-gate/) | docs/ + README §T2-T6 | ✅ релиз ФИНАЛ 10.10 (T3/T4/T5/T6 ✅; опц. T2-а) |
 | logd / LogServer / 2051 | LogServer64.exe | [aion-logd/](aion-logd/) | aion-logd/SNAPSHOT.md | ✅ в бою (~95%) |
-| captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | aion-captcha/SNAPSHOT.md | ✅ в бою (~95%) |
+| captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | aion-captcha/SNAPSHOT.md | ✅ ФИНАЛ 100% (22.10: ship в единый стек по сети через reverse-SSH-туннель → rsyslog; APP-фикс RFC5424) |
 | op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | 🟢 100% (Phase 1 + 1.5 ДЕПЛОЙ 22.10: await + watchdog, `watchdog.enabled:false` — вкл. по «го») |
 | authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | ✅ R6 в бою ~90% (свитч 09.10, хвосты R6) |
 | accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | ✅ ~95% (**R5 СВИТЧ В ПРОДЕ** 22.10: aion-accache :2220, ориг отведён; R6 = наблюдение 24ч) |

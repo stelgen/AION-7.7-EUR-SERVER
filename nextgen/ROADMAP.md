@@ -1,6 +1,6 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> **Последнее обновление: 22.10.2026.** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
+> **Последнее обновление: 22.10.2026 (captcha-финал).** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
 > Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
 > authd ✅ R6 В БОЮ 09.10; accache ✅ **R5 СВИТЧ ✅ 22.10 — ПРОД = aion-accache :2220** (ориг отведён; контрольный логин чист; Т16/Т17/Т23 финал; R6 = наблюдение 24ч); CacheD64 🟢 ~80% (read-раскладки = capture R4); op ✅ Phase 1.5 ДЕПЛОЙ 22.10 (watchdog по «го»); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него).
 > Следующие чаты: 1) **accache R6 наблюдение 24ч** + op-конфиг accache [aion-accache/ROADMAP.md] 2) **cached R3-хвосты** — read-раскладки RQ_LOAD/LOAD_ITEM/U_SAVE + GQ/GP payload 54 ops → R4 A/B [aion-cached/ROADMAP.md] 3) op watchdog включение по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ. **ТРЕК B ≈ 64%** (binpatch 60: #108 артефакт готов — стенд-тест, #111 ❄️ заморожен до aion-main).
@@ -10,7 +10,7 @@
 | Блок | Статус |
 |---|---|
 | Логгер aion-logd | ✅ штатный :2051 (exe MD5 `7aca9dca`, PID см. op), Л1–Л4 закрыты, 0 parse-ошибок; откат = `schtasks /run AionLog`; pending: REF58-процы (§2.3) + ship-приёмник (§2.2) |
-| Капча aion-captcha | ✅ в бою :22206 (exe MD5 `5394aab1`), буфер 10000 за ~4с (ориг 6.4 мин), Server64.err чист; откат = retarget AionCAPTCHA на `C:\Temp\captcha.bat` |
+| Капча aion-captcha | ✅ **ФИНАЛ 100%** (22.10: ship в единый стек ПО СЕТИ через reverse-SSH-туннель → rsyslog песочницы; ev=start + поток ev=captcha verified; APP-фикс RFC5424; exe `6dbc1825`); откат ship = `ship.enabled:false` |
 | Гейт aion-gate | ✅ РЕЛИЗ на :2106 `mode: authgate` (коммит f8912a9, exe sha `7c4dcab`): e=65537, op=0x00 live-клиента, blob asm-форма 191Б, T1-фейлы (authdTimeoutSec=15, failClose=2, onlineTtl=0 ВЫКЛ, реестр текстов 1..22+45 live); полный юзер-флоу 1/1 и stelgen доказан; юзер играет через fork-стенд; откат exe = `.bak-63f6a47/9c85c12/9f2da98/e1dd475`, режим = `mode: fork` |
 | Fork-стенд authd | ✅ ОТКАТ-РЕЗЕРВ (R6-свитч 09.10): живой путь = наш authd (2110+2104, задача AionAuthdProd); forkauthd :2116 + shadow :2117 остановлены КАК ПУТЬ, живы как откат (`C:\Temp\rollback-gate.ps1` + `D:\SAION\aion-authd\authd-rollback.cmd`); VERDICT-лог `D:\SAION\aion-authd\fork-authd.log` |
 | Authd (наш) | ✅ **R6 В БОЮ 09.10**: живой путь (2110+2104), полный цикл юзера + мгновенный перелогин + pk1-эхо + квитанции; наблюдение 24ч |
@@ -28,7 +28,7 @@
 | 2 | **cached R3-хвосты**: read-раскладки RQ_LOAD(11)/RQ_LOAD_ITEM(14)/RQ_U_SAVE(16) из capture + GQ/GP payload (54 ops) + текстовые ответы interactive → R4 A/B (R2 ✅ 21.10: DummyCrypt = NO-OP, wire = plaintext) | aion-cached/ROADMAP.md | 2–3 дня |
 | 3 | **authd R6-хвосты**: завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 | aion-authd/ROADMAP.md | 1–2 дня |
 | 4 | **Гейт** — ЗАВЕРШЁН live 10.10: T3 ✅ (перелогин после kill чистый, 0x08 клиент не шлёт), T4 ✅ (2 параллельны чисто, одновременный play-ok обоим), T5 ✅ (exe f146a415 задеплоен); остался опц. T2-а. ⚠ Мир-хвост → aion-main: 2-й параллельный клиент виснет на GS-входе (гвард клиента или Server64) | aion-gate/README §T2/T3 | — |
-| 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах | TELEMETRY-SPEC §2 | полдня |
+| 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах — **captcha ЗАКРЫТА 22.10** (туннель-мост, приёмник жив); остался logd (ship-приёмник тот же) | TELEMETRY-SPEC §2 | полдня (только logd) |
 | 6 | Деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → logdb UpdateMainStatus (методы готовы, вызов заглушен) | [aion-logd/SNAPSHOT.md](aion-logd/SNAPSHOT.md) | 1 день |
 | 7 | **op Phase 1.5 — ДЕПЛОЙ ✅ 22.10** (exe `1ddf7260`, `/api/watchdog` live): OP-5 await (waitForPort/waitForLogMarker; план гейта [check,kill,start,await-port]), OP-6 watchdog (эскалация 60/300/1800с, halt→ResetHalt, NPC-окно lock, ночное окно 04:00–05:00, audit source=watchdog); включение автопилота = `watchdog.enabled: true` по «го» | aion-op/ROADMAP.md §6 | тумблер по «го» |
 | 8 | **Бинпатч-хвост**: #108 — стенд-тест патч-артефакта (копия MainServer_backup + патч @0x30157D → клиент логин + арена-заявка); silence-луперы 10100/10254/2107 (один проход); **#111 ❄️ FROZEN до aion-main MVP** ([ISSUE](aion-binpatch/docs/ISSUE-111-manastones-FROZEN.md), тег `freeze/111-manastones-until-aion-main-mvp`) | fixes-pending/ + [ISSUE](aion-binpatch/docs/ISSUE-111-manastones-FROZEN.md) | стенд-тест 1 день |

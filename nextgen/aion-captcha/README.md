@@ -1,10 +1,13 @@
-# aion-captcha — замена CAPTCHAImageServer.exe (Трек B #2 — ✅ В БОЮ ~95% с 05.10)
+# aion-captcha — замена CAPTCHAImageServer.exe (Трек B #2 — ✅ ФИНАЛ 100% с 22.10)
 
 > Протокол capture-верифицирован 05.10.2026: `docs/captcha-protocol-20261005.md`.
-> Телеметрия по `nextgen/TELEMETRY-SPEC.md` (ship скопирован из aion-logd как есть).
-> ✅ Прод: `D:\SAION\aion-captcha\` (exe MD5 `5394aab1` + config.yaml + run.cmd), задача AionCAPTCHA
-> → run.cmd, PID 5572 на :22206, буфер 10000 за ~4с, Server64.err чист. Откат:
-> `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run AionCAPTCHA`.
+> Телеметрия по `nextgen/TELEMETRY-SPEC.md`: **22.10 ship в ЕДИНЫЙ СТЕК ПО СЕТИ** (syslog TCP
+> через reverse-SSH-туннель VM 127.0.0.1:2514 → rsyslog песочницы → /var/log/aion-ship.log;
+> верифицировано ev=start + поток ev=captcha). APP-фикс: RFC5424 app=aion-captcha procid=22206.
+> ✅ Прод: `D:\SAION\aion-captcha\` (exe MD5 `6dbc1825` + config.yaml ship.enabled=true + run.cmd),
+> задача AionCAPTCHA → run.cmd, PID см. op на :22206, буфер 10000 за ~4с, Server64.err чист. Откат:
+> `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run AionCAPTCHA`;
+> откат ship = `ship.enabled: false` в config.yaml.
 
 ## Протокол (TCP :22206)
 

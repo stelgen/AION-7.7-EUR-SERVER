@@ -21,7 +21,7 @@ func TestSyslogUDPDelivers(t *testing.T) {
 	defer pc.Close()
 	addr := pc.LocalAddr().String()
 
-	s := New(Cfg{Enabled: true, Syslog: SyslogCfg{Net: "udp", Host: addr, Facility: 1}, SelfSec: 3600})
+	s := New(Cfg{Enabled: true, App: "aion-captcha", ProcID: "22206", Syslog: SyslogCfg{Net: "udp", Host: addr, Facility: 1}, SelfSec: 3600})
 	ctx, cancel := context.WithCancel(context.Background())
 	go s.Run(ctx)
 	defer cancel()
@@ -34,7 +34,7 @@ func TestSyslogUDPDelivers(t *testing.T) {
 		t.Fatalf("udp read: %v", err)
 	}
 	line := string(buf[:n])
-	if !strings.HasPrefix(line, "<14>1 ") || !strings.Contains(line, " aion-logd 2051 text - - ") {
+	if !strings.HasPrefix(line, "<14>1 ") || !strings.Contains(line, " aion-captcha 22206 text - - ") {
 		t.Fatalf("RFC5424 header: %q", line[:min(60, len(line))])
 	}
 	var ev Event
@@ -43,6 +43,17 @@ func TestSyslogUDPDelivers(t *testing.T) {
 	}
 	if ev.Ev != EvText || ev.Svc != "svc3" {
 		t.Fatalf("ev: %+v", ev)
+	}
+}
+
+// APP-NAME дефолт: пусто = basename argv0 (без .exe), procid = "-".
+func TestSyslogAppDefault(t *testing.T) {
+	s := New(Cfg{Enabled: true, Syslog: SyslogCfg{Net: "udp", Host: "127.0.0.1:9"}})
+	if s.app != strings.TrimSuffix(filepath.Base(os.Args[0]), ".exe") {
+		t.Fatalf("app default: %q", s.app)
+	}
+	if s.procid != "-" {
+		t.Fatalf("procid default: %q", s.procid)
 	}
 }
 

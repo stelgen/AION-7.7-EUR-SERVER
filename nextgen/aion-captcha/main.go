@@ -32,6 +32,8 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
 
+	cfg.Ship.App = "aion-captcha" // RFC5424 APP-NAME (спека §3: App = имя сервиса)
+	cfg.Ship.ProcID = "22206"
 	sh := ship.New(cfg.Ship)
 	if sh.Enabled() {
 		go sh.Run(ctx)

@@ -1,8 +1,29 @@
-# 🧾 СТАТУС-СНИМОК — aion-captcha (замена CAPTCHAImageServer.exe) на 21.10.2026
+# 🧾 СТАТУС-СНИМОК — aion-captcha (замена CAPTCHAImageServer.exe) на 22.10.2026
 
-> Прод: **наш aion-captcha в бою на :22206** (PID 5572, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd,
+> Прод: **наш aion-captcha в бою на :22206, ФИНАЛ 100%** (PID см. op, задача AionCAPTCHA → D:\SAION\aion-captcha\run.cmd,
 > откат = `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `schtasks /run AionCAPTCHA`).
 > Протокол capture-верифицирован: docs/captcha-protocol-20261005.md.
+
+## 🏁 ФИНАЛ 22.10.2026 — SHIP В ЕДИНЫЙ СТЕК ПО СЕТИ (правило №2 закрыто)
+
+- **Мост телеметрии**: reverse-SSH-туннель песочница→VM (`ssh -R 127.0.0.1:2514`),
+  супервизор с авто-реконнектом на Linux (`~/STELGEN/tmp/ship-tunnel-supervisor.sh`, retry 10с),
+  приёмник rsyslog в песочнице (imtcp 127.0.0.1:2514 → `/var/log/aion-ship.log`, конфиг `/etc/rsyslog.d/30-aion-ship.conf`).
+- **Верификация блокера 3×** (22.10, финальная): TCP VM→192.168.0.2 (514/15140) = CONNECT-FAIL,
+  UDP 514/15141 = SENT OK но не доходит → входящий в NAT-контейнер закрыт на ВСЕХ портах.
+  Обход = туннель (канал песочница→VM уже был рабочим).
+- **ship вкл.**: `config.yaml` (22.10): `ship.enabled: true`, `syslog { net: tcp, host: 127.0.0.1:2514 }`
+  (комменты латиницей, байтово 861→695Б, LEN-check 695=695).
+- **APP-фикс**: ship.go хардкод `aion-logd 2051` убран — Cfg.App/Cfg.ProcID (RFC5424 APP-NAME/PROCID,
+  спека §3); main.go задаёт `aion-captcha`/`22206`; дефолт = basename argv0; тесты зелёные
+  (new TestSyslogAppDefault). Новый exe MD5 `6dbc18255db7c13bf5fb66f1572f42dc`
+  (bak на VM: aion-captcha-bak-86f6e311.exe).
+- **LIVE-верификация**: после рестарта в /var/log/aion-ship.log: `ev=start` (`aion-captcha started`,
+  listen :22206) + поток `ev=captcha` (налив буфера, seq 801→4401, ms 0-2) с шапкой
+  `AION-77-PTS-EU aion-captcha[22206]` — телеметрия идёт по сети, ЕДИНЫЙ СТАК.
+  Финальный self 19:17: `ok_syslog=102, err_syslog=0, dropped=0` (uptime 300с), буфер seq→9901+ (норм-тишина).
+- file-фолбэк: **OFF 22.10** после self-верификации (`ok_syslog=102, err=0, dropped=0, queue=0`, uptime 300с) — ноль мусора на диске, правило №1.
+- Откат ship: `ship.enabled: false` в config.yaml + рестарт AionCAPTCHA (одна правка).
 
 ## 📡 SHIP TELEMETRY ВКЛЮЧЁН (file-фолбэк) — 21.10.2026
 
