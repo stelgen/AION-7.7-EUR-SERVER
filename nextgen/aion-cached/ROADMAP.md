@@ -85,3 +85,16 @@ csum-хвост (u16 LE wireLen). DummyCrypt в wire.go = no-op (API сохра�
 | wire OpcodeWidth 1/2 (теория #8) | ✅ флаг+тесты |
 | DB-слой 781 procs + RAM-модели User/Item | ⬜ (после capture-раскладок R4) |
 | GQ/GP MVP (2007 admin) | ⬜ |
+
+| 12 | Голые имена procs в 781-инвентаре редки: aion_GetCharInfo существует ТОЛЬКО версионированным (5 суффиксов _20XXXXXX), aion_CreateGuild вообще нет (GetGuild есть) — bare-имена НЕ угадывать, только из списка | — | ✅ учтено в тестах |
+| 13 | 140 exe-only procs: наш CallWorldProc отвечает ErrProcMissing ДО SQL (поведение-маркер A/B: у ориг fail уйдёт на SQL-уровень) | A/B R4 | ✅ реализовано |
+
+## R3 DB-СЛОЙ (22.10, часть 2): инвентарь 781+140+132 ✅
+
+| Кусок | Статус |
+|---|---|
+| internal/db/procs.go — СГЕНЕРИРОВАНО (gen_cached_dbprocs.py): 781 WorldProcs (домен+versioned) / 140 ExeOnlyProcs / 132 DbOnlyProcs | ✅ |
+| Домены: Misc 402 · Guild 65 · VendorItem 48 · User 34 · CharInfo 31 · House 31 · ItemEnchant 26 · Quest 22 · Buddy 22 · Skills 21 · Abyss 20 · Block 15 · Mail 14 · Auction 14 · AddedService 13 · NPC 3 | ✅ |
+| CallWorldProc: ErrProcMissing ДО SQL (exe-only 140) / ErrProcUnknown / {call dbo.<name>(?,...)} / Query→Exec-фолбэк | ✅ |
+| SQLStore (sql.Open, MaxOpenConns=10 = numberOfDBThreads) — заготовка под connStr с VM | ✅ каркас |
+| db_test: 781/155-versioned/140/132 инвентарные + QueryForm + ExecFallback | ✅ 6/6 |
