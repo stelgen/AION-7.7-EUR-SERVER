@@ -3,7 +3,7 @@
 > **Последнее обновление: 10.10.2026.** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
 > Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
 > authd ✅ R6 В БОЮ 09.10 (живой путь 2110+2104; fork 2116/тень 2117 = откат); accache 🟡 R2.5 ✅ 10.10 (capture + wire-канон len=total + раскладки; R3 SQLStore = следующий чат); CacheD64 🔬 R0 закрыт (R1 wire из log/*.log — pktmon-2006 loopback-блокер доказан); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него — старое «SKIP» исправлено везде).
-> Следующие чаты: 1) accache R4-финал на живом стенд-трафике + R5 свитч по «го» [aion-accache/PROMPT.md] 2) cached R2 (дизasm DummyCrypt точной формы + семантика) [aion-cached/ROADMAP.md] 3) op Phase 1.5 деплой на VM + включение watchdog по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ (остался опц. T2-а, T6 тег ✅).
+> Следующие чаты: 1) **cached R3** — Go MVP read-путь (char login/item load, ~590 RPC, 781 procs) [aion-cached/ROADMAP.md] 2) accache живой capture (юзер логин ×1-2 → закрывает Т7/Т8 → 16/16) + R5 свитч по «го» 3) op Phase 1.5 деплой на VM + включение watchdog по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ. **ТРЕК B ≈ 56%**.
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где — 10.10; свод с % — [README.md §2.5](README.md))
 
@@ -15,7 +15,7 @@
 | Fork-стенд authd | ✅ ОТКАТ-РЕЗЕРВ (R6-свитч 09.10): живой путь = наш authd (2110+2104, задача AionAuthdProd); forkauthd :2116 + shadow :2117 остановлены КАК ПУТЬ, живы как откат (`C:\Temp\rollback-gate.ps1` + `D:\SAION\aion-authd\authd-rollback.cmd`); VERDICT-лог `D:\SAION\aion-authd\fork-authd.log` |
 | Authd (наш) | ✅ **R6 В БОЮ 09.10**: живой путь (2110+2104), полный цикл юзера + мгновенный перелогин + pk1-эхо + квитанции; наблюдение 24ч |
 | aion-accache | 🟡 R0/R0.5/R1/R2/R2.5 ✅ (10.10: accmirror v1.1 стенд, wire-канон len=total — офф-бай-2 исправлен, EB/EC, internal/payload на golden-кадрах); R3 SQLStore = следующий |
-| CacheD64 ресёрч | 🔬 R0 ✅ 08.10 (PDB 106МБ/14281 publics, RPC-словари RQ382/RP255/GQ55/GP53, 781/789 procs, 356МБ готовых логов); кода нет; шанс ~85% |
+| CacheD64 (код [aion-cached/](aion-cached/)) | 🟡 **~55%**: R0 ✅ + R1-prep ✅ + **R1 каркас ✅ 21.10** (Reader/Encoder, 3 листенера, 9/9 тестов) + **R2 ЗАКРЫТ ✅ 21.10** — DummyCrypt = NO-OP, wire = plaintext (L2 C1 сурсы пустое тело + Aion CacheD64 крипто-фэмили = мёртвый код, ноль ссылок; алгоритм семьи снят: staticTable[i&0x3F]^key[i&0x7]^data[i]^data[i-1]); осталось R3 MVP read-путь (~590 RPC) → R4 A/B → R5 свитч; шанс ~90% |
 | aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12) + **Phase 1.5 код готов 21.10** (OP-5 await + OP-6 watchdog, `enabled: false` — задеплоить по «го»; [ROADMAP](aion-op/ROADMAP.md) §6); kick-задачи, expected_conns=8; канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)) |
 | Батники | ✅ `AION-START-ALL-v6.bat` (десктоп, всё в session 1) = канон; `C:\Temp\auth.bat = call start-all.bat` — НЕ трогать как кнопку (это старт ВСЕГО стека); изолированный L2Authd = `auth-only.bat`/AionAuthOnly; откат v5 рядом |
 | Феномен «задачи сами Disabled» | ⚠ следить (смягчено pre-check в op + enable-all) |
@@ -24,7 +24,7 @@
 
 | # | Пункт | Где | Оценка |
 |---|---|---|---|
-| 1 | **accache R4-финал**: replay 6/16 golden байт-в-байт (21.10); осталось — ts в LOAD_LUNA из БД вместо time.Now(), push-кадры ACP_13/15/20/21/UPDATE_BM_PACK/CONFIRM_LUNA_REWARD, затем A/B на живом трафике + R5 свитч по «го» | aion-accache/ROADMAP.md | 1–2 дня |
+| 1 | **cached R3**: Go MVP read-путь (char login/item load) + write-транзит, DB-слой 781 procs, Admin/Log/IC-клиенты; опкоды/канон готовы, крипты НЕТ (R2) | aion-cached/ROADMAP.md | 3-5 дней |
 | 2 | **CacheD64 R2**: дизasm DummyCrypt точной формы (верификация XOR(key+i) гипотезы) + семантика; R1 wire-каркас ✅ 21.10 в aion-cached (9/9 тестов) | aion-cached/ROADMAP.md | 1–2 дня |
 | 3 | **authd R6-хвосты**: завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 | aion-authd/ROADMAP.md | 1–2 дня |
 | 4 | **Гейт** — ЗАВЕРШЁН live 10.10: T3 ✅ (перелогин после kill чистый, 0x08 клиент не шлёт), T4 ✅ (2 параллельны чисто, одновременный play-ok обоим), T5 ✅ (exe f146a415 задеплоен); остался опц. T2-а. ⚠ Мир-хвост → aion-main: 2-й параллельный клиент виснет на GS-входе (гвард клиента или Server64) | aion-gate/README §T2/T3 | — |
