@@ -45,6 +45,7 @@ var (
 		rqLoadIte: hRQLoadItem,      // R4 22.10: [X][a][charId][кат][accId][page]
 		rqLeaveW:  hRQLeaveWorld,     // R4 22.10: [acc][char][pos×4][pad]
 		rqUSave:   hRQUSave,          // R4 22.10: [acc][char][сейв...]
+		rqAlive225:    hAlive225,     // R4.7: keep-alive → RP_124 [00 00] (61 пара-эталон)
 		rqSessionOpen: hSessionOpen,  // R4 22.10: первый кадр сессии [X][a][accId]
 		rqSessionAcc:  hSessionAcc,   // R4 22.10: [X][a][accId][01 01 00]
 	}
@@ -170,3 +171,15 @@ func put32(b []byte, v uint32) {
 	b[3] = byte(v >> 24)
 }
 
+
+// R4.7: keep-alive канон (живой A/B #2, 61 пара): C> RQ_225 [ts u32] → RP_124 [00 00].
+// Тень молчала на 225 — Server64/NPCSvr теряли keep-alive (гипотеза R5-крэша).
+const (
+	rqAlive225 = 225 // C> [len 11][cmd][AE][~cmd][ts u32]
+	rpAlive124 = 124 // O> [len 9][cmd][AF][~cmd][00 00]
+)
+
+// hAlive225 — ответ RP_124 [00 00] (golden из живой пары: C 0b00e100ae1eff20.. → O 09007c00af83ff0000).
+func hAlive225(ch Channel, opcode uint16, pl []byte) []byte {
+	return wire.BuildS2CCached(rpAlive124, []byte{0x00, 0x00})
+}
