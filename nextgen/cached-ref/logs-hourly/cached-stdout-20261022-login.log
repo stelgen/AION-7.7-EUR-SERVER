@@ -1,0 +1,233 @@
+2026/10/22 08:33:36 [cached] server channel listening on :2018
+2026/10/22 08:33:36 [cached] admin channel listening on :2019
+2026/10/22 08:33:36 [cached] npcDb channel listening on :2020
+2026/10/22 08:50:52 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:19 [cached] server buffer overflow, closing
+2026/10/22 08:53:19 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:20 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:23 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:23 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:53:23 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 08:58:22 [cached] server buffer overflow, closing
+2026/10/22 08:58:26 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:10 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:00:11 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:01:02 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:03:23 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:03:27 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:03:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:03:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:03:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:03:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:08:28 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:08:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:15 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:15 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:19 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:19 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:19 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:19 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:19 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:22 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:23 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:26 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:27 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:29 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:09:37 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:10:17 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:10:17 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:10:17 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:13:29 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:13:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+2026/10/22 09:13:33 [cached] server reject frame: wire: bad marker — closing conn (canon L2 behavior)
+^C2026/10/22 09:14:06 [cached] server channel listening on :2018
+2026/10/22 09:14:06 [cached] admin channel listening on :2019
+2026/10/22 09:14:06 [cached] npcDb channel listening on :2020
+2026/10/22 09:14:26 [cached] server channel listening on :2018
+2026/10/22 09:14:26 [cached] admin channel listening on :2019
+2026/10/22 09:14:26 [cached] npcDb channel listening on :2020
+2026/10/22 09:18:30 [cached] server unhandled RP_SAVE_WARDROBE (op=225) len=4 — dropped (silent policy)
+2026/10/22 09:18:30 [ship] {"channel":"server","opcode":225,"name":"RP_SAVE_WARDROBE","bytes":4,"status":"unhandled","at":"2026-10-22T06:18:30.9007145Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0559701Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:18:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:18:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:18:33.0565162Z"}
+2026/10/22 09:21:10 [cached] server unhandled <UNK> (op=282) len=4 — dropped (silent policy)
+2026/10/22 09:21:10 [ship] {"channel":"server","opcode":282,"name":"\u003cUNK\u003e","bytes":4,"status":"unhandled","at":"2026-10-22T06:21:10.5748356Z"}
+2026/10/22 09:23:26 [cached] server dispatch <UNK> (op=288, 13 bytes payload)
+2026/10/22 09:23:26 [ship] {"channel":"server","opcode":288,"name":"\u003cUNK\u003e","bytes":13,"status":"dispatched","at":"2026-10-22T06:23:26.897399Z"}
+2026/10/22 09:23:26 [cached] session open X=0xbe48f70 a=4 acc=1010
+2026/10/22 09:23:26 [cached] read-path RQ_SESSION_OPEN: X=0xbe48f70 acc=1010
+2026/10/22 09:23:26 [ship] {"channel":"server","opcode":288,"name":"RQ_SESSION_OPEN","status":"parsed:X=0xbe48f70 acc=1010","at":"2026-10-22T06:23:26.8979396Z"}
+2026/10/22 09:23:27 [cached] server dispatch RP_ESCROW_BUY (op=175, 15 bytes payload)
+2026/10/22 09:23:27 [ship] {"channel":"server","opcode":175,"name":"RP_ESCROW_BUY","bytes":15,"status":"dispatched","at":"2026-10-22T06:23:27.0674025Z"}
+2026/10/22 09:23:27 [cached] session acc parse.err len=15
+2026/10/22 09:23:30 [cached] server dispatch RP_LOAD_BOOKMARK (op=11, 16 bytes payload)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":11,"name":"RP_LOAD_BOOKMARK","bytes":16,"status":"dispatched","at":"2026-10-22T06:23:30.1773755Z"}
+2026/10/22 09:23:30 [cached] RQ_LOAD X=0xbe48f70 a=4 char=1002 acc=1010
+2026/10/22 09:23:30 [cached] read-path RQ_LOAD: char=1002 acc=1010
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":11,"name":"RQ_LOAD","status":"parsed:char=1002 acc=1010","at":"2026-10-22T06:23:30.1773755Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_VENDOR_ITEMLIST (op=54) len=12 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":54,"name":"RP_VENDOR_ITEMLIST","bytes":12,"status":"unhandled","at":"2026-10-22T06:23:30.1896367Z"}
+2026/10/22 09:23:30 [cached] server dispatch RP_LOAD_CLIENT_SETTINGS (op=14, 21 bytes payload)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":14,"name":"RP_LOAD_CLIENT_SETTINGS","bytes":21,"status":"dispatched","at":"2026-10-22T06:23:30.1896367Z"}
+2026/10/22 09:23:30 [cached] RQ_LOAD_ITEM X=0xbe48f70 char=1002 cat=4 acc=1010 page=0
+2026/10/22 09:23:30 [cached] read-path RQ_LOAD_ITEM: char=1002 cat=4 page=0
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":14,"name":"RQ_LOAD_ITEM","status":"parsed:char=1002 cat=4 page=0","at":"2026-10-22T06:23:30.1896367Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_LOAD_ABYSS_OP_SPAWN (op=37) len=18 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":37,"name":"RP_LOAD_ABYSS_OP_SPAWN","bytes":18,"status":"unhandled","at":"2026-10-22T06:23:30.2141319Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_UNUSED__11 (op=38) len=6 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":38,"name":"RP_UNUSED__11","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:30.2141319Z"}
+2026/10/22 09:23:30 [cached] server dispatch RP_LOAD_CLIENT_SETTINGS (op=14, 21 bytes payload)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":14,"name":"RP_LOAD_CLIENT_SETTINGS","bytes":21,"status":"dispatched","at":"2026-10-22T06:23:30.2141319Z"}
+2026/10/22 09:23:30 [cached] RQ_LOAD_ITEM X=0xbe48f70 char=1002 cat=5 acc=1010 page=1
+2026/10/22 09:23:30 [cached] read-path RQ_LOAD_ITEM: char=1002 cat=5 page=1
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":14,"name":"RQ_LOAD_ITEM","status":"parsed:char=1002 cat=5 page=1","at":"2026-10-22T06:23:30.2141319Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_USER_LOGOUT (op=191) len=6 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":191,"name":"RP_USER_LOGOUT","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:30.3692636Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=278) len=6 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":278,"name":"\u003cUNK\u003e","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:30.3694035Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=342) len=6 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":342,"name":"\u003cUNK\u003e","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:30.3831539Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_GET_OLDCHARACTERINFO (op=194) len=16 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":194,"name":"RP_GET_OLDCHARACTERINFO","bytes":16,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=351) len=4 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":351,"name":"\u003cUNK\u003e","bytes":4,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=357) len=4 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":357,"name":"\u003cUNK\u003e","bytes":4,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=375) len=9 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":375,"name":"\u003cUNK\u003e","bytes":9,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=369) len=4 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":369,"name":"\u003cUNK\u003e","bytes":4,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=373) len=4 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":373,"name":"\u003cUNK\u003e","bytes":4,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_LOAD_DROP_CTRL_LIST (op=144) len=19 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":144,"name":"RP_LOAD_DROP_CTRL_LIST","bytes":19,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_EDIT_CHARACTER (op=135) len=5 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":135,"name":"RP_EDIT_CHARACTER","bytes":5,"status":"unhandled","at":"2026-10-22T06:23:30.3984505Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=340) len=28 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":340,"name":"\u003cUNK\u003e","bytes":28,"status":"unhandled","at":"2026-10-22T06:23:30.4009063Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=258) len=12 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":258,"name":"\u003cUNK\u003e","bytes":12,"status":"unhandled","at":"2026-10-22T06:23:30.4009063Z"}
+2026/10/22 09:23:30 [cached] server unhandled RP_MAIL_BOXSIZELOAD (op=62) len=12 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":62,"name":"RP_MAIL_BOXSIZELOAD","bytes":12,"status":"unhandled","at":"2026-10-22T06:23:30.4014353Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=240) len=5 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":240,"name":"\u003cUNK\u003e","bytes":5,"status":"unhandled","at":"2026-10-22T06:23:30.4014353Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=272) len=8 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":272,"name":"\u003cUNK\u003e","bytes":8,"status":"unhandled","at":"2026-10-22T06:23:30.4014353Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=240) len=5 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":240,"name":"\u003cUNK\u003e","bytes":5,"status":"unhandled","at":"2026-10-22T06:23:30.4014353Z"}
+2026/10/22 09:23:30 [cached] server unhandled <UNK> (op=353) len=148 — dropped (silent policy)
+2026/10/22 09:23:30 [ship] {"channel":"server","opcode":353,"name":"\u003cUNK\u003e","bytes":148,"status":"unhandled","at":"2026-10-22T06:23:30.4062243Z"}
+2026/10/22 09:23:31 [cached] server unhandled <UNK> (op=274) len=4 — dropped (silent policy)
+2026/10/22 09:23:31 [ship] {"channel":"server","opcode":274,"name":"\u003cUNK\u003e","bytes":4,"status":"unhandled","at":"2026-10-22T06:23:31.0059707Z"}
+2026/10/22 09:23:31 [cached] server unhandled RP_SAVE_WARDROBE (op=225) len=4 — dropped (silent policy)
+2026/10/22 09:23:31 [ship] {"channel":"server","opcode":225,"name":"RP_SAVE_WARDROBE","bytes":4,"status":"unhandled","at":"2026-10-22T06:23:31.2122348Z"}
+2026/10/22 09:23:31 [cached] server unhandled RP_AION_TV_OPERATION (op=223) len=17 — dropped (silent policy)
+2026/10/22 09:23:31 [ship] {"channel":"server","opcode":223,"name":"RP_AION_TV_OPERATION","bytes":17,"status":"unhandled","at":"2026-10-22T06:23:31.3973204Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0684226Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled RP_LOAD_WARDROBE (op=224) len=526 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":224,"name":"RP_LOAD_WARDROBE","bytes":526,"status":"unhandled","at":"2026-10-22T06:23:33.0749904Z"}
+2026/10/22 09:23:33 [cached] server unhandled <UNK> (op=354) len=78 — dropped (silent policy)
+2026/10/22 09:23:33 [ship] {"channel":"server","opcode":354,"name":"\u003cUNK\u003e","bytes":78,"status":"unhandled","at":"2026-10-22T06:23:33.9159369Z"}
+2026/10/22 09:23:34 [cached] server unhandled RP_ALL_ABYSS_INFOS (op=93) len=16 — dropped (silent policy)
+2026/10/22 09:23:34 [ship] {"channel":"server","opcode":93,"name":"RP_ALL_ABYSS_INFOS","bytes":16,"status":"unhandled","at":"2026-10-22T06:23:34.3851948Z"}
+2026/10/22 09:23:36 [cached] server dispatch RP_VERSION (op=16, 850 bytes payload)
+2026/10/22 09:23:36 [ship] {"channel":"server","opcode":16,"name":"RP_VERSION","bytes":850,"status":"dispatched","at":"2026-10-22T06:23:36.3886025Z"}
+2026/10/22 09:23:36 [cached] RQ_U_SAVE acc=1010 char=1002 saveBytes=842 — детальный разбор = отдельный шаг
+2026/10/22 09:23:36 [cached] read-path RQ_U_SAVE: char=1002 bytes=842
+2026/10/22 09:23:36 [ship] {"channel":"server","opcode":16,"name":"RQ_U_SAVE","status":"parsed:char=1002 bytes=842","at":"2026-10-22T06:23:36.3886025Z"}
+2026/10/22 09:23:36 [cached] server unhandled RP_EDIT_CHARACTER (op=135) len=19 — dropped (silent policy)
+2026/10/22 09:23:36 [ship] {"channel":"server","opcode":135,"name":"RP_EDIT_CHARACTER","bytes":19,"status":"unhandled","at":"2026-10-22T06:23:36.3886025Z"}
+2026/10/22 09:23:56 [cached] server unhandled <UNK> (op=264) len=36 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":264,"name":"\u003cUNK\u003e","bytes":36,"status":"unhandled","at":"2026-10-22T06:23:56.9577404Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_LOAD_SPECIAL_ITEM (op=30) len=440 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":30,"name":"RP_LOAD_SPECIAL_ITEM","bytes":440,"status":"unhandled","at":"2026-10-22T06:23:56.9587151Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_VENDOR_BUYRELAY (op=35) len=197 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":35,"name":"RP_VENDOR_BUYRELAY","bytes":197,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled <UNK> (op=348) len=48 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":348,"name":"\u003cUNK\u003e","bytes":48,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled <UNK> (op=244) len=6 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":244,"name":"\u003cUNK\u003e","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_SKILL_SKIN (op=230) len=10 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":230,"name":"RP_SKILL_SKIN","bytes":10,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_UNUSED__12 (op=39) len=48 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":39,"name":"RP_UNUSED__12","bytes":48,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_VENDOR_COMMIT (op=57) len=10 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":57,"name":"RP_VENDOR_COMMIT","bytes":10,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_CHANGE_CHARACTER_NAME (op=136) len=6 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":136,"name":"RP_CHANGE_CHARACTER_NAME","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_FUNCTIONAL_PET (op=146) len=6 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":146,"name":"RP_FUNCTIONAL_PET","bytes":6,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_EDIT_CHARACTER (op=135) len=19 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":135,"name":"RP_EDIT_CHARACTER","bytes":19,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled <UNK> (op=348) len=15 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":348,"name":"\u003cUNK\u003e","bytes":15,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server dispatch RP_VERSION (op=16, 850 bytes payload)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":16,"name":"RP_VERSION","bytes":850,"status":"dispatched","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] RQ_U_SAVE acc=1010 char=1002 saveBytes=842 — детальный разбор = отдельный шаг
+2026/10/22 09:23:56 [cached] read-path RQ_U_SAVE: char=1002 bytes=842
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":16,"name":"RQ_U_SAVE","status":"parsed:char=1002 bytes=842","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_EDIT_CHARACTER (op=135) len=19 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":135,"name":"RP_EDIT_CHARACTER","bytes":19,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled <UNK> (op=350) len=12 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":350,"name":"\u003cUNK\u003e","bytes":12,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server unhandled RP_AION_TV_OPERATION (op=223) len=17 — dropped (silent policy)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":223,"name":"RP_AION_TV_OPERATION","bytes":17,"status":"unhandled","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] server dispatch RP_UNUSED_2 (op=15, 28 bytes payload)
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":15,"name":"RP_UNUSED_2","bytes":28,"status":"dispatched","at":"2026-10-22T06:23:56.9592349Z"}
+2026/10/22 09:23:56 [cached] RQ_LEAVE_WORLD acc=1010 char=1002 pos=[0x68e9e90 0x44b010fd 0x44bca518 0x440f518f]
+2026/10/22 09:23:56 [cached] read-path RQ_LEAVE_WORLD: char=1002
+2026/10/22 09:23:56 [ship] {"channel":"server","opcode":15,"name":"RQ_LEAVE_WORLD","status":"parsed:char=1002","at":"2026-10-22T06:23:56.9592349Z"}
