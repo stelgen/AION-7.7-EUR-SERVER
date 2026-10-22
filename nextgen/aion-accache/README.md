@@ -1,6 +1,6 @@
 # aion-accache — перепись AccountCacheServer 7.7 (порт 2220)
 
-🟢 **~85% · R4 offline ЗАКРЫТ 22.10: replay 16/16 (100%)** — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
+🟢 **~88% · R3 SQLStore ✅ 22.10 (код+тесты; живой прогон = с live A/B) · R4 offline ЗАКРЫТ 22.10: replay 16/16 (100%)** — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
 Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-11).
 
 ## Канон (доказано дизasmом, не догадки)
@@ -30,8 +30,12 @@ config.example.yaml
 ## Тесты
 
 `go vet ./... && go test ./...` — зелёные (proto golden/roundtrip/bad-marker/inv/split;
-server e2e: FIRST_LOAD → 5×int-ответ, unknown → дроп, bad-marker → close;
-wire-regression W2/W3: proc-имена + arg-раскладки + off-by-2 + тишина).
+server e2e: FIRST_LOAD → 5×int-ответ, unknown → дроп, bad-marker → close,
+VERSION→[ответ+пуш ACP_13], CHAR_LOGIN → [16+15+14+1c] байт-в-байт, login/logout →
+SetLoginUser/SetLogoutUser_20120703 арг-чек; wire-regression W2/W3;
+db: GetUserInfo SELECT-форма/пустой-резалт, SetLogin/SetLogout арг-чек).
+⚠ известный баг фейков: copy(dest,row) без deref = нулевые колонки — честный Scan
+(как replayRows/capRows).
 
 R4 replay (TestR4ReplayCapture в internal/server/replay_r4_test.go): автономный
 реплей golden-корпуса capture-20261007 — все C2S-кадры из frames.txt шлются в
@@ -46,8 +50,8 @@ R4 replay (TestR4ReplayCapture в internal/server/replay_r4_test.go): автон
 | Фаза | Что |
 |---|---|
 | R1 ✅ | capture-стенд accmirror :2220→:2221 + раскладки (10.10, 22.10 ×2 corpus) |
-| R3 | SQLStore (go-mssqldb) + полный хендлер-набор по proc-телам + UserInfo из global_user_data |
-| R4 | live A/B fork-прогон с оригом (offline 16/16 ✅ 22.10); опц. дозахват T2-канала |
+| R3 ✅ | SQLStore-каркас был с R2; R3 22.10: db.GetUserInfo (SELECT last_login_time + MAX(user_level) FROM global_user_data — read-proc в REF58 НЕТ), db.SetLoginUser/SetLogoutUser_20120703 (тела REF58; 20121120/20121206 = Т15 ⏳), config db.server_id (дефолт 1); тесты db (формы/аргументы) + e2e login/logout SQL |
+| R4 | live A/B fork-прогон с оригом (offline 16/16 ✅ 22.10; SQL-дифф логин/логаут + UserInfo-раскладки Т10/Т15/Т16); опц. дозахват T2-канала |
 | R5 | свитч по «го» (откат = retarget задачи AionAcc) |
 
 ## 📦 Артефакты

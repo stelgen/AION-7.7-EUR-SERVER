@@ -3,7 +3,9 @@ package server
 import (
 	"context"
 	"encoding/binary"
+	"encoding/hex"
 	"net"
+	"strings"
 	"testing"
 	"time"
 
@@ -11,6 +13,9 @@ import (
 	"aion-accache/internal/config"
 	"aion-accache/internal/db"
 )
+
+// hexStr2 — hex-строка байтов (для golden-сравнений payload).
+func hexStr2(b []byte) string { return hex.EncodeToString(b) }
 
 func testCfg() *config.Cfg {
 	c := &config.Cfg{}
@@ -300,5 +305,102 @@ func TestBMPackEmpty(t *testing.T) {
 	}
 	if binary.LittleEndian.Uint32(pl) != 1010 || binary.LittleEndian.Uint16(pl[4:]) != 0 {
 		t.Fatalf("bmpack pl=%x", pl)
+	}
+}
+
+// TestVersionPush13E2E — R4-финал: VERSION-ответ + ПУШ ACP_13 (1:1:1, capture).
+func TestVersionPush13E2E(t *testing.T) {
+	addr, _ := startSrv(t, nil)
+	c := dial(t, addr)
+	defer c.Close()
+	if _, err := c.Write(frame(0x01, []byte{3, 0, 0, 0, 1, 0, 0, 0})); err != nil {
+		t.Fatal(err)
+	}
+	cmd1, p1 := readReply(t, c)
+	if cmd1 != 0x01 || hexStr2(p1) != "03000000" {
+		t.Fatalf("version reply = %#x %s", cmd1, hexStr2(p1))
+	}
+	cmd2, p2 := readReply(t, c)
+	if cmd2 != 0x0d || hexStr2(p2) != "ae310864" {
+		t.Fatalf("ACP_13 push = %#x %s", cmd2, hexStr2(p2))
+	}
+}
+
+// TestCharLoginPushesE2E — R4-финал: CHAR_LOGIN (golden 10.07) -> 4 ответа
+// байт-в-байт (16, пуши 15/14/1c; UserInfo из RAM-кэша, exec=nil).
+func TestCharLoginPushesE2E(t *testing.T) {
+	addr, srv := startSrv(t, nil)
+	srv.cache.SetUserInfo(1010, cache.UserInfo{LastLogin: 0x6AC5E7B9, MaxLevel: 80})
+	c := dial(t, addr)
+	defer c.Close()
+	golden := "53001000ebefff0100000000000000ea030002f203000032003000320036002d00310030002d00300037005400310033003a00330035003a00350035002e003800360030000000010000000200000000000000"
+	w, _ := hex.DecodeString(golden)
+	if _, err := c.Write(w); err != nil {
+		t.Fatal(err)
+	}
+	want := []struct {
+		cmd uint16
+		pl  string
+	}{
+		{0x10, "f2030000ffffffffffffffff000000000000000000000000"},
+		{0x0f, "ea030002ea070a0003000000"},
+		{0x14, "ea030002" + "00000000000000000000000000000000" + "b9e7c56a" +
+			"000000000000000000000000" + "01000000" + "000000000000000000000000" + "50000000"},
+		{0x1c, "f2030000ea0300000000"},
+	}
+	for i, wt := range want {
+		cmd, pl := readReply(t, c)
+		if cmd != wt.cmd || hexStr2(pl) != wt.pl {
+			t.Fatalf("reply #%d: cmd=%#x pl=%s, want cmd=%#x pl=%s", i, cmd, hexStr2(pl), wt.cmd, wt.pl)
+		}
+	}
+}
+
+// TestCharLoginLogoutSQL — R3: CHAR_LOGIN/CHAR_LOGOUT (golden 10.07) зовут
+// aion_SetLoginUser_20120703 / aion_SetLogoutUser_20120703 с аргументами
+// (charId, serverID, curServerID, stamp-time); UserInfo читается из ДБ.
+func TestCharLoginLogoutSQL(t *testing.T) {
+	ex := &fakeExec{rows: [][]any{{int64(0x6AC5E7B9), int32(80)}}}
+	addr, _ := startSrv(t, ex)
+	c := dial(t, addr)
+	defer c.Close()
+	login, _ := hex.DecodeString("53001000ebefff0100000000000000ea030002f203000032003000320036002d00310030002d00300037005400310033003a00330035003a00350035002e003800360030000000010000000200000000000000")
+	if _, err := c.Write(login); err != nil {
+		t.Fatal(err)
+	}
+	// 4 ответа (16/15/14/1c) — пуш 0x14 должен взять UserInfo ИЗ ДБ (lastLogin=0x6AC5E7B9, maxLevel=80).
+	for _, want := range []uint16{0x10, 0x0f, 0x14, 0x1c} {
+		cmd, _ := readReply(t, c)
+		if cmd != want {
+			t.Fatalf("reply cmd=%#x, want %#x", cmd, want)
+		}
+	}
+	logout, _ := hex.DecodeString("4b001100ebeeff01000000ea03000232003000320036002d00310030002d00300037005400310033003a00330036003a00310039002e003400390033000000010000000200000000000000")
+	if _, err := c.Write(logout); err != nil {
+		t.Fatal(err)
+	}
+	time.Sleep(100 * time.Millisecond)
+	if len(ex.execs) < 2 {
+		t.Fatalf("execs = %d (%v)", len(ex.execs), ex.execs)
+	}
+	if !strings.Contains(ex.execs[0], "aion_SetLoginUser_20120703") {
+		t.Fatalf("exec[0] = %s", ex.execs[0])
+	}
+	if !strings.Contains(ex.execs[1], "aion_SetLogoutUser_20120703") {
+		t.Fatalf("exec[1] = %s", ex.execs[1])
+	}
+	la := ex.execArgs[0]
+	if len(la) != 4 || la[0] != int32(1002) || la[1] != int32(1) || la[2] != int32(1) {
+		t.Fatalf("login args = %v", la)
+	}
+	if lt, ok := la[3].(time.Time); !ok || lt.Format("2006-01-02T15:04:05.000") != "2026-10-07T13:35:55.860" {
+		t.Fatalf("login time = %v (%T)", la[3], la[3])
+	}
+	ga := ex.execArgs[1]
+	if len(ga) != 4 || ga[0] != int32(1002) || ga[1] != int32(1) || ga[2] != int32(1) {
+		t.Fatalf("logout args = %v", ga)
+	}
+	if gt, ok := ga[3].(time.Time); !ok || gt.Format("2006-01-02T15:04:05.000") != "2026-10-07T13:36:19.493" {
+		t.Fatalf("logout time = %v (%T)", ga[3], ga[3])
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	"strings"
+	"time"
 
 	_ "github.com/microsoft/go-mssqldb"
 )
@@ -210,4 +211,65 @@ type UpdateTrialArgs struct {
 	UpdateTime, ResetTime       int32
 	SellGold, TradeGold         int64
 	DecomposeSum, GatherSum, ExtractGatherSum int32
+}
+
+// --- R3: global_user_data (UserInfo для пуша CHAR_INFO_REFRESH + login/logout) ---
+
+// UserInfo — срез global_user_data (R3/R4-финал 22.10).
+//   LastLogin = last_login_time строки чара (unix sec; Т10 ⏳: RAM-race ориг);
+//   MaxLevel  = MAX(user_level) по НОРМ-серверам аккаунта (Т11 ✅: паттерн
+//   maxLevAmongNormalServers из proc user_board_bm; у чара 1003 level=1, в пушах 80).
+type UserInfo struct {
+	LastLogin int64
+	MaxLevel  int32
+}
+
+// GetUserInfo — ПРЯМОЙ SELECT (read-proc для этого среза в списке 101 procs REF58 НЕТ —
+// проверено по db-procs-77-ref58.rpt; writers = aion_SetLoginUser*/aion_SetUserInfo*).
+// last_login_time возвращается как DATEDIFF(s,'1970-01-01',...) — unix-секунды, скан int64.
+// Пустой result-set = ok=false (строки нет — эмиттер берёт RAM-кэш/нули; кэш НЕ перезаписываем).
+func GetUserInfo(ctx context.Context, ex Executor, accID, charID int32) (UserInfo, bool, error) {
+	q := "SELECT DATEDIFF(s,'1970-01-01',g.last_login_time)," +
+		" (SELECT ISNULL(MAX(user_level),0) FROM global_user_data WITH (NOLOCK) WHERE account_id = ? AND is_special_server = 0 AND delete_date = 0)" +
+		" FROM global_user_data g WITH (NOLOCK)" +
+		" WHERE g.account_id = ? AND g.char_id = ? AND g.delete_date = 0"
+	rows, err := ex.Query(ctx, q, accID, accID, charID)
+	if err != nil {
+		return UserInfo{}, false, fmt.Errorf("accache db GetUserInfo: %w", err)
+	}
+	defer rows.Close()
+	if !rows.Next() {
+		return UserInfo{}, false, rows.Err()
+	}
+	var ui UserInfo
+	if err := rows.Scan(&ui.LastLogin, &ui.MaxLevel); err != nil {
+		return UserInfo{}, false, err
+	}
+	return ui, true, rows.Err()
+}
+
+// SetLoginUser — proc aion_SetLoginUser_20120703(char_id, server_id, cur_server_id,
+// login_time datetime): UPDATE global_user_data SET last_login_time=@login_time,
+// cur_server_id=@cur, last_logout_time=@login_time WHERE char_id AND server_id.
+// Варианты 20121120/20121206 (глобальный global_char_id/class_type/race_type) = Т15 ⏳
+// (источник аргументов не доказан; 20120703 не портит колонки, арбитр = live A/B SQL-дифф).
+func SetLoginUser(ctx context.Context, ex Executor, charID, serverID, curServerID int32, loginTime time.Time) error {
+	_, err := ex.Exec(ctx, "{call dbo.aion_SetLoginUser_20120703(?,?,?,?)}",
+		charID, serverID, curServerID, loginTime)
+	if err != nil {
+		return fmt.Errorf("accache db SetLoginUser: %w", err)
+	}
+	return nil
+}
+
+// SetLogoutUser — proc aion_SetLogoutUser_20120703(char_id, server_id, cur_server_id,
+// logout_time datetime): UPDATE last_logout_time=@logout_time, cur_server_id=@cur
+// WHERE char_id AND server_id. Вариант 20121206 (+class/race) = Т15 ⏳.
+func SetLogoutUser(ctx context.Context, ex Executor, charID, serverID, curServerID int32, logoutTime time.Time) error {
+	_, err := ex.Exec(ctx, "{call dbo.aion_SetLogoutUser_20120703(?,?,?,?)}",
+		charID, serverID, curServerID, logoutTime)
+	if err != nil {
+		return fmt.Errorf("accache db SetLogoutUser: %w", err)
+	}
+	return nil
 }

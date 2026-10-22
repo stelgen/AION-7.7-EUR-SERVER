@@ -388,9 +388,22 @@ func hCharLogin(s *S, c *Conn, cmd uint16, pl []byte) {
 		s.logf("charlogin parse.err %v", err)
 		return
 	}
+	// R3 SQLStore: срез global_user_data ДБ ПЕРВЫМ ходом (пуш должен показать
+	// pre-login значение — наблюдение Т10; SetLoginUser идёт ПОСЛЕ пушей).
+	charID := int32(r.CharRef & 0xFFFF)
 	lastLogin, maxLevel := uint32(0), uint32(0)
 	if ui, ok := s.cache.UserInfo(int(r.AccountID)); ok {
 		lastLogin, maxLevel = ui.LastLogin, ui.MaxLevel
+	}
+	if s.exec != nil {
+		if ui, ok, err := db.GetUserInfo(context.Background(), s.exec, int32(r.AccountID), charID); err != nil {
+			s.logf("charlogin userinfo db.err acc=%d err=%v", r.AccountID, err)
+			s.send("db.err", "accache", err.Error())
+		} else if ok {
+			// строка есть — RAM-кэш обновляем (пустой result-set кэш НЕ трогает)
+			s.cache.SetUserInfo(int(r.AccountID), cache.UserInfo{LastLogin: uint32(ui.LastLogin), MaxLevel: uint32(ui.MaxLevel)})
+			lastLogin, maxLevel = uint32(ui.LastLogin), uint32(ui.MaxLevel)
+		}
 	}
 	s.respond(c, cmd, payload.BuildCharLoginResp(r.AccountID))
 	s.respond(c, 0x0f, payload.BuildCharCreatedPush(r.CharRef))
@@ -398,9 +411,36 @@ func hCharLogin(s *S, c *Conn, cmd uint16, pl []byte) {
 	s.respond(c, 0x1c, payload.BuildConfirmLunaRewardPush(r.AccountID, uint32(r.CharRef&0xFFFF)))
 	s.logf("charlogin %s lastLogin=%d maxLevel=%d", r.Debug(), lastLogin, maxLevel)
 	s.send("char.login", "accache", fmt.Sprintf("acc=%d charRef=%#x stamp=%s", r.AccountID, r.CharRef, r.Stamp))
+	if s.exec != nil {
+		if lt, err := parseStamp(r.Stamp); err != nil {
+			s.logf("charlogin stamp parse.err %q: %v — SetLoginUser пропущен", r.Stamp, err)
+		} else if err := db.SetLoginUser(context.Background(), s.exec, charID, s.dbServerID(), s.dbServerID(), lt); err != nil {
+			s.logf("charlogin setlogin db.err acc=%d err=%v", r.AccountID, err)
+			s.send("db.err", "accache", err.Error())
+		} else {
+			s.logf("charlogin setlogin char=%d server=%d t=%s", charID, s.cfg.DB.ServerID, lt.Format(time.RFC3339))
+		}
+	}
 }
 
-// 0x11 CHAR_LOGOUT: тишина (capture). SQL — R4.
+// parseStamp — штамп Server64 из C2S CHAR_LOGIN/CHAR_LOGOUT
+// ("2026-10-22T06:53:11.620", формат ISO с 3 знаками мс). Таймзона штампа
+// не маркирована — парсим как UTC (арбитр live A/B SQL-дифф, Т16 ⏳).
+func parseStamp(s string) (time.Time, error) {
+	return time.Parse("2006-01-02T15:04:05.000", s)
+}
+
+// dbServerID — server_id/cur_server_id для global_user_data-процедур (дефолт 1
+// при unset/0 — конфиг может не содержать ключ; REF58-БД: server_id=1).
+func (s *S) dbServerID() int32 {
+	if s.cfg.DB.ServerID <= 0 {
+		return 1
+	}
+	return int32(s.cfg.DB.ServerID)
+}
+
+// 0x11 CHAR_LOGOUT: тишина (capture) + SQL aion_SetLogoutUser_20120703 (R3:
+// char_id/server_id/cur_server_id/logout_time — UPDATE last_logout_time).
 func hCharLogout(s *S, c *Conn, cmd uint16, pl []byte) {
 	r, err := payload.ParseCharLogoutReq(pl)
 	if err != nil {
@@ -409,6 +449,17 @@ func hCharLogout(s *S, c *Conn, cmd uint16, pl []byte) {
 	}
 	s.logf("charlogout %s", r.Debug())
 	s.send("char.logout", "accache", fmt.Sprintf("acc=%d charRef=%#x stamp=%s", r.AccountID, r.CharRef, r.Stamp))
+	if s.exec != nil {
+		charID := int32(r.CharRef & 0xFFFF)
+		if lt, err := parseStamp(r.Stamp); err != nil {
+			s.logf("charlogout stamp parse.err %q: %v — SetLogoutUser пропущен", r.Stamp, err)
+		} else if err := db.SetLogoutUser(context.Background(), s.exec, charID, s.dbServerID(), s.dbServerID(), lt); err != nil {
+			s.logf("charlogout setlogout db.err char=%d err=%v", charID, err)
+			s.send("db.err", "accache", err.Error())
+		} else {
+			s.logf("charlogout setlogout char=%d server=%d t=%s", charID, s.cfg.DB.ServerID, lt.Format(time.RFC3339))
+		}
+	}
 }
 
 // 0x19 UPDATE_HIDDEN_FATIGUE: C2S -> тишина (capture).

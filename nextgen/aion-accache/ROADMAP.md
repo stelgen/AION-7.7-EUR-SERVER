@@ -13,17 +13,17 @@
 | R2 | ✅ | Каркас nextgen/aion-accache: proto+dispatch+cache+db-интерфейс+server+ship, тесты зелёные (07.10) |
 | R1 | ✅ | **capture + wire-канон 10.10**: accmirror v1.1 (:2220→:2221) + копия ACS-2221; 2 логина; дизasm OnRead/GetCmd_ACQ → **len=total** (офф-бай-2 в v1.0/каркасе исправлен), маркеры EB/EC, 0 bad frames на всём capture (RESEARCH §11). Стенд ОСТАВЛЕН работать (дозахват) |
 | R2.5 | ✅ | **Раскладки 10.10**: internal/payload (Version/FirstLoad/BM/Luna/CharLogin/Logout/Fatigue с UTF-16 stamp) на живых golden-кадрах, тесты зелёные; tools/accparse.py v2; frames.txt в capture-артефактах. Хвосты в R3: роли полей Fatigue/Trial (PDB I,H,I,I,I), push 13/15/20/21, T2-канал |
-| R3 | ⏳ | SQLStore (go-mssqldb) + полный хендлер-набор по телам procs (заглушки по мере наблюдения) |
+| R3 | ✅ код 22.10 | SQLStore-каркас (go-mssqldb, MaxOpenConns=10); R3 22.10: db.GetUserInfo (SELECT last_login_time + MAX(user_level) FROM global_user_data — read-proc в 101 procs REF58 НЕТ, проверено; DATEDIFF → int64), db.SetLoginUser/SetLogoutUser_20120703 (char_id, server_id, cur_server_id, login/logout_time datetime — тела REF58), config db.server_id (дефолт 1 кодом); хендлеры: hCharLogin = GetUserInfo (pre-login значение) → resp+пуши → SetLoginUser; hCharLogout → SetLogoutUser; тесты db (формы/аргументы) + e2e login/logout SQL. Живой прогон на AionAccountCacheD_rc = вместе с live A/B (деплой по «го») |
 | R4 | ✅ offline 22.10 | **replay 16/16 (100%) байт-в-байт** (TestR4ReplayCapture на capture-20261007): 4 XFAIL-пуша реализованы и закреплены TestR4PushGoldens (обе сессии, оба чара). Live A/B fork-прогон с оригом — после R3 SQLStore |
 | R5 | ⏳ | Свитч по «го» (задача AionAcc retarget на D:\SAION\aion-accache\run.cmd; откат = retarget обратно) |
 
-## ⏭️ Следующий шаг (R3 SQLStore)
+## ⏭️ Следующий шаг (R4 live A/B)
 
-SQLStore на go-mssqldb (connStr — секрет на VM/env; гранты по образцу logdb) + чтение
-UserInfo из global_user_data (SELECT last_login_time + MAX(user_level) WHERE account_id=?
-AND is_special_server=0 AND delete_date=0) в cache.Store при FIRST_LOAD/CHAR_LOGIN;
-SetLoginUser/SetLogoutUser-раскладки аргументов (арбитр = тела procs REF58) → затем
-live A/B fork-прогон → R5 свитч по «го».
+Деплой стенд-сборки aion-accache с SQLStore (connStr AionAccountCacheD_rc — секрет на VM;
+гранты aionop_ro по образцу logdb) на accmirror-стенд (:2221-копия БЕЗ свитча прод) →
+живой логин юзера → байт-дифф пушей + SQL-дифф (account_data/global_user_data:
+SetLoginUser/SetLogoutUser эффекты, Т15-вариант proc, таймзона Т16) → R5 свитч по «го».
+ДЕПЛОЙ НА СТЕНД = прод-действие — по «го» юзера (ACS-2221 в Console-сессии юзера).
 
 ## R1-детали (архив 10.10 — выполнено)
 
@@ -64,6 +64,9 @@ live A/B fork-прогон → R5 свитч по «го».
 | Т12 | ACP_20[12] (flag): наблюдения 0(10.07)/1/1/0(22.10) | ⏳ гипотезы: «уровень изменился с прошлого refresh» (CHAR_LEVEL_CHANGED ×5 в 22.10) / «pending luna reward». Арбитр = следующий capture с level-up |
 | Т13 | ACP_13 ts 0x640831AE = 2023-03-08 06:56:46Z | ⏳ константа (вероятно sentinel/дата сборки 7.7); на паритет не влияет |
 | Т14 | ACP_15[4] = 0x000A07EA (657386) | ⏳ константа во всех кадрах; не acc/char/ts. На паритет не влияет |
+| Т15 | Какой вариант SetLoginUser зовёт ориг: 20120703 (4 арг) vs 20121120/20121206 (+global_char_id/class_type/race_type; 20121206 ещё и delete_date=0) | ⏳ арбитр = live A/B SQL-дифф: наши 20120703-вызовы НЕ трогают global_char_id/class/race — если у ориг после логина они меняются, variant = 20121206 (тогда источники аргументов = RAM-модель ACS) |
+| Т16 | Таймзона штампа Server64 в C2S CHAR_LOGIN/LOGOUT («2026-10-22T06:53:11.620») | ⏳ парсим как UTC (time.Parse без зоны); арбитр = live A/B SQL-дифф last_login_time vs штамп |
+| Т17 | SetLoginUser ставит last_logout_time = @login_time (тело 20120703/20121206!) — инвариант ll==lo после логина | ✅ из тела proc; объясняет часть RAM-race наблюдений Т10 (значение ll после логина = время логина, lo = то же до SetLogoutUser) |
 | Т9 | CHAR_LOGIN reply приходит РАНЬШЕ replies на предыдущий батч (UPDATE_LUNA/LOAD_LUNA после CHAR_LOGIN) | ✅ ACS многопоточен (numberOfDBThreads=10) — порядок replies недетерминирован; выравнивание по cmd |
 
 ## R4 итог 21.10

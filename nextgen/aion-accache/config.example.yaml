@@ -8,6 +8,7 @@ server:
 db:
   enabled: false        # R3: go-mssqldb; connStr ТОЛЬКО на VM/env
   conn: ""              # Server=(local);Database=AionAccountCacheD_rc;UID=...;PWD=...
+  server_id: 1          # global_user_data.server_id/cur_server_id (SetLogin/SetLogout)
 
 ship:
   enabled: false

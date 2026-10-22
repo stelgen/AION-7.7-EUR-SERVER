@@ -10,8 +10,9 @@ import (
 )
 
 type DB struct {
-	Enabled bool   `yaml:"enabled"`
-	Conn    string `yaml:"conn"` // СЕКРЕТ: только на VM/env
+	Enabled  bool   `yaml:"enabled"`
+	Conn     string `yaml:"conn"`      // СЕКРЕТ: только на VM/env
+	ServerID int    `yaml:"server_id"` // global_user_data.server_id / cur_server_id (дефолт 1 кодом)
 }
 
 type Server struct {
@@ -32,6 +33,7 @@ func Load(path string) (*Cfg, error) {
 	c := &Cfg{}
 	c.Server.Listen = ":2220"
 	c.Server.BaseDir = "logs"
+	c.DB.ServerID = 1 // дефолт кодом (прод: GameServer.gameServerNo=1? арбитр live A/B — в REF58 БД server_id=1)
 	if path == "" {
 		return c, nil
 	}

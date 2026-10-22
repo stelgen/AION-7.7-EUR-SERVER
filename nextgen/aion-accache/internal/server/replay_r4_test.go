@@ -176,6 +176,14 @@ func (f *replayExec) Query(ctx context.Context, q string, args ...any) (db.Rows,
 	defer f.mu.Unlock()
 	f.queryQ = q
 	f.queryArgs = args
+	// R3: GetUserInfo — прямой SELECT по global_user_data (args: acc, acc, char).
+	// Прод-факт 22.10: last_login(acc 1010/char 1002) = 0x6AC5E7B9, maxLevel = 80.
+	if strings.Contains(q, "global_user_data") && len(args) == 3 {
+		if acc, ok := args[0].(int32); ok && acc == 1010 {
+			return &replayRows{data: [][]any{{int64(0x6AC5E7B9), int32(80)}}}, nil
+		}
+		return &replayRows{data: nil}, nil
+	}
 	if strings.Contains(q, "aion_GetAccountData") && len(args) == 1 {
 		acc := args[0].(int32)
 		if a, ok := f.accs[acc]; ok {
