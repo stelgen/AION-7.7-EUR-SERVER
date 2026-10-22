@@ -1,7 +1,17 @@
-# 🧾 ПОЛНЫЙ СНИМОК СТАТУСА — aion-logd (замена LogServer64) на 05.10.2026
+# 🧾 ПОЛНЫЙ СНИМОК СТАТУСА — aion-logd (замена LogServer64) на 22.10.2026
 
 > Консолидация ВСЕХ находок итераций 1–6. Прод: **наш logd в бою на :2051** (SYSTEM-задача
 > AionLogCap → D:\SAION\aion-logd\run.cmd, откат = schtasks /run AionLog).
+
+## ✅ ОБНОВЛЕНИЕ 22.10: SHIP В ЕДИНЫЙ СТЕК ПО СЕТИ + REF58 SQL ЗАКРЫТ
+
+- **ship ON** (config 22.10, LEN 1100): `syslog tcp 127.0.0.1:2514` → reverse-SSH-туннель → rsyslog
+  песочницы → /var/log/aion-ship.log. LIVE: `ev=start` (19:20:02, logdb:true capture_all:true) + поток
+  conn/captcha/status/text-событий. APP не требует фикса: хардкод aion-logd/2051 = корректный для logd.
+- **REF58 SQL ЗАКРЫТ** (инвентарь 22.10): обе процы (UpdateTotalMainStatus + InsertServerinfo) НА ПРОДЕ
+  с 21.10 08:09 + **EXECUTE GRANT aionop_ro на все 6 Log_проц** (verified). Остаток = Т25-маппинг
+  metric1-4 → активация вызова UpdateMainStatus (арбитр = svcNNN-файлы/дизasm ориг LogServer64).
+- Остаток до 100%: Т25 маппинг + активация вызова (микродифф) — единственный открытый пункт.
 
 ## ✅ ОБНОВЛЕНИЕ 05.10 (вечер): Л1–Л4 ЗАКРЫТЫ И ПОДМЕНЕНЫ НА ПРОДЕ
 

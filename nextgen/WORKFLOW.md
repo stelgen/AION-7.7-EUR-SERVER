@@ -13,7 +13,7 @@
 | Имя (любое из) | NC-приложение | Папка | ROADMAP/PROMPT | Статус |
 |---|---|---|---|---|
 | gate / AuthGateD / 2106 | AuthGateD.exe | [aion-gate/](aion-gate/) | docs/ + README §T2-T6 | ✅ релиз ФИНАЛ 10.10 (T3/T4/T5/T6 ✅; опц. T2-а) |
-| logd / LogServer / 2051 | LogServer64.exe | [aion-logd/](aion-logd/) | aion-logd/SNAPSHOT.md | ✅ в бою (~95%) |
+| logd / LogServer / 2051 | LogServer64.exe | [aion-logd/](aion-logd/) | aion-logd/SNAPSHOT.md | ✅ в бою (~97%; ship в сеть 22.10, REF58 SQL закрыт; остаток Т25) |
 | captcha / 22206 | CAPTCHAImageServer.exe | [aion-captcha/](aion-captcha/) | aion-captcha/SNAPSHOT.md | ✅ ФИНАЛ 100% (22.10: ship в единый стек по сети через reverse-SSH-туннель → rsyslog; APP-фикс RFC5424) |
 | op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | 🟢 100% (Phase 1 + 1.5 ДЕПЛОЙ 22.10: await + watchdog, `watchdog.enabled:false` — вкл. по «го») |
 | authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | ✅ R6 в бою ~90% (свитч 09.10, хвосты R6) |

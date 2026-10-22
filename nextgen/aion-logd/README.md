@@ -1,4 +1,4 @@
-# aion-logd — замена LogServer64 (✅ В БОЮ ~95%, Л1–Л4 закрыты)
+# aion-logd — замена LogServer64 (✅ В БОЮ ~97%, Л1–Л4 закрыты, ship в сеть 22.10)
 
 Один Go-исходник → `GOOS=windows/linux`. Анализ протокола: [../LOGD-REWRITE-ANALYSIS.md](RESEARCH.md).
 Статус-снимок: [../LOGD-STATUS-SNAPSHOT.md](SNAPSHOT.md). Стандарт телеметрии: [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
@@ -8,8 +8,8 @@
 - ✅ Протокол 100%, DB-слой (freedisk/serverstatus/InitializeCount), боевая замена на :2051 (см. снимок);
 - ✅ **Л1** `internal/textlog`: type-9 парсер (онлайн-сессии `[key][wchar NUL]` + SYSTEMTIME-хвост
   = последние 16 байт; fixture'ы — реальные capture) → per-service .err/.log + ship-события;
-- ✅ **Л2** logdb: методы UpdateMainStatus/UpdateTotalMainStatus (позиционные {call}) ГОТОВЫ,
-  вызов ЗАГЛУШЕН до деплоя REF58-проц (на проде их НЕТ — оригинал тоже не писал зоны, 2812) + маппинга metric1-4;
+- ✅ **Л2** logdb: методы UpdateMainStatus/UpdateTotalMainStatus (позиционные {call}) ГОТОВЫ;
+  **REF58-проц на проде ЕСТЬ** (обе созданы 21.10 + EXECUTE GRANT aionop_ro verified 22.10); вызов ждёт только Т25-маппинг metric1-4 (арбитр = svcNNN-файлы/дизasm);
 - ✅ **Л3** InitializeCount на ServerStarted svc=3 (старт мира), config `server.init_svc`;
 - ✅ **Л4** retention: writer.Sweep чистит base_dir старше `server.retention_days` (старт + 30 мин);
 - ✅ **ship** `internal/ship`: syslog RFC5424 udp/tcp + HTTP ndjson + локальный фолбэк (только явно);
@@ -27,7 +27,7 @@ GOOS=windows GOARCH=amd64 go build -o aion-logd.exe .        # кросс-сбо
 
 1. Подмена exe на проде новым (staged: `C:\Temp\logd-staged\aion-logd.exe`, MD5 89254d1b):
    `schtasks /end AionLogCap` → копировать в `D:\SAION\aion-logd\` → `schtasks /run AionLogCap` (откат — старый exe там же в bak);
-2. Л2-добой: деплой 2 REF58-проц (`scripts/sql/ref58-logprocs-pending-20261005.sql`) + маппинг metric1-4 → mainstatus;
+2. Л2-добой: ~~деплой 2 REF58-проц~~ **ЗАКРЫТО 22.10** (procs на проде с 21.10 + гранты verified); остался маппинг metric1-4 → mainstatus (Т25) + активация вызова
 3. Приёмник на Linux (rsyslog) → включить `ship.enabled` в прод-конфиге;
 4. Опц.: дизasm хвоста type-9 (tick/coords/flags) — в raw уже всё есть.
 

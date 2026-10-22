@@ -9,7 +9,7 @@
 
 | Блок | Статус |
 |---|---|
-| Логгер aion-logd | ✅ штатный :2051 (exe MD5 `7aca9dca`, PID см. op), Л1–Л4 закрыты, 0 parse-ошибок; откат = `schtasks /run AionLog`; pending: REF58-процы (§2.3) + ship-приёмник (§2.2) |
+| Логгер aion-logd | ✅ штатный :2051 (exe MD5 `7aca9dca`, PID см. op), Л1–Л4 закрыты, 0 parse-ошибок; откат = `schtasks /run AionLog`; **ship в сеть ✅ 22.10** (туннель→rsyslog) + REF58-проц на проде+гранты ✅ (verified 22.10); остаток = Т25 маппинг metric1-4 + активация вызова |
 | Капча aion-captcha | ✅ **ФИНАЛ 100%** (22.10: ship в единый стек ПО СЕТИ через reverse-SSH-туннель → rsyslog песочницы; ev=start + поток ev=captcha verified; APP-фикс RFC5424; exe `6dbc1825`); откат ship = `ship.enabled:false` |
 | Гейт aion-gate | ✅ РЕЛИЗ на :2106 `mode: authgate` (коммит f8912a9, exe sha `7c4dcab`): e=65537, op=0x00 live-клиента, blob asm-форма 191Б, T1-фейлы (authdTimeoutSec=15, failClose=2, onlineTtl=0 ВЫКЛ, реестр текстов 1..22+45 live); полный юзер-флоу 1/1 и stelgen доказан; юзер играет через fork-стенд; откат exe = `.bak-63f6a47/9c85c12/9f2da98/e1dd475`, режим = `mode: fork` |
 | Fork-стенд authd | ✅ ОТКАТ-РЕЗЕРВ (R6-свитч 09.10): живой путь = наш authd (2110+2104, задача AionAuthdProd); forkauthd :2116 + shadow :2117 остановлены КАК ПУТЬ, живы как откат (`C:\Temp\rollback-gate.ps1` + `D:\SAION\aion-authd\authd-rollback.cmd`); VERDICT-лог `D:\SAION\aion-authd\fork-authd.log` |

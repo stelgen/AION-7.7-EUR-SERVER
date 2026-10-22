@@ -69,7 +69,7 @@ flowchart LR
 
 | Роль | Оригинал | Наш (nextgen) | Статус · % |
 |---|---|---|---|
-| Логгер | LogServer64 `:2051` | `nextgen/aion-logd` (Go) | ✅ ~95% в бою 05.10 (Л1–Л4), откат = `schtasks /run AionLog` |
+| Логгер | LogServer64 `:2051` | `nextgen/aion-logd` (Go) | ✅ ~97% в бою (Л1–Л4; ship в сеть + REF58 SQL ✅ 22.10), откат = `schtasks /run AionLog` |
 | Капча | CAPTCHAImageServer `:22206` | `nextgen/aion-captcha` (Go) | ✅ 100% ФИНАЛ 22.10 (буфер 10000 за ~4с; ship в единый стек ПО СЕТИ через туннель → rsyslog песочницы, verified) |
 | Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ **100% РЕЛИЗ** (`b363dda`, exe `f146a415` 10.10): авт-хвосты закрыты live (T3/T4/T5 ✅), остался опц. T2-а; ⚠ мир-хвост 2-го параллельного клиента (GS-вход) → aion-main |
 | Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | ✅ **R6 В БОЮ ~90% (09.10)**: живой путь 2110+2104; полный цикл юзера + мгновенный перелогин; наблюдение 24ч |
