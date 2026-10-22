@@ -305,3 +305,36 @@ Marker един (0xAE/0xAF), канон един. РАЗЛИЧЕНИЕ по пе
 внутренние идентификаторы (⏳ роль).
 
 Level = SINGLE BYTE at payload[49] (frame[56]) — не dword! Fix в GenerateRPLoadDB: out[56].
+
+## Т32 — RP cmd=0x0E = CHARACTER SETTINGS XML STORE (не items!) 🔥🔥🔥
+
+zlib-пачки распакованы → **UTF-16LE XML** — ЭТО НАСТРОЙКИ КЛИЕНТА, не item-данные!
+
+| Page | Decompressed | XML Tags |
+|---|---|---|
+| 0 | 28578Б | 100 тегов: abyss_fort_info_pos, auto_use_*_item, boost_weapon, cam_*, ch_emotion_history0-9, ch_lock, ch_msg_color, ch_tab_msg... |
+| 1 | 3098Б | botting, chainskill, custom_chainskill, devanion_skill_setting, quickbar_option_ex, **qb ×9** (quickbar слоты!) |
+| 2 | 744Б | favorite_monster_achievement, housing_favorite_buddy_list, indun_cooltime_favorite_list, item_collection_favorite_list, title_favorite_list |
+
+**CacheD = RAM-кэш аккаунтов + ХРАНИЛИЩЕ НАСТРОЕК КЛИЕНТА (XML) + item-инвентарь.**
+Клиент генерирует XML → Server64 → CacheD (zlib) → при следующем логине CacheD отдаёт.
+MVP: кэшировать zlib-XML per-charId (settings_store.go реализован).
+
+## Т33 — RP cmd=109 = ITEM INVENTORY BLOCKS (паттерн найден!)
+
+Повторяющаяся структура: **каждые ~470Б** — item-запись:
+- Маркер [ffff] на offsets 300/770/1240/1710/2180/2650/3120/3590/4060/4530/5000/5470/5940/6410/6880/7350/7820
+- Между маркерами: item-поля с **Aion item template IDs** (100050302, 100950295, 110650323, 100050295...)
+- Поля item: [itemId][count][0xffff][enchant][manastones][...]
+- ~17 items × 12 blocks = **~204 items** (полный инвентарь чара)
+
+## Т34 — RP cmd=1 ДНОПАДЕННЫЕ ПОЛЯ (полный non-zero map 1149Б)
+
+[X+a echo] · [01] · [ff40529f hash] · [charRef] · [позиция e7096e15] · [979a2402 counter] ·
+[level=80 single byte @49] · [02] · [статы e35d/c72b/3c/16] · [1000 + "DVM-" + hash] ·
+["DVM-" repeat @317] · [координаты ×3 = мир-ID 110010000 + позиция] · [timestamps dcd56a/c47ed96a] ·
+[01] · [2b/5b] · [1e=30] · [0a=10] · [a08601 = 100000 KINAH!] · [01] ·
+["SteLGeN-" + hash UTF-16 = FULL CHAR NAME @903] · [timestamp prev login] · [статы/данные] · [timestamps]
+
+**a08601 = 100000 = KINAH!** Уровень = SINGLE BYTE @payload[49]. Координаты ×3 = мир-ID + позиция.
+Полное имя чара = "SteLGeN-" + binary hash UTF-16 @903.
