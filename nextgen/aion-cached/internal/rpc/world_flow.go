@@ -29,8 +29,13 @@ var worldFlowFS embed.FS
 // Сессионные константы sess1 (capture 2026-10-23, юзер 1010/чар 1002):
 // шаблоны chain_worldinit содержат ЭТИ значения — при эмиссии подставляем текущие.
 const (
-	WorldFlowSess1X uint32 = 0x508F3700
+	// WorldFlowSess1X — X как LE-чтение C288 sess1 (байты на проводе 50 8f 37 00).
+	// ⚠ 23.10-урок: кадры несут байты C288 КАК ЕСТЬ (НЕ реверс) — раньше был
+	// ошибочный BE-интерпрет 0x508F3700, дававший LE-запись при замене.
+	WorldFlowSess1X uint32 = 0x00378F50
 	WorldFlowSess1A byte   = 4
+	// WorldFlowSess1CharRef — чар 1002 (capture sess1); sess может быть другим чаром.
+	WorldFlowSess1CharRef uint32 = 0x020003EA
 )
 
 // GetWorldFlowChain — полный init-флоу O-кадров (118 кадров, 105КБ) sess1.
@@ -60,17 +65,13 @@ func GetCharListChain() []byte {
 // Заменяем XFrom на XTo В ТОМ ЖЕ порядке байт, где нашли.
 // a @frame[13] — изолированно (Т38: 4/3). Зона поиска = первые 25Б кадра
 // (за пределами — X в данных встречается, не трогаем).
-func SubstituteWorldFlow(frame []byte, xFrom, xTo uint32, aFrom, aTo byte) []byte {
+func SubstituteWorldFlow(frame []byte, xFrom, xTo, charRefFrom, charRefTo uint32, aFrom, aTo byte) []byte {
 	out := append([]byte(nil), frame...)
 	leFrom := make([]byte, 4)
 	binary.LittleEndian.PutUint32(leFrom, xFrom)
 	leTo := make([]byte, 4)
 	binary.LittleEndian.PutUint32(leTo, xTo)
-	beFrom := make([]byte, 4)
-	binary.BigEndian.PutUint32(beFrom, xFrom)
-	beTo := make([]byte, 4)
-	binary.BigEndian.PutUint32(beTo, xTo)
-	// зона поиска: frame[5:25] (после заголовка, внутри начала payload)
+	// зона поиска X: frame[5:25] (шапка; байты C288 как есть)
 	searchEnd := 25
 	if len(out) < searchEnd {
 		searchEnd = len(out)
@@ -78,11 +79,29 @@ func SubstituteWorldFlow(frame []byte, xFrom, xTo uint32, aFrom, aTo byte) []byt
 	head := out[:searchEnd]
 	if idx := indexOf(head, leFrom); idx >= 0 {
 		copy(out[idx:idx+4], leTo)
-	} else if idx := indexOf(head, beFrom); idx >= 0 {
-		copy(out[idx:idx+4], beTo)
 	}
+	// a — изолированно (Т38: 4/3)
 	if len(out) > 13 && out[13] == aFrom {
 		out[13] = aTo
+	}
+	// charRef: замена ПЕРВОГО вхождения LE-байтов в head[5:48]
+	// (sess3-урок: юзер может войти другим чаром — charId=charRef&0xFFFF)
+	if charRefFrom != charRefTo {
+		crFrom := make([]byte, 4)
+		binary.LittleEndian.PutUint32(crFrom, charRefFrom)
+		crTo := make([]byte, 4)
+		binary.LittleEndian.PutUint32(crTo, charRefTo)
+		end := 48
+		if len(out) < end {
+			end = len(out)
+		}
+		if idx := indexOf(out[:end], crFrom); idx >= 0 {
+			copy(out[idx:idx+4], crTo)
+			// charId-байт: payload[0] у O61-семейства (ea/eb = charId&0xFF)
+			if len(out) > 8 {
+				out[7] = byte(charRefTo & 0xFF)
+			}
+		}
 	}
 	return out
 }
@@ -117,21 +136,21 @@ func SplitWorldFlowPreload(blob []byte) (preload, load [][]byte) {
 }
 
 // EmitWorldFlowPreload — сессионно-подставленный preload (O196+O90).
-func EmitWorldFlowPreload(x uint32, a byte) []byte {
+func EmitWorldFlowPreload(x, charRef uint32, a byte) []byte {
 	preload, _ := SplitWorldFlowPreload(GetWorldFlowChain())
 	var out []byte
 	for _, f := range preload {
-		out = append(out, SubstituteWorldFlow(f, WorldFlowSess1X, x, WorldFlowSess1A, a)...)
+		out = append(out, SubstituteWorldFlow(f, WorldFlowSess1X, x, WorldFlowSess1CharRef, charRef, WorldFlowSess1A, a)...)
 	}
 	return out
 }
 
 // EmitWorldFlowLoad — сессионно-подставленный load-сегмент (O1..O109×7).
-func EmitWorldFlowLoad(x uint32, a byte) []byte {
+func EmitWorldFlowLoad(x, charRef uint32, a byte) []byte {
 	_, load := SplitWorldFlowPreload(GetWorldFlowChain())
 	var out []byte
 	for _, f := range load {
-		out = append(out, SubstituteWorldFlow(f, WorldFlowSess1X, x, WorldFlowSess1A, a)...)
+		out = append(out, SubstituteWorldFlow(f, WorldFlowSess1X, x, WorldFlowSess1CharRef, charRef, WorldFlowSess1A, a)...)
 	}
 	return out
 }

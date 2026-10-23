@@ -24,8 +24,10 @@ func TestWorldFlowCrossSession(t *testing.T) {
 		t.Skipf("нет meta: %v", err)
 	}
 	var meta struct {
-		XSess1 uint32 `json:"X_sess1"`
-		XSess2 uint32 `json:"X_sess2"`
+		XSess1  uint32 `json:"X_sess1"`
+		XSess2  uint32 `json:"X_sess2"`
+		RefSess1 uint32 `json:"ref_sess1"`
+		RefSess2 uint32 `json:"ref_sess2"`
 	}
 	if err := json.Unmarshal(metaRaw, &meta); err != nil {
 		t.Fatal(err)
@@ -63,7 +65,7 @@ func TestWorldFlowCrossSession(t *testing.T) {
 			missing++
 			continue
 		}
-		got := SubstituteWorldFlow(tpl, meta.XSess1, meta.XSess2, 4, 3) // a: 4→3 (Т38)
+		got := SubstituteWorldFlow(tpl, meta.XSess1, meta.XSess2, meta.RefSess1, meta.RefSess2, 4, 3) // a: 4→3 (Т38)
 		want, _ := hexDecode(s2.Hex)
 		n := byteDiffCount(got, want)
 		frameLen := len(want)

@@ -1,1 +1,8 @@
-{"X_sess1": 1351563008, "X_sess2": 546300544, "frames_sess1": 187, "frames_sess2": 202}
+{
+ "X_sess1": 3641168,
+ "X_sess2": 2162331424,
+ "frames_sess1": 187,
+ "frames_sess2": 202,
+ "ref_sess1": 33555434,
+ "ref_sess2": 33555434
+}

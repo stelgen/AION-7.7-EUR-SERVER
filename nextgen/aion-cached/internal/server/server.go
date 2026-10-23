@@ -226,7 +226,11 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				switch frame.Cmd {
 case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 кадров capture-20261023)
 					if sessSet && !emittedWorldInit {
-						loadChain := rpc.EmitWorldFlowLoad(sess.X, sess.A)
+						var charRef uint32 = rpc.WorldFlowSess1CharRef
+						if len(frame.Payload) >= 10 {
+							charRef = 0x02000000 | uint32(binary.LittleEndian.Uint16(frame.Payload[8:10]))
+						}
+						loadChain := rpc.EmitWorldFlowLoad(sess.X, charRef, sess.A)
 						if len(loadChain) > 0 {
 							resp = append(resp, loadChain...)
 							emittedWorldInit = true
