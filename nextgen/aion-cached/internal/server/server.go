@@ -170,7 +170,6 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	var sess rpc.Session // R4.5: сессионные поля из cmd=288 (X/a/accId)
 	sessSet := false
 	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
-	var worldInitReplay *rpc.WorldInitReplay // R5: мир-init replay (per-conn)
 	emittedWorldInit := false // R5: мир-init отработан в этом коннекте
 
 	for {
@@ -226,7 +225,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			if ch == ChanServer && sessSet {
 				switch frame.Cmd {
 case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 кадров capture-20261023)
-					if !emittedWorldInit {
+					if sessSet && !emittedWorldInit {
 						loadChain := rpc.EmitWorldFlowLoad(sess.X, sess.A)
 						if len(loadChain) > 0 {
 							resp = append(resp, loadChain...)
@@ -280,13 +279,7 @@ case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 к
 				}
 				// R5: мир-init replay — для cmds с captured-цепочками, не покрытых login-path/NPCSvr
 				if resp == nil || len(resp) == 0 {
-					if worldInitReplay == nil {
-						worldInitReplay = rpc.NewWorldInitReplay()
-					}
-					if r := worldInitReplay.EmitWorldInit(frame.Cmd); len(r) > 0 {
-						resp = append(resp, r...)
-						log.Printf("[cached] %s world-init cmd=%d → replay %dB", name, frame.Cmd, len(r))
-					}
+					log.Printf("[cached] %s unhandled cmd=%d (WorldInitReplay fallback DISABLED при активном world-flow, R5)", name, frame.Cmd)
 				}
 			}
 			if len(resp) > 0 {
