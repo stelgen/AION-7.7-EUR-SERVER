@@ -4,6 +4,7 @@
 package rpc
 
 import (
+	"math"
 	"context"
 	"encoding/binary"
 	"fmt"
@@ -151,4 +152,77 @@ func fmtItemRecord(r ItemRecord) string {
 		return fmt.Sprintf("item=%d len=%d", r.ItemID, r.Length)
 	}
 	return fmt.Sprintf("len=%d", r.Length)
+}
+
+// CharWorldData — данные чара из мир-БД (user_data) для DB-генератора RP cmd=1.
+// Источник: SELECT из _AionWorldNew114_rc.dbo.user_data WHERE char_id=?.
+type CharWorldData struct {
+	Lev                int32
+	LastNormalX        float32
+	LastNormalY        float32
+	LastNormalZ        float32
+	ResurrectX         float32
+	ResurrectY         float32
+	ResurrectZ         float32
+	CharName           string // "Имя-Зона" UTF-16 в payload[903:928]
+}
+
+// Т-координат-офсеты (Этап 0 карта, db-field-map-20261023.md):
+// last_normal@428/432/436, resurrect@448/452/456 (payload-relative).
+const (
+	offLastNormalX = 428
+	offLastNormalY = 432
+	offLastNormalZ = 436
+	offResX        = 448
+	offResY        = 452
+	offResZ        = 456
+)
+
+// GenerateRPLoadFromTemplate — DB-генератор RP cmd=1: captured-шаблон + данные
+// ЧАРА ИЗ БД (не из capture другой сессии). Подстановки: X, charRef, level,
+// last_normal/resurrect координаты, charName UTF-16.
+// Критерий Этапа 1: generated(1002) vs sess1-capture ✓ И generated(1004) vs
+// sess4-capture ✓ — доказательство "из БД для любого чара".
+func GenerateRPLoadFromTemplate(tpl []byte, sessionX, charRef uint32, w CharWorldData) []byte {
+	out := make([]byte, len(tpl))
+	copy(out, tpl)
+	if len(out) < 7+offCharNam+25 {
+		return out
+	}
+	// X @payload[0:4]
+	binary.LittleEndian.PutUint32(out[7+offX:11+offX], sessionX)
+	// charRef @payload[21:25]
+	binary.LittleEndian.PutUint32(out[7+offCharRef:11+offCharRef], charRef)
+	// level @payload[49] (single byte)
+	out[7+offLevel] = byte(w.Lev)
+	// координаты last_normal / resurrect (float32 LE)
+	putF := func(off int, v float32) {
+		binary.LittleEndian.PutUint32(out[7+off:11+off], mathFloat32bits(v))
+	}
+	putF(offLastNormalX, w.LastNormalX)
+	putF(offLastNormalY, w.LastNormalY)
+	putF(offLastNormalZ, w.LastNormalZ)
+	putF(offResX, w.ResurrectX)
+	putF(offResY, w.ResurrectY)
+	putF(offResZ, w.ResurrectZ)
+	// charName UTF-16LE @payload[903:928] (25Б: имя+зона, pad 0x00)
+	name := w.CharName
+	nb := make([]byte, 25)
+	i := 0
+	for _, r := range name {
+		if i+2 > 25 {
+			break
+		}
+		if r < 0x10000 {
+			nb[i] = byte(r)
+			nb[i+1] = byte(r >> 8)
+			i += 2
+		}
+	}
+	copy(out[7+offCharNam:7+offCharNam+25], nb)
+	return out
+}
+
+func mathFloat32bits(v float32) uint32 {
+	return math.Float32bits(v)
 }
