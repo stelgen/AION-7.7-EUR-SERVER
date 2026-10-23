@@ -171,6 +171,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	sessSet := false
 	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
 	var worldInitReplay *rpc.WorldInitReplay // R5: мир-init replay (per-conn)
+	emittedWorldInit := false // R5: мир-init отработан в этом коннекте
 
 	for {
 		n, err := conn.Read(buf)
@@ -224,13 +225,25 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			// R4/R4.5: read-path emission (chain + session-подстановки + acks Т39)
 			if ch == ChanServer && sessSet {
 				switch frame.Cmd {
-				case 11: // RQ_LOAD → ChainReplay (RP cmd=1) + session-подстановки
-					loadChain := rpc.ApplySessionToChain(rpc.GetLoadChain(), sess)
-					if len(loadChain) > 0 {
-						resp = append(resp, loadChain...)
+case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 кадров capture-20261023)
+					if !emittedWorldInit {
+						loadChain := rpc.EmitWorldFlowLoad(sess.X, sess.A)
+						if len(loadChain) > 0 {
+							resp = append(resp, loadChain...)
+							emittedWorldInit = true
+						}
+						log.Printf("[cached] %s RQ_LOAD → world-flow load %d bytes (session-applied, R5)", name, len(loadChain))
+					} else {
+						loadChain := rpc.ApplySessionToChain(rpc.GetLoadChain(), sess)
+						if len(loadChain) > 0 {
+							resp = append(resp, loadChain...)
+						}
+						log.Printf("[cached] %s RQ_LOAD → chain replay %d bytes (session-applied, fallback)", name, len(loadChain))
 					}
-					log.Printf("[cached] %s RQ_LOAD → chain replay %d bytes (session-applied)", name, len(loadChain))
-				case 14: // RQ_LOAD_ITEM → ChainReplay (page=00 echo, page=01 data) + acks (Т39)
+					case 14: // RQ_LOAD_ITEM → ChainReplay (page=00 echo, page=01 data) + acks (Т39)
+						if emittedWorldInit {
+							log.Printf("[cached] %s RQ_LOAD_ITEM skipped (world-init already emitted)", name)
+						} else {
 					page := byte(0)
 					if len(frame.Payload) > 20 {
 						page = frame.Payload[20]
@@ -245,6 +258,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 					} else {
 						log.Printf("[cached] %s RQ_LOAD_ITEM page=%d → chain replay %d bytes", name, page, len(chain))
 					}
+						}
 				case 201: // R4.7.1: NPCSvr-коннект (0x0C9) — переключение в NPCSvr-replay
 					if npcReplay == nil {
 						npcReplay = rpc.NewNpcSrvReplay()
