@@ -3,6 +3,7 @@
 package server
 
 import (
+	"context"
 	"bufio"
 	"time"
 	"bytes"
@@ -13,6 +14,7 @@ import (
 
 	"encoding/binary"
 
+	"aion-cached/internal/db"
 	"aion-cached/internal/rpc"
 	"aion-cached/internal/wire"
 )
@@ -24,6 +26,7 @@ type Config struct {
 	NpcDbPort    int    `json:"npcdb_port"`
 	CryptSeedHex string `json:"crypt_seed_hex"`
 	DBConn       string `json:"db_conn"`
+	WorldConn    string `json:"world_conn"`
 }
 
 // DefaultConfig — канон: 2006/2007/2009, дефолт-seed.
@@ -82,6 +85,7 @@ type Server struct {
 	cfg    Config
 	testLn map[Channel]net.Listener
 	SDB    *SettingsDB // DB-персист настроек (nil = RAM-only)
+	WorldEx db.Executor   // мир-БД (_AionWorldNew114_rc) для DB-генератора (nil = chain-only)
 }
 
 // New — конструктор.
@@ -227,15 +231,36 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 кадров capture-20261023)
 					if sessSet && !emittedWorldInit {
 						var charRef uint32 = rpc.WorldFlowSess1CharRef
+						var charId uint32
 						if len(frame.Payload) >= 10 {
-							charRef = 0x02000000 | uint32(binary.LittleEndian.Uint16(frame.Payload[8:10]))
+							charId = uint32(binary.LittleEndian.Uint16(frame.Payload[8:10]))
+							charRef = 0x02000000 | charId
 						}
-						loadChain := rpc.EmitWorldFlowLoad(sess.X, charRef, sess.A)
-						if len(loadChain) > 0 {
-							resp = append(resp, loadChain...)
-							emittedWorldInit = true
+						if s.WorldEx != nil {
+							// Этап 5: DB-генератор — данные чара из мир-БД
+							ctx := context.Background()
+							wd, err := db.GetCharWorldData(ctx, s.WorldEx, charId)
+							items, ierr := db.GetUserItems(ctx, s.WorldEx, charId)
+							if err == nil && ierr == nil {
+								chainFrames := rpc.SplitWorldFlowFrames(rpc.GetWorldFlowChain())
+								wd2 := rpc.CharWorldData{Lev: wd.Lev, LastNormalX: wd.LastNormalX, LastNormalY: wd.LastNormalY, LastNormalZ: wd.LastNormalZ, ResurrectX: wd.ResX, ResurrectY: wd.ResY, ResurrectZ: wd.ResZ, CharName: "SteLGeN-잉기스온"}
+								var itemRows []rpc.DBItemRow
+								for _, it := range items { itemRows = append(itemRows, rpc.DBItemRow{NameID: it.NameID, Amount: it.Amount, Slot: it.Slot, Warehouse: it.Warehouse}) }
+								dbFrames := rpc.EmitWorldFlowDB(chainFrames, sess.X, charRef, wd2, itemRows)
+								for _, df := range dbFrames { resp = append(resp, df...) }
+								emittedWorldInit = true
+								log.Printf("[cached] %s RQ_LOAD → world-flow DB %d frames (char=%d lev=%d items=%d)", name, len(dbFrames), charId, wd.Lev, len(items))
+							} else {
+								log.Printf("[cached] %s RQ_LOAD DB-запрос fail (err=%v ierr=%v) — fallback chain", name, err, ierr)
+								loadChain := rpc.EmitWorldFlowLoad(sess.X, charRef, sess.A)
+								if len(loadChain) > 0 { resp = append(resp, loadChain...); emittedWorldInit = true }
+							}
+						} else {
+							// chain-replay fallback (WorldEx nil)
+							loadChain := rpc.EmitWorldFlowLoad(sess.X, charRef, sess.A)
+							if len(loadChain) > 0 { resp = append(resp, loadChain...); emittedWorldInit = true }
+							log.Printf("[cached] %s RQ_LOAD → world-flow load %d bytes (session-applied, R5)", name, len(loadChain))
 						}
-						log.Printf("[cached] %s RQ_LOAD → world-flow load %d bytes (session-applied, R5)", name, len(loadChain))
 					} else {
 						loadChain := rpc.ApplySessionToChain(rpc.GetLoadChain(), sess)
 						if len(loadChain) > 0 {
