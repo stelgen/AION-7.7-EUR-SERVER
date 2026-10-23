@@ -1,5 +1,12 @@
 # ROADMAP — aion-cached (Go-фреймворк CacheD64)
 
+> **23.10 ПОЛНЫЙ ЦИКЛ ПОДТВЕРЖДЁН** (логин→чарлист→мир→выход через тень):
+> RP_VERSION dispatched ×2, RQ_U_SAVE parsed ×2 (char=1002 842Б), RQ_LEAVE_WORLD parsed (координаты),
+> authdprod полный цикл юзера (clearOnlineOnDisconnect ✓, users=1→0 ✓).
+> DB-генератор Этапы 0,1,3,5 ✅: O1 из user_data (0 diff), O109 из user_item (96%), O14 settings store.
+> Мир-init = 4-е доказательство крэш-лупа (сотни RP-ответов при world startup — 1-2 недели RE).
+> Тень v16b WorldDB connected, парсит всё в фоне.
+
 > Журнал теорий / леджер решений для трека reverse-engineering CacheD64.
 > Фазы: R1 каркас → R2 дизasm → R3 Go MVP → R4 A/B → R5 свитч.
 
