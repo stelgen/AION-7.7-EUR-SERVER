@@ -179,7 +179,24 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 		}
 		pending = append(pending, buf[:n]...)
 
-		for len(pending) >= wire.HeaderWire {
+		for {
+			// R3 GQ/GP (дизasm-канон 23.10): relay-кадр = [u16 total][type u8≤5][0xBE]...
+			// — короче HeaderWire и без 0xEB-маркера; Feed reject'нул бы его
+			// (bad size/marker) и закрыл conn ⇒ детектим на СЫРОМ буфере до Feed.
+			if ch == ChanServer && len(pending) >= 4 {
+				if typ, total, ok := relayFrame(pending); ok {
+					if len(pending) < total {
+						break // ждём ещё байт
+					}
+					payload := append([]byte(nil), pending[4:total]...)
+					pending = pending[total:]
+					_ = relayWireDispatch(&mode, typ, payload)
+					continue
+				}
+			}
+			if len(pending) < wire.HeaderWire {
+				break
+			}
 			consumed, frame, ferr := dec.Feed(pending)
 			if ferr != nil {
 				if isErrShort(ferr) {
@@ -191,12 +208,6 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			}
 			pending = pending[consumed:]
 
-			// R3 GQ/GP: NPRelay64 handshake переключает conn в relay-режим
-			if ch == ChanServer && maybeRelayHandshake(&mode, frame.Cmd) {
-				name := rpc.Name(6, frame.Cmd) // GQ-имя из .profile (idx 6)
-				_ = relayGQDispatch(&mode, ch, frame.Cmd, frame.Payload, name)
-				continue // pending уже съеден выше
-			}
 
 			// R4.5: сессионные поля из cmd=288 (первый кадр): [X u32][a u32][accId u16]
 			if frame.Cmd == 288 && len(frame.Payload) >= 12 {

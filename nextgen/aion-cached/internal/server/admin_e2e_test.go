@@ -150,8 +150,8 @@ func readFull(c net.Conn, buf []byte) (int, error) {
 	}
 	return total, nil
 }
-// e2e: GQ/GP MVP — NPRelay64 handshake GQ_LOGON(2) переключает conn в relay-режим,
-// далее cmd=2 трактуется как GQ (silent, имя из .profile idx 6), без ответа.
+// e2e: relay-wire MVP (дизasm-канон 23.10) — NPRelay кадр [u16 total][type u8][0xBE]
+// переключает conn в relay-режим, type 1-5 = silent (паритет NoPacket), без ответа.
 func TestRelayGQHandshakeE2E(t *testing.T) {
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
@@ -168,17 +168,35 @@ func TestRelayGQHandshakeE2E(t *testing.T) {
 	defer c.Close()
 	_ = c.SetDeadline(time.Now().Add(3 * time.Second))
 
-	// 1) handshake: GQ_LOGON(2)
-	if _, err := c.Write(buildTestFrame(2, make([]byte, 8))); err != nil {
+	// 1) handshake: relay-wire type=2 (GQ_LOGON)
+	if _, err := c.Write(relayTestFrame(2, make([]byte, 8))); err != nil {
 		t.Fatal(err)
 	}
 	expectSilence(t, c)
 
-	// 2) в relay-режиме cmd=2 = GQ_LOGON-семейство (silent, conn жив)
-	if _, err := c.Write(buildTestFrame(2, make([]byte, 8))); err != nil {
+	// 2) relay-режим: type=2 silent (паритет NoPacket), conn жив
+	if _, err := c.Write(relayTestFrame(2, make([]byte, 8))); err != nil {
 		t.Fatalf("conn closed in relay mode: %v", err)
 	}
 	expectSilence(t, c)
+
+	// 3) type=3 (GQ_ITEMADD) — silent, conn жив; type=6 НЕ relay (аккache-кадр)
+	if _, err := c.Write(relayTestFrame(3, []byte{1, 2, 3, 4})); err != nil {
+		t.Fatalf("conn closed after ITEMADD: %v", err)
+	}
+	expectSilence(t, c)
+}
+
+// relayTestFrame — relay-wire кадр по дизasm-канону 23.10:
+// [u16 total LE][type u8][0xBE][payload]; total = полная длина кадра.
+func relayTestFrame(typ byte, payload []byte) []byte {
+	total := 4 + len(payload)
+	out := make([]byte, total)
+	binary.LittleEndian.PutUint16(out, uint16(total))
+	out[2] = typ
+	out[3] = 0xBE
+	copy(out[4:], payload)
+	return out
 }
 
 func expectSilence(t *testing.T, c net.Conn) {

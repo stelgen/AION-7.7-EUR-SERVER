@@ -1,68 +1,84 @@
 // relay_handlers.go — GQ/GP MVP (NPRelay-клиент на 2006).
 //
-// КАНОН (доказано 22.10):
+// КАНОН (дизasm 23.10, [cached-ref/gq-gp-wire-20261023.md] — supersedes 22.10-гипотезу):
 //   - NPRelay64 common.xml: cacheServerPort=2006 — релей подключается к ТОМУ ЖЕ
-//     2006-каналу, что и Server64 (второй тип клиента).
-//   - GQ (NPRelay2Server, 55 ops) — запросы релея; GP (Server2NPRelay, 52) — ответы.
-//   - id-пространства RQ (Server2DB) и GQ ПЕРЕСЕКАЮТСЯ (RQ_U_UPDATE_COUNT=2 vs
-//     GQ_LOGON=2) ⇒ режим соединения переключается по handshake-кадру:
-//     GQ_LOGON(2)/GQ_KICKOFF(1) → per-conn relay-режим (диспетчер GQ-имён).
-//   - ProtocolVersion@RelaySocket (0x14008d940) = `xor eax,eax; ret` — NO-OP
-//     заглушка (как DummyCrypt), handshakes в этой сборке упрощены.
+//     2006-каналу, что и Server64 (второй тип клиента, НЕ отдельный порт).
+//   - Binary relay-wire = ЗАГЛУШКА: RelaySocket::OnRead @0x14008e080 — ACS-каркас
+//     (state@+0x1cc/len@+0x1c8/buf@+0x2008/handler-table@+0x1d8, лимит 0x2000),
+//     кадр = [u16 total][type u8][0xBE const][payload], type u8 = 0..5
+//     (≥6 → лог "Not supported operation" + close), NO cmd u16 / NO 0xEB-маркер.
+//   - Таблица хендлеров @0x141556d50: slot0=ProtocolVersion (xor eax,eax;ret —
+//     NO-OP), slot1-5=NoPacket (лог "not supported", ret 0, БЕЗ ответа).
+//     OnCreate таблицу НЕ переустанавливает ⇒ по wire живут только type 0..5,
+//     и все они silent (ориг отвечает NOTHING) — наш silent-MVP = байт-паритет.
+//   - Реальный NPRelay-флоу (wallet/vendor/mail/escrow) = RQ-канон 2006 через
+//     общий ServerToDb-диспетчер: 9 Decode*Relay(RelaySocket*) + 8
+//     Encode*Result + Get/PutRelaySocketPtr — раскладки в доке §2/§3.
+//   - GQ/GP-имена из .profile (55/52 ops) = словарь 2007-text admin-канала
+//     (теория #14 подтверждена дизasmом), НЕ binary wire.
 //
-// Политика MVP: все GQ-cmds silent-лог (раскладки = capture R4), GP-ответы НЕ
-// эмитим. GQ-таблица: GQ_ITEMADD=3, GQ_MAKEBUILDER=7, GQ_CHECK_CHAR=20,
-// GQ_SET_BUILDER_CHAR=22, GQ_KICK_CHAR=24, GQ_MAIL_SEND=34, GQ_BUILD_COMMAND=43.
+// Политика MVP: relay-кадры silent-лог (паритет NoPacket: ориг молчит), GP
+// НЕ эмитим. Детект = на СЫРОМ буфере ДО accache-Feed (relay-кадр короче
+// HeaderWire=7 и маркер чужой — Feed его reject'нул бы и закрыл conn).
 package server
 
 import (
+	"encoding/binary"
 	"log"
 
-	"aion-cached/internal/rpc"
 	"aion-cached/internal/ship"
 )
 
-// GQ-константы (handshake/ключевые).
-const (
-	gqKickoff = 1
-	gqLogon   = 2
-)
+// relayBe — константа протокола RelaySocket (GetCmd_WRQ: buf[1] обязан = 0xBE).
+const relayBe = 0xBE
+
+// relayTypeNames — имена wire-type 0..5 (слоты таблицы 0x141556d50:
+// slot0=ProtocolVersion, slot1-5=NoPacket; GQ-семантика по .profile).
+var relayTypeNames = [6]string{"VERSION", "GQ_KICKOFF", "GQ_LOGON", "GQ_ITEMADD", "GQ_ITEMDELETE", "GQ_ITEMMOVE"}
 
 // connMode — режим соединения 2006.
 type connMode int
 
 const (
 	modeServer connMode = iota // Server64: RQ/RP (дефолт)
-	modeRelay                  // NPRelay64: GQ/GP (после handshake)
+	modeRelay                  // NPRelay64: relay-wire (после первого [type][0xBE]-кадра)
 )
 
-// relayGQHandler — хандлер GQ-опкода (silent MVP).
-type relayGQHandler func(name string, opcode uint16, payload []byte) []byte
-
-// relayHandlers — GQ-диспетчер (silent по умолчанию).
-func relayGQDispatch(mode *connMode, ch Channel, opcode uint16, payload []byte, name string) []byte {
-	log.Printf("[cached] relay GQ %s (op=%d, %d bytes) — silent (раскладки = capture R4)",
-		name, opcode, len(payload))
-	ship.Emit(ship.Event{Channel: "relay", Opcode: opcode, Name: name,
-		Bytes: len(payload), Status: "silent-tbd"})
-	return nil
+// relayFrame — детект relay-кадра на сыром буфере (дизasm-канон):
+// [u16 total][type u8 ≤5][0xBE][payload]. total = полная длина кадра.
+// Возвращает type и total; ok=false если это не relay-кадр.
+// Безопасность: у accache-кадра b3 = cmd>>8; cmd с highbyte 0xBE = 0xBE00+ >
+// лимита 0x2000 ⇒ протокол-кадр с b3==0xBE не существует — ложных срабатываний нет.
+func relayFrame(b []byte) (typ byte, total int, ok bool) {
+	if len(b) < 4 {
+		return 0, 0, false
+	}
+	if b[2] > 5 || b[3] != relayBe {
+		return 0, 0, false
+	}
+	total = int(binary.LittleEndian.Uint16(b[0:2]))
+	if total < 4 || total > 0x2000 {
+		return 0, 0, false
+	}
+	return b[2], total, true
 }
 
-// maybeRelayHandshake — если кадр = GQ_LOGON/GQ_KICKOFF (ServerToDb-имена при этом
-// не меняются: RQ-таблица тоже содержит 1/2, но это RQ_UNUSED_0/RQ_U_UPDATE_COUNT —
-// handshake релея различаем ПО ИМЕНИ-КЛАССУ ниже; MVP-эвристика: кадр cmd 1/2 в
-// начале соединения переводит conn в relay-режим — Server64 первым кадром шлёт
-// RQ_VERSION(215) или RQ_TEST_* (не 1/2), NPRelay64 — GQ_LOGON(2)/GQ_KICKOFF(1).
-func maybeRelayHandshake(mode *connMode, opcode uint16) bool {
-	if *mode == modeRelay {
-		return true // уже релей
-	}
-	if opcode == gqLogon || opcode == gqKickoff {
+// relayWireDispatch — MVP-хендлер relay-wire кадра (silent, паритет ориг:
+// slot0=NO-OP VERSION, slot1-5=NoPacket "not supported operation" без ответа).
+func relayWireDispatch(mode *connMode, typ byte, payload []byte) []byte {
+	if *mode != modeRelay {
 		*mode = modeRelay
-		log.Printf("[cached] conn switched to RELAY mode (handshake GQ op=%d)", opcode)
-		ship.Emit(ship.Event{Channel: "relay", Opcode: opcode,
-			Name: rpc.Name(6, opcode), Status: "handshake"})
-		return true
+		log.Printf("[cached] conn switched to RELAY mode (wire type=%d %s)", typ, relayTypeNames[typ])
+		ship.Emit(ship.Event{Channel: "relay", Opcode: uint16(typ),
+			Name: relayTypeNames[typ], Status: "handshake"})
 	}
-	return false
+	name := relayTypeNames[typ]
+	status := "noop"
+	if typ >= 1 {
+		status = "not-supported(silent-parity)"
+	}
+	log.Printf("[cached] relay wire %s (type=%d, %d bytes) — silent", name, typ, len(payload))
+	ship.Emit(ship.Event{Channel: "relay", Opcode: uint16(typ), Name: name,
+		Bytes: len(payload), Status: status})
+	return nil
 }
