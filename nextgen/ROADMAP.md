@@ -1,7 +1,7 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
 > **Последнее обновление: 22.10.2026 (captcha-финал).** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
-> Кратко: гейт ✅ релиз (f8912a9, полный юзер-флоу, юзер играет через fork-стенд); logd ✅ captcha ✅ в бою; op ✅ Phase 1 управляет стеком;
+> Кратко: гейт ✅ релиз; logd ✅ 100% ФИНАЛ; captcha ✅ 100% ФИНАЛ; op ✅ 100% Phase 1.5 в бою;
 > authd ✅ R6 В БОЮ 09.10; accache ✅ **R5 СВИТЧ ✅ 22.10 — ПРОД = aion-accache :2220** (ориг отведён; контрольный логин чист; Т16/Т17/Т23 финал; R6 = наблюдение 24ч); CacheD64 🟢 ~80% (read-раскладки = capture R4); op ✅ Phase 1.5 ДЕПЛОЙ 22.10 (watchdog по «го»); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него).
 > Следующие чаты: 1) **accache R6 наблюдение 24ч** + op-конфиг accache [aion-accache/ROADMAP.md] 2) **cached R3-хвосты** — read-раскладки RQ_LOAD/LOAD_ITEM/U_SAVE + GQ/GP payload 54 ops → R4 A/B [aion-cached/ROADMAP.md] 3) op watchdog включение по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ. **ТРЕК B ≈ 64%** (binpatch 60: #108 артефакт готов — стенд-тест, #111 ❄️ заморожен до aion-main).
 
@@ -15,7 +15,7 @@
 | Fork-стенд authd | ✅ ОТКАТ-РЕЗЕРВ (R6-свитч 09.10): живой путь = наш authd (2110+2104, задача AionAuthdProd); forkauthd :2116 + shadow :2117 остановлены КАК ПУТЬ, живы как откат (`C:\Temp\rollback-gate.ps1` + `D:\SAION\aion-authd\authd-rollback.cmd`); VERDICT-лог `D:\SAION\aion-authd\fork-authd.log` |
 | Authd (наш) | ✅ **R6 В БОЮ 09.10**: живой путь (2110+2104), полный цикл юзера + мгновенный перелогин + pk1-эхо + квитанции; наблюдение 24ч |
 | aion-accache | ✅ **~95%: R0–R5 ✅ 22.10 — СВИТЧ В ПРОДЕ** (aion-accache :2220, задача AionAccacheProd, ориг отведён; R4 offline 16/16 + live A/B VERDICT байт-в-байт; Т15/Т16/Т17/Т23 финал на прод-логинах; Теории Т1-Т23); R6 = наблюдение 24ч + op-конфиг |
-| CacheD64 (код [aion-cached/](aion-cached/)) | 🟡 **~55%**: R0 ✅ + R1-prep ✅ + **R1 каркас ✅ 21.10** (Reader/Encoder, 3 листенера, 9/9 тестов) + **R2 ЗАКРЫТ ✅ 21.10** — DummyCrypt = NO-OP, wire = plaintext (L2 C1 сурсы пустое тело + Aion CacheD64 крипто-фэмили = мёртвый код, ноль ссылок; алгоритм семьи снят: staticTable[i&0x3F]^key[i&0x7]^data[i]^data[i-1]); осталось R3 MVP read-путь (~590 RPC) → R4 A/B → R5 свитч; шанс ~90% |
+| CacheD64 (код [aion-cached/](aion-cached/)) | 🟢 **~72%**: R4 PASS ✅ (login-path доказан живьём 2×) · NPCSvr-флоу реализован (9 цепочек) · **R5 = мир-init CacheD→Server64 НЕ покрыт** (доказано 3× крэш-луп живьём; мир-init = сотни RP-ответов, оценка 1-2 недели); мир 8/8 на копии-2016 |
 | aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12) + **Phase 1.5 код готов 21.10** (OP-5 await + OP-6 watchdog, `enabled: false` — задеплоить по «го»; [ROADMAP](aion-op/ROADMAP.md) §6); kick-задачи, expected_conns=8; канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)) |
 | Батники | ✅ `AION-START-ALL-v6.bat` (десктоп, всё в session 1) = канон; `C:\Temp\auth.bat = call start-all.bat` — НЕ трогать как кнопку (это старт ВСЕГО стека); изолированный L2Authd = `auth-only.bat`/AionAuthOnly; откат v5 рядом |
 | Феномен «задачи сами Disabled» | ⚠ следить (смягчено pre-check в op + enable-all) |

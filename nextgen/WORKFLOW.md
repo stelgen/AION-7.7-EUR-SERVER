@@ -18,7 +18,7 @@
 | op / оператор / 10200 | — | [aion-op/](aion-op/) | aion-op/ROADMAP.md | 🟢 100% (Phase 1 + 1.5 ДЕПЛОЙ 22.10: await + watchdog, `watchdog.enabled:false` — вкл. по «го») |
 | authd / L2Authd / 2110/2104 | L2Authd.exe | [aion-authd/](aion-authd/) | aion-authd/ROADMAP.md / aion-authd/PROMPT.md | ✅ R6 в бою ~90% (свитч 09.10, хвосты R6) |
 | accache / ACS / AccountCache / 2220 | AccountCacheServer.exe | [aion-accache/](aion-accache/) | aion-accache/ROADMAP.md / aion-accache/PROMPT.md | ✅ ~95% (**R5 СВИТЧ В ПРОДЕ** 22.10: aion-accache :2220, ориг отведён; R6 = наблюдение 24ч) |
-| cache / CacheD64 / 2006 | CacheD64.exe | [aion-cached/](aion-cached/) (код; aion-cache = ресёрч-заготовка) | aion-cached/ROADMAP.md / PROMPT.md | 🟢 ~80% (R1 wire + R2 plaintext + R3 MVP 765 опкодов/781 procs/2007 текстовый/GQ-GP per-conn ✅ 21–22.10; остаток = read-раскладки capture R4) |
+| cache / CacheD64 / 2006 | CacheD64.exe | [aion-cached/](aion-cached/) (код; aion-cache = ресёрч-заготовка) | aion-cached/ROADMAP.md / PROMPT.md | 🟢 ~72% (login-path ✅ доказан живьём; мир-init ❌ доказан 3× крэш-луп; NPCSvr-флоу реализован) | aion-cached/ROADMAP.md / PROMPT.md | 🟢 ~80% (R1 wire + R2 plaintext + R3 MVP 765 опкодов/781 procs/2007 текстовый/GQ-GP per-conn ✅ 21–22.10; остаток = read-раскладки capture R4) |
 | ic / ICServer / 2005/2305 | ICServer.exe | [aion-ic/](aion-ic/) | ROADMAP.md / PROMPT.md | ⬜ не начат |
 | chat / ChannelChat / 10254 | ChannelChat (.NET) | [aion-chat/](aion-chat/) | ROADMAP.md / PROMPT.md | ⬜ не начат (низший) |
 | petition / 2107 | Petition (.NET) | [aion-petition/](aion-petition/) | ROADMAP.md / PROMPT.md | ⬜ не начат (низший) |
