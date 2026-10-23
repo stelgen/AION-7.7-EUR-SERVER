@@ -147,3 +147,12 @@ raw-first (S3): `[RAW-FAIL]` hex тела до парсинга; `[C2S]` имя+
   (откат: authd-rollback.cmd + schtasks AionAuthOnly).
 - При выходе из мира Server64 шлёт type=40/3 (logout-сигнал) → наш authd снимает онлайн-флаг →
   мгновенный перелогин работает. События type=35/24/25/9/38/27 — покрыты квитанциями (см. authd ROADMAP).
+
+## 🔗 23.10 кросс-пульс (cached R4-ФИНАЛ/R5 #4): протокол 2006 распарсен — твои R4.2/R3.8 разблокированы
+
+- **Wire 2006 канон**: `[u16 len][cmd u16 LE][0xAE C2S/0xAF S2C][~cmd = ^cmd][payload]`, plaintext (крипты нет — R2). Ты = клиент 2006 (ServerToDb 381 ops, u16-опкоды). Каркас = accache-формат, маркеры по каналу.
+- **Read-путь логина снят и эмитируется живьём**: 288 (сессия [X][a][accId][pad]) → 90 CharacterList → RQ_LOAD(11) → RP cmd=1 (1156Б char struct: X echo, charRef, level single byte @payload[49], kinah, имя UTF-16 @903) → RQ_LOAD_ITEM(14)×2 → RP cmd=0x0E ×3 (**ZLIB UTF-16 XML settings** — клиентские настройки ходят через CacheD!) → RP cmd=109 ×12 (binary items, 470Б/запись) → enter world. **Т39**: RP-подтверждения 12 cmd × 25Б обязательны (без них нет полного паритета).
+- **Мир-init (R4.6)**: startup-бёрст W5 = login world-flow chain БАЙТ-В-БАЙТ (118/120) + 2 кадра — стартовый протокол = login-path, НЕ отдельный RE. Эталон: `cached-ref/logs-hourly/chain_worldstartup_20261023.bin` (120 кадров/105КБ).
+- **Свитч #4 вердикт (23.10)**: наш v16c встал на 2006/2007/2009 — Server64 при рестарте пары прислал ТОЛЬКО полл op=282 и мир не собрал (0/8; откат). Вывод: **Server64 валидирует ответы кеша на старте** — для твоей cached-интеграции (R4.2) нужен полный мир-init эмиттер (материал: `worldinit-20261023.txt`, 103 O-cmds) + возможно ответ на 282.
+- **DB-генератор**: O1 из `global_user_data`/`user_data` (0 diff), O109 из `user_item` (96%), O14 settings store — твои R3.8 (инвентарь/статы) могут брать ТЕ ЖЕ WorldDB-таблицы: `user_data` (lev/last_normal_*/resurrect_*/name_id...) + `user_item` (name_id/slot_id/amount/slot/warehouse).
+- Готовый источник кадров для твоей тени: aion-cached v16c парсит+эмитирует на :2018 — фингерпринты и тест-эталоны в `nextgen/aion-cached/testdata/`.

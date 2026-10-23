@@ -24,14 +24,14 @@
 flowchart LR
   C["🎮 Клиент"] --> G["aion-gate :2106<br/>✅ 100% релиз"]
   G --> A["aion-authd :2110<br/>✅ R6 в бою ~90%"]
-  W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~30%"] -->|"мир-канал :2104"| A
-  W --> ACS["ACS :2220 (ориг, accmirror-стенд)<br/>🟢 aion-accache ~85%"]
-  W --> CD["CacheD64 :2006 (ориг)<br/>🔬 aion-cache ~20%"]
+  W["Server64 :7777 (ориг, патч 180)<br/>🟡 aion-main ~35%"] -->|"мир-канал :2104"| A
+  W --> ACS["ACS :2220 = НАШ aion-accache<br/>✅ R5 свитч ~95%"]
+  W --> CD["cdmirror :2006 → копия-2016 (ориг)<br/>🟢 aion-cached тень :2018 ~90%"]
   G -. "тень :2117 / fork :2116 = откат" .-> A
   PA["PA :10057 (ориг, ОБЯЗАТЕЛЕН)"] --> A
 ```
 
-Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd переписаны (authd R6 в бою, ориг = откат); мир (main/cache/npc) = деприор перепись — aion-main R0–R4.5 закрыт 21.10 (тень деплоена на VM, smoke E2E PASS) (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
+Ориг L2Authd остановлен (задача AionAuthOnly). **PA(10057) = ОБЯЗАТЕЛЕН** (без него SYSTEM_ERROR(20); см. [nextgen/aion-pa/](nextgen/aion-pa/README.md)). Гейт/логгер/капча/authd/accache переписаны (authd R6 в бою, accache R5 свитч, ориг = откат); кеш мира aion-cached ~90% (R4-ФИНАЛ, фронт = R5 #5 мир-init); мир (main/npc) = деприор перепись — aion-main R0–R4.5 закрыт 21.10 (тень деплоена на VM, smoke E2E PASS) (реестр протокола 637 пакетов live, крипта 7.x подтверждена, Go-каркас тени; свитч = гейт после полного MVP-мира, см. nextgen/README §2); **управление и канал VM = aion-op Agent API** ([nextgen/AGENT-SPEC.md](nextgen/AGENT-SPEC.md)) — см. [nextgen/README.md](nextgen/README.md).
 
 ### Обязательные компоненты (порядок старта = порядок в таблице)
 
@@ -61,9 +61,9 @@ flowchart LR
 
 ---
 
-## 📊 Статус стека (22.10.2026 — зеркалит дашборд [nextgen/README.md §2.5](nextgen/README.md); единый источник статусов — там)
+## 📊 Статус стека (23.10.2026 — зеркалит дашборд [nextgen/README.md §2.5](nextgen/README.md); единый источник статусов — там)
 
-**ВЕСЬ ТРЕК B (перепись на Go): ≈ 63%** — ядро «логин+мир живы» готово; фронт = accache R3 SQLStore + cached R3 read-раскладки → мир (main/npc).
+**ВЕСЬ ТРЕК B (перепись на Go): ≈ 66%** — ядро «логин+мир живы» готово (мир сейчас 0/8 — пара остановлена 23.10); фронт = cached R5 #5 (эмиссия мир-init при рестарте пары) → мир (main/npc).
 
 ### Nextgen-переписи (Трек B — [nextgen/README.md](nextgen/README.md))
 
@@ -74,7 +74,7 @@ flowchart LR
 | Гейт | AuthGateD `:2106` | `nextgen/aion-gate` (Go) | ✅ **100% РЕЛИЗ** (`b363dda`, exe `f146a415` 10.10): авт-хвосты закрыты live (T3/T4/T5 ✅), остался опц. T2-а; ⚠ мир-хвост 2-го параллельного клиента (GS-вход) → aion-main |
 | Authd | L2Authd `:2104/2110` | `nextgen/aion-authd` (Go) | ✅ **R6 В БОЮ ~90% (09.10)**: живой путь 2110+2104; полный цикл юзера + мгновенный перелогин; наблюдение 24ч |
 | Кэш аккаунтов | AccountCacheServer `:2220` | `nextgen/aion-accache` (Go) | ✅ ~95%: **R5 СВИТЧ ✅ 22.10 — прод = aion-accache :2220** (ориг отведён; контрольный логин чист; Т16/Т17/Т23 финал); R6 = наблюдение |
-| Кэш мира | CacheD64 `:2006/2007/2009` | `nextgen/aion-cached` (Go) | 🟢 ~80%: R1 wire-каркас + R2 (DummyCrypt = NO-OP, wire = plaintext) + R3 MVP-диспетчер (765 опкодов/8 протоколов) + DB-слой 781 procs + 2007 текстовый + GQ/GP NPRelay per-conn ✅ 21–22.10; остаток = read-раскладки (capture R4) → A/B → свитч |
+| Кэш мира | CacheD64 `:2006/2007/2009` | `nextgen/aion-cached` (Go) | 🟢 ~90%: R4-ФИНАЛ PASS (offline A/B + живой T39-acks 18/0/12; полный цикл логин→мир→выход через тень) + R4.6 мир-init ✅ (startup = login chain байт-в-байт) + R4.6.2 NPCSvr W30 ✅ + DB-генератор O1/O109/O14 из WorldDB ✅ 23.10; R5 свитч #4: v16c встал, Server64 прислал только полл 282 → откат; #5 = эмиссия мир-init при рестарте пары |
 | Interchange | ICServer `:2005/2305` | `nextgen/aion-ic` | 🔬 ~10%: ресёрч закрыт 07.10 (IC опционален); R0 ждёт |
 | Мир-симуляция | NPCSvr64 | `nextgen/aion-npc` | 🔬 ~15% деприор: R0 ✅, R1 ⏸ (до прогресса соседей) |
 | Игровое ядро | Server64 `:7777` | `nextgen/aion-main` | 🟡 ~30% деприор: R0–R4 ✅ (реестр 637 пакетов, Go-тень :7778) |
@@ -106,7 +106,7 @@ flowchart LR
 |---|---|---|---|---|
 | 1 | Телеметрия rsyslog→Loki→Grafana + `ship.enabled: true` в прод-конфигах | 🟢 полдня | 🟢 ~90% | nextgen/TELEMETRY-SPEC.md |
 | 2 | Деплой 2 REF58-проц (UpdateTotalMainStatus/InsertServerinfo) + metric1-4 → logdb | 🟢 1 день | 🟢 ~80% | scripts/sql/ref58-logprocs-pending-20261005.sql |
-| 3 | **nextgen главный поток**: accache R6 наблюдение (+op-конфиг) → cached R3-хвосты (read-раскладки; R1/R2/R3-MVP ✅ 21–22.10) → authd R6-хвосты → op watchdog вкл. по «го» (гейт = финал) | 🟡 дни | 🟢 ~85% | [nextgen/README.md §6](nextgen/README.md) + открытые PROMPT-*.md |
+| 3 | **nextgen главный поток**: cached R5 #5 (эмиссия мир-init при рестарте пары; гипотеза а = ответ на полл 282) → accache R6 наблюдение → authd R6-хвосты → op watchdog по «го» | 🟡 дни | 🟢 ~66% ТРЕК B | [nextgen/README.md §6](nextgen/README.md) + PROMPT.md компонентов |
 | 4 | Ghidra-silence луперов 10100/10254/2107 (один проход закроет все три) | 🟡 1–2 дня | 🟡 ~60% | fixes-pending/loops-shopagent-channelchat-petition |
 | 5 | Матчмейкер арен на одном MainServer (JZ→JNZ на IsEventServer, AKllX) | 🟡 дни | 🟡 ~50% | fixes-pending/108-matchmaker-arenas |
 | 6 | Manastone-стек фикс MainServer64 (только чистый exe, ENIGMA = риск бэкдора) | 🟠 нед | 🟡 ~50% | fixes-pending/111-mainserver64-manastones |

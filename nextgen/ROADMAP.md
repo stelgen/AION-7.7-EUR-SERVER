@@ -1,9 +1,8 @@
 # 🗺 ROADMAP — живой план проекта (обновляется в каждом чате, не терять контекст)
 
-> **Последнее обновление: 22.10.2026 (captcha-финал).** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
-> Кратко: гейт ✅ релиз; logd ✅ 100% ФИНАЛ; captcha ✅ 100% ФИНАЛ; op ✅ 100% Phase 1.5 в бою;
-> authd ✅ R6 В БОЮ 09.10; accache ✅ **R5 СВИТЧ ✅ 22.10 — ПРОД = aion-accache :2220** (ориг отведён; контрольный логин чист; Т16/Т17/Т23 финал; R6 = наблюдение 24ч); CacheD64 🟢 ~80% (read-раскладки = capture R4); op ✅ Phase 1.5 ДЕПЛОЙ 22.10 (watchdog по «го»); PA = ОБЯЗАТЕЛЕН (SYSTEM_ERROR 20 без него).
-> Следующие чаты: 1) **accache R6 наблюдение 24ч** + op-конфиг accache [aion-accache/ROADMAP.md] 2) **cached R3-хвосты** — read-раскладки RQ_LOAD/LOAD_ITEM/U_SAVE + GQ/GP payload 54 ops → R4 A/B [aion-cached/ROADMAP.md] 3) op watchdog включение по «го» 4) authd R6-хвосты (наблюдение 24ч); гейт = ФИНАЛ. **ТРЕК B ≈ 64%** (binpatch 60: #108 артефакт готов — стенд-тест, #111 ❄️ заморожен до aion-main).
+> **Последнее обновление: 23.10.2026 (cached R4-ФИНАЛ/R5 #4).** Статус стека и дельты — в [README.md](README.md) §2 (главная таблица).
+> Кратко: гейт ✅ релиз; logd/captcha/op ✅ 100% ФИНАЛ; authd ✅ R6 В БОЮ; accache ✅ **R5 СВИТЧ В ПРОДЕ ~95%**; **CacheD64 🟢 ~90%: R4-ФИНАЛ PASS + R4.6 мир-init + R4.6.2 NPCSvr W30 ✅; R5 свитч #4 — v16c встал, Server64 прислал только полл 282 → откат; мир сейчас 0/8 (пара остановлена юзером 23.10 вечер)**; PA = ОБЯЗАТЕЛЕН.
+> Следующие чаты: 1) **cached R5 #5** — эмиссия мир-init при рестарте пары (гипотеза а: ответ на полл 282; capture worldinit-20261023.txt) [aion-cached/PROMPT.md] 2) accache R6 наблюдение (пауза до старта мира) 3) op watchdog по «го» 4) authd R6-хвосты. **ТРЕК B ≈ 66%** (честный пересчёт формулы; binpatch 60: #108 артефакт — стенд-тест, #111 ❄️ до aion-main).
 
 ## 1. СТАТУС КОМПОНЕНТОВ (что где — 10.10; свод с % — [README.md §2.5](README.md))
 
@@ -15,7 +14,7 @@
 | Fork-стенд authd | ✅ ОТКАТ-РЕЗЕРВ (R6-свитч 09.10): живой путь = наш authd (2110+2104, задача AionAuthdProd); forkauthd :2116 + shadow :2117 остановлены КАК ПУТЬ, живы как откат (`C:\Temp\rollback-gate.ps1` + `D:\SAION\aion-authd\authd-rollback.cmd`); VERDICT-лог `D:\SAION\aion-authd\fork-authd.log` |
 | Authd (наш) | ✅ **R6 В БОЮ 09.10**: живой путь (2110+2104), полный цикл юзера + мгновенный перелогин + pk1-эхо + квитанции; наблюдение 24ч |
 | aion-accache | ✅ **~95%: R0–R5 ✅ 22.10 — СВИТЧ В ПРОДЕ** (aion-accache :2220, задача AionAccacheProd, ориг отведён; R4 offline 16/16 + live A/B VERDICT байт-в-байт; Т15/Т16/Т17/Т23 финал на прод-логинах; Теории Т1-Т23); R6 = наблюдение 24ч + op-конфиг |
-| CacheD64 (код [aion-cached/](aion-cached/)) | 🟢 **~72%**: R4 PASS ✅ (login-path доказан живьём 2×) · NPCSvr-флоу реализован (9 цепочек) · **R5 = мир-init CacheD→Server64 НЕ покрыт** (доказано 3× крэш-луп живьём; мир-init = сотни RP-ответов, оценка 1-2 недели); мир 8/8 на копии-2016 |
+| CacheD64 (код [aion-cached/](aion-cached/)) | 🟢 **~90%**: R4-ФИНАЛ PASS ✅ (offline + живой T39-acks 18/0/12; полный цикл через тень) · R4.6 мир-init ✅ (startup = login chain байт-в-байт, StartupTracker) · R4.6.2 NPCSvr W30 ✅ (228 кадров) · DB-генератор O1/O109/O14 из WorldDB ✅ · **R5 #4**: v16c встал на 2006/2007/2009, Server64 прислал только полл 282 → мир 0/8 → откат; #5 = эмиссия мир-init |
 | aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12) + **Phase 1.5 код готов 21.10** (OP-5 await + OP-6 watchdog, `enabled: false` — задеплоить по «го»; [ROADMAP](aion-op/ROADMAP.md) §6); kick-задачи, expected_conns=8; канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)) |
 | Батники | ✅ `AION-START-ALL-v6.bat` (десктоп, всё в session 1) = канон; `C:\Temp\auth.bat = call start-all.bat` — НЕ трогать как кнопку (это старт ВСЕГО стека); изолированный L2Authd = `auth-only.bat`/AionAuthOnly; откат v5 рядом |
 | Феномен «задачи сами Disabled» | ⚠ следить (смягчено pre-check в op + enable-all) |
@@ -24,8 +23,8 @@
 
 | # | Пункт | Где | Оценка |
 |---|---|---|---|
-| 1 | **cached R3**: Go MVP read-путь (char login/item load) + write-транзит, DB-слой 781 procs, Admin/Log/IC-клиенты; опкоды/канон готовы, крипты НЕТ (R2) | aion-cached/ROADMAP.md | 3-5 дней |
-| 2 | **cached R3-хвосты**: read-раскладки RQ_LOAD(11)/RQ_LOAD_ITEM(14)/RQ_U_SAVE(16) из capture + GQ/GP payload (54 ops) + текстовые ответы interactive → R4 A/B (R2 ✅ 21.10: DummyCrypt = NO-OP, wire = plaintext) | aion-cached/ROADMAP.md | 2–3 дня |
+| 1 | **cached R5 #5 (ГЛАВНЫЙ)**: эмиссия мир-init при рестарте пары — эмиттеры из worldinit-20261023.txt (103 O-cmds) + гипотеза а (ответ на полл 282) → свитч-тест v16c → «NPC Server Started» + 8/8 | aion-cached/ROADMAP.md | 2–5 дней |
+| 2 | **cached хвосты**: write-путь RQ_U_SAVE→SQL; NPRelay live (Т19) — после R5 PASS | aion-cached/ROADMAP.md | 1–2 дня |
 | 3 | **authd R6-хвосты**: завершить наблюдение 24ч; pk1-эхо/IP-дворд A/B на живых логинах (мир уже на нашем 2104); опц. ACS-клиент 2220 | aion-authd/ROADMAP.md | 1–2 дня |
 | 4 | **Гейт** — ЗАВЕРШЁН live 10.10: T3 ✅ (перелогин после kill чистый, 0x08 клиент не шлёт), T4 ✅ (2 параллельны чисто, одновременный play-ok обоим), T5 ✅ (exe f146a415 задеплоен); остался опц. T2-а. ⚠ Мир-хвост → aion-main: 2-й параллельный клиент виснет на GS-входе (гвард клиента или Server64) | aion-gate/README §T2/T3 | — |
 | 5 | Телеметрия: rsyslog→Loki→Grafana на LAN + `ship.enabled: true` в прод-конфигах — **captcha ЗАКРЫТА 22.10** (туннель-мост, приёмник жив); остался logd (ship-приёмник тот же) | TELEMETRY-SPEC §2 | полдня (только logd) |
@@ -45,7 +44,7 @@
 | ✅ 3 | AuthGateD → aion-gate | ✅ РЕЛИЗ | 100% | полный юзер-флоу живой; хвост T2-T6 |
 | **4** | **L2Authd → aion-authd** | ✅ R6 в бою | 100% MVP | свитч 09.10; полный цикл юзера; откат-цепочка готова; тех-долг: charcount/висяк выхода (ниже среднего) |
 | **5** | **AccountCacheServer → aion-accache** | 🟡 R2.5 ✅ 10.10 | ~90% | capture+wire-канон+раскладки на живых кадрах; R3 SQLStore; PDB+procs в гите |
-| **6** | **CacheD64 → aion-cache (будет)** | 🔬 R0 закрыт | ~85% | 8× больше ACS по RPC (~590 команд); MVP read-путь + write-транзит в SQL |
+| **6** | **CacheD64 → aion-cached** | 🟢 R4-ФИНАЛ PASS | ~90% | R4.6 мир-init + R4.6.2 NPCSvr W30 ✅; R5 #4: v16c встал, полл 282 без ответа → откат; #5 = эмиссия мир-init; DB-генератор из WorldDB ✅ |
 | 7 | ICServer → свой | ⬜ не тронут | ~50% | транзакционный хаб 3 сторон; PDB 104МБ; без него лупер IC — пока ориг |
 | 8 | NPCSvr64 | 🔬 ДЕПРИОРИТ ~15% (R0 ✅, R1 ⏸) | ~85% эталонов ×7 | **перепись В ПЛАНЕ** (бескомпромиссно); пока мир на ориг — тактика = aion-binpatch |
 | 9 | Server64/MainServer | 🟡 ДЕПРИОРИТ ~30% (R0–R4 ✅) | ~85% | **перепись В ПЛАНЕ** (последняя в свитче); пока Ghidra-патчи: #108/#111/#180 + обвязка |
