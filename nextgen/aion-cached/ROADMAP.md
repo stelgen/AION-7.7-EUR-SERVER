@@ -20,7 +20,7 @@
 | R2 — крипта/канон wire | ✅ | 21.10.2026 | DummyCrypt = NO-OP, wire = plaintext (L2 C1 + дизasm семьи: ноль ссылок); канон = accache-формат [len][cmd u16][EB/EC][~cmd] (теория #15) |
 | R3 — Go MVP | ✅ | 22.10.2026 | 765 опкодов/8 протоколов, DB-слой 781 procs, 2007 текстовый, GQ/GP NPRelay per-conn, handlers_read (288/175/11/14/15/16) |
 | R3-хвосты — read-раскладки | ✅ | 22.10.2026 | Т28-Т35: раскладки RQ_LOAD/RQ_LOAD_ITEM/U_SAVE, RP cmd=1 полный разбор (Т31), settings XML store (Т30), item blocks (Т33), RP-эмиттеры MVP, ChainReplay (167 кадров), тень v10 |
-| R4 — A/B vs Live CacheD64 | 🟡 | 22.10.2026 | **OFFLINE A/B PASS** (self-replay 100%, cross-login 97.75%, динамика 28Б = рантайм-поля); живой A/B (тень v10 на стенде) = по логину юзера |
+| R4 — A/B vs Live CacheD64 | ✅ | 23.10.2026 | **ФИНАЛ PASS**: offline A/B (22.10: self-replay 100%, cross-login 97.75%) + **ЖИВОЙ A/B T39-acks (23.10)**: 12 cmd × 25Б — 18 PASS / 0 DIFF / 12 UNPAIRED; accId session-applied подтверждён (9/12 cmd S↔O идентичны); seq байт-19 = рантайм (Keep). Вердикт: cached-ref/logs-hourly/ab-r4-verdict-20261023-live-t39.md; снапшот cdmirror-20261023-t39-snapshot.log |
 | R5 — свитч CacheD64 | ⬜ | — | По «го» после живого A/B + write-пути (U_SAVE → settings store) |
 
 ---
