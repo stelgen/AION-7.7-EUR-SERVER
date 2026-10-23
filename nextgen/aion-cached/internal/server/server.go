@@ -3,14 +3,14 @@
 package server
 
 import (
-	"context"
 	"bufio"
-	"time"
 	"bytes"
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"time"
 
 	"encoding/binary"
 
@@ -84,10 +84,10 @@ const (
 
 // Server — набор листенеров.
 type Server struct {
-	cfg    Config
-	testLn map[Channel]net.Listener
-	SDB    *SettingsDB // DB-персист настроек (nil = RAM-only)
-	WorldEx db.Executor   // мир-БД (_AionWorldNew114_rc) для DB-генератора (nil = chain-only)
+	cfg     Config
+	testLn  map[Channel]net.Listener
+	SDB     *SettingsDB // DB-персист настроек (nil = RAM-only)
+	WorldEx db.Executor // мир-БД (_AionWorldNew114_rc) для DB-генератора (nil = chain-only)
 }
 
 // New — конструктор.
@@ -172,12 +172,12 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	dec := wire.NewDecoder()
 	buf := make([]byte, wire.MaxPayload+wire.HeaderWire)
 	var pending []byte
-	mode := modeServer // Server64 по умолчанию; NPRelay64 переключает handshake'ом
+	mode := modeServer   // Server64 по умолчанию; NPRelay64 переключает handshake'ом
 	var sess rpc.Session // R4.5: сессионные поля из cmd=288 (X/a/accId)
 	sessSet := false
 	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
-	emittedWorldInit := false // R5: мир-init отработан в этом коннекте
-	var startup rpc.StartupTracker // R4.6: детектор циклов мир-init (новый X = рестарт пары)
+	emittedWorldInit := false       // R5: мир-init отработан в этом коннекте
+	var startup rpc.StartupTracker  // R4.6: детектор циклов мир-init (новый X = рестарт пары)
 
 	for {
 		n, err := conn.Read(buf)
@@ -215,7 +215,6 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			}
 			pending = pending[consumed:]
 
-
 			// R4.5: сессионные поля из cmd=288 (первый кадр): [X u32][a u32][accId u16]
 			if frame.Cmd == 288 && len(frame.Payload) >= 12 {
 				sess = rpc.Session{
@@ -234,11 +233,23 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				log.Printf("[cached] session captured X=%#x a=%d acc=%d", sess.X, sess.A, sess.AccID)
 			}
 
+			// R4.6.2: NPCSvr-коннект БЕЗ session-288 — детект ВНЕ sessSet-гейта
+			// (старый код: NPCSvr не шлёт 288 → sessSet=false → NPCSvr-путь мёртв;
+			// W30-бёрст S=0 — прямое live-доказательство молчания тени).
+			if ch == ChanServer && frame.Cmd == 201 && npcReplay == nil {
+				npcReplay = rpc.NewNpcSrvReplay()
+				log.Printf("[cached] %s NPCSvr-коннект (cmd=201, без session-288) — NPCSvr-режим ВКЛ", name)
+			}
+			var npcResp []byte
+			if ch == ChanServer && npcReplay != nil {
+				npcResp = npcReplay.EmitNpcSrv(frame.Cmd)
+			}
 			resp := Route(ch, frame)
 			// R4/R4.5: read-path emission (chain + session-подстановки + acks Т39)
-			if ch == ChanServer && sessSet {
+			// R4.6.2: в NPCSvr-режиме login-path выключен (нельзя смешивать каналы)
+			if ch == ChanServer && sessSet && npcReplay == nil {
 				switch frame.Cmd {
-case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 кадров capture-20261023)
+				case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 кадров capture-20261023)
 					if sessSet && !emittedWorldInit {
 						var charRef uint32 = rpc.WorldFlowSess1CharRef
 						var charId uint32
@@ -253,23 +264,33 @@ case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 к
 							items, ierr := db.GetUserItems(ctx, s.WorldEx, charId)
 							if err == nil && ierr == nil {
 								// R4.6: startup-цепочка W5 (120 кадров = world-flow 118 + 0x7A/0xBF хвост)
-							chainFrames := rpc.SplitWorldFlowFrames(rpc.GetWorldStartupChain())
+								chainFrames := rpc.SplitWorldFlowFrames(rpc.GetWorldStartupChain())
 								wd2 := rpc.CharWorldData{Lev: wd.Lev, LastNormalX: wd.LastNormalX, LastNormalY: wd.LastNormalY, LastNormalZ: wd.LastNormalZ, ResurrectX: wd.ResX, ResurrectY: wd.ResY, ResurrectZ: wd.ResZ, CharName: "SteLGeN-잉기스온"}
 								var itemRows []rpc.DBItemRow
-								for _, it := range items { itemRows = append(itemRows, rpc.DBItemRow{NameID: it.NameID, Amount: it.Amount, Slot: it.Slot, Warehouse: it.Warehouse}) }
+								for _, it := range items {
+									itemRows = append(itemRows, rpc.DBItemRow{NameID: it.NameID, Amount: it.Amount, Slot: it.Slot, Warehouse: it.Warehouse})
+								}
 								dbFrames := rpc.EmitWorldFlowDB(chainFrames, sess.X, charRef, wd2, itemRows)
-								for _, df := range dbFrames { resp = append(resp, df...) }
+								for _, df := range dbFrames {
+									resp = append(resp, df...)
+								}
 								emittedWorldInit = true
 								log.Printf("[cached] %s RQ_LOAD → world-flow DB %d frames (char=%d lev=%d items=%d)", name, len(dbFrames), charId, wd.Lev, len(items))
 							} else {
 								log.Printf("[cached] %s RQ_LOAD DB-запрос fail (err=%v ierr=%v) — fallback chain", name, err, ierr)
 								loadChain := rpc.EmitWorldStartupLoad(sess.X, charRef, sess.A)
-								if len(loadChain) > 0 { resp = append(resp, loadChain...); emittedWorldInit = true }
+								if len(loadChain) > 0 {
+									resp = append(resp, loadChain...)
+									emittedWorldInit = true
+								}
 							}
 						} else {
 							// chain-replay fallback (WorldEx nil)
 							loadChain := rpc.EmitWorldStartupLoad(sess.X, charRef, sess.A)
-							if len(loadChain) > 0 { resp = append(resp, loadChain...); emittedWorldInit = true }
+							if len(loadChain) > 0 {
+								resp = append(resp, loadChain...)
+								emittedWorldInit = true
+							}
 							log.Printf("[cached] %s RQ_LOAD → world-flow load %d bytes (session-applied, R5)", name, len(loadChain))
 						}
 					} else {
@@ -279,48 +300,36 @@ case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 к
 						}
 						log.Printf("[cached] %s RQ_LOAD → chain replay %d bytes (session-applied, fallback)", name, len(loadChain))
 					}
-					case 14: // RQ_LOAD_ITEM → ChainReplay (page=00 echo, page=01 data) + acks (Т39)
-						if emittedWorldInit {
-							log.Printf("[cached] %s RQ_LOAD_ITEM skipped (world-init already emitted)", name)
-						} else {
-					page := byte(0)
-					if len(frame.Payload) > 20 {
-						page = frame.Payload[20]
-					}
-					chain := rpc.ApplySessionToChain(rpc.GetItemChain(page), sess)
-					if len(chain) > 0 {
-						resp = append(resp, chain...)
-					}
-					if page == 1 { // Т39: RP-подтверждения после data-цепочки (живой порядок)
-						resp = append(resp, rpc.BuildAcks(rpc.AcksAfterItemData, sess)...)
-						log.Printf("[cached] %s RQ_LOAD_ITEM page=1 → chain %d bytes + %d acks", name, len(chain), len(rpc.AcksAfterItemData))
+				case 14: // RQ_LOAD_ITEM → ChainReplay (page=00 echo, page=01 data) + acks (Т39)
+					if emittedWorldInit {
+						log.Printf("[cached] %s RQ_LOAD_ITEM skipped (world-init already emitted)", name)
 					} else {
-						log.Printf("[cached] %s RQ_LOAD_ITEM page=%d → chain replay %d bytes", name, page, len(chain))
-					}
+						page := byte(0)
+						if len(frame.Payload) > 20 {
+							page = frame.Payload[20]
 						}
-				case 201: // R4.7.1: NPCSvr-коннект (0x0C9) — переключение в NPCSvr-replay
-					if npcReplay == nil {
-						npcReplay = rpc.NewNpcSrvReplay()
-						log.Printf("[cached] %s NPCSvr-коннект обнаружен (cmd=201) — NPCSvr-режим ВКЛ", name)
+						chain := rpc.ApplySessionToChain(rpc.GetItemChain(page), sess)
+						if len(chain) > 0 {
+							resp = append(resp, chain...)
+						}
+						if page == 1 { // Т39: RP-подтверждения после data-цепочки (живой порядок)
+							resp = append(resp, rpc.BuildAcks(rpc.AcksAfterItemData, sess)...)
+							log.Printf("[cached] %s RQ_LOAD_ITEM page=1 → chain %d bytes + %d acks", name, len(chain), len(rpc.AcksAfterItemData))
+						} else {
+							log.Printf("[cached] %s RQ_LOAD_ITEM page=%d → chain replay %d bytes", name, page, len(chain))
+						}
 					}
-					resp = append(resp, npcReplay.EmitNpcSrv(frame.Cmd)...)
 				case 278: // C> 0x116 (world-ready) → вторая пачка RP-подтверждений (Т39)
 					resp = append(resp, rpc.BuildAcks(rpc.AcksAfterWorldReady, sess)...)
 					log.Printf("[cached] %s world-ready → %d acks", name, len(rpc.AcksAfterWorldReady))
 				}
-				// R4.7.1: NPCSvr-кадры (после session-блока) — replay цепочек
-				if npcReplay != nil {
-					switch frame.Cmd {
-					case 161, 211, 248, 215, 178, 325, 326, 311:
-						if r := npcReplay.EmitNpcSrv(frame.Cmd); len(r) > 0 {
-							resp = append(resp, r...)
-						}
-					}
-				}
 				// R5: мир-init replay — для cmds с captured-цепочками, не покрытых login-path/NPCSvr
 				if resp == nil || len(resp) == 0 {
-					log.Printf("[cached] %s unhandled cmd=%d (WorldInitReplay fallback DISABLED при активном world-flow, R5)", name, frame.Cmd)
 				}
+			}
+			// R4.6.2: NPCSvr-ответы аппендим вне sessSet-гейта (NPCSvr без 288)
+			if len(npcResp) > 0 {
+				resp = append(resp, npcResp...)
 			}
 			if len(resp) > 0 {
 				if _, werr := conn.Write(resp); werr != nil {

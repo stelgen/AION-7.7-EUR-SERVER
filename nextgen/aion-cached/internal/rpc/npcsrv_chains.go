@@ -31,12 +31,22 @@ func npcChainFile(cmd uint16, idx int) string {
 }
 
 // EmitNpcSrv — ответ CacheD на кадр NPCSvr (captured цепочка целиком).
-// Возвращает nil если канон = тишина (неизвестный cmd или 1-й вызов 0x0D3/0x0E9).
+// R4.6.2: сначала W30-бёрст (батчи по occurrence, capture 23.10), затем
+// legacy-файлы 22.10. nil = канон-тишина.
 func (r *NpcSrvReplay) EmitNpcSrv(cmd uint16) []byte {
 	r.mu.Lock()
 	idx := r.count[cmd]
 	r.count[cmd]++
 	r.mu.Unlock()
+	if w := EmitNpcSrvW30(cmd, idx); w != nil {
+		log.Printf("[cached] npcsrv: cmd=%d call#%d → W30 батч %dБ", cmd, idx+1, len(w))
+		return w
+	}
+	if NpcW30BatchCount(cmd) > 0 {
+		// cmd есть в W30, но occurrence исчерпан — канон-тишина (fire-and-forget)
+		log.Printf("[cached] npcsrv: cmd=%d call#%d — W30 occurrence исчерпан, silent", cmd, idx+1)
+		return nil
+	}
 	data, err := npcFS.ReadFile(npcChainFile(cmd, idx))
 	if err != nil {
 		// нет capture-цепочки для этого вызова — тишина (политика «ответ только

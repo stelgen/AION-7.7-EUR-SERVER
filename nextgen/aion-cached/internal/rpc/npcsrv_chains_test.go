@@ -1,4 +1,4 @@
-// NPCSvr-флоу тесты (R4.7.1): цепочки из живого capture подъёма мира 22.10.
+// NPCSvr-флоу тесты (R4.6.2): канон = W30-бёрст capture 23.10 (S=0 → W30 = арбитр);
 package rpc
 
 import "testing"
@@ -22,8 +22,8 @@ func TestNpcSrvReplayChains(t *testing.T) {
 	if out := r.EmitNpcSrv(211); len(out) != 754 {
 		t.Fatalf("211 call#2: len %d want 754", len(out))
 	}
-	// 215 (VERSION) → 6390Б (16+123+204)
-	if out := r.EmitNpcSrv(215); len(out) != 6390 {
+	// 215 (VERSION) → 6348Б (16+123; W30 23.10: O204 переехал в 325-батч)
+	if out := r.EmitNpcSrv(215); len(out) != 6348 {
 		t.Fatalf("215: len %d want 6390", len(out))
 	}
 	// 248 → 22Б; 311 → 25Б
@@ -33,8 +33,8 @@ func TestNpcSrvReplayChains(t *testing.T) {
 	if out := r.EmitNpcSrv(311); len(out) != 25 {
 		t.Fatalf("311: len %d", len(out))
 	}
-	// 325 → 14458Б (221×2 + 93-7949 + 93-6479)
-	if out := r.EmitNpcSrv(325); len(out) != 14458 {
+	// 325 → 14500Б (93×2 + 204 + 221×2; W30 23.10)
+	if out := r.EmitNpcSrv(325); len(out) != 14500 {
 		t.Fatalf("325: len %d want 14458", len(out))
 	}
 	// 326 → 146Б

@@ -1,7 +1,7 @@
 # aion-cached — Go-фреймворк CacheD64 (reverse-engineering + эмулятор)
 
 > **ЕДИНАЯ СТАТУС-ШАПКА (обязательный формат, первой строкой под заголовком):**
-> `🟢 ~87% · 23.10.2026 (R4-ФИНАЛ PASS + R4.6 мир-init ПРОРЫВ: startup W5 = login chain байт-в-байт +2 кадра; StartupTracker — фикс корня крэш-лупа; остаток NPCSvr W30 = R4.6.2)`
+> `🟢 ~90% · 23.10.2026 (R4-ФИНАЛ PASS; R4.6 мир-init Server64 ✅ байт-в-байт; R4.6.2 NPCSvr W30 ✅ — sessSet-гейт убит, 228 кадров replay, v16c c18a371c на tap; осталось = живой свитч-тест #4 по «го»)`
 
 ---
 
@@ -13,7 +13,8 @@
 | R2 — крипта | ✅ 21.10 | DummyCrypt = NO-OP, wire = plaintext (L2 C1 сурсы + дизasm Aion крипто-фэмили = мёртвый код) |
 | R3 — Go MVP | ✅ 22.10 | MVP-диспетчер (765 опкодов/8 протоколов из .profile), DB-слой (781/140/132 procs, CallWorldProc, ErrProcMissing A/B-маркер), 2007 текстовый interactive, GQ/GP NPRelay per-conn, wire accache-канон + ping/версия-каноны |
 | R4 — A/B с Live CacheD64 | ✅ 23.10 | OFFLINE PASS 22.10 + живой T39-acks PASS 23.10 (12 cmd×25Б: 18/0/12, accId session-applied ✓; вердикт cached-ref/logs-hourly/ab-r4-verdict-20261023-live-t39.md) |
-| R4.6 — мир-init startup Server64 | 🟡 23.10 | W5-бёрст = login chain байт-в-байт +2 кадра; chain_worldstartup (120/105КБ) + StartupTracker (новый X → повторная эмиссия, фикс крэш-лупа); тесты ✅; остаток = NPCSvr W30 (R4.6.2) |
+| R4.6 — мир-init startup Server64 | ✅ 23.10 | W5-бёрст = login chain байт-в-байт +2 кадра; chain_worldstartup (120/105КБ) + StartupTracker (новый X → повторная эмиссия, фикс крэш-лупа); тесты ✅ |
+| R4.6.2 — NPCSvr W30 | ✅ 23.10 | sessSet-гейт убит (NPCSvr без 288 = мёртвый код — S=0 live-доказательство); npcsrv_w30.go батчи-индексы (C277→O187×150, C62→45 кадров); 4 теста ✅; v16c (c18a371c) на tap 2018/2019/2020 ✅ |
 | R5 — свитч | ⬜ | Замена CacheD64.exe (common.xml cacheServerPort) |
 
 **Блокеры:** нет. `go vet`/`go test ./...` зелёные; подробности фаз/теорий — [ROADMAP.md](ROADMAP.md) (Т1-Т24).
