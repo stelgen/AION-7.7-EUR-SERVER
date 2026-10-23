@@ -63,6 +63,8 @@ func (c *Config) Load(path string) error {
 			c.CryptSeedHex = v
 		case "db_conn":
 			c.DBConn = v
+		case "world_conn":
+			c.WorldConn = v
 		}
 	}
 	return nil
