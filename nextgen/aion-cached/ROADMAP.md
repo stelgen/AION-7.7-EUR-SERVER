@@ -4,7 +4,14 @@
 > RP_VERSION dispatched ×2, RQ_U_SAVE parsed ×2 (char=1002 842Б), RQ_LEAVE_WORLD parsed (координаты),
 > authdprod полный цикл юзера (clearOnlineOnDisconnect ✓, users=1→0 ✓).
 > DB-генератор Этапы 0,1,3,5 ✅: O1 из user_data (0 diff), O109 из user_item (96%), O14 settings store.
-> Мир-init = 4-е доказательство крэш-лупа (сотни RP-ответов при world startup — 1-2 недели RE).
+> Мир-init = 4-е доказательство крэш-лупа.
+> **23.10 R4.6 ПРОРЫВ (chain-building, не RE)**: startup-бёрст W5 (120 O-кадров) = world-flow
+> login chain (118) БАЙТ-В-БАЙТ + 2 кадра (0x7A#2, 0xBF) — стартовый протокол = login-path.
+> Кросс-оконные диффы = только сессионные поля (X BE @9:13 + a@13) + динамика @21.
+> Корень крэш-лупа R5 #3/#4: пер-конн флаг emittedWorldInit переживал рестарт пары
+> (Server64 шлёт новый 288 с новым X — тень молчала). Фикс: StartupTracker (новый X → сброс
+> флага → повторная эмиссия). Тень уже отвечала на polling 0x3D байт-в-байт (W7: 44/44).
+> ОСТАТОК: NPCSvr W30-профиль (228 O: 150×0xBB + 31 uniq) — трек R4.6.2.
 > Тень v16b WorldDB connected, парсит всё в фоне.
 
 > Журнал теорий / леджер решений для трека reverse-engineering CacheD64.
@@ -21,6 +28,7 @@
 | R3 — Go MVP | ✅ | 22.10.2026 | 765 опкодов/8 протоколов, DB-слой 781 procs, 2007 текстовый, GQ/GP NPRelay per-conn, handlers_read (288/175/11/14/15/16) |
 | R3-хвосты — read-раскладки | ✅ | 22.10.2026 | Т28-Т35: раскладки RQ_LOAD/RQ_LOAD_ITEM/U_SAVE, RP cmd=1 полный разбор (Т31), settings XML store (Т30), item blocks (Т33), RP-эмиттеры MVP, ChainReplay (167 кадров), тень v10 |
 | R4 — A/B vs Live CacheD64 | ✅ | 23.10.2026 | **ФИНАЛ PASS**: offline A/B (22.10: self-replay 100%, cross-login 97.75%) + **ЖИВОЙ A/B T39-acks (23.10)**: 12 cmd × 25Б — 18 PASS / 0 DIFF / 12 UNPAIRED; accId session-applied подтверждён (9/12 cmd S↔O идентичны); seq байт-19 = рантайм (Keep). Вердикт: cached-ref/logs-hourly/ab-r4-verdict-20261023-live-t39.md; снапшот cdmirror-20261023-t39-snapshot.log |
+| R4.6 — мир-init startup (Server64) | 🟡 | 23.10.2026 | **ПРОРЫВ**: W5-бёрст = world-flow 118 байт-в-байт + 2 кадра; chain_worldstartup_20261023.bin (120 кадров/105КБ) сгенерирован; EmitWorldStartup/Load + StartupTracker (новый X → сброс emittedWorldInit → повторная эмиссия — фикс корня крэш-лупа); 4 теста (identity/count/resub/tracker) ✅. ОСТАТОК: NPCSvr W30 (150×0xBB+31 uniq) = R4.6.2 |
 | R5 — свитч CacheD64 | ⬜ | — | По «го» после живого A/B + write-пути (U_SAVE → settings store) |
 
 ---

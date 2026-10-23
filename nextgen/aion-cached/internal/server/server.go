@@ -177,6 +177,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	sessSet := false
 	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
 	emittedWorldInit := false // R5: мир-init отработан в этом коннекте
+	var startup rpc.StartupTracker // R4.6: детектор циклов мир-init (новый X = рестарт пары)
 
 	for {
 		n, err := conn.Read(buf)
@@ -223,6 +224,13 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 					AccID: binary.LittleEndian.Uint16(frame.Payload[8:10]),
 				}
 				sessSet = true
+				if startup.OnSession(sess.X) {
+					// R4.6: новый X = Server64 перезапустил мир (рестарт пары) —
+					// сброс флага мир-init для повторной эмиссии (корень крэш-лупа R5 #3/#4:
+					// флаг переживал рестарт, тень молчала на новый бёрст).
+					emittedWorldInit = false
+					log.Printf("[cached] %s новый цикл мир-init (X=%#x) — emittedWorldInit сброшен", name, sess.X)
+				}
 				log.Printf("[cached] session captured X=%#x a=%d acc=%d", sess.X, sess.A, sess.AccID)
 			}
 
@@ -244,7 +252,8 @@ case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 к
 							wd, err := db.GetCharWorldData(ctx, s.WorldEx, charId)
 							items, ierr := db.GetUserItems(ctx, s.WorldEx, charId)
 							if err == nil && ierr == nil {
-								chainFrames := rpc.SplitWorldFlowFrames(rpc.GetWorldFlowChain())
+								// R4.6: startup-цепочка W5 (120 кадров = world-flow 118 + 0x7A/0xBF хвост)
+							chainFrames := rpc.SplitWorldFlowFrames(rpc.GetWorldStartupChain())
 								wd2 := rpc.CharWorldData{Lev: wd.Lev, LastNormalX: wd.LastNormalX, LastNormalY: wd.LastNormalY, LastNormalZ: wd.LastNormalZ, ResurrectX: wd.ResX, ResurrectY: wd.ResY, ResurrectZ: wd.ResZ, CharName: "SteLGeN-잉기스온"}
 								var itemRows []rpc.DBItemRow
 								for _, it := range items { itemRows = append(itemRows, rpc.DBItemRow{NameID: it.NameID, Amount: it.Amount, Slot: it.Slot, Warehouse: it.Warehouse}) }
@@ -254,12 +263,12 @@ case 11: // R5: RQ_LOAD → ПОЛНЫЙ мир-init load-сегмент (118 к
 								log.Printf("[cached] %s RQ_LOAD → world-flow DB %d frames (char=%d lev=%d items=%d)", name, len(dbFrames), charId, wd.Lev, len(items))
 							} else {
 								log.Printf("[cached] %s RQ_LOAD DB-запрос fail (err=%v ierr=%v) — fallback chain", name, err, ierr)
-								loadChain := rpc.EmitWorldFlowLoad(sess.X, charRef, sess.A)
+								loadChain := rpc.EmitWorldStartupLoad(sess.X, charRef, sess.A)
 								if len(loadChain) > 0 { resp = append(resp, loadChain...); emittedWorldInit = true }
 							}
 						} else {
 							// chain-replay fallback (WorldEx nil)
-							loadChain := rpc.EmitWorldFlowLoad(sess.X, charRef, sess.A)
+							loadChain := rpc.EmitWorldStartupLoad(sess.X, charRef, sess.A)
 							if len(loadChain) > 0 { resp = append(resp, loadChain...); emittedWorldInit = true }
 							log.Printf("[cached] %s RQ_LOAD → world-flow load %d bytes (session-applied, R5)", name, len(loadChain))
 						}
