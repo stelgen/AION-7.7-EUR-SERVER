@@ -242,7 +242,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			}
 			var npcResp []byte
 			if ch == ChanServer && npcReplay != nil {
-				npcResp = npcReplay.EmitNpcSrv(frame.Cmd)
+				npcResp = npcReplay.EmitNpcSrv(frame.Cmd, frame.Payload)
 			}
 			resp := Route(ch, frame)
 			// R4/R4.5: read-path emission (chain + session-подстановки + acks Т39)

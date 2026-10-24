@@ -9,6 +9,8 @@ import (
 	"embed"
 	"log"
 	"sync"
+
+	"aion-cached/internal/wire"
 )
 
 //go:embed testdata/npcsrv_*.bin
@@ -32,12 +34,17 @@ func npcChainFile(cmd uint16, idx int) string {
 
 // EmitNpcSrv — ответ CacheD на кадр NPCSvr (captured цепочка целиком).
 // R4.6.2: сначала W30-бёрст (батчи по occurrence, capture 23.10), затем
-// legacy-файлы 22.10. nil = канон-тишина.
-func (r *NpcSrvReplay) EmitNpcSrv(cmd uint16) []byte {
+// echo-билдеры 24.10 (живой аргумент), затем legacy-файлы 22.10/24.10.
+// nil = канон-тишина.
+func (r *NpcSrvReplay) EmitNpcSrv(cmd uint16, payload []byte) []byte {
 	r.mu.Lock()
 	idx := r.count[cmd]
 	r.count[cmd]++
 	r.mu.Unlock()
+	if b := npcEchoBuild(cmd, payload); b != nil {
+		log.Printf("[cached] npcsrv: cmd=%d call#%d → echo-билдер %dБ", cmd, idx+1, len(b))
+		return b
+	}
 	if w := EmitNpcSrvW30(cmd, idx); w != nil {
 		log.Printf("[cached] npcsrv: cmd=%d call#%d → W30 батч %dБ", cmd, idx+1, len(w))
 		return w
@@ -56,6 +63,26 @@ func (r *NpcSrvReplay) EmitNpcSrv(cmd uint16) []byte {
 	}
 	log.Printf("[cached] npcsrv: cmd=%d call#%d → chain replay %dB", cmd, idx+1, len(data))
 	return data
+}
+
+// npcEchoBuild — cmds с ЭХО аргумента NPCSvr (канон capture 24.10 02:44):
+// C233[arg4|ts4] → O129[arg4][0000] · C46[arg4] → O162[arg4][010000] ·
+// C40[arg4|01] → O157[arg4][01000000][010000]. Аргументы живые (uptime/индексы) —
+// статичный replay дал бы чужое эхо, поэтому билдеры.
+func npcEchoBuild(cmd uint16, payload []byte) []byte {
+	if len(payload) < 4 {
+		return nil
+	}
+	arg := append([]byte{}, payload[:4]...)
+	switch cmd {
+	case 233:
+		return wire.BuildS2CCached(129, append(arg, 0x00, 0x00))
+	case 46:
+		return wire.BuildS2CCached(162, append(arg, 0x01, 0x00, 0x00))
+	case 40:
+		return wire.BuildS2CCached(157, append(arg, 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00))
+	}
+	return nil
 }
 
 func hex3(v uint16) string {

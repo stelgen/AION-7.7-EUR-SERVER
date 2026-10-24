@@ -15,7 +15,7 @@ func TestNpcW30FullReplay(t *testing.T) {
 	r := NewNpcSrvReplay()
 	var emitted bytes.Buffer
 	for _, cmd := range cseq {
-		if b := r.EmitNpcSrv(cmd); len(b) > 0 {
+		if b := r.EmitNpcSrv(cmd, nil); len(b) > 0 {
 			emitted.Write(b)
 		}
 	}
@@ -46,7 +46,7 @@ func TestNpcW30FireForget(t *testing.T) {
 	for _, cmd := range []uint16{179, 224} {
 		r := NewNpcSrvReplay()
 		for i := 0; i < 5; i++ {
-			if b := r.EmitNpcSrv(cmd); len(b) != 0 {
+			if b := r.EmitNpcSrv(cmd, nil); len(b) != 0 {
 				t.Fatalf("cmd=%d call#%d: тишина ожидалась, получено %dБ", cmd, i+1, len(b))
 			}
 		}
