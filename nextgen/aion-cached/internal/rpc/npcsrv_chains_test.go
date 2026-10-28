@@ -50,3 +50,43 @@ func TestNpcSrvReplayChains(t *testing.T) {
 		t.Fatalf("999: len %d want 0", len(out))
 	}
 }
+
+// TestNpcSrvGPCrossCapture — R5 #7 КРОСС-CAPTURE сверка GP-батча:
+// 23.10 (W30 блоб, мир-init УСПЕШЕН): C204/C110/C346/C253 = канон-тишина (батчи [[]]),
+// C326 (один вызов) → пачка 7 кадров [218..224] = {147×3, 36, 37, 238, 222}.
+// 24.10 (cdmirror-20261024 02:44:37): 5 запросов → те же 7 ответов (группировка иная,
+// порядок 147-интерлива в 23.10 vs группировка в 24.10; набор идентичен по cmd/len).
+// ВЫВОД: «GP-батч-блокер» снят — тишина на 204/110/346/253 канон-валид (23.10 proof),
+// W30-пачка 326 уже покрывает батч-ответы.
+func TestNpcSrvGPCrossCapture(t *testing.T) {
+	r := NewNpcSrvReplay()
+	for _, cmd := range []uint16{204, 110, 346, 253} {
+		if b := r.EmitNpcSrv(cmd, nil); b != nil {
+			t.Fatalf("cmd=%d: ожидалась канон-тишина (23.10), получено %dБ", cmd, len(b))
+		}
+	}
+	// 326 → W30-пачка 7 кадров (occurrence-пачка [218..224])
+	b326 := r.EmitNpcSrv(326, nil)
+	if b326 == nil {
+		t.Fatal("326: пачка не эмитирована")
+	}
+	frames := SplitWorldFlowFrames(b326)
+	if len(frames) != 7 {
+		t.Fatalf("326: кадров в пачке = %d, want 7", len(frames))
+	}
+	wantCmd := []uint16{147, 36, 37, 238, 147, 222, 147}
+	for i, fr := range frames {
+		cmd := uint16(fr[2]) | uint16(fr[3])<<8
+		if cmd != wantCmd[i] {
+			t.Fatalf("326 пачка[%d]: cmd=%d, want %d", i, cmd, wantCmd[i])
+		}
+	}
+	// эталон 24.10 (те же cmd/len, группировка по запросам): сверка набора
+	wantLens := map[uint16]int{147: 12, 36: 83, 37: 9, 238: 9, 222: 9}
+	for i, fr := range frames {
+		cmd := uint16(fr[2]) | uint16(fr[3])<<8
+		if wantLens[cmd] != len(fr) {
+			t.Fatalf("326 пачка[%d]: len=%d, want %d для cmd=%d", i, len(fr), wantLens[cmd], cmd)
+		}
+	}
+}

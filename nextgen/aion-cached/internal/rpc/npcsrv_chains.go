@@ -18,8 +18,8 @@ var npcFS embed.FS
 
 // NpcSrvReplay — stateful replay цепочек NPCSvr-канала (per-conn состояние).
 type NpcSrvReplay struct {
-	mu    sync.Mutex
-	count map[uint16]int // per-cmd счётчик вызовов
+	mu        sync.Mutex
+	count     map[uint16]int // per-cmd счётчик вызовов
 }
 
 // NewNpcSrvReplay — создать per-conn replay.
