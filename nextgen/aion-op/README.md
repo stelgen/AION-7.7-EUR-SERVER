@@ -6,6 +6,13 @@
 read-only пробы + лог-парсер + метрики + SQLite + алерты + CCU/SQL-waits + POST /api/action
 (start/stop/restart/restart_pair) + группы fork (authdn/forkd) + kick-задачи.
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## 🧭 OP-FIRST — единая точка управления стеком (правило для ВСЕХ агентов/чатов)
 
 - Старт/стоп/рестарт/статус любого сервиса = **ТОЛЬКО через op-API**:

@@ -4,6 +4,13 @@
 > Эволюция с той же идеей: `forkauthd` в [aion-authd/](../aion-authd/) (2116 → ориг 2110 + копия в shadow 2117, VERDICT-сверка).
 > Статус: ✅ используется; компилируется под windows/linux (`GOOS=windows GOARCH=amd64 go build -o fork-proxy.exe .`).
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## Что делает
 
 ```

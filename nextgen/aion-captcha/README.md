@@ -9,6 +9,13 @@
 > `schtasks /change /tn AionCAPTCHA /tr "C:\Temp\captcha.bat"` + `/run AionCAPTCHA`;
 > откат ship = `ship.enabled: false` в config.yaml.
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## Протокол (TCP :22206)
 
 Фрейм `[u16 LE totalLen][u16 LE type][payload]`, seq — u16 счётчик пер-тип с 1.

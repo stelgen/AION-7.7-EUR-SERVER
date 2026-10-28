@@ -3,6 +3,13 @@
 > 🔬 **~10% · веб-ресёрч закрыт 07.10, R0 ждёт** ([RESEARCH.md](RESEARCH.md)): публичных сурсов/эмуляторов IC **нет** (GitHub 0 репо, Java-эмулиаторы без IC); протокольная семантика получена из открытого конфига AKllX. Бинари чужих китов на VM. Ориг жив, без него лупер «Can't connect to Interchange» у Server64+CacheD (event-driven, безвреден). PDB 104МБ на VM (manifest-pdb-big).
 > Запуск чата: `WORKFLOW: ic` ([../WORKFLOW.md](../WORKFLOW.md)). Стандарты S1–S10: [../README.md](../README.md) §4.
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## 📊 Статус и фазы
 
 | Фаза | Статус |

@@ -18,6 +18,7 @@
 | aion-op (Трек A) | ✅ Phase 1 в бою + **AGENT API** (07.10, S12) + **Phase 1.5 код готов 21.10** (OP-5 await + OP-6 watchdog, `enabled: false` — задеплоить по «го»; [ROADMAP](aion-op/ROADMAP.md) §6); kick-задачи, expected_conns=8; канал агента = `:10200/api/agent/*` ([AGENT-SPEC.md](AGENT-SPEC.md)) |
 | Батники | ✅ `AION-START-ALL-v6.bat` (десктоп, всё в session 1) = канон; `C:\Temp\auth.bat = call start-all.bat` — НЕ трогать как кнопку (это старт ВСЕГО стека); изолированный L2Authd = `auth-only.bat`/AionAuthOnly; откат v5 рядом |
 | Феномен «задачи сами Disabled» | ⚠ следить (смягчено pre-check в op + enable-all) |
+| Инструменты навигации по коду | ✅ **28.10: графы graphify (S13)** во всех компонентах с кодом — accache 404 узл./authd 284/cached 403/captcha 160/gate 432/logd 228/main 139/op 457/fork-proxy 19; циклов импорта 0; граф = кэш (gitignore), арбитр = канон/capture ([WORKFLOW §6.1](WORKFLOW.md)) |
 
 ## 2. ОТКРЫТЫЕ ПУНКТЫ (по приоритету)
 
@@ -34,6 +35,7 @@
 | 9 | Watch-листы: хендлы Server64 (827k+228/мин), утечка NPCSvr (~600k блоков/сессия → ночной рестарт), RESOURCE_SEMAPHORE | docs/app-architecture.md §7 | пассивно |
 | 10 | Уборка: тестовые probe-акки probetest1-14 в AionAccounts (мусор от probe, uid ~1007-1018) — удалить по «го» | VM SQL | 5 мин |
 | 11 | ICServer/ChannelChat/Petition/ShopAgent/GM — папки-заготовки созданы (README+ROADMAP+PROMPT в каждой), к работе не запланированы | aion-ic/, aion-chat/, aion-petition/, aion-shopagent/, aion-gm/ | — |
+| 12 | **GUI-паритет ориг-приложений (ПОЛНАЯ ФУНКЦИОНАЛЬНАЯ МИГРАЦИЯ — правило юзера 28.10)**: у каждого заменяемого ориг-приложения в GUI есть кнопки/опции — инвентаризировать (noVNC-скриншоты + семантика по PDB dialog/WinProc-хендлерам) и дать функциональный аналог в нашей замене (op-кнопка/команда op-API/конфиг/SQL); фаза R-GUI в ROADMAP каждого компонента. GUI-окно само не нужно (наши сервисы headless), но функционал кнопок ориг НЕ теряем | ROADMAP каждого компонента, секция «🖱 GUI-паритет» | R-GUI ≈ 1–2 дня/компонент |
 
 ## 3. ТРЕК B — КАРТА ПЕРЕПИСИ (08.10, ✅ нужен стеку / − некритичен / ❌ не нужен)
 
@@ -53,7 +55,7 @@
 | − 12/13 | NPRelay/Ranking | − НЕ КРИТИЧНЫ | — | не биндят/конфига нет; задачи DISABLE |
 | **PA** | PortalAuth | ✅ ОБЯЗАТЕЛЕН (ориг) | — | НЕ переписываем, НЕ скипаем: без него SYSTEM_ERROR(20); старт ДО authd; op-кнопка pa |
 
-⚠️ Требование к каждой переписи: S1-S10 из [README.md §4](README.md) (шаблон README, TELEMETRY-SPEC, LOGGING-SPEC raw-first, FORK-SPEC, op-first, креды-политика, конфиги, деплой/откат, тесты, роадмап+промпт).
+⚠️ Требование к каждой переписи: S1-S13 из [README.md §4](README.md) (шаблон README, TELEMETRY-SPEC, LOGGING-SPEC raw-first, FORK-SPEC, op-first, креды-политика, конфиги, деплой/откат, тесты, роадмап+промпт, WORKFLOW, Agent API, граф кода) + **GUI-паритет**: кнопки/опции GUI ориг → функциональный аналог у нас (полная функциональная миграция без потери функций).
 
 ## 4. ПРАВИЛА ЭКСПЛУАТАЦИИ (не забыть)
 

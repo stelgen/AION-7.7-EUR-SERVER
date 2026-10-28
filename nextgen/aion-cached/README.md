@@ -4,6 +4,13 @@
 > Прод-топология (23.10 вечер): **мир 0/8 — пара NPC+MAIN остановлена юзером**; cd2016+cdmirror+cachedshadow живы. При подъёме мира CacheD = копия-2016 за cdmirror (ориг), наша тень = пассив :2018/2019/2020. Из кеш-семейства в проде НАШ только aion-accache :2220.
 > Запуск чата: `WORKFLOW: cached` ([PROMPT.md](PROMPT.md)) · Фазы/теории: [ROADMAP.md](ROADMAP.md) · Соседи: Server64 = [aion-main](../aion-main/README.md), NPCSvr = [aion-npc](../aion-npc/README.md).
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## 📊 Фазы
 
 | Фаза | Статус | Суть |

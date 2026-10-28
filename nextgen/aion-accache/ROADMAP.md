@@ -118,3 +118,11 @@ corpus (два чара = сравнение полей) → 16/16» ВЫПОЛ�
 - Эмиттеры: payload.go (BuildCharCustomSavedPush/BuildCharCreatedPush/BuildCharInfoRefreshPush/BuildConfirmLunaRewardPush) + хендлеры hVersion/hCharLogin (server.go) + cache.UserInfo (RAM-срез global_user_data: lastLogin/maxLevel; SQLStore R3 — SELECT из global_user_data).
 - Тесты: payload + server — все зелёные, vet чисто; **TestR4ReplayCapture: our=16 frames, matched 16/16 (100%)**.
 - Остаток R4 (live): fork A/B с живым оригом (после R3 SQLStore) + T2-канал (опц.).
+
+## 🖱 GUI-паритет — полная функциональная миграция (правило юзера 28.10)
+
+> У ориг-приложения в GUI есть кнопки/опции — каждая должна получить функциональный аналог в нашей замене (функционал ориг НЕ теряем; само GUI-окно не нужно — наши сервисы headless, что ок и даже плюс для session-0). Политика: [../WORKFLOW.md §5](../WORKFLOW.md).
+
+- ⬜ R-GUI-1: инвентаризация GUI ориг (noVNC-скриншоты окна/меню; семантика каждой кнопки/опции — PDB publics: dialog/WinProc-хендлеры) → таблица «кнопка → что делает → где аналог у нас» (сюда или в RESEARCH.md).
+- ⬜ R-GUI-2: функциональный аналог каждой кнопки (op-кнопка / команда op-API / конфиг / SQL-действие) + тест; непокрытое = блокер.
+

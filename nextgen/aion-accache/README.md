@@ -3,6 +3,13 @@
 ✅ **R5 СВИТЧ ✅ 22.10: ПРОД = aion-accache :2220** (задача AionAccacheProd, ориг AccountCacheServer отведён; контрольный логин чист: 0 db.err, ll/lo = сек-в-сек штампов НАШИХ записей — Т16/Т17 ✅, trade=70 сохранён — Т23 ✅) · R4 live A/B ✅ (VERDICT байт-в-байт, 3 раунда) · R4 offline ✅ replay 16/16 (100%) · R3 SQLStore ✅ (EXEC @pN) — 4 XFAIL-пуша реализованы и посажены на golden (TestR4PushGoldens + TestR4ReplayCapture): ACP_13 (0x0D, [ts] константа 0x640831AE, пуш сразу после VERSION-ответа), ACP_15 (0x0F, [charRef][0x000A07EA][3] при CHAR_LOGIN), ACP_20 (0x14, 56Б: [charRef][..][lastLogin][..][1][..][flag][maxLevel] — lastLogin из global_user_data.last_login_time, maxLevel=MAX(user_level) аккаунта), CONFIRM_LUNA_REWARD (0x1C, [accId][charId=charRef&0xFFFF][u16 0]) — corpus capture-20261022 (254КБ, 2 чара × 3 логина + logout-кластер). Остаток: R3 SQLStore (go-mssqldb + UserInfo из global_user_data), live A/B, R5 свитч.
 Статус трека: [ROADMAP.md](ROADMAP.md). Факты: RESEARCH.md (§6 сурс-свип, §9-11).
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## Канон (доказано дизasmом, не догадки)
 
 - **Wire**: `[u16 N LE][u16 cmd LE][u8 0xEB][u16 ~cmd LE][payload]`, N = ПОЛНАЯ длина кадра вкл. len-поле (тело = N-2; «lenMinus2» = артефакт R1, исправлено дизasmом OnRead в R2.5); лимит 0x2000; cmd ≥ 0x6C reject.

@@ -3,6 +3,13 @@
 Один Go-исходник → `GOOS=windows/linux`. Анализ протокола: [../LOGD-REWRITE-ANALYSIS.md](RESEARCH.md).
 Статус-снимок: [../LOGD-STATUS-SNAPSHOT.md](SNAPSHOT.md). Стандарт телеметрии: [../TELEMETRY-SPEC.md](../TELEMETRY-SPEC.md).
 
+## 🧭 Граф кода (S13)
+
+- Код компонента навигируется AST-графом `graphify`, НЕ чтением всего пакета: `query`/`explain`/`path`/`god-nodes` — правила и команды: [../WORKFLOW.md §6.1](../WORKFLOW.md).
+- ПЕРЕД правкой символа — `graphify affected <имя>` (кто зависит = что сломается); ПОСЛЕ правки — `graphify update .` в этой папке; `graphify-out/` = кэш (в гит не кладётся).
+- Граф = навигатор, не арбитр: семантика протокола = канон этого README + live capture.
+
+
 ## Статус: ПРОД (замена штатная) + Л1–Л4 (05.10.2026)
 
 - ✅ Протокол 100%, DB-слой (freedisk/serverstatus/InitializeCount), боевая замена на :2051 (см. снимок);

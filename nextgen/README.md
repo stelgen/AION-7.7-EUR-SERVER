@@ -102,6 +102,7 @@ flowchart LR
 | S10 | **Роадмап + промпт** | На каждый компонент: ROADMAP (фазы R0..R6 + журнал теорий) + PROMPT.md (копипаст нового чата); закрытые помечать ⚠ АРХИВ; новые компоненты — self-contained (всё в папке) | [README-TEMPLATE.md](README-TEMPLATE.md) |
 | S11 | **WORKFLOW (процесс)** | Запуск чата `WORKFLOW: <имя>`; пульс каждого сообщения; теорий-журнал; «исправил = удалил» из всех доков сразу; самоорганизация под цель | [WORKFLOW.md](WORKFLOW.md) |
 | S12 | **Agent API (канал VM)** | Взаимодействие с VM — HTTP/JSON `:10200/api/agent/*` (run/file/ls/log, токен `X-Agent-Token`, обёртка `agent-cli.sh`), НЕ ssh-консоль: без кавычек/кодировок, параллельно. Firewall = Any (NAT-защита, токен — единственный рубеж); audit = `C:\aionop\op.log`. Новый шаг на VM = ps1 через `aionput`+`aionrun`. SSH = только деплой op | [AGENT-SPEC.md](AGENT-SPEC.md) |
+| S13 | **Граф кода (graphify)** | Навигация по AST-графу вместо чтения всего кода: `explain`/`query`/`path`/`god-nodes`; **`affected` ПЕРЕД правкой, `update .` ПОСЛЕ правки**; граф = кэш (gitignore), арбитр = канон/capture | [WORKFLOW.md §6.1](WORKFLOW.md) |
 
 ## 5. ГДЕ ЧТО ЛЕЖИТ (карта артефактов)
 
@@ -114,6 +115,7 @@ flowchart LR
 | **Capture-дампы** | нет (gitignore) | `C:\Temp\capcap\`, `C:\logd-capture\` | `~/STELGEN/tmp/` (logd-io, aion-vm, captcha-capture) |
 | **Креды** | ❌ НИ-НИ (политика) | ✅ `D:\SAION\creds\` — ЕДИНСТВЕННОЕ место | ssh-ключ `~/.ssh/id_ed25519` (dimini-agent), RZ-сессия `/tmp/rz.txt` |
 | **Prompts (копипаст чатов)** | `PROMPT.md` в папке каждого компонента (self-contained, симметрия-контракт; архивные — в `docs/` компонента) | — | — |
+| **Граф кода (кэш graphify)** | ❌ gitignore — перестраивается `graphify update .` (S13) | — | `nextgen/<svc>/graphify-out/` (graph.json + GRAPH_REPORT.md) |
 
 ## 6. ДАЛЬНЕЙШИЙ ПОРЯДОК (сводка; детали = [ROADMAP.md](ROADMAP.md))
 
@@ -181,3 +183,4 @@ README.md + ROADMAP.md (или SNAPSHOT.md/архитектура-док) + PROM
 4. Сталкиваешься со «старым» фактом, противоречащим живым данным → исправляешь на месте, помечаешь в леджере/доке, не оставляешь ложь в доках.
 5. Статусы честные: ✅ в бою / 🟡 каркас / 🔬 ресёрч / ⬜ не тронут; проценты по фазам роадмапа.
 6. **Канал VM = Agent API (S12)**: `source nextgen/agent-cli.sh` → `aionrun`/`aionput`/`aionlog`; инлайн-PS через ssh НЕ использовать никогда (кавычки/кодировки = источник ошибок); ssh — только деплой самого op.
+7. **Код правишь через граф (S13)**: `graphify affected <символ>` ПЕРЕД правкой → `graphify update .` ПОСЛЕ — весь код в контекст не тащить ([WORKFLOW §6.1](WORKFLOW.md)).

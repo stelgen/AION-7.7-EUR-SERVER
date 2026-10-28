@@ -18,3 +18,5 @@
 !scripts/*.ps1
 !scripts/*.bat
 artifacts/
+# graphify code-graph cache (per-component, rebuilt with `graphify update .`)
+graphify-out/
