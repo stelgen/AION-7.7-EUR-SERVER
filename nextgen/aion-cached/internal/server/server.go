@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"encoding/binary"
+	"encoding/hex"
 
 	"aion-cached/internal/db"
 	"aion-cached/internal/rpc"
@@ -195,6 +196,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 					if len(pending) < total {
 						break // ждём ещё байт
 					}
+					log.Printf("[cached] %s RAWR> type=%d total=%d hex=%s", name, typ, total, rawHead(pending[:total]))
 					payload := append([]byte(nil), pending[4:total]...)
 					pending = pending[total:]
 					_ = relayWireDispatch(&mode, typ, payload)
@@ -213,6 +215,8 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				log.Printf("[cached] %s reject frame: %v — closing conn (canon L2 behavior)", name, ferr)
 				return
 			}
+			// R5 #6 (v19): RAW-лог КАЖДОГО кадра (hex) — вердикт зависших цепочек вслепую невозможен.
+			log.Printf("[cached] %s RAW> cmd=%d total=%d hex=%s", name, frame.Cmd, consumed, rawHead(pending[:consumed]))
 			pending = pending[consumed:]
 
 			// R4.5: сессионные поля из cmd=288 (первый кадр): [X u32][a u32][accId u16]
@@ -332,6 +336,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				resp = append(resp, npcResp...)
 			}
 			if len(resp) > 0 {
+				log.Printf("[cached] %s RAW< total=%d frames=%d hex=%s", name, len(resp), countFrames(resp), rawHead(resp))
 				if _, werr := conn.Write(resp); werr != nil {
 					log.Printf("[cached] %s write error: %v", name, werr)
 					return
@@ -343,6 +348,29 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 			return
 		}
 	}
+}
+
+// rawHead — hex-превью кадра для RAW-лога (R5 #6, v19): кадры ≤ 256Б полностью,
+// крупные — head 96Б + tail 16Б (endpoints достаточны для сверки цепочек).
+func rawHead(b []byte) string {
+	const full = 256
+	if len(b) <= full {
+		return hex.EncodeToString(b)
+	}
+	return hex.EncodeToString(b[:96]) + "..." + hex.EncodeToString(b[len(b)-16:])
+}
+
+// countFrames — число wire-кадров в конкатенированном блобе (walk по u16 total).
+func countFrames(b []byte) int {
+	n := 0
+	for i := 0; i+wire.HeaderWire <= len(b); n++ {
+		total := int(binary.LittleEndian.Uint16(b[i : i+2]))
+		if total < wire.HeaderWire || i+total > len(b) {
+			break
+		}
+		i += total
+	}
+	return n
 }
 
 // isErrShort — проверка ошибки «нужно ещё байт» (фолбек, если err-тип не раскрыт).
