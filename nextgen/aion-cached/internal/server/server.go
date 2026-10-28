@@ -178,6 +178,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	sessSet := false
 	var npcReplay *rpc.NpcSrvReplay // R4.7.1: NPCSvr-коннект (переключается по cmd=201)
 	emittedWorldInit := false       // R5: мир-init отработан в этом коннекте
+	var pushedVersion bool          // R5 #8 v20: RP_VERSION пуш выдан (после первого C282)
 	var startup rpc.StartupTracker  // R4.6: детектор циклов мир-init (новый X = рестарт пары)
 
 	for {
@@ -249,6 +250,14 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				npcResp = npcReplay.EmitNpcSrv(frame.Cmd, frame.Payload)
 			}
 			resp := Route(ch, frame)
+			// R5 #8 v20: Server64 висит на «Waiting for Cache Version» и не шлёт init
+			// (C201/C215) — корень замка #6. В эталоне версия приходит по 2006-каналу
+			// (C215→O16, 27Б). Выдаём RP_VERSION превентивно после первого C282-полла.
+			if ch == ChanServer && frame.Cmd == 282 && !pushedVersion && npcReplay == nil {
+				pushedVersion = true
+				resp = append(resp, rpc.O16VersionFrame()...)
+				log.Printf("[cached] %s v20: пуш RP_VERSION (O16 27Б) после первого C282", name)
+			}
 			// R4/R4.5: read-path emission (chain + session-подстановки + acks Т39)
 			// R4.6.2: в NPCSvr-режиме login-path выключен (нельзя смешивать каналы)
 			if ch == ChanServer && sessSet && npcReplay == nil {
