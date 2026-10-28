@@ -155,6 +155,7 @@ func (s *Server) ServeOnTest(ch Channel) error {
 // Канон L2 C1: reject при bad size / bad csum → socket Close.
 func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 	defer conn.Close()
+	ra := conn.RemoteAddr().String() // R5 #12 v21: per-conn тег (кто именно тикает/поллит)
 	if ch == ChanAdmin {
 		// 2007 interactive = ТЕКСТОВЫЙ протокол (L2 C1 CAdminSocket.cpp канон:
 		// строки до '\n', packetId первым полем) — НЕ бинарный wire.
@@ -217,7 +218,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				return
 			}
 			// R5 #6 (v19): RAW-лог КАЖДОГО кадра (hex) — вердикт зависших цепочек вслепую невозможен.
-			log.Printf("[cached] %s RAW> cmd=%d total=%d hex=%s", name, frame.Cmd, consumed, rawHead(pending[:consumed]))
+			log.Printf("[cached] %s[%s] RAW> cmd=%d total=%d hex=%s", name, ra, frame.Cmd, consumed, rawHead(pending[:consumed]))
 			pending = pending[consumed:]
 
 			// R4.5: сессионные поля из cmd=288 (первый кадр): [X u32][a u32][accId u16]
@@ -345,7 +346,7 @@ func (s *Server) handleConn(conn net.Conn, ch Channel, name string) {
 				resp = append(resp, npcResp...)
 			}
 			if len(resp) > 0 {
-				log.Printf("[cached] %s RAW< total=%d frames=%d hex=%s", name, len(resp), countFrames(resp), rawHead(resp))
+				log.Printf("[cached] %s[%s] RAW< total=%d frames=%d hex=%s", name, ra, len(resp), countFrames(resp), rawHead(resp))
 				if _, werr := conn.Write(resp); werr != nil {
 					log.Printf("[cached] %s write error: %v", name, werr)
 					return
