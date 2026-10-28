@@ -14,18 +14,20 @@ ROADMAP §R5 #5); Server64 висел в autoShutdown-зависании → о�
 МИР 8/8 ЖИВ на копии-2016 (cd2016+cdmirror, тень v18 на 2018/2019/2020).
 
 ШАГИ:
-0. Прочитать README.md (канон) + ROADMAP.md (§R5 #6 вердикт v19 RAW) + память aion-cached.
-1. Статус VM (aionstatus): мир 8/8? тень v19 на 2018-2020? (не трогать мир без «го»).
-2. R5 #7 ОФФЛАЙН (без VM): разложить capture-окна по коннектам — фингерпринты
-   C282=Server64-полл, C201=NPCSvr-handshake — в worldinit-20261023.txt +
-   cdmirror-20261024-worldstart.log; найти ПЕРВЫЙ O-кадр Server64-коннекта (CacheD-пуш
-   при accept Server64, кандидат O16 RP_VERSION 27Б) — гипотеза замка «Server64 ждёт
-   Cache Version ⟷ NPCSvr ждёт Server64:2002» (§R5 #6).
-3. v20 = пуш при accept Server64 (по найденному канону) + проверка NPCSvr-accept-пуша
-   (C201→O28 в NpcSrvReplay есть) → vet/test → деплой scp (exe лочится).
-4. Свитч-тест повтор (по «го»): bak-канон конфига 2006/2007/2009 → пара → RAW-лог
-   (v19 уже пишет) → критерий «NPC Server Started» + 8/8 + ЛОГИН юзера. Откат = bak-r5c
-   + cdmirror/cd2016 + пара (канон в ROADMAP #5/#6).
+0. Прочитать README.md (канон) + ROADMAP.md (§R5 #8 вердикт) + память aion-cached.
+1. Статус VM (aionstatus): мир 8/8? тень v20 на 2018-2020? (не трогать мир без «го»).
+2. R5 #9 ГЛАВНОЕ: PDB publics Server64 (VM, manifest-pdb-big.md) → имена функций
+   кластера 0x4F970E-0x4FA100 (wait-функции «Waiting for …», xref insnVA 0x4F9A02,
+   печать call 0x4f51f0 «Waiting for %s») + гейт-глобалов 0x2A703B4/0x5EAFA60 →
+   ТОЧНОЕ условие выхода из «Waiting for Cache Version».
+3. Альтернативный живой тест (по «го»): логин юзера на копии-2016 при RAW-тени
+   (v20 уже пишет) → сверить Server64-init-кадры с #6.
+4. v21-кандидаты: ответ на первый кадр Server64 «ack+version» пачкой (O196-стиль),
+   или эмуляция IC-коннектов этапа (Connecting to Interchange master+db×7 — Server64
+   их не начинает). Откат = bak-r5d + cdmirror/cd2016 + пара (отработан 3 раза).
+5. ГОТЧИ: exe лочится (стоп-пуш-старт), accstop убивает прод-accache (только op),
+   NPC-schtasks может не подняться с первого раза — старт повторять, дубли процессов
+   проверять после рестартов, op-детект тяжелых врёт — верить netstat+tasklist.
 ГОТЧИ: exe лочится (стоп-пуш-старт), accstop убивает прод-accache (только op),
 aionput exe >5МБ = scp, body=frame[2:] ⇒ payload@body[5], X LE as-is (не реверс),
 restart_pair блокируется в LOADING-окне — обход руками stop main/start npc/start main,
